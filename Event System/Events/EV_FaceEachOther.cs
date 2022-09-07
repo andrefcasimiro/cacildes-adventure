@@ -14,7 +14,6 @@ namespace AF
             var npcLookPos = player.transform.position - npc.transform.position;
             npcLookPos.y = 0;
 
-
             var playerLookPos = npc.transform.position - player.transform.position;
             playerLookPos.y = 0;
 

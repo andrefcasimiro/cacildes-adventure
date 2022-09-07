@@ -22,6 +22,9 @@ namespace AF
     [CreateAssetMenu(menuName = "Weapon / New Weapon")]
     public class Weapon : Item
     {
+        // Stamina
+        public float staminaCost = 20f;
+
         // Physical
         public float physicalAttack;
 

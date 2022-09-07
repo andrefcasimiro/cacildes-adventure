@@ -11,20 +11,21 @@ namespace AF
         public NavMeshAgent navMeshAgent;
 
         [HideInInspector]
-        public List<EventBase> events = new List<EventBase>();
+        public List<Waypoint> waypoints = new List<Waypoint>();
 
+        [HideInInspector]
         public bool isRunning = false;
 
-        private EventBase currentEvent;
+        private Waypoint currentWaypoint;
 
         private void Awake()
         {
-            EventBase[] gatheredEvents = GetComponents<EventBase>();
+            Waypoint[] gatheredWaypoints = GetComponentsInChildren<Waypoint>();
 
-            this.events.Clear();
-            foreach (EventBase ev in gatheredEvents)
+            this.waypoints.Clear();
+            foreach (Waypoint waypoint in gatheredWaypoints)
             {
-                events.Add(ev);
+                this.waypoints.Add(waypoint);
             }
         }
 
@@ -32,12 +33,12 @@ namespace AF
         {
             isRunning = true;
 
-            foreach (EventBase ev in events)
+            foreach (Waypoint waypoint in waypoints)
             {
-                if (ev != null)
+                if (waypoint != null)
                 {
-                    currentEvent = ev;
-                    yield return StartCoroutine(ev.Dispatch());
+                    this.currentWaypoint = waypoint;
+                    yield return StartCoroutine(currentWaypoint.Dispatch());
                 }
             }
 
@@ -68,33 +69,33 @@ namespace AF
 
         public IEnumerator ResumeFromLastEvent()
         {
-            var indexOfCurrentEvent = events.IndexOf(currentEvent);
+            var indexOfCurrentWaypoint = waypoints.IndexOf(currentWaypoint);
 
-            if (indexOfCurrentEvent != -1)
+            if (indexOfCurrentWaypoint != -1)
             {
-                var nextIndex = indexOfCurrentEvent;
+                var nextIndex = indexOfCurrentWaypoint;
 
-                if (nextIndex <= events.Count)
+                if (nextIndex <= waypoints.Count)
                 {
-                    EventBase eventToResume = events[indexOfCurrentEvent];
+                    Waypoint waypointToResume = waypoints[indexOfCurrentWaypoint];
 
-                    if (eventToResume != null)
+                    if (waypointToResume != null)
                     {
                         // Create a copy
-                        List<EventBase> remainingEvents = new List<EventBase>();
-                        foreach (EventBase ev in events)
+                        List<Waypoint> remainingWaypoints = new List<Waypoint>();
+                        foreach (Waypoint ev in this.waypoints)
                         {
-                            remainingEvents.Add(ev);
+                            remainingWaypoints.Add(ev);
                         }
 
-                        remainingEvents.RemoveRange(0, indexOfCurrentEvent);
+                        remainingWaypoints.RemoveRange(0, indexOfCurrentWaypoint);
 
-                        foreach (EventBase ev in remainingEvents)
+                        foreach (Waypoint waypoint in remainingWaypoints)
                         {
-                            if (ev != null)
+                            if (waypoint != null)
                             {
-                                currentEvent = ev;
-                                yield return StartCoroutine(ev.Dispatch());
+                                currentWaypoint = waypoint;
+                                yield return StartCoroutine(waypoint.Dispatch());
                             }
                         }
                     }

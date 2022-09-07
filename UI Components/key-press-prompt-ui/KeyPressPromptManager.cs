@@ -4,19 +4,13 @@ using UnityEngine.UI;
 namespace AF
 {
 
-    public class KeyPressPromptManager : InputListener
+    public class KeyPressPromptManager : InputListener, ISaveable
     {
         UIDocumentKeyPressPromptUI uiDocumentKeyPressPromptUI => GetComponent<UIDocumentKeyPressPromptUI>();
 
-        private void Update()
+        private void Start()
         {
-            if (hasPressedConfirmButton)
-            {
-                if (uiDocumentKeyPressPromptUI.IsVisible())
-                {
-                    uiDocumentKeyPressPromptUI.Disable();
-                }
-            }
+            this.Close();
         }
 
         public void ShowNotification(string message)
@@ -24,9 +18,19 @@ namespace AF
             uiDocumentKeyPressPromptUI.Show(message);
         }
 
+        public bool IsVisible()
+        {
+            return uiDocumentKeyPressPromptUI.IsVisible();
+        }
+
         public void Close()
         {
             uiDocumentKeyPressPromptUI.Disable();
+        }
+
+        public void OnGameLoaded(GameData gameData)
+        {
+            this.Close();
         }
     }
 

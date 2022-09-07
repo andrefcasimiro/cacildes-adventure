@@ -32,9 +32,12 @@ namespace AF
         public Label occult;
         public Label charisma;
         public Label attackPower;
-        public Label baseAttack;
+        public Label physicalAttack;
+        public Label weaponAttack;
         public Label scalingBonus;
         public Label defenseAbsorption;
+        public Label physicalDefense;
+        public Label equipmentDefense;
 
         MenuManager menuManager;
 
@@ -76,10 +79,18 @@ namespace AF
             SetupButtonClick(this.managePartyButton, () => { });
 
             this.saveGameButton = root.Q<Button>("SaveGameButton");
-            SetupButtonClick(this.saveGameButton, () => { SaveSystem.instance.SaveGameData();  });
+            SetupButtonClick(this.saveGameButton, () => {
+                SaveSystem.instance.SaveGameData();
+                this.Disable();
+
+                FindObjectOfType<UIDocumentPlayerHUD>(true).Enable();
+            });
 
             this.loadGameButton = root.Q<Button>("LoadGameButton");
-            SetupButtonClick(this.loadGameButton, () => { SaveSystem.instance.LoadGameData();  });
+            SetupButtonClick(this.loadGameButton, () => {
+                SaveSystem.instance.LoadGameData();
+                this.Disable();
+            });
 
             this.exitGameButton = root.Q<Button>("ExitGameButton");
             SetupButtonClick(this.exitGameButton, () => { });
@@ -98,11 +109,14 @@ namespace AF
             this.arcane = root.Q<VisualElement>("Arcane").Q<Label>("Value");
             this.charisma = root.Q<VisualElement>("Charisma").Q<Label>("Value");
             this.attackPower = root.Q<VisualElement>("AttackPower").Q<Label>("Value");
-            this.baseAttack = root.Q<VisualElement>("WeaponBaseAttack").Q<Label>("Value");
+            this.physicalAttack = root.Q<VisualElement>("PhysicalAttack").Q<Label>("Value");
+            this.weaponAttack = root.Q<VisualElement>("WeaponBaseAttack").Q<Label>("Value");
             this.scalingBonus = root.Q<VisualElement>("WeaponScalingBonus").Q<Label>("Value");
             this.scalingBonus.text = "+0 (STR: C)\n+0 (DEX: C)";
 
             this.defenseAbsorption = root.Q<VisualElement>("DefenseAbsorption").Q<Label>("Value");
+            this.physicalDefense = root.Q<VisualElement>("PhysicalDefense").Q<Label>("Value");
+            this.equipmentDefense = root.Q<VisualElement>("EquipmentDefense").Q<Label>("Value");
 
             base.Disable();
         }
@@ -113,7 +127,7 @@ namespace AF
             this.currentExperience.text = PlayerStatsManager.instance.currentExperience + "/" + PlayerStatsManager.instance.GetRequiredExperienceForNextLevel();
             this.hp.text = PlayerStatsManager.instance.GetCurrentHealth() + "/" + PlayerStatsManager.instance.GetMaxHealthPoints();
             this.mp.text = PlayerStatsManager.instance.currentMagic + "/" + PlayerStatsManager.instance.GetMaxMagicPoints();
-            this.stamina.text = PlayerStatsManager.instance.currentStamina + "/" + PlayerStatsManager.instance.GetMaxStaminaPoints();
+            this.stamina.text = PlayerStatsManager.instance.GetCurrentStamina() + "/" + PlayerStatsManager.instance.GetMaxStaminaPoints();
             this.currentExperience.text = PlayerStatsManager.instance.currentExperience + "/" + PlayerStatsManager.instance.GetRequiredExperienceForNextLevel();
             this.reputation.text = PlayerStatsManager.instance.currentReputation.ToString();
             this.vitality.text = PlayerStatsManager.instance.vitality.ToString();
@@ -126,14 +140,19 @@ namespace AF
 
             var weapon = PlayerInventoryManager.instance.currentWeapon;
             this.attackPower.text = PlayerStatsManager.instance.GetWeaponAttack(weapon).ToString();
-            this.baseAttack.text = weapon.physicalAttack.ToString() + " (" + weapon.name + ")";
+            this.physicalAttack.text = " " + PlayerStatsManager.instance.GetLevelPhysicalAttack().ToString();
+            this.weaponAttack.text = "+" + weapon.physicalAttack.ToString() + " (" + weapon.name + ")";
 
             var strengthBonus = PlayerStatsManager.instance.GetFinalStrengthBonusDifference(weapon);
             var strengthScaling = weapon.strengthScaling;
             var dexBonus = PlayerStatsManager.instance.GetFinalDexterityBonusDifference(weapon);
             var dexScaling = weapon.dexterityScaling;
-            this.scalingBonus.text = "+"+strengthBonus+" (STR: "+strengthScaling+")\n+"+dexBonus+" (DEX: "+dexScaling+")";
+            this.scalingBonus.text = "+"+strengthBonus+" (STR: "+strengthScaling+") / +"+dexBonus+" (DEX: "+dexScaling+")";
+
             this.defenseAbsorption.text = PlayerStatsManager.instance.GetDefenseAbsorption().ToString();
+            this.physicalDefense.text = " " + PlayerStatsManager.instance.GetLevelPhysicalDefense().ToString();
+            this.equipmentDefense.text = "+" + PlayerStatsManager.instance.GetEquipmentDefenseAbsorption().ToString();
+
         }
 
         public override void Enable()

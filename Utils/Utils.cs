@@ -15,19 +15,17 @@ namespace AF
             origin.rotation = rotation;
         }
 
-        public static bool PlayerIsSighted(Transform enemy, Player player, LayerMask obstructionMask)
+        public static bool PlayerIsSighted(Enemy enemy, Player player, LayerMask obstructionMask)
         {
-            float fovAngle = 100f;
-            float sightDistance = 20f;
 
-            if (Vector3.Distance(enemy.transform.position, player.headTransform.position) > sightDistance)
+            if (Vector3.Distance(enemy.transform.position, player.transform.position) > enemy.sightDistance)
             {
                 return false;
             }
 
-            Vector3 directionToTarget = (player.headTransform.position - enemy.transform.position).normalized;
+            Vector3 directionToTarget = (player.transform.position - enemy.transform.position);
 
-            if (Vector3.Angle(enemy.transform.forward, directionToTarget) < fovAngle / 2)
+            if (Vector3.Angle(enemy.transform.forward, directionToTarget) < enemy.fovAngle)
             {
                 float distanceToTarget = Vector3.Distance(enemy.transform.position, player.transform.position);
 

@@ -20,13 +20,16 @@ namespace AF
         Strength,
         Dexterity,
         Arcane,
+        Charisma,
+        Luck,
     }
 
     public enum Action
     {
         Restore,
         Regenerate,
-        Increase
+        Increase,
+        RemoveStatus
     }
 
     public enum ValueType
@@ -48,9 +51,10 @@ namespace AF
 
         public ValueType valueType;
 
+        public StatusEffect statusEffectToRemove;
+
         [Header("Regenerate Settings")]
         public float effectDuration = 0f;
-        public float ratePerSecond;
 
         [Header("FX")]
         public GameObject particleOnConsume;
@@ -58,14 +62,11 @@ namespace AF
 
         public void OnConsume()
         {
+            PlayerInventoryManager.instance.RemoveItem(this, 1);
+
             if (sfxOnConsume != null)
             {
-                SFXManager sfxManager = FindObjectOfType<SFXManager>(true);
-
-                if (sfxManager != null)
-                {
-                    sfxManager.PlaySound(sfxOnConsume, null);
-                }
+                BGMManager.instance.PlaySound(sfxOnConsume, null);
             }
 
             if (particleOnConsume != null)
@@ -73,30 +74,35 @@ namespace AF
                 Instantiate(particleOnConsume, FindObjectOfType<Player>(true).transform);
             }
 
-            if (effectDuration != 0f)
+            if (action == Action.RemoveStatus)
             {
-                PlayerStatsManager.instance.appliedConsumables.Add(this);
-            }
-            else if (stat != Stat.None)
-            {
-               switch (stat)
+                if (statusEffectToRemove != null)
                 {
-                    case Stat.Health:
-                        if (valueType == ValueType.Percentage)
-                        {
-                            PlayerStatsManager.instance.RestoreHealthPercentage(value);
-                        }
-                        else
-                        {
-                            PlayerStatsManager.instance.RestoreHealthPoints(value);
-                        }
-                        break;
-                    default:
-                        return;
+                    PlayerStatsManager.instance.RemoveStatusEffect(statusEffectToRemove);
+                    return;
                 }
             }
 
-            PlayerInventoryManager.instance.currentItems.Remove(this);
+            if (effectDuration != 0f)
+            {
+                PlayerStatsManager.instance.AddConsumable(this);
+                return;
+            }
+
+            if (stat == Stat.Health)
+            {
+                if (valueType == ValueType.Percentage)
+                {
+                    PlayerStatsManager.instance.RestoreHealthPercentage(value);
+                    return;
+                }
+
+                if (valueType == ValueType.Point)
+                {
+                    PlayerStatsManager.instance.RestoreHealthPoints(value);
+                    return;
+                }
+            }
         }
     }
 

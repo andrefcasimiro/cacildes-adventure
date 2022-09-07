@@ -6,7 +6,8 @@ namespace AF
     {
         private void LateUpdate()
         {
-            transform.forward = new Vector3(Camera.main.transform.forward.x, transform.forward.y, Camera.main.transform.forward.z);
+            transform.LookAt(transform.position + Camera.main.transform.rotation * Vector3.forward, Camera.main.transform.rotation * Vector3.up);
+
         }
     }
 

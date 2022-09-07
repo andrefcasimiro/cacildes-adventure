@@ -9,6 +9,7 @@ namespace AF
         AUTOMATIC,
         ON_KEY_PRESS,
         ON_PLAYER_TOUCH,
+        ON_TARGET_TOUCH,
     }
 
     public class EventPage : InputListener
@@ -35,6 +36,8 @@ namespace AF
         [HideInInspector] public bool canInteract = false;
 
         KeyPressPromptManager keyPressPromptManager;
+
+        public bool debug = false;
 
         private void Awake()
         {
@@ -77,7 +80,7 @@ namespace AF
             Player player = FindObjectOfType<Player>();
             if (player != null)
             {
-                player.MarkAsActive();
+                player.SetBusy(false);
                 player.playerCombatManager.EnableCombat();
             }
 
@@ -102,6 +105,11 @@ namespace AF
 
         public IEnumerator DispatchEvents()
         {
+            if (debug)
+            {
+                Debug.Log("event started: " + this.eventParent.eventName);
+            }
+
             if (moveRoute != null)
             {
                 moveRoute.Interrupt();
@@ -109,25 +117,39 @@ namespace AF
 
             keyPressPromptManager.Close();
 
-            Player player = FindObjectOfType<Player>();
-            if (player != null)
+
+            if (eventTrigger != EventTrigger.ON_PLAYER_TOUCH)
             {
-                player.MarkAsBusy();
+                Player player = FindObjectOfType<Player>();
+                if (player != null)
+                {
+                    player.SetBusy(true);
+                }
             }
 
             isRunning = true;
 
             foreach (EventBase ev in events)
             {
+                if (debug)
+                {
+                    Debug.Log("event entry: ");
+                    Debug.Log(ev.name);
+                }
+
                 if (ev != null)
                 {
                     yield return StartCoroutine(ev.Dispatch());
                 }
             }
 
-            if (player != null)
+            if (eventTrigger != EventTrigger.ON_PLAYER_TOUCH)
             {
-                player.MarkAsActive();
+                Player player = FindObjectOfType<Player>();
+                if (player != null)
+                {
+                    player.SetBusy(false);
+                }
             }
 
             isRunning = false;
@@ -136,7 +158,6 @@ namespace AF
             {
                 // Return movement route
                 moveRoute.ResumeCycle();
-
             }
         }
 

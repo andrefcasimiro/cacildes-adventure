@@ -17,11 +17,13 @@ namespace AF
             if (playMapMusic)
             {
                 SceneSettings sceneSettings = FindObjectOfType<SceneSettings>(true);
-
-                BGMManager.instance.PlayMusic(sceneSettings.sceneMusic);
+                sceneSettings.PlaySceneMusic();
             }
             else
             {
+                SceneSettings sceneSettings = FindObjectOfType<SceneSettings>(true);
+                sceneSettings.StopAllCoroutines();
+
                 BGMManager.instance.PlayMusic(bgm);
             }
         }

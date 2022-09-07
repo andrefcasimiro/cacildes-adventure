@@ -5,7 +5,15 @@ using System.Linq;
 namespace AF
 {
 
-    public class PlayerInventoryManager : MonoBehaviour
+    [System.Serializable]
+    public class ItemEntry
+    {
+        public Item item;
+
+        public int amount;
+    }
+
+    public class PlayerInventoryManager : InputListener, ISaveable
     {
         // Holds a database of all items. Used by the Save / Load system to have a reference of the corresponding item's scriptable object
         public List<Item> itemsDatabase = new List<Item>();
@@ -24,7 +32,33 @@ namespace AF
             }
         }
 
-        public List<Item> currentItems = new List<Item>();
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            inputActions.PlayerActions.SwitchQuickItem.performed += ctx =>
+            {
+                Player player = FindObjectOfType<Player>(true);
+                if (player.IsBusy())
+                {
+                    return;
+                }
+
+                SwitchFavoriteItem();
+            };
+            inputActions.PlayerActions.ConsumeQuickItem.performed += ctx =>
+            {
+                Player player = FindObjectOfType<Player>(true);
+                if (player.IsBusy())
+                {
+                    return;
+                }
+
+                ConsumeFavoriteItem();
+            };
+        }
+
+        public List<ItemEntry> currentItems = new List<ItemEntry>();
         public List<Item> currentFavoriteItems = new List<Item>();
 
         // EQUIPMENT
@@ -42,59 +76,227 @@ namespace AF
         {
             // Get starting items from equipment manager
             GetStartingItemsFromEquipmentManager();
+
         }
+
+        public void AddItem(Item item, int amount)
+        {
+            int itemEntryIndex = this.currentItems.FindIndex(_itemEntry => _itemEntry.item == item);
+
+            if (itemEntryIndex != -1)
+            {
+                this.currentItems[itemEntryIndex].amount += amount;
+            }
+            else
+            {
+                ItemEntry itemEntry = new ItemEntry();
+                itemEntry.item = item;
+                itemEntry.amount = amount;
+
+                this.currentItems.Add(itemEntry);
+            }
+
+            UpdateQuickItemsGUI();
+        }
+
+        public void RemoveItem(Item item, int amount)
+        {
+            int itemEntryIndex = this.currentItems.FindIndex(_itemEntry => _itemEntry.item == item);
+
+            if (itemEntryIndex == -1)
+            {
+                return;
+            }
+
+            if (this.currentItems[itemEntryIndex].amount <= 1)
+            {
+                // Remove item 
+                this.currentItems.RemoveAt(itemEntryIndex);
+
+                // Remove item from favorite
+                var idxOfThisItemInFavorites = this.currentFavoriteItems.IndexOf(item);
+                if (idxOfThisItemInFavorites != -1)
+                {
+                    this.currentFavoriteItems.Remove(item);
+
+                    if (idxOfThisItemInFavorites == 0)
+                    {
+                        SwitchFavoriteItem();
+                    }
+                }
+            }
+            else
+            {
+                this.currentItems[itemEntryIndex].amount -= amount;
+            }
+
+            UpdateQuickItemsGUI();
+        }
+
+        #region Favorite Items Logic
+        public void ToggleFavoriteItem(Item item)
+        {
+            var idx = this.currentFavoriteItems.IndexOf(item);
+
+            if (idx == -1)
+            {
+                this.currentFavoriteItems.Add(item);
+            }
+            else
+            {
+                this.currentFavoriteItems.Remove(item);
+            }
+
+            UpdateQuickItemsGUI();
+        }
+
+        public void FavoriteItemAndSetItAsCurrent(Item item)
+        {
+            var idx = this.currentFavoriteItems.IndexOf(item);
+
+            if (idx != -1)
+            {
+                this.currentFavoriteItems.RemoveAt(idx);
+            }
+
+            // Reorder items
+            Item[] cachedFavoriteItems = new Item[this.currentFavoriteItems.Count];
+            this.currentFavoriteItems.CopyTo(cachedFavoriteItems);
+
+            this.currentFavoriteItems.Clear();
+            this.currentFavoriteItems.Add(item);
+            foreach (var cachedFavoriteItem in cachedFavoriteItems)
+            {
+                this.currentFavoriteItems.Add(cachedFavoriteItem);
+            }
+
+            UpdateQuickItemsGUI();
+        }
+
+        public void SwitchFavoriteItem()
+        {
+            if (this.currentFavoriteItems.Count <= 0)
+            {
+                return;
+            }
+
+            Item firstItem = this.currentFavoriteItems.First();
+            this.currentFavoriteItems.Remove(firstItem);
+            this.currentFavoriteItems.Add(firstItem);
+
+            UpdateQuickItemsGUI();
+        }
+
+        public void ConsumeFavoriteItem()
+        {
+            if (currentFavoriteItems.Count > 0)
+            {
+                Item currentItem = currentFavoriteItems[0];
+
+                ItemEntry itemEntry = this.currentItems.Find(item => item.item.name == currentItem.name);
+
+                if (itemEntry.amount <= 1)
+                {
+                    currentFavoriteItems.Remove(currentItem);                
+                }
+
+                Consumable consumableItem = (Consumable)currentItem;
+
+                consumableItem.OnConsume();
+            }
+
+            UpdateQuickItemsGUI();
+        }
+
+        public void UpdateQuickItemsGUI()
+        {
+            UIDocumentPlayerHUD uiDocumentPlayerHud = FindObjectOfType<UIDocumentPlayerHUD>(true);
+            if (uiDocumentPlayerHud != null)
+            {
+                uiDocumentPlayerHud.UpdateQuickItems();
+            }
+        }
+
+        #endregion
 
         #region Default Equipment Logic
         void GetStartingItemsFromEquipmentManager()
         {
             if (currentWeapon != null)
             {
-                this.currentItems.Add(currentWeapon);
+                ItemEntry itemEntry = new ItemEntry();
+                itemEntry.item = currentWeapon;
+                itemEntry.amount = 1;
+
+                this.currentItems.Add(itemEntry);
             }
             if (currentShield != null)
             {
-                this.currentItems.Add(currentShield);
+                ItemEntry itemEntry = new ItemEntry();
+                itemEntry.item = currentShield;
+                itemEntry.amount = 1;
+
+                this.currentItems.Add(itemEntry);
             }
             if (currentHelmet != null)
             {
-                this.currentItems.Add(currentHelmet);
+                ItemEntry itemEntry = new ItemEntry();
+                itemEntry.item = currentHelmet;
+                itemEntry.amount = 1;
+
+                this.currentItems.Add(itemEntry);
             }
             if (currentChest != null)
             {
-                this.currentItems.Add(currentChest);
+                ItemEntry itemEntry = new ItemEntry();
+                itemEntry.item = currentChest;
+                itemEntry.amount = 1;
+
+                this.currentItems.Add(itemEntry);
             }
             if (currentGauntlets != null)
             {
-                this.currentItems.Add(currentGauntlets);
+                ItemEntry itemEntry = new ItemEntry();
+                itemEntry.item = currentGauntlets;
+                itemEntry.amount = 1;
+
+                this.currentItems.Add(itemEntry);
             }
             if (currentLegwear != null)
             {
-                this.currentItems.Add(currentLegwear);
+                ItemEntry itemEntry = new ItemEntry();
+                itemEntry.item = currentLegwear;
+                itemEntry.amount = 1;
+
+                this.currentItems.Add(itemEntry);
             }
             if (currentAccessory1 != null)
             {
-                this.currentItems.Add(currentAccessory1);
+                ItemEntry itemEntry = new ItemEntry();
+                itemEntry.item = currentAccessory1;
+                itemEntry.amount = 1;
+
+                this.currentItems.Add(itemEntry);
             }
             if (currentAccessory2 != null)
             {
-                this.currentItems.Add(currentAccessory2);
+                ItemEntry itemEntry = new ItemEntry();
+                itemEntry.item = currentAccessory2;
+                itemEntry.amount = 1;
+
+                this.currentItems.Add(itemEntry);
             }
         }
         #endregion
-
-        public int GetCurrentItemCount(Item item)
-        {
-            return this.currentItems.Count(entry => entry.name == item.name);
-        }
 
         #region Get Items By Type
         public List<Weapon> GetWeapons()
         {
             List<Weapon> weapons = new List<Weapon>();
 
-            foreach (Item i in this.currentItems)
+            foreach (ItemEntry i in this.currentItems)
             {
-                Weapon weapon = i as Weapon;
+                Weapon weapon = i.item as Weapon;
                 if (weapon != null)
                 {
                     weapons.Add(weapon);
@@ -108,9 +310,9 @@ namespace AF
         {
             List<Shield> shields = new List<Shield>();
 
-            foreach (Item i in this.currentItems)
+            foreach (ItemEntry i in this.currentItems)
             {
-                Shield shield = i as Shield;
+                Shield shield = i.item as Shield;
                 if (shield != null)
                 {
                     shields.Add(shield);
@@ -124,9 +326,9 @@ namespace AF
         {
             List<Armor> helmets = new List<Armor>();
 
-            foreach (Item i in this.currentItems)
+            foreach (ItemEntry i in this.currentItems)
             {
-                Armor armor = i as Armor;
+                Armor armor = i.item as Armor;
                 if (armor != null)
                 {
                     if (armor.armorType == ArmorSlot.Head)
@@ -143,9 +345,9 @@ namespace AF
         {
             List<Armor> chestpieces = new List<Armor>();
 
-            foreach (Item i in this.currentItems)
+            foreach (ItemEntry i in this.currentItems)
             {
-                Armor armor = i as Armor;
+                Armor armor = i.item as Armor;
                 if (armor != null)
                 {
                     if (armor.armorType == ArmorSlot.Chest)
@@ -162,9 +364,9 @@ namespace AF
         {
             List<Armor> gauntlets = new List<Armor>();
 
-            foreach (Item i in this.currentItems)
+            foreach (ItemEntry i in this.currentItems)
             {
-                Armor armor = i as Armor;
+                Armor armor = i.item as Armor;
                 if (armor != null)
                 {
                     if (armor.armorType == ArmorSlot.Arms)
@@ -181,9 +383,9 @@ namespace AF
         {
             List<Armor> legwear = new List<Armor>();
 
-            foreach (Item i in this.currentItems)
+            foreach (ItemEntry i in this.currentItems)
             {
-                Armor armor = i as Armor;
+                Armor armor = i.item as Armor;
                 if (armor != null)
                 {
                     if (armor.armorType == ArmorSlot.Legs)
@@ -196,14 +398,13 @@ namespace AF
             return legwear;
         }
 
-
         public List<Accessory> GetAccessories()
         {
             List<Accessory> accessories = new List<Accessory>();
 
-            foreach (Item i in this.currentItems)
+            foreach (ItemEntry i in this.currentItems)
             {
-                Accessory accessory = i as Accessory;
+                Accessory accessory = i.item as Accessory;
                 if (accessory != null)
                 {
                     accessories.Add(accessory);
@@ -217,8 +418,8 @@ namespace AF
         #region Serialization
         public void OnGameLoaded(GameData gameData)
         {
-            PlayerInventoryManager.instance.currentItems.Clear();
-            PlayerInventoryManager.instance.currentFavoriteItems.Clear();
+            currentItems.Clear();
+            currentFavoriteItems.Clear();
 
             foreach (SerializableItem serializableItem in gameData.items)
             {
@@ -226,22 +427,26 @@ namespace AF
 
                 if (itemInstance != null)
                 {
-                    for (int i = 0; i < serializableItem.itemCount; i++)
-                    {
-                        Debug.Log(itemInstance.name);
-                        this.currentItems.Add(itemInstance);
-                    }
+                    ItemEntry itemEntry = new ItemEntry();
+                    itemEntry.item = itemInstance;
+                    itemEntry.amount = serializableItem.itemCount;
+                    this.currentItems.Add(itemEntry);
                 }
             }
 
             foreach (string favoriteItemName in gameData.favoriteItems)
             {
-                Item itemInstance = this.currentItems.Find(item => item.name == favoriteItemName);
+                Item itemInstance = GetItem(favoriteItemName);
 
                 this.currentFavoriteItems.Add(itemInstance);
             }
         }
         #endregion
+
+        public bool HasItem(Item item)
+        {
+            return this.currentItems.Exists(x => x.item == item);
+        }
 
         #region Database System
         public Item GetItem(string name)
@@ -249,6 +454,7 @@ namespace AF
             return itemsDatabase.Find(item => item.name.Equals(name));
         }
         #endregion
+
 
     }
 

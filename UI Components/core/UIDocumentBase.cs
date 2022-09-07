@@ -7,8 +7,6 @@ namespace AF
 {
     public class UIDocumentBase : InputListener
     {
-        SFXManager sfxManager;
-
         protected UIDocument uiDocument => GetComponent<UIDocument>();
 
         public VisualElement root;
@@ -17,11 +15,6 @@ namespace AF
         public AudioClip selectSfx;
         public AudioClip decisionSfx;
         public AudioClip cancelSfx;
-
-        private void Awake()
-        {
-            sfxManager = FindObjectOfType<SFXManager>(true);
-        }
 
         protected virtual void Start()
         {
@@ -73,30 +66,15 @@ namespace AF
 
         public void PlaySelectSfx()
         {
-            if (selectSfx == null || sfxManager == null)
-            {
-                return;
-            }
-
-            sfxManager.PlaySound(selectSfx, null);
+            BGMManager.instance.PlaySound(selectSfx, null);
         }
         public void PlayDecisionSfx()
         {
-            if (selectSfx == null || sfxManager == null)
-            {
-                return;
-            }
-
-            sfxManager.PlaySound(decisionSfx, null);
+            BGMManager.instance.PlaySound(decisionSfx, null);
         }
         public void PlayCancelSfx()
         {
-            if (selectSfx == null || sfxManager == null)
-            {
-                return;
-            }
-
-            sfxManager.PlaySound(cancelSfx, null);
+            BGMManager.instance.PlaySound(cancelSfx, null);
         }
     }
 }

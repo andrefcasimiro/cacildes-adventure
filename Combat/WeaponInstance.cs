@@ -61,7 +61,7 @@ namespace AF
 
             float damageToApply = PlayerStatsManager.instance.GetWeaponAttack(weapon);
 
-            targetHealthbox.TakeDamage(damageToApply, player.gameObject.transform, player.name, weapon.impactSfx);
+            targetHealthbox.TakeDamage(damageToApply, player.gameObject.transform, weapon.impactSfx);
 
             //Disable hitbox to prevent any bugs of applying damage twice per frame
             DisableHitbox();

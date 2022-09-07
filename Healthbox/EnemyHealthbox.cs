@@ -8,8 +8,15 @@ namespace AF
     {
         [Header("UI")]
         public Slider healthBarSlider;
+        public FloatingText damageFloatingText;
 
         NotificationManager notificationManager;
+
+        public bool isBlocking = false;
+        public bool isDodging = false;
+        public bool isParriable = false;
+
+        Enemy enemy;
 
         private void Awake()
         {
@@ -20,6 +27,8 @@ namespace AF
         {
             healthBarSlider.maxValue = combatable.GetMaxHealth() * 0.01f;
             healthBarSlider.value = combatable.GetCurrentHealth() * 0.01f;
+
+            this.TryGetComponent(out enemy);
         }
 
         private void Update()
@@ -27,15 +36,29 @@ namespace AF
             healthBarSlider.value = combatable.GetCurrentHealth() * 0.01f;
         }
 
-        public override void TakeDamage(float damage, Transform attackerTransform, string attackerName, AudioClip weaponSwingSfx)
+        public override void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponSwingSfx)
         {
-            if (character.IsDodging()) { return; }
+            if (!this.enabled)
+            {
+                return;
+            }
+
+            if (isDodging) {
+                return;
+            }
+
+            if (isBlocking)
+            {
+                Instantiate(enemy.blockParticleEffect, enemy.shield.transform.position, Quaternion.identity);
+                return;
+            }
 
             combatable.SetCurrentHealth(combatable.GetCurrentHealth() - damage);
 
-            notificationManager.ShowNotification(
-                character.name + " received " + damage + " damage from Cacildes"
-            );
+            if (damageFloatingText != null)
+            {
+                damageFloatingText.Show(damage);
+            }
 
             if (damageParticlePrefab != null)
             {
@@ -51,6 +74,19 @@ namespace AF
 
             if (combatable.GetCurrentHealth() <= 0)
             {
+
+                Enemy enemy = (Enemy)this.character;
+
+                PlayerStatsManager.instance.currentExperience += enemy.experienceGained;
+
+                notificationManager.ShowNotification("Cacildes received " + enemy.experienceGained + " points of experience");
+
+                Loot loot = enemy.GetComponent<Loot>();
+                if (loot != null)
+                {
+                    loot.GetLoot();
+                }
+
                 Die();
             }
             else
@@ -58,5 +94,40 @@ namespace AF
                 animator.SetTrigger(hashTakingDamage);
             }
         }
+
+        #region Animation Clips
+        // DODGING
+        public void ActivateDodge()
+        {
+            isDodging = true;
+        }
+        public void DeactivateDodge()
+        {
+            isDodging = false;
+        }
+
+        // BLOCK
+        public void ActivateBlock()
+        {
+            isBlocking = true;
+        }
+
+        public void DeactivateBlock()
+        {
+            isBlocking = false;
+        }
+        
+        // RECEIVE PARRY CHANCES
+        public void ActivateParriable()
+        {
+            isParriable = true;
+        }
+
+        public void DeactivateParriable()
+        {
+            isParriable = false;
+        }
+        #endregion
+
     }
 }

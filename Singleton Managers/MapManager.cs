@@ -9,7 +9,7 @@ namespace AF
     {
         public static MapManager instance;
 
-        public string spawnGameObjectNameRef = "Initial Spawnpoint";
+        public string spawnGameObjectNameRef = null;
 
         private void Awake()
         {

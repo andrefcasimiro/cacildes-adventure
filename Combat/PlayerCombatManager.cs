@@ -56,7 +56,12 @@ namespace AF
 
         public void HandleAttack()
         {
-            if (!CanCombat() || player.IsNotAvailable() || player.isAttacking)
+            if (!CanCombat() || player.IsBusy() || player.isAttacking)
+            {
+                return;
+            }
+
+            if (PlayerInventoryManager.instance.currentWeapon != null && PlayerStatsManager.instance.HasEnoughStaminaForAction(PlayerInventoryManager.instance.currentWeapon.staminaCost) == false)
             {
                 return;
             }
@@ -87,13 +92,15 @@ namespace AF
             attackComboIndex++;
             hasAttacked = true;
             timeSinceLastAttack = 0f;
+
+            PlayerStatsManager.instance.DecreaseStamina(PlayerInventoryManager.instance.currentWeapon.staminaCost);
         }
 
         public void Guard()
         {
             if (
                 !CanCombat()
-                || player.IsNotAvailable()
+                || player.IsBusy()
                 || player.isSprinting
                 || PlayerInventoryManager.instance.currentShield == null)
             {
@@ -106,12 +113,7 @@ namespace AF
 
             if (equipmentGraphicsHandler.shieldGraphic != null)
             {
-                equipmentGraphicsHandler.gameObject.SetActive(true);
-            }
-
-            if (equipmentGraphicsHandler.weaponGraphic != null)
-            {
-                equipmentGraphicsHandler.weaponGraphic.SetActive(false);
+                equipmentGraphicsHandler.shieldGraphic.SetActive(true);
             }
         }
 
@@ -119,17 +121,9 @@ namespace AF
         {
             animator.SetBool(player.hashBlocking, false);
 
-            // parryManager.DisableParrying();
-
             if (equipmentGraphicsHandler.shieldGraphic != null)
             {
                 equipmentGraphicsHandler.shieldGraphic.SetActive(false);
-            }
-
-
-            if (equipmentGraphicsHandler.weaponGraphic != null)
-            {
-                equipmentGraphicsHandler.weaponGraphic.SetActive(true);
             }
         }
 

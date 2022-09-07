@@ -16,8 +16,7 @@ namespace AF
 
         public string actorName = "";
 
-        [TextArea]
-        public string message = "";
+        [TextArea] public string message = "";
 
         public float waitToAppear = 0.1f;
     }
@@ -56,7 +55,8 @@ namespace AF
 
         IEnumerator Begin()
         {
-            yield return null;
+            EV_FadeIn evFadeIn = FindObjectOfType<EV_FadeIn>(true);
+            EV_FadeOut evFadeOut = FindObjectOfType<EV_FadeOut>(true);
 
             foreach (LoadingCutsceneMoment ev in events)
             {
@@ -73,15 +73,35 @@ namespace AF
                 b.sprite = ev.image;
                 slideshow.style.backgroundImage = b;
 
-                yield return dialogueManager.ShowDialogue(ev.actorName, ev.message);
+                bool isFirst = events.IndexOf(ev) == 0;
+                if (isFirst)
+                {
+                    if (evFadeIn != null)
+                    {
+                        yield return evFadeIn.Dispatch();
+                    }
+                }
 
-                slideshow.style.backgroundImage = null;
+                string actorName = ev.actorName;
+                string message = ev.message;
+
+                yield return dialogueManager.ShowDialogue(actorName, message);
+                
+                bool isLast = events.IndexOf(ev) == events.IndexOf(events[events.Count - 1]);
+                if (isLast)
+                {
+                    if (evFadeOut != null)
+                    {
+                        yield return evFadeOut.Dispatch();
+                    }
+
+                    slideshow.style.backgroundImage = null;
+                }
             }
 
 
             yield return new WaitUntil(() => sceneLoadingOperation.progress >= 0.9f);
-
-            yield return null;
+            
 
             LoadNextScene();
 

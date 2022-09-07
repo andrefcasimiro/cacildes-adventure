@@ -10,14 +10,11 @@ namespace AF
         // References
         Player player => GetComponent<Player>();
 
-        NotificationManager notificationManager;
 
-        private void Awake()
-        {
-            notificationManager = FindObjectOfType<NotificationManager>(true);
-        }
+        public GameObject shieldWoodImpactFx;
+        public FloatingText damageFloatingText;
 
-        public override void TakeDamage(float damage, Transform attackerTransform, string attackerName, AudioClip weaponSwingSfx)
+        public override void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponSwingSfx)
         {
             ShieldInstance shield = this.combatable.GetShieldInstance();
 
@@ -30,7 +27,17 @@ namespace AF
                 && Vector3.Angle(transform.forward * -1, attackerTransform.forward) <= 90f
                 )
             {
-                return;
+                float staminaCost = PlayerInventoryManager.instance.currentShield.blockStaminaCost;
+                bool playerWontTakeDamage = PlayerStatsManager.instance.HasEnoughStaminaForAction(staminaCost);
+
+                Instantiate(shieldWoodImpactFx, shield.gameObject.transform);
+                player.animator.Play(player.hashBlockingHit);
+                PlayerStatsManager.instance.DecreaseStamina(staminaCost);
+
+                if (playerWontTakeDamage)
+                {
+                    return;
+                }
             }
 
             if (player.IsDodging())
@@ -40,7 +47,10 @@ namespace AF
 
             combatable.SetCurrentHealth(combatable.GetCurrentHealth() - damage);
 
-            notificationManager.ShowNotification("Cacildes received " + damage + " damage from " + attackerName);
+            if (damageFloatingText != null)
+            {
+                damageFloatingText.Show(damage);
+            }
 
             if (damageParticlePrefab != null)
             {
@@ -56,6 +66,8 @@ namespace AF
 
             if (combatable.GetCurrentHealth() <= 0)
             {
+                UIDocumentGameOverScreen uIDocumentGameOverScreen = FindObjectOfType<UIDocumentGameOverScreen>(true);
+                uIDocumentGameOverScreen.ShowGameOverScreen();
                 Die();
             }
             else

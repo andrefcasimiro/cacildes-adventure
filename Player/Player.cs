@@ -18,13 +18,15 @@ namespace AF
         public readonly int hashAttacking2 = Animator.StringToHash("Attacking2");
         public readonly int hashAttacking3 = Animator.StringToHash("Attacking3");
         public readonly int hashBlocking = Animator.StringToHash("Blocking");
+        public readonly int hashBlockingHit = Animator.StringToHash("BlockingHit");
         public readonly int hashDead = Animator.StringToHash("Dead");
+        public readonly int hashGrabbingObject = Animator.StringToHash("GrabbingObject");
 
         [Header("Movement")]
         public float walkSpeed = 6;
         public float runSpeed = 9;
         public float rotationSpeed = 8;
-        Vector3 moveDirection;
+        Vector3 desiredMoveDirection;
 
         [Header("Flags")]
         public bool isAttacking = false;
@@ -50,6 +52,11 @@ namespace AF
 
         EquipmentGraphicsHandler equipmentGraphicsHandler;
 
+        public float SPRINTING_STAMINA_COST = .5f;
+        public float DODGE_STAMINA_COST = 30;
+
+        Vector3 moveDirectionResult;
+
         void OnEnable()
         {
             if (inputActions == null)
@@ -58,8 +65,8 @@ namespace AF
             }
 
             // Movement Input
-            inputActions.PlayerActions.Movement.performed += ctx => moveDirection = ctx.ReadValue<Vector2>();
-            inputActions.PlayerActions.Movement.canceled += ctx => moveDirection = Vector3.zero;
+            inputActions.PlayerActions.Movement.performed += ctx => desiredMoveDirection = ctx.ReadValue<Vector2>();
+            inputActions.PlayerActions.Movement.canceled += ctx => desiredMoveDirection = Vector3.zero;
 
             inputActions.PlayerActions.Sprint.performed += ctx => isSprinting = true;
             inputActions.PlayerActions.Sprint.canceled += ctx => isSprinting = false;
@@ -67,7 +74,11 @@ namespace AF
             inputActions.PlayerActions.Roll.performed += ctx => HandleRoll();
 
             // Combat Input
-            inputActions.PlayerActions.Attack.performed += ctx => playerCombatManager.HandleAttack();
+            inputActions.PlayerActions.Attack.performed += ctx =>
+            {
+                playerCombatManager.HandleAttack();
+            };
+
             inputActions.PlayerActions.Guard.performed += ctx => playerCombatManager.Guard();
             inputActions.PlayerActions.Guard.canceled += ctx => playerCombatManager.StopGuard();
 
@@ -80,8 +91,13 @@ namespace AF
                 animator.SetFloat("movementSpeed", 0f);
             };
 
-            inputActions.PlayerActions.MainMenu.performed += ctx =>
+            inputActions.PlayerActions.QuickSave.performed += ctx =>
             {
+                SaveSystem.instance.SaveGameData();
+            };
+            inputActions.PlayerActions.QuickLoad.performed += ctx =>
+            {
+                SaveSystem.instance.LoadGameData();
             };
 
             inputActions.Enable();
@@ -121,11 +137,13 @@ namespace AF
             {
                 equipmentGraphicsHandler.ToggleShield(isBlocking);
             }
+
+            moveDirectionResult = GetMoveDirection();
         }
 
         protected void FixedUpdate()
         {
-            if (IsNotAvailable())
+            if (IsBusy())
             {
                 return;
             }
@@ -134,7 +152,7 @@ namespace AF
 
             if (isSprinting)
             {
-                if (moveDirection.magnitude <= 0)
+                if (moveDirectionResult.magnitude <= 0 || PlayerStatsManager.instance.HasEnoughStaminaForAction(SPRINTING_STAMINA_COST) == false)
                 {
                     isSprinting = false;
                 }
@@ -149,9 +167,11 @@ namespace AF
                     {
                         animator.SetFloat(hashMovementSpeed, 1f, 0.05f, Time.fixedDeltaTime);
                     }
+
+                    PlayerStatsManager.instance.DecreaseStamina(SPRINTING_STAMINA_COST);
                 }
             }
-            else if (moveDirection.magnitude == 0)
+            else if (moveDirectionResult.magnitude == 0)
             {
                 // Handle issues with floating values on limit (causing footstep sounds to play overlapped)
                 if (animator.GetFloat(hashMovementSpeed) <= 0.05f)
@@ -186,7 +206,6 @@ namespace AF
             }
 
             Vector3 targetVector = GetMoveDirection();
-
             var rotation = Quaternion.LookRotation(targetVector);
 
             if (isBlocking)
@@ -215,19 +234,30 @@ namespace AF
                 }
             }
 
-            if (moveDirection.magnitude != 0)
+            if (moveDirectionResult.magnitude != 0)
             {
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, rotationSpeed);
             }
 
-            var speed = (isSprinting ? runSpeed : walkSpeed) * Time.fixedDeltaTime;
+            bool isCollidingWithObject = Physics.Raycast(this.transform.position, this.transform.forward, 1f);
+
+            var speed = ((isSprinting && isCollidingWithObject == false)
+                ? runSpeed
+                : walkSpeed) * Time.fixedDeltaTime;
+            
+            if (isCollidingWithObject)
+            {
+                targetVector.y = 0;
+            }
+            
             var targetPosition = transform.position + targetVector * speed;
-            transform.position = targetPosition;
+
+            rigidbody.position = targetPosition;
         }
 
         protected void HandleRoll()
         {
-            if (IsNotAvailable() || isAttacking)
+            if (IsBusy() || isAttacking || PlayerStatsManager.instance.HasEnoughStaminaForAction(DODGE_STAMINA_COST) == false)
             {
                 return;
             }
@@ -239,40 +269,46 @@ namespace AF
 
             var rotation = Quaternion.LookRotation(GetMoveDirection());
 
-            if (moveDirection.magnitude != 0)
+            if (moveDirectionResult.magnitude != 0)
             {
                 transform.rotation = rotation;
             }
 
             animator.CrossFade(hashDodging, 0.05f);
+
+            PlayerStatsManager.instance.DecreaseStamina(DODGE_STAMINA_COST);
         }
 
         public Vector3 GetMoveDirection()
         {
             bool cameraInverted = Camera.main.transform.forward.z <= 0;
 
-            return cameraInverted
-                ? new Vector3(moveDirection.x * -1, 0, moveDirection.y * -1)
-                : new Vector3(moveDirection.x, 0, moveDirection.y);
+            float invertion = cameraInverted ? -1 : 1;
+
+            float x = desiredMoveDirection.x;
+            float z = desiredMoveDirection.y;
+
+            x *= invertion;
+            z *= invertion;
+
+            return new Vector3(x, 0, z);
         }
         #endregion
 
-        public bool IsNotAvailable()
+        public bool IsBusy()
         {
             return isDead || menuManager.IsMenuOpened() || animator.GetBool(hashBusy);
         }
 
-        public void MarkAsBusy()
+        public void SetBusy(bool isBusy)
         {
-            this.animator.SetFloat(hashMovementSpeed, 0f);
-            this.animator.SetBool(hashBusy, true);
-            menuManager.canOpenMenu = false;
-        }
+            if (isBusy)
+            {
+                this.animator.SetFloat(hashMovementSpeed, 0f);
+            }
 
-        public void MarkAsActive()
-        {
-            this.animator.SetBool(hashBusy, false);
-            menuManager.canOpenMenu = true;
+            this.animator.SetBool(hashBusy, isBusy);
+            menuManager.canOpenMenu = !isBusy;
         }
 
         public void OnGameLoaded(GameData gameData)
@@ -287,6 +323,5 @@ namespace AF
             transform.position = playerData.position;
             transform.rotation = playerData.rotation;
         }
-
     }
 }

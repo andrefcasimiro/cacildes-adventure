@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace AF
 {
-    [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(Character))]
     [RequireComponent(typeof(CapsuleCollider))]
     public class Healthbox : MonoBehaviour
@@ -18,7 +17,7 @@ namespace AF
         public AudioClip deathGruntSfx;
 
         protected Character character => GetComponent<Character>();
-        protected Animator animator => GetComponent<Animator>();
+        public Animator animator;
         protected ICombatable combatable => GetComponent<ICombatable>();
 
         public DestroyableParticle damageParticlePrefab;
@@ -33,7 +32,7 @@ namespace AF
             }
         }
 
-        public virtual void TakeDamage(float damage, Transform attackerTransform, string attackerName, AudioClip attackerWeaponSwingSfx)
+        public virtual void TakeDamage(float damage, Transform attackerTransform,AudioClip attackerWeaponSwingSfx)
         {
         }
 
@@ -45,6 +44,13 @@ namespace AF
 
         public void Die()
         {
+            animator.SetFloat(character.hashMovementSpeed, 0f);
+            animator.SetTrigger(hashDying);
+        }
+
+        public void DieWithSound()
+        {
+            StartCoroutine(PlayHurtSfx());
             animator.SetFloat(character.hashMovementSpeed, 0f);
             animator.SetTrigger(hashDying);
         }

@@ -1,4 +1,6 @@
-﻿namespace AF
+﻿using System.Collections.Generic;
+
+namespace AF
 {
     public enum LocalSwitchName
     {
@@ -17,6 +19,25 @@
     {
         public LocalSwitchName localSwitchName;
 
+        List<Event> subscribedEvents = new List<Event>();
+
+        private void Start()
+        {
+            Event eventInPage = GetComponent<Event>();
+            Event[] childEvents = GetComponentsInChildren<Event>(true);
+
+            if (eventInPage != null)
+            {
+                subscribedEvents.Add(eventInPage);
+            }
+
+            foreach (Event childEvent in childEvents)
+            {
+                subscribedEvents.Add(childEvent);
+            }
+
+        }
+
         public void UpdateLocalSwitchValue(LocalSwitchName nextLocalSwitchName)
         {
             this.localSwitchName = nextLocalSwitchName;
@@ -24,10 +45,12 @@
             // Update local switch manager database
             LocalSwitchManager.instance.UpdateLocalSwitchDatabaseEntry(this);
 
-            Event ev = gameObject.GetComponent<Event>();
-            if (ev != null)
+            foreach (Event subscribedEvent in subscribedEvents)
             {
-                ev.RefreshEventPages();
+                if (subscribedEvent != null)
+                {
+                    subscribedEvent.RefreshEventPages();
+                }
             }
         }
     }

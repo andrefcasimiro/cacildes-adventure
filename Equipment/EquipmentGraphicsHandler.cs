@@ -64,6 +64,7 @@ namespace AF
 
         public void InitializeEquipment()
         {
+            ReloadEquipmentGraphics();
 
             if (PlayerInventoryManager.instance.currentWeapon != null)
             {
@@ -121,10 +122,19 @@ namespace AF
             {
                 weaponGraphic = Instantiate(weaponToEquip.graphic, leftHand);
             }
+            
+            if (weaponGraphic != null) {
+                this.weaponInstance = weaponGraphic.GetComponentInChildren<WeaponInstance>(true);
+            }
 
-            this.weaponInstance = weaponGraphic.GetComponentInChildren<WeaponInstance>(true);
-
-            FindObjectOfType<Player>().animator.runtimeAnimatorController = weaponToEquip.animatorOverrideController;
+            if (weaponToEquip.animatorOverrideController != null)
+            {
+                FindObjectOfType<Player>(true).animator.runtimeAnimatorController = weaponToEquip.animatorOverrideController;
+            }
+            else
+            {
+                FindObjectOfType<Player>(true).animator.runtimeAnimatorController = playerDefaultAnimator;
+            }
         }
 
         public void Equip(Shield shieldToEquip)
@@ -208,7 +218,7 @@ namespace AF
 
         public void UnequipArmorSlot(ArmorSlot armorType)
         {
-            Player player = FindObjectOfType<Player>(true);
+            GameObject player = GameObject.FindWithTag("Player");
 
             if (armorType == ArmorSlot.Head)
             {
@@ -282,7 +292,7 @@ namespace AF
 
         void ReloadEquipmentGraphics()
         {
-            Player player = FindObjectOfType<Player>(true);
+            GameObject player = GameObject.FindWithTag("Player");
 
             foreach (Transform t in player.GetComponentsInChildren<Transform>(true))
             {

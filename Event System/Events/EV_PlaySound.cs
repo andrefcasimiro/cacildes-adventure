@@ -9,20 +9,20 @@ namespace AF
         public AudioSource audioSource;
         public AudioClip soundClip;
 
-        SFXManager sfxManager;
-
-        private void Awake()
-        {
-            sfxManager = FindObjectOfType<SFXManager>(true);
-        }
-
         public override IEnumerator Dispatch()
         {
             yield return null;
 
-            if (soundClip != null && sfxManager != null)
+            if (soundClip != null)
             {
-                sfxManager.PlaySound(soundClip, audioSource);
+                if (audioSource != null)
+                {
+                    audioSource.PlayOneShot(soundClip);
+                }
+                else
+                {
+                    BGMManager.instance.PlaySound(soundClip, audioSource);
+                }
             }
         }
     }

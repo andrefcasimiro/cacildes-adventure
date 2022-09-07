@@ -43,8 +43,13 @@ namespace AF
             this.Disable();
         }
 
+        private void Update()
+        {
+        }
+
         void UpdateGUI()
         {
+
             // Clean up scroll view contents
             this.itemListScrollView.Clear();
 
@@ -54,9 +59,9 @@ namespace AF
 
             if (this.showConsumableToggle.value == true)
             {
-                itemsToShow = PlayerInventoryManager.instance.currentItems.Where(item =>
+                itemsToShow = PlayerInventoryManager.instance.currentItems.Where(itemEntry =>
                 {
-                    Consumable consumable = item as Consumable;
+                    Consumable consumable = itemEntry.item as Consumable;
 
                     if (consumable != null)
                     {
@@ -67,15 +72,16 @@ namespace AF
                 }).ToList();
             }
 
-            foreach (Item item in itemsToShow)
+            foreach (ItemEntry itemEntry in itemsToShow)
             {
                 var btn = CreateButton(
-                    item.name,
-                    item.sprite,
+                    itemEntry.item,
+                    itemEntry.item.name + " (x" + itemEntry.amount + ")",
+                    itemEntry.item.sprite,
                     // Click Callback
                     () =>
                     {
-                        Consumable consumable = item as Consumable;
+                        Consumable consumable = itemEntry.item as Consumable;
 
                         if (consumable != null)
                         {
@@ -87,9 +93,9 @@ namespace AF
                     // Focus Callback
                     () =>
                     {
-                        if (item.sprite != null)
+                        if (itemEntry.item.sprite != null)
                         {
-                            this.itemSpriteContainer.style.backgroundImage = new StyleBackground(item.sprite);
+                            this.itemSpriteContainer.style.backgroundImage = new StyleBackground(itemEntry.item.sprite);
                             this.itemSpriteContainer.RemoveFromClassList("hide");
                         }
                         else
@@ -97,10 +103,10 @@ namespace AF
                             this.itemSpriteContainer.AddToClassList("hide");
                         }
 
-                        this.itemDescription.text = item.description;
+                        this.itemDescription.text = itemEntry.item.description;
                     });
 
-                Consumable consumable = item as Consumable;
+                Consumable consumable = itemEntry.item as Consumable;
                 if (consumable == null)
                 {
                     btn.style.opacity = 0.5f;
@@ -115,7 +121,7 @@ namespace AF
 
         }
 
-        UnityEngine.UIElements.Button CreateButton(string name, Sprite itemSprite, UnityAction clickCallback, UnityAction focusCallback)
+        UnityEngine.UIElements.Button CreateButton(Item item, string name, Sprite itemSprite, UnityAction clickCallback, UnityAction focusCallback)
         {
             UnityEngine.UIElements.Button btn = new UnityEngine.UIElements.Button();
             btn.text = "";
@@ -142,9 +148,36 @@ namespace AF
             favoriteSprite.style.width = 20;
             btn.Add(favoriteSprite);
 
-            /* var spriteContainer = btn.Q<VisualElement>("Icon");
-            spriteContainer.style.backgroundImage = new StyleBackground(itemSprite);
-            */
+            btn.RegisterCallback<KeyDownEvent>((ev) =>
+            {
+                // Only allow favorites on consumable items
+                Consumable consumable = item as Consumable;
+
+                if (hasPressedFavoriteItemButton && consumable != null)
+                {
+                    hasPressedFavoriteItemButton = false;
+
+                    PlayerInventoryManager.instance.ToggleFavoriteItem(item);
+
+                    if (PlayerInventoryManager.instance.currentFavoriteItems.Exists(favItem => favItem == item))
+                    {
+                        favoriteSprite.RemoveFromClassList("hide");
+                    }
+                    else
+                    {
+                        favoriteSprite.AddToClassList("hide");
+                    }
+                }
+            });
+
+            if (PlayerInventoryManager.instance.currentFavoriteItems.Exists(favItem => favItem == item))
+            {
+                favoriteSprite.RemoveFromClassList("hide");
+            }
+            else
+            {
+                favoriteSprite.AddToClassList("hide");
+            }
 
             this.SetupButtonClick(btn, clickCallback);
 

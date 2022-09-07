@@ -12,6 +12,11 @@ namespace AF
         {
             animator.gameObject.TryGetComponent<ICombatable>(out combatManager);
 
+            if (combatManager == null)
+            {
+                combatManager = animator.GetComponentInParent<ICombatable>(true);
+            }
+
             if (combatManager != null)
             {
                 combatManager.DeactivateHitbox();

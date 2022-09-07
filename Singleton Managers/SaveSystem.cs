@@ -18,14 +18,17 @@ namespace AF
 
         public PlayerEquipmentData playerEquipmentData;
 
-        public string activeCameraName;
-
         public SerializableSwitch[] switches;
 
         public SerializableLocalSwitch[] localSwitches;
 
         public SerializableItem[] items;
         public string[] favoriteItems;
+
+        public string lastActiveCameraName;
+
+        public SerializableConsumable[] consumables;
+        public SerializableStatusEffect[] statusEffects;
     }
 
     public class SaveSystem : MonoBehaviour
@@ -111,9 +114,6 @@ namespace AF
 
             gameData.playerData = playerData;
 
-            // Camera
-            // gameData.activeCameraName = CameraManager.instance.currentCamera.name;
-
             // Player Equipment
             EquipmentGraphicsHandler equipmentManager = FindObjectOfType<EquipmentGraphicsHandler>();
             PlayerEquipmentData playerEquipmentData = new PlayerEquipmentData();
@@ -162,11 +162,11 @@ namespace AF
 
             // Player Inventory
             List<SerializableItem> serializableItems = new List<SerializableItem>();
-            foreach (Item item in PlayerInventoryManager.instance.currentItems)
+            foreach (ItemEntry itemEntry in PlayerInventoryManager.instance.currentItems)
             {
                 SerializableItem serializableItem = new SerializableItem();
-                serializableItem.itemName = item.name;
-                serializableItem.itemCount = PlayerInventoryManager.instance.GetCurrentItemCount(item);
+                serializableItem.itemName = itemEntry.item.name;
+                serializableItem.itemCount = itemEntry.amount;
                 serializableItems.Add(serializableItem);
             }
             gameData.items = serializableItems.ToArray();
@@ -209,15 +209,47 @@ namespace AF
             }
             gameData.localSwitches = alreadySavedLocalSwitches.ToArray();
 
+            // Activate game camera
+            var sceneCameras = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>(true);
+
+            Cinemachine.CinemachineVirtualCamera activeCamera = sceneCameras.Count() > 0 ? sceneCameras.First(camera => camera.gameObject.activeSelf) : null;
+            if (activeCamera != null)
+            {
+                gameData.lastActiveCameraName = activeCamera.gameObject.name;
+            }
+            else
+            {
+                gameData.lastActiveCameraName = "Player Camera";
+            }
+
+            // Active Consumables
+            List<SerializableConsumable> activeConsumables = new List<SerializableConsumable>();
+            foreach (var consumable in PlayerStatsManager.instance.appliedConsumables)
+            {
+                SerializableConsumable serializableConsumable = new SerializableConsumable();
+
+                serializableConsumable.consumableName = consumable.consumable.name;
+                serializableConsumable.currentDuration = consumable.currentDuration;
+
+                activeConsumables.Add(serializableConsumable);
+            }
+            gameData.consumables = activeConsumables.ToArray();
+
+            // Active Status Effects
+            List<SerializableStatusEffect> activeStatusEffects = new List<SerializableStatusEffect>();
+            foreach (var status in PlayerStatsManager.instance.appliedStatus)
+            {
+                SerializableStatusEffect serializableStatusEffect = new SerializableStatusEffect();
+
+                serializableStatusEffect.statusEffectName = status.statusEffect.name;
+                serializableStatusEffect.currentAmount = status.currentAmount;
+                serializableStatusEffect.hasReachedTotalAmount = status.hasReachedTotalAmount;
+
+                activeStatusEffects.Add(serializableStatusEffect);
+            }
+            gameData.statusEffects = activeStatusEffects.ToArray();
 
             Save(gameData, "gameData");
-
-
-            SFXManager sfxManager = FindObjectOfType<SFXManager>(true);
-            if (sfxManager != null)
-            {
-                sfxManager.PlaySound(saveSfx, null);
-            }
 
             // MenuManager.instance.CloseAll();
         }
@@ -242,6 +274,29 @@ namespace AF
             {
                 saveable.OnGameLoaded(gameData);
             }
+
+            // Activate game camera
+            var sceneCameras = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>(true);
+
+            if (sceneCameras.Length > 0)
+            {
+                var targetCamera = sceneCameras.First(camera => camera.gameObject.name == gameData.lastActiveCameraName);
+
+                if (targetCamera == null)
+                {
+                    targetCamera = sceneCameras.First(camera => camera.gameObject.name == "Player Camera");
+                }
+
+                targetCamera.gameObject.SetActive(true);
+                foreach (var sceneCam in sceneCameras)
+                {
+                    if (sceneCam != targetCamera)
+                    {
+                        sceneCam.gameObject.SetActive(false);
+                    }
+                }
+            }
+
         }
     }
 
@@ -252,13 +307,15 @@ namespace AF
         public Vector3 position;
         public Quaternion rotation;
 
-        public int currentExperience;
+        public float currentExperience;
 
         public float currentHealth;
         public float currentMagic;
         public float currentStamina;
 
         public int currentReputation;
+
+        public int gold;
 
         public int vitality;
         public int intelligence;
@@ -269,7 +326,6 @@ namespace AF
         public int occult;
         public int charisma;
         public int luck;
-
     }
 
     [System.Serializable]
@@ -304,5 +360,20 @@ namespace AF
     {
         public string itemName;
         public int itemCount;
+    }
+
+    [System.Serializable]
+    public class SerializableConsumable
+    {
+        public string consumableName;
+        public float currentDuration;
+    }
+
+    [System.Serializable]
+    public class SerializableStatusEffect
+    {
+        public string statusEffectName;
+        public float currentAmount;
+        public bool hasReachedTotalAmount;
     }
 }

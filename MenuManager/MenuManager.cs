@@ -12,13 +12,6 @@ namespace AF
 
         public bool canOpenMenu = true;
 
-        SFXManager sfxManager;
-
-        private void Awake()
-        {
-            sfxManager = FindObjectOfType<SFXManager>(true);
-        }
-
         private void Start()
         {
             inputActions.PlayerActions.MainMenu.performed += ctx =>
@@ -128,15 +121,15 @@ namespace AF
 
         public void PlaySelectSfx()
         {
-            sfxManager.PlaySound(selectSfx, null);
+            BGMManager.instance.PlaySound(selectSfx, null);
         }
         public void PlayDecisionSfx()
         {
-            sfxManager.PlaySound(decisionSfx, null);
+            BGMManager.instance.PlaySound(decisionSfx, null);
         }
         public void PlayCancelSfx()
         {
-            sfxManager.PlaySound(cancelSfx, null);
+            BGMManager.instance.PlaySound(cancelSfx, null);
         }
 
     }

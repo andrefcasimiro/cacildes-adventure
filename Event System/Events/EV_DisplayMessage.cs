@@ -8,8 +8,7 @@ namespace AF
     {
         public string actorName;
 
-        [TextArea]
-        public string message;
+        [TextArea] public string message;
 
         [Header("Camera Settings")]
         public GameObject customCamera;
@@ -55,7 +54,10 @@ namespace AF
                 animator.CrossFade(animationClip, 0.2f);
             }
 
-            yield return StartCoroutine(dialogueManager.ShowDialogue(actorName, message));
+            var actorText = actorName;
+            var dialogueText = message;
+
+            yield return StartCoroutine(dialogueManager.ShowDialogue(actorText, dialogueText));
 
             yield return new WaitForSeconds(endDelay);
 

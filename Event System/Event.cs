@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace AF
 {
@@ -30,7 +31,7 @@ namespace AF
         {
             List<LocalSwitch> localSwitches = new List<LocalSwitch>();
 
-            EventPage previousEventPage;
+            EventPage previousEventPage = null;
 
             // Deactivate all event pages
             foreach (EventPage evt in transform.GetComponentsInChildren<EventPage>(true))
@@ -73,6 +74,25 @@ namespace AF
             else if (target != null)
             {
                 target.gameObject.SetActive(true);
+            }
+
+            MoveRoute moveRoute = GetComponentInChildren<MoveRoute>();
+            if (moveRoute != null)
+            {
+                // Position new event page graphic in the same position of the previous event page to make the transition seamless
+                if (previousEventPage != null)
+                {
+                    Transform previousEventPageTargetGraphic = previousEventPage.GetComponentInChildren<Animator>().transform;
+                    Transform targetGraphic = target.GetComponentInChildren<Animator>().transform;
+
+                    targetGraphic.transform.position = previousEventPageTargetGraphic.transform.position;
+                    targetGraphic.transform.rotation = previousEventPageTargetGraphic.transform.rotation;
+                }
+
+                moveRoute.animator = target.GetComponentInChildren<Animator>();
+                moveRoute.navMeshAgent = target.GetComponentInChildren<NavMeshAgent>();
+
+                moveRoute.ResumeCycle();
             }
         }
     }

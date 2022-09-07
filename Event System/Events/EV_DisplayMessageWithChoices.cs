@@ -19,7 +19,7 @@ namespace AF
 
         public override IEnumerator Dispatch()
         {
-            yield return StartCoroutine(dialogueManager.ShowDialogueWithChoices(actorName, message, choices));
+            yield return dialogueManager.ShowDialogueWithChoices(actorName, message, choices);
         }
     }
 

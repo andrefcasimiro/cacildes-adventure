@@ -10,16 +10,22 @@ namespace AF
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             animator.gameObject.TryGetComponent<Enemy>(out enemy);
+            if (enemy == null)
+            {
+                enemy = animator.GetComponentInParent<Enemy>(true);
+            }
 
             enemy.GotoNextPoint();
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+            Debug.Log("Player Sighted: " + Utils.PlayerIsSighted(enemy, enemy.player, enemy.obstructionMask));
+
             // Chase Player if available
             if (
-                enemy.player.IsNotAvailable() == false
-                && Utils.PlayerIsSighted(enemy.transform, enemy.player, enemy.obstructionMask)
+                enemy.player.IsBusy() == false
+                && Utils.PlayerIsSighted(enemy, enemy.player, enemy.obstructionMask)
             )
             {
                 animator.SetBool(enemy.hashPatrol, false);

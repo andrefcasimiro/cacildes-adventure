@@ -6,11 +6,11 @@ namespace AF
     [RequireComponent(typeof(BoxCollider))]
     public class EnemyWeaponInstance : MonoBehaviour, IWeaponInstance
     {
-        public float weaponPhysicalAttack;
         public AudioClip weaponSwingSfx;
         public AudioClip weaponImpactSfx;
 
-        Character character;
+        Enemy enemy;
+
         ICombatable combatable;
         AudioSource combatantAudioSource;
 
@@ -20,8 +20,8 @@ namespace AF
 
         private void Awake()
         {
-            character = GetComponentInParent<Character>();
-            character.TryGetComponent<ICombatable>(out combatable);
+            enemy = GetComponentInParent<Enemy>();
+            enemy.TryGetComponent<ICombatable>(out combatable);
 
             if (combatable != null)
             {
@@ -60,12 +60,17 @@ namespace AF
             }
 
             float damageToReceive = Mathf.Clamp(
-                weaponPhysicalAttack - PlayerStatsManager.instance.GetDefenseAbsorption(),
+                enemy.weaponDamage - PlayerStatsManager.instance.GetDefenseAbsorption(),
                 1f,
                 PlayerStatsManager.instance.GetMaxHealthPoints()
                 ); 
 
-            targetHealthbox.TakeDamage(damageToReceive, character.transform, character.name, weaponSwingSfx);
+            targetHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponSwingSfx);
+
+            if (enemy.weaponStatusEffect != null)
+            {
+                PlayerStatsManager.instance.UpdateStatusEffect(enemy.weaponStatusEffect, enemy.statusEffectAmount);
+            }
         }
 
     }

@@ -118,23 +118,26 @@ namespace AF
 
             foreach (Weapon weapon in PlayerInventoryManager.instance.GetWeapons())
             {
-                CreateButton(
-                    weapon.name,
-                    // Click Callback
-                    () =>
-                    {
-                        equipmentGraphicsHandler.Equip(weapon);
-                        ShowCurrentEquipmentScreen();
-                    },
-                    // Focus Callback
-                    () =>
-                    {
-                        this.itemToEquipName.text = "Weapon to equip: " + weapon.name;
-                        this.itemToEquipStatValue.text = "Attack Power: " + weapon.physicalAttack.ToString();
+                if (weapon.name != "Unarmed")
+                {
+                    CreateButton(
+                        weapon.name,
+                        // Click Callback
+                        () =>
+                        {
+                            equipmentGraphicsHandler.Equip(weapon);
+                            ShowCurrentEquipmentScreen();
+                        },
+                        // Focus Callback
+                        () =>
+                        {
+                            this.itemToEquipName.text = "Weapon to equip: " + weapon.name;
+                            this.itemToEquipStatValue.text = "Attack Power: " + weapon.physicalAttack.ToString();
 
-                        float difference = weapon.physicalAttack - PlayerInventoryManager.instance.currentWeapon.physicalAttack;
-                        UpdateIncreaseAndDecreasedLabelsBasedOnDifference(difference);
-                    });
+                            float difference = weapon.physicalAttack - PlayerInventoryManager.instance.currentWeapon.physicalAttack;
+                            UpdateIncreaseAndDecreasedLabelsBasedOnDifference(difference);
+                        });
+                }
             }
         }
 
@@ -273,7 +276,7 @@ namespace AF
                 },
                 () => {
                     // Show difference if we unequip this item
-                    float difference = currentDefenseAbsorption - currentEquipmentPhysicalDefense;
+                    float difference = currentEquipmentPhysicalDefense;
 
                     if (difference > 0)
                     {

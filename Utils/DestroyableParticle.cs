@@ -21,6 +21,11 @@ namespace AF
             Destroy(this.gameObject);
         }
 
+        private void OnDisable()
+        {
+            Destroy(this.gameObject);
+        }
+
     }
 
 }

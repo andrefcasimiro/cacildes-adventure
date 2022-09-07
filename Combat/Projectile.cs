@@ -11,13 +11,10 @@ namespace AF
         public float projectileDamage = 50f;
 
         [Header("Sound")]
-        public AudioClip projectileSfx;
-
+        public AudioClip projectileImpactSfx;
 
         Transform playerPosition;
-
         Transform originalPosition;
-
         Rigidbody rigidBody => GetComponent<Rigidbody>();
 
         private void Start()
@@ -66,14 +63,17 @@ namespace AF
                 return;
             }
 
-            if (player.IsNotAvailable() || player.isDodging)
+            if (player.IsBusy() || player.isDodging)
             {
                 return;
             }
 
+            if (projectileImpactSfx != null)
+            {
+                GetComponent<AudioSource>().PlayOneShot(projectileImpactSfx);
+            }
 
-            // ObjectPooler.instance.SpawnFromPool("Blood", player.headTransform.position, Quaternion.identity, 1f);
-            // player.healthbox.TakeDamage(projectileDamage,  this.transform, null);
+            player.healthbox.TakeDamage(projectileDamage, this.transform, null);
         }
     }
 

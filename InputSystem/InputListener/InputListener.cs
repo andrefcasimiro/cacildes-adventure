@@ -9,10 +9,12 @@ namespace AF
         public bool hasPressedConfirmButton;
         [HideInInspector]
         public bool hasPressedCancelButton;
+        [HideInInspector]
+        public bool hasPressedFavoriteItemButton;
 
         protected InputActions inputActions;
 
-        protected void OnEnable()
+        protected virtual void OnEnable()
         {
             inputActions = new InputActions();
 
@@ -38,8 +40,17 @@ namespace AF
                 hasPressedCancelButton = false;
             };
 
-            inputActions.Enable();
+            // Consume Quick Item / Mark as Favorite
+            inputActions.PlayerActions.FavoriteItem.performed += ctx =>
+            {
+                hasPressedFavoriteItemButton = true;
+            };
+            inputActions.PlayerActions.FavoriteItem.canceled += ctx =>
+            {
+                hasPressedFavoriteItemButton = false;
+            };
 
+            inputActions.Enable();
         }
 
 

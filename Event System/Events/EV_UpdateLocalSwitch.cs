@@ -18,6 +18,7 @@ namespace AF
             localSwitchToUpdate.UpdateLocalSwitchValue(nextLocalSwitch);
 
             yield return null;
+
         }
     }
 

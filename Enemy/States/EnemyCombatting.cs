@@ -13,25 +13,31 @@ namespace AF
 
         ICombatable enemyCombatable;
 
+        [Header("Animation Names")]
+        public string[] meleeLightAttacks;
+        public string[] meleeHeavyAttacks;
+        public string[] meleeRangeAttacks;
+        public string[] dodgeActions;
+        public string[] blockActions;
+        public string combatIdle = "Waiting";
+
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             animator.gameObject.TryGetComponent(out enemy);
-
-            enemy.TryGetComponent(out enemyCombatable);
-            if (enemyCombatable != null && enemyCombatable.GetShieldInstance() != null)
+            if (enemy == null)
             {
-                enemyCombatable.GetShieldInstance().gameObject.SetActive(false);
+                enemy = animator.GetComponentInParent<Enemy>(true);
             }
 
+            enemy.TryGetComponent(out enemyCombatable);
+
             // Early exit to Chase state
-            if (enemy.player.IsNotAvailable() || IsPlayerFarAway())
+            if (enemy.player.IsBusy() || IsPlayerFarAway())
             {
                 animator.SetBool(enemy.hashCombatting, false);
                 animator.SetBool(enemy.hashChasing, true);
                 return;
             }
-
-            Utils.FaceTarget(enemy.transform, enemy.player.transform);
 
             if (enemy.player.isAttacking)
             {
@@ -39,11 +45,9 @@ namespace AF
             }
             else
             {
-                float chanceToAttack = Random.Range(0, 1f);
-
                 AttackPlayer(animator);
-
             }
+
         }
 
 
@@ -51,36 +55,35 @@ namespace AF
         {
             float attackDice = Random.Range(0, 1f);
 
-            if (attackDice > 0 && attackDice <= 0.25f)
+            if (attackDice <= 0.25f)
             {
-                animator.SetTrigger(enemy.hashAttacking1);
+                animator.Play(combatIdle);
+                return;
             }
-            else if (attackDice > 0.25f && attackDice <= 0.5f)
+
+            int attackClip = 0;
+
+            if (attackDice >= enemy.heavyAttackFrequency && this.meleeHeavyAttacks.Length > 0)
             {
-                animator.SetTrigger(enemy.hashAttacking2);
+                attackClip = Random.Range(0, this.meleeHeavyAttacks.Length);
+                animator.Play(this.meleeHeavyAttacks[attackClip]);
+                return;
             }
-            else if (attackDice > 0.5f && attackDice <= 0.85f)
-            {
-                animator.SetTrigger(enemy.hashAttacking3);
-            }
-            else
-            {
-                animator.SetTrigger(enemy.hashWaiting);
-            }
+
+            attackClip = Random.Range(0, this.meleeLightAttacks.Length);
+            animator.Play(this.meleeLightAttacks[attackClip]);
         }
 
         public void RespondToPlayer(Animator animator)
         {
             if (!enemy.player.isAttacking)
             {
-                animator.SetTrigger(enemy.hashWaiting);
+                animator.Play(combatIdle);
                 return;
             }
 
-            float blockDice = Random.Range(enemy.minBlockChance, enemy.maxBlockChance);
-            float dodgeDice = Random.Range(enemy.minDodgeChange, enemy.maxDodgeChance);
-
-            if (blockDice >= enemy.blockChance)
+            float blockDice = Random.Range(0, 1f);
+            if (blockDice >= enemy.blockFrequency &&  this.blockActions.Length > 0)
             {
                 // Show Shield
                 if (enemyCombatable != null && enemyCombatable.GetShieldInstance() != null)
@@ -88,34 +91,26 @@ namespace AF
                     enemyCombatable.GetShieldInstance().gameObject.SetActive(true);
                 }
 
-                Utils.FaceTarget(enemy.transform, enemy.player.transform);
-                animator.SetTrigger(enemy.hashBlocking);
+                int blockClip = Random.Range(0, this.blockActions.Length);
+                animator.Play(this.blockActions[blockClip]);
+                return;
             }
-            else if (dodgeDice >= enemy.dodgeChance)
-            {
-                Utils.FaceTarget(enemy.transform, enemy.player.transform);
 
-                float dodgeClipDice = Random.Range(0f, 1f);
-                if (dodgeClipDice > 0.5f)
-                {
-                    animator.SetTrigger(enemy.hashDodging);
-                }
-                else
-                {
-                    animator.SetTrigger(enemy.hashWaiting);
-                }
-            }
-            else
+            float dodgeDice = Random.Range(0, 1f);
+            if (dodgeDice >= enemy.dodgeFrequency && this.dodgeActions.Length > 0)
             {
-                animator.SetTrigger(enemy.hashWaiting);
+                int dodgeClip = Random.Range(0, this.dodgeActions.Length);
+                animator.Play(this.dodgeActions[dodgeClip]);
+                return;
             }
+
+            animator.Play(combatIdle);
         }
 
         public bool IsPlayerFarAway()
         {
             return Vector3.Distance(enemy.agent.transform.position, enemy.player.transform.position) > enemy.agent.stoppingDistance + 0.5f;
         }
-
     }
 
 }

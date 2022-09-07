@@ -3,10 +3,11 @@ using UnityEngine.SceneManagement;
 
 namespace AF
 {
-    [RequireComponent(typeof(AudioSource))]
     public class BGMManager : MonoBehaviour
     {
-        AudioSource audioSource => GetComponent<AudioSource>();
+        public AudioSource bgmAudioSource;
+        public AudioSource ambienceAudioSource;
+        public AudioSource sfxAudioSource;
 
         [HideInInspector]
         public AudioClip currentMusic;
@@ -29,14 +30,6 @@ namespace AF
 
         private void Start()
         {
-            SceneSettings sceneSettings = FindObjectOfType<SceneSettings>();
-
-            if (sceneSettings != null && sceneSettings.sceneMusic != null)
-            {
-                PlayMusic(sceneSettings.sceneMusic);
-            }
-
-            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         public void PlayMusic(AudioClip musicToPlay)
@@ -44,8 +37,25 @@ namespace AF
             this.previousMusic = this.currentMusic;
             this.currentMusic = musicToPlay;
 
-            this.audioSource.clip = this.currentMusic;
-            this.audioSource.Play();
+            this.bgmAudioSource.clip = this.currentMusic;
+            this.bgmAudioSource.Play();
+        }
+
+        public void StopMusic()
+        {
+            this.bgmAudioSource.Stop();
+        }
+
+        public void PlayAmbience(AudioClip ambience)
+        {
+            this.ambienceAudioSource.clip = ambience;
+            this.ambienceAudioSource.Play();
+        }
+
+        public void StopAmbience()
+        {
+            this.ambienceAudioSource.clip = null;
+            this.ambienceAudioSource.Stop();
         }
 
         public void PlayPreviousMusic()
@@ -55,14 +65,15 @@ namespace AF
             this.PlayMusic(musicToPlay);
         }
 
-        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        public void PlaySound(AudioClip sfxToPlay, AudioSource customAudioSource)
         {
-            SceneSettings sceneSettings = FindObjectOfType<SceneSettings>();
-
-            if (sceneSettings != null && sceneSettings.sceneMusic != null && sceneSettings.sceneMusic.name != this.currentMusic.name)
+            if (customAudioSource != null)
             {
-                PlayMusic(sceneSettings.sceneMusic);
+                customAudioSource.PlayOneShot(sfxToPlay);
+                return;
             }
+
+            this.sfxAudioSource.PlayOneShot(sfxToPlay);
         }
     }
 }

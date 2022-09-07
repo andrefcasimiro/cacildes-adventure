@@ -10,6 +10,8 @@ namespace AF
 
         public string name;
 
+        public string smallEffectDescription;
+
         [TextArea]
         public string description;
 
