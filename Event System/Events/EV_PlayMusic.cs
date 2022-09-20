@@ -10,6 +10,8 @@ namespace AF
 
         public bool playMapMusic;
 
+        public float fadeAmountOfPreviousMusic = 0f;
+
         public override IEnumerator Dispatch()
         {
             yield return null;
@@ -21,10 +23,7 @@ namespace AF
             }
             else
             {
-                SceneSettings sceneSettings = FindObjectOfType<SceneSettings>(true);
-                sceneSettings.StopAllCoroutines();
-
-                BGMManager.instance.PlayMusic(bgm);
+                BGMManager.instance.PlayMusic(bgm, fadeAmountOfPreviousMusic);
             }
         }
     }

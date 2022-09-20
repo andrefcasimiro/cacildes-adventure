@@ -7,6 +7,9 @@ namespace AF
     public enum Switches
     {
         BEAR_QUEST_GIVEN,
+        BEAR_QUEST_COMPLETED,
+        ASSASSIN_APPEARS,
+        ASSASSIN_DEAD,
     }
 
     [System.Serializable]

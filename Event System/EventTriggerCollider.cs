@@ -12,6 +12,9 @@ namespace AF
         KeyPressPromptManager keyPressPromptManager;
         MenuManager menuManager;
 
+
+        [HideInInspector] public bool playerInCollider = false;
+
         private void Awake()
         {
             eventPage = GetComponentInParent<EventPage>();
@@ -32,6 +35,13 @@ namespace AF
             }
 
             if (other.gameObject.tag != "Player")
+            {
+                return;
+            }
+
+            playerInCollider = true;
+
+            if (eventPage.eventTrigger == EventTrigger.NO_TRIGGERED)
             {
                 return;
             }
@@ -61,6 +71,11 @@ namespace AF
         private void OnTriggerStay(Collider other)
         {
             if (other.gameObject.tag != "Player")
+            {
+                return;
+            }
+
+            if (eventPage.eventTrigger == EventTrigger.NO_TRIGGERED)
             {
                 return;
             }
@@ -103,6 +118,13 @@ namespace AF
         private void OnTriggerExit(Collider other)
         {
             if (other.gameObject.tag != "Player")
+            {
+                return;
+            }
+
+            playerInCollider = false;
+
+            if (eventPage.eventTrigger == EventTrigger.NO_TRIGGERED)
             {
                 return;
             }

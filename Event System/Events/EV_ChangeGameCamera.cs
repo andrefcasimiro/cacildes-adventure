@@ -8,27 +8,29 @@ namespace AF
         public Cinemachine.CinemachineVirtualCamera desiredCamera;
 
         private void Start()
-        {
-        }
+        {}
 
         public override IEnumerator Dispatch()
         {
+
             var sceneCameras = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>(true);
 
-            desiredCamera.gameObject.SetActive(true);
-
             if (sceneCameras.Length > 0)
-            {
+            {       
                 foreach (var sceneCamera in sceneCameras)
                 {
-                    if (sceneCamera.gameObject.name != desiredCamera.gameObject.name)
+                    if (sceneCamera.GetComponent<MonoBehaviourID>().ID == desiredCamera.GetComponent<MonoBehaviourID>().ID)
+                    {
+                        sceneCamera.gameObject.SetActive(true);
+                    }
+                    else
                     {
                         sceneCamera.gameObject.SetActive(false);
                     }
                 }
-            }
 
-            yield return null;
+                yield return null;
+            }
         }
     }
 }

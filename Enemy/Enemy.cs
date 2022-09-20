@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -15,6 +16,7 @@ namespace AF
         public readonly int hashChasing = Animator.StringToHash("Chasing");
         public readonly int hashCombatting = Animator.StringToHash("Combatting");
         public readonly int hashShooting = Animator.StringToHash("Shooting");
+        public readonly int hashBuff = Animator.StringToHash("Buffing");
 
         [Header("General Settings")]
         public float rotationSpeed = 5f;
@@ -37,7 +39,17 @@ namespace AF
         public float sightDistance = 20f;
         public LayerMask obstructionMask;
 
+        [Header("On Buff Events")]
+        public UnityEvent onBuffEvent;
+        [Range(0, 100)]
+        public float maxHealthPercentageBeforeBuff;
+        [Range(0, 100)]
+        public float minimumChanceToUseBuff;
+        public float maxBuffCooldown = 15f;
+        float buffCooldown = 0f;
+
         [Header("On Killing Events")]
+        public UnityEvent onEnemyDeath;
         public float experienceGained = 0f;
 
         [Header("Projectile Options")]
@@ -48,13 +60,30 @@ namespace AF
 
         [Header("Weapon Settings")]
         public AudioSource combatAudioSource;
-        public EnemyWeaponInstance weapon;
+        
+        // All Possible Weapon Hitboxes Instances
+        public EnemyWeaponInstance leftHandWeapon;
+        public EnemyWeaponInstance rightHandWeapon;
+        public EnemyWeaponInstance leftLegWeapon;
+        public EnemyWeaponInstance rightLegWeapon;
+        public EnemyWeaponInstance headWeapon;
+        public EnemyWeaponInstance areaOfImpactWeapon;
+        [Header("Area Of Impact FX")]
+        public GameObject areaOfImpactFX;
+        public Transform areaOfImpactTransform;
+
         #region Weapon Attack Stats (Set or influenced by every attack animation clip);
         public float weaponDamage = 100f;
         public StatusEffect weaponStatusEffect = null;
         public float statusEffectAmount = 0f;
+        public float bonusBlockStaminaCost = 0f;
         #endregion
         [Range(0, 1)] public float heavyAttackFrequency = 0.85f;
+        public bool isWaiting = false;
+        public float turnWaitingTime = 0f;
+        public float maxWaitingTimeBeforeResumingCombat = 2f;
+        protected float waitingCounter = 0f;
+
 
         [Header("Block Settings")]
         public GameObject shield;
@@ -80,9 +109,12 @@ namespace AF
 
         private void Awake()
         {
-            foreach (Transform waypointChild in waypointsParent.transform)
+            if (waypointsParent != null)
             {
-                this.waypoints.Add(waypointChild);
+                foreach (Transform waypointChild in waypointsParent.transform)
+                {
+                    this.waypoints.Add(waypointChild);
+                }
             }
 
             maxHealth = this.health;
@@ -95,6 +127,11 @@ namespace AF
 
         public void GotoNextPoint()
         {
+            if (waypoints.Count <= 0)
+            {
+                return;
+            }
+
             agent.destination = waypoints[destinationPoint].position;
             destinationPoint = (destinationPoint + 1) % waypoints.Count;
         }
@@ -112,6 +149,49 @@ namespace AF
             {
                 projectileCooldown += Time.deltaTime;
             }
+
+            if (isWaiting)
+            {
+                waitingCounter += Time.deltaTime;
+
+                if (waitingCounter >= turnWaitingTime && animator.GetBool(hashCombatting) == false)
+                {
+                    waitingCounter = 0f;
+                    turnWaitingTime = 0f;
+                    isWaiting = false;
+                    animator.SetBool(hashCombatting, true);
+                }
+            }
+
+            HandleBuff();
+        }
+
+        void HandleBuff()
+        {
+
+            float currentHealthPercentage = GetCurrentHealth() * 100 / GetMaxHealth();
+
+            if (currentHealthPercentage > maxHealthPercentageBeforeBuff)
+            {
+                return;
+            }
+
+            buffCooldown += Time.deltaTime;
+            if (buffCooldown < maxBuffCooldown)
+            {
+                return;
+            }
+
+
+            buffCooldown = 0f;
+
+            float chanceToBuff = Random.RandomRange(0, 100f);
+            if (chanceToBuff < minimumChanceToUseBuff)
+            {
+                return;
+            }
+
+            animator.Play(hashBuff);
         }
 
         public bool CanShoot()
@@ -125,53 +205,10 @@ namespace AF
             projectileCooldown = 0f;
         }
 
-        #region Animation Events
-        public void FireProjectile()
-        {
-            Utils.FaceTarget(this.transform, player.transform);
-
-            GameObject projectileInstance = Instantiate(projectilePrefab, this.projectileSpawnPoint.transform.position, Quaternion.identity);
-
-            Projectile projectile = projectileInstance.GetComponent<Projectile>();
-
-            projectile.Shoot(player.headTransform);
-        }
-
-        public void ActivateHitbox()
-        {
-            if (weapon == null)
-            {
-                return;
-            }
-
-            weapon.EnableHitbox();
-        }
-
-        public void DeactivateHitbox()
-        {
-            if (weapon == null)
-            {
-                return;
-            }
-
-            weapon.DisableHitbox();
-        }
-
-        public void PlayGroundImpact()
-        {
-            if (groundImpactSfx == null)
-            {
-                return;
-            }
-
-            combatAudioSource.PlayOneShot(groundImpactSfx);
-        }
-
-        #endregion
 
         public IWeaponInstance GetWeaponInstance()
         {
-            return this.weapon;
+            return null;
         }
 
         public ShieldInstance GetShieldInstance()
@@ -198,5 +235,155 @@ namespace AF
         {
             this.health = Mathf.Clamp(health, 0f, GetMaxHealth());
         }
+
+        #region Animation Events
+        public void CastBuff()
+        {
+            this.onBuffEvent.Invoke();
+        }
+
+        public void FireProjectile()
+        {
+            Utils.FaceTarget(this.transform, player.transform);
+
+            GameObject projectileInstance = Instantiate(projectilePrefab, this.projectileSpawnPoint.transform.position, Quaternion.identity);
+
+            Projectile projectile = projectileInstance.GetComponent<Projectile>();
+
+            projectile.Shoot(player.headTransform);
+        }
+
+        public void PlayGroundImpact()
+        {
+            if (groundImpactSfx == null)
+            {
+                return;
+            }
+
+            combatAudioSource.PlayOneShot(groundImpactSfx);
+        }
+
+        public void ActivateLeftHandHitbox()
+        {
+            if (leftHandWeapon == null)
+            {
+                return;
+            }
+
+            leftHandWeapon.EnableHitbox();
+        }
+        public void DeactivateLeftHandHitbox()
+        {
+            if (leftHandWeapon == null)
+            {
+                return;
+            }
+
+            leftHandWeapon.DisableHitbox();
+        }
+
+        public void ActivateRightHandHitbox()
+        {
+            if (rightHandWeapon == null)
+            {
+                return;
+            }
+
+            rightHandWeapon.EnableHitbox();
+        }
+
+        public void DeactivateRightHandHitbox()
+        {
+            if (rightHandWeapon == null)
+            {
+                return;
+            }
+
+            rightHandWeapon.DisableHitbox();
+        }
+
+        public void ActivateRightLegHitbox()
+        {
+            if (rightLegWeapon == null)
+            {
+                return;
+            }
+
+            rightLegWeapon.EnableHitbox();
+        }
+
+        public void DeactivateRightLegHitbox()
+        {
+            if (rightLegWeapon == null)
+            {
+                return;
+            }
+
+            rightLegWeapon.DisableHitbox();
+        }
+
+        public void ActivateLeftLegHitbox()
+        {
+            if (leftLegWeapon == null)
+            {
+                return;
+            }
+
+            leftLegWeapon.EnableHitbox();
+        }
+
+        public void DeactivateLeftLegHitbox()
+        {
+            if (leftLegWeapon == null)
+            {
+                return;
+            }
+
+            leftLegWeapon.DisableHitbox();
+        }
+
+        public void ActivateHeadHitbox()
+        {
+            if (headWeapon == null)
+            {
+                return;
+            }
+
+            headWeapon.EnableHitbox();
+        }
+
+        public void DeactivateHeadHitbox()
+        {
+            if (headWeapon == null)
+            {
+                return;
+            }
+
+            headWeapon.DisableHitbox();
+        }
+
+        public void ActivateAreaOfImpactHitbox()
+        {
+            if (areaOfImpactWeapon == null)
+            {
+                return;
+            }
+
+            Instantiate(areaOfImpactFX, areaOfImpactTransform);
+
+            areaOfImpactWeapon.EnableHitbox();
+        }
+
+        public void DeactivateAreaOfImpactHitbox()
+        {
+            if (areaOfImpactWeapon == null)
+            {
+                return;
+            }
+
+            areaOfImpactWeapon.DisableHitbox();
+        }
+
+        #endregion
     }
 }

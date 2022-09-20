@@ -12,14 +12,89 @@ namespace AF
         public Enemy enemy;
         public EnemyHealthbox enemyHealthbox;
 
+        // BUFFS
+        public void CastBuff()
+        {
+            enemy.CastBuff();
+        }
+
+        // Adapter
         public void ActivateHitbox()
         {
-            enemy.ActivateHitbox();
+            enemy.ActivateLeftHandHitbox();
         }
         public void DeactivateHitbox()
         {
-            enemy.DeactivateHitbox();
+            enemy.DeactivateLeftHandHitbox();
         }
+
+        // HANDS
+        public void ActivateLeftHandHitbox()
+        {
+            enemy.ActivateLeftHandHitbox();
+        }
+        
+        public void DeactivateLeftHandHitbox()
+        {
+            enemy.DeactivateLeftHandHitbox();
+        }
+        
+        public void ActivateRightHandHitbox()
+        {
+            enemy.ActivateRightHandHitbox();
+        }
+
+        public void DeactivateRightHandHitbox()
+        {
+            enemy.DeactivateRightHandHitbox();
+        }
+
+        // LEGS
+        public void ActivateLeftLegHitbox()
+        {
+            enemy.ActivateLeftLegHitbox();
+        }
+
+        public void DeactivateLeftLegHitbox()
+        {
+            enemy.DeactivateLeftLegHitbox();
+        }
+
+        public void ActivateRightLegHitbox()
+        {
+            enemy.ActivateRightLegHitbox();
+        }
+
+        public void DeactivateRightLegHitbox()
+        {
+            enemy.DeactivateRightLegHitbox();
+        }
+
+        // HEAD
+
+        public void ActivateHeadHitbox()
+        {
+            enemy.ActivateHeadHitbox();
+        }
+
+        public void DeactivateHeadHitbox()
+        {
+            enemy.DeactivateHeadHitbox();
+        }
+
+        // AOE
+
+        public void ActivateAreaOfImpactHitbox()
+        {
+            enemy.ActivateAreaOfImpactHitbox();
+        }
+
+        public void DeactivateAreaOfImpactHitbox()
+        {
+            enemy.DeactivateAreaOfImpactHitbox();
+        }
+
+        // SHOOTING
 
         public void FireProjectile()
         {

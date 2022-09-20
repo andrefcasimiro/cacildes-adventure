@@ -25,7 +25,12 @@ namespace AF
 
         private void EvaluateMenu()
         {
-            if (IsInInventoryMenu())
+            if (IsInControlsScreen())
+            {
+                FindObjectOfType<UIDocumentControlsScreen>(true).Disable();
+                FindObjectOfType<UIDocumentMainMenu>(true).Enable();
+            }
+            else if (IsInInventoryMenu())
             {
                 FindObjectOfType<UIDocumentInventoryMenu>(true).Disable();
                 FindObjectOfType<UIDocumentMainMenu>(true).Enable();
@@ -67,6 +72,23 @@ namespace AF
         public void DisableAllMenuWindows()
         {
             FindObjectOfType<UIDocumentMainMenu>(true).Disable();
+        }
+
+        public bool IsInControlsScreen()
+        {
+            UIDocumentControlsScreen uIDocumentControlsScreen = FindObjectOfType<UIDocumentControlsScreen>(true);
+
+            if (uIDocumentControlsScreen.goBackToMenu == false)
+            {
+                return false;
+            }
+
+            if (uIDocumentControlsScreen == null)
+            {
+                return false;
+            }
+
+            return uIDocumentControlsScreen.IsVisible();
         }
 
         public bool IsInInventoryMenu()
@@ -116,7 +138,7 @@ namespace AF
         public bool IsMenuOpened()
         {
 
-            return IsInInventoryMenu() || IsInMainMenu() || IsInEquipmentMenu() || IsInEquipmentSelectionMenu();
+            return IsInInventoryMenu() || IsInMainMenu() || IsInEquipmentMenu() || IsInEquipmentSelectionMenu() || IsInControlsScreen();
         }
 
         public void PlaySelectSfx()

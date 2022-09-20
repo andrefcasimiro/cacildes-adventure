@@ -36,6 +36,16 @@ namespace AF
                 subscribedEvents.Add(childEvent);
             }
 
+            // Check if other events are subscribed to this local switch
+            Event[] eventsInScene = FindObjectsOfType<Event>(true);
+            foreach (var ev in eventsInScene)
+            {
+                if (ev.localSwitch != null && ev.localSwitch.ID == this.ID)
+                {
+                    subscribedEvents.Add(ev);
+                }
+            }
+
         }
 
         public void UpdateLocalSwitchValue(LocalSwitchName nextLocalSwitchName)

@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 using System.Linq;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using Button = UnityEngine.UIElements.Button;
 
 namespace AF
 {
@@ -123,6 +124,9 @@ namespace AF
 
         UnityEngine.UIElements.Button CreateButton(Item item, string name, Sprite itemSprite, UnityAction clickCallback, UnityAction focusCallback)
         {
+            VisualElement visualElementContainer = new VisualElement();
+            visualElementContainer.style.flexDirection = FlexDirection.Row;
+
             UnityEngine.UIElements.Button btn = new UnityEngine.UIElements.Button();
             btn.text = "";
             btn.name = name.Replace(" ", "");
@@ -142,41 +146,47 @@ namespace AF
             itemName.text = name;
             btn.Add(itemName);
 
+            Button favoriteSpriteButton = new Button();
+            favoriteSpriteButton.AddToClassList("game-button");
+
             VisualElement favoriteSprite = new VisualElement();
             favoriteSprite.style.backgroundImage = new StyleBackground(favoriteIconSprite);
             favoriteSprite.style.height = 20;
             favoriteSprite.style.width = 20;
-            btn.Add(favoriteSprite);
 
-            btn.RegisterCallback<KeyDownEvent>((ev) =>
+            favoriteSpriteButton.Add(favoriteSprite);
+            btn.Add(favoriteSpriteButton);
+
+
+            SetupButtonClick(favoriteSpriteButton, () =>
             {
                 // Only allow favorites on consumable items
                 Consumable consumable = item as Consumable;
 
-                if (hasPressedFavoriteItemButton && consumable != null)
+                if (consumable == null)
                 {
-                    hasPressedFavoriteItemButton = false;
+                    return;
+                }
 
-                    PlayerInventoryManager.instance.ToggleFavoriteItem(item);
+                PlayerInventoryManager.instance.ToggleFavoriteItem(item);
 
-                    if (PlayerInventoryManager.instance.currentFavoriteItems.Exists(favItem => favItem == item))
-                    {
-                        favoriteSprite.RemoveFromClassList("hide");
-                    }
-                    else
-                    {
-                        favoriteSprite.AddToClassList("hide");
-                    }
+                if (PlayerInventoryManager.instance.currentFavoriteItems.Exists(favItem => favItem == item))
+                {
+                    favoriteSprite.style.opacity = 1;
+                }
+                else
+                {
+                    favoriteSprite.style.opacity = .25f;
                 }
             });
 
             if (PlayerInventoryManager.instance.currentFavoriteItems.Exists(favItem => favItem == item))
             {
-                favoriteSprite.RemoveFromClassList("hide");
+                favoriteSprite.style.opacity = 1;
             }
             else
             {
-                favoriteSprite.AddToClassList("hide");
+                favoriteSprite.style.opacity = .25f;
             }
 
             this.SetupButtonClick(btn, clickCallback);
@@ -191,7 +201,10 @@ namespace AF
                 focusCallback.Invoke();
             });
 
-            this.itemListScrollView.Add(btn);
+            visualElementContainer.Add(btn);
+            visualElementContainer.Add(favoriteSpriteButton);
+
+            this.itemListScrollView.Add(visualElementContainer);
 
             return btn;
         }

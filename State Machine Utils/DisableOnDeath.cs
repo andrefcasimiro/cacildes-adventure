@@ -22,7 +22,16 @@ namespace AF
             enemy.GetComponent<CapsuleCollider>().enabled = !disableCapsuleCollider;
 
 
-            enemy.GetComponent<EnemyHealthbox>().healthBarSlider.gameObject.SetActive(false);
+            var healthbox = enemy.GetComponent<EnemyHealthbox>();
+            if (healthbox != null && healthbox.healthBarSlider != null)
+            {
+                healthbox.healthBarSlider.gameObject.SetActive(false);
+            }
+
+            if (enemy.onEnemyDeath != null)
+            {
+                enemy.onEnemyDeath.Invoke();
+            }
             enemy.GetComponent<Healthbox>().enabled = false;
             enemy.agent.enabled = false;
             enemy.enabled = false;

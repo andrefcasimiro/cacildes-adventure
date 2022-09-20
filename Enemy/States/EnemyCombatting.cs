@@ -53,6 +53,28 @@ namespace AF
 
         public void AttackPlayer(Animator animator)
         {
+            bool playerIsClose = Vector3.Distance(enemy.player.transform.position, enemy.transform.position) <= 1f;
+            if (playerIsClose)
+            {
+                float chanceToBlockOrDodge = Random.Range(0, 1f);
+
+                if (chanceToBlockOrDodge <= 0.1f)
+                {
+                    if (this.blockActions.Length > 0)
+                    {
+                        animator.Play(this.blockActions[0]);
+                        return;
+                    }
+                    else if (this.dodgeActions.Length > 0)
+                    {
+                        animator.Play(this.dodgeActions[0]);
+                        return;
+                    }
+                }
+
+            }
+
+
             float attackDice = Random.Range(0, 1f);
 
             if (attackDice <= 0.25f)
@@ -97,8 +119,11 @@ namespace AF
             }
 
             float dodgeDice = Random.Range(0, 1f);
+            Debug.Log("dodgeDice" + dodgeDice);
             if (dodgeDice >= enemy.dodgeFrequency && this.dodgeActions.Length > 0)
             {
+                enemy.GetComponent<EnemyHealthbox>().ActivateDodge();
+
                 int dodgeClip = Random.Range(0, this.dodgeActions.Length);
                 animator.Play(this.dodgeActions[dodgeClip]);
                 return;

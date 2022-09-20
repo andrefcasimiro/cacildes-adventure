@@ -18,7 +18,6 @@ namespace AF
         private IEnumerator Teleport()
         {
             yield return null;
-
             MapManager.instance.Teleport(sceneName, spawnGameObjectName);
         }
 

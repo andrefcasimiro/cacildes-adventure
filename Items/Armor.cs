@@ -43,6 +43,25 @@ namespace AF
 
         public string[] graphicNamesToHide;
 
+        // Stats
+        public int vitalityBonus = 0;
+        public int strengthBonus = 0;
+        public int dexterityBonus = 0;
+        public int charismaBonus = 0;
+        public int enduranceBonus = 0;
+
+        public void OnEquip()
+        {
+            PlayerStatsManager.instance.HandleEquipmentChanges();
+
+        }
+
+        public void OnUnequip()
+        {
+            PlayerStatsManager.instance.HandleEquipmentChanges();
+
+        }
+
     }
 
 }

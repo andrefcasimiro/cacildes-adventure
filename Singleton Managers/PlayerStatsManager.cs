@@ -33,8 +33,6 @@ namespace AF
         public int currentReputation;
         public float currentExperience;
 
-        public int gold;
-
         public float currentPhysicalAttack;
         public float currentPhysicalDefense;
 
@@ -57,14 +55,18 @@ namespace AF
         readonly float AScalingBonus = 1.6f;
         readonly float SScalingBonus = 2f;
 
-        public float STAMINA_REGENERATION_RATE = 18f;
-        bool regenStamina = false;
+        public float STAMINA_REGENERATION_RATE = 20f;
+        public bool regenStamina = false;
         public const float EMPTY_STAMINA_REGENERATION_DELAY = 0.5f;
 
         public List<AppliedConsumable> appliedConsumables = new List<AppliedConsumable>();
         public List<AppliedStatus> appliedStatus = new List<AppliedStatus>();
 
         public List<StatusEffect> statusEffectsDatabase = new List<StatusEffect>();
+
+        public const float statMultiplierPerLevel = 3.25f;
+
+        public AudioClip drainedStaminaSfx;
 
         private void Awake()
         {
@@ -224,12 +226,12 @@ namespace AF
 
         public float GetLevelPhysicalAttack()
         {
-            return Mathf.Ceil(100 + ((strength + dexterity) * 2.25f));
+            return Mathf.Ceil(100 + ((strength + dexterity) * statMultiplierPerLevel));
         }
 
         public float GetPhysicalAttackForDesiredStrengthAndDexterity(int strength, int dexterity)
         {
-            return Mathf.Ceil(100 + ((strength + dexterity) * 2.25f));
+            return Mathf.Ceil(100 + ((strength + dexterity) * statMultiplierPerLevel));
         }
         #endregion
 
@@ -254,12 +256,58 @@ namespace AF
 
         public float GetMaxHealthPoints()
         {
-            return Mathf.Ceil(this.vitality * 2.25f) + 100; // + Accessory 1 & 2 Bonus Increases and Temporary Buffs
+            float bonus = 0;
+
+            if (PlayerInventoryManager.instance.currentAccessory1 != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentAccessory1.healthBonus;
+            }
+            if (PlayerInventoryManager.instance.currentHelmet != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentHelmet.vitalityBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentChest != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentChest.vitalityBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentGauntlets != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentGauntlets.vitalityBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentLegwear != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentLegwear.vitalityBonus * statMultiplierPerLevel;
+            }
+
+            return Mathf.Ceil(this.vitality * statMultiplierPerLevel) + 100 + bonus;
         }
 
         public float GetHealthPointsForGivenVitality(int vitality)
         {
-            return Mathf.Ceil(vitality * 2.25f) + 100; // + Accessory 1 & 2 Bonus Increases and Temporary Buffs
+            float bonus = 0;
+
+            if (PlayerInventoryManager.instance.currentAccessory1 != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentAccessory1.healthBonus;
+            }
+            if (PlayerInventoryManager.instance.currentHelmet != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentHelmet.vitalityBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentChest != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentChest.vitalityBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentGauntlets != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentGauntlets.vitalityBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentLegwear != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentLegwear.vitalityBonus * statMultiplierPerLevel;
+            }
+
+            return Mathf.Ceil(vitality * statMultiplierPerLevel) + 100 + bonus;
         }
 
         public float GetCurrentHealth()
@@ -291,12 +339,12 @@ namespace AF
         #region Magic Calculations
         public float GetMaxMagicPoints()
         {
-            return Mathf.Ceil((this.intelligence * 2.25f) + 100);
+            return Mathf.Ceil((this.intelligence * statMultiplierPerLevel) + 100);
         }
 
         public float GetMagicPointsForGivenIntelligence(int intelligence)
         {
-            return Mathf.Ceil(intelligence * 2.25f) + 100; 
+            return Mathf.Ceil(intelligence * statMultiplierPerLevel) + 100; 
         }
 
         public void SetCurrentMagic(float points)
@@ -323,7 +371,30 @@ namespace AF
         #region Stamina Calculations
         public float GetMaxStaminaPoints()
         {
-            return Mathf.Ceil((this.endurance * .25f) + 100);
+            float bonus = 0;
+
+            if (PlayerInventoryManager.instance.currentAccessory1 != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentAccessory1.staminaBonus;
+            }
+            if (PlayerInventoryManager.instance.currentHelmet != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentHelmet.enduranceBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentChest != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentChest.enduranceBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentGauntlets != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentGauntlets.enduranceBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentLegwear != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentLegwear.enduranceBonus * statMultiplierPerLevel;
+            }
+
+            return Mathf.Ceil((this.endurance * statMultiplierPerLevel) + 100 + bonus);
         }
 
         public float GetCurrentStamina()
@@ -333,12 +404,39 @@ namespace AF
 
         public float GetStaminaPointsForGivenEndurance(int endurance)
         {
-            return Mathf.Ceil(endurance * 2.25f) + 100;
+            float bonus = 0;
+
+            if (PlayerInventoryManager.instance.currentAccessory1 != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentAccessory1.staminaBonus;
+            }
+            if (PlayerInventoryManager.instance.currentHelmet != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentHelmet.enduranceBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentChest != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentChest.enduranceBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentGauntlets != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentGauntlets.enduranceBonus * statMultiplierPerLevel;
+            }
+            if (PlayerInventoryManager.instance.currentLegwear != null)
+            {
+                bonus += PlayerInventoryManager.instance.currentLegwear.enduranceBonus * statMultiplierPerLevel;
+            }
+            return Mathf.Ceil(endurance * statMultiplierPerLevel) + 100 + bonus;
         }
 
         public bool HasEnoughStaminaForAction(float actionStaminaCost)
         {
             return this.currentStamina - actionStaminaCost > 0;
+        }
+
+        public void PlayDrainedStaminaSFX()
+        {
+            BGMManager.instance.PlaySound(drainedStaminaSfx, null);
         }
 
         public void SetCurrentStamina(float points)
@@ -376,7 +474,7 @@ namespace AF
                 }
             }
 
-            this.currentStamina += finalRegenerationRate * Time.deltaTime;
+            this.currentStamina += Mathf.Clamp(finalRegenerationRate * Time.deltaTime, 0f, GetMaxStaminaPoints());
 
 
             if (this.currentStamina >= GetMaxStaminaPoints())
@@ -445,6 +543,19 @@ namespace AF
         }
 
         #endregion
+
+        public void HandleEquipmentChanges()
+        {
+            if (this.currentHealth > this.GetMaxHealthPoints())
+            {
+                this.currentHealth = this.GetMaxHealthPoints();
+            }
+
+            if (this.currentStamina > this.GetMaxStaminaPoints())
+            {
+                this.currentStamina = this.GetMaxStaminaPoints();
+            }
+        }
 
         #region Consumables
         private void ManageConsumablesOverTime()
@@ -685,8 +796,6 @@ namespace AF
 
             this.currentReputation = playerData.currentReputation;
 
-            this.gold = playerData.gold;
-
             this.vitality = playerData.vitality;
             this.intelligence = playerData.intelligence;
             this.endurance = playerData.endurance;
@@ -706,6 +815,11 @@ namespace AF
             if (this.currentStamina < GetMaxStaminaPoints())
             {
                 DecreaseStamina(0);
+            }
+            // Equipment bonus when saving and loading edge case
+            else if (this.currentStamina > GetMaxStaminaPoints())
+            {
+                this.currentStamina = GetMaxStaminaPoints();
             }
 
             this.appliedConsumables.Clear();

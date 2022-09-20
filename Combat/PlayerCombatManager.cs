@@ -63,6 +63,7 @@ namespace AF
 
             if (PlayerInventoryManager.instance.currentWeapon != null && PlayerStatsManager.instance.HasEnoughStaminaForAction(PlayerInventoryManager.instance.currentWeapon.staminaCost) == false)
             {
+                PlayerStatsManager.instance.PlayDrainedStaminaSFX();
                 return;
             }
 
@@ -142,47 +143,6 @@ namespace AF
             return this.canCombat;
         }
 
-        public void ActivateHitbox()
-        {
-            WeaponInstance playerWeapon = equipmentGraphicsHandler.weaponInstance;
-
-            if (playerWeapon != null)
-            {
-                playerWeapon.EnableHitbox();
-            }
-            else
-            {
-                DeactivateUnarmedHitboxes();
-
-                if (attackComboIndex == 1)
-                {
-                    unarmedRightHand.EnableHitbox();
-                }
-                else if (attackComboIndex == 2)
-                {
-                    unarmedLeftHand.EnableHitbox();
-                }
-                else if (attackComboIndex == 3)
-                {
-                    unarmedFoot.EnableHitbox();
-                }
-            }
-        }
-
-        public void DeactivateHitbox()
-        {
-            WeaponInstance playerWeapon = equipmentGraphicsHandler.weaponInstance;
-
-            if (playerWeapon != null)
-            {
-                playerWeapon.DisableHitbox();
-            }
-            else
-            {
-                DeactivateUnarmedHitboxes();
-            }
-        }
-
         void DeactivateUnarmedHitboxes()
         {
             unarmedLeftHand.DisableHitbox();
@@ -197,7 +157,7 @@ namespace AF
 
         public IWeaponInstance GetWeaponInstance()
         {
-            return equipmentGraphicsHandler.weaponInstance;
+            return equipmentGraphicsHandler.leftHandWeaponInstance;
         }
 
         public ShieldInstance GetShieldInstance()
@@ -223,6 +183,131 @@ namespace AF
         public void SetCurrentHealth(float health)
         {
             PlayerStatsManager.instance.SetCurrentHealth(health);
+        }
+
+        public void ActivateHitbox()
+        {
+            ActivateLeftHandHitbox();
+        }
+
+        public void DeactivateHitbox()
+        {
+            DeactivateLeftHandHitbox();
+        }
+
+
+        public void ActivateLeftHandHitbox()
+        {
+            WeaponInstance playerWeapon = equipmentGraphicsHandler.leftHandWeaponInstance;
+
+            if (playerWeapon != null)
+            {
+                playerWeapon.EnableHitbox();
+            }
+            else
+            {
+                DeactivateUnarmedHitboxes();
+
+                if (attackComboIndex == 1)
+                {
+                    unarmedRightHand.EnableHitbox();
+                }
+                else if (attackComboIndex == 2)
+                {
+                    unarmedLeftHand.EnableHitbox();
+                }
+                else if (attackComboIndex == 3)
+                {
+                    unarmedFoot.EnableHitbox();
+                }
+            }
+        }
+
+        public void DeactivateLeftHandHitbox()
+        {
+            WeaponInstance playerWeapon = equipmentGraphicsHandler.leftHandWeaponInstance;
+
+            if (playerWeapon != null)
+            {
+                playerWeapon.DisableHitbox();
+            }
+            else
+            {
+                DeactivateUnarmedHitboxes();
+            }
+        }
+
+        public void ActivateRightHandHitbox()
+        {
+            WeaponInstance playerWeapon = equipmentGraphicsHandler.rightHandWeaponInstance;
+
+            if (playerWeapon != null)
+            {
+                playerWeapon.EnableHitbox();
+            }
+            else
+            {
+                DeactivateUnarmedHitboxes();
+
+                if (attackComboIndex == 1)
+                {
+                    unarmedRightHand.EnableHitbox();
+                }
+                else if (attackComboIndex == 2)
+                {
+                    unarmedLeftHand.EnableHitbox();
+                }
+                else if (attackComboIndex == 3)
+                {
+                    unarmedFoot.EnableHitbox();
+                }
+            }
+        }
+
+        public void DeactivateRightHandHitbox()
+        {
+            WeaponInstance playerWeapon = equipmentGraphicsHandler.rightHandWeaponInstance;
+
+            if (playerWeapon != null)
+            {
+                playerWeapon.DisableHitbox();
+            }
+            else
+            {
+                DeactivateUnarmedHitboxes();
+            }
+        }
+
+        public void ActivateRightLegHitbox()
+        {
+        }
+
+        public void DeactivateRightLegHitbox()
+        {
+        }
+
+        public void ActivateLeftLegHitbox()
+        {
+        }
+
+        public void DeactivateLeftLegHitbox()
+        {
+        }
+
+        public void ActivateHeadHitbox()
+        {
+        }
+
+        public void DeactivateHeadHitbox()
+        {
+        }
+
+        public void ActivateAreaOfImpactHitbox()
+        {
+        }
+
+        public void DeactivateAreaOfImpactHitbox()
+        {
         }
     }
 

@@ -18,6 +18,13 @@ namespace AF
 
         Enemy enemy;
 
+        public int maxPostureHits = 1;
+        int currentPostureHitCount = 0;
+        float timerBeforeReset;
+        public float maxTimeBeforeReset = 15f;
+
+        bool hasInvokedOnDeathEvent = false;
+        
         private void Awake()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
@@ -25,15 +32,32 @@ namespace AF
 
         private void Start()
         {
-            healthBarSlider.maxValue = combatable.GetMaxHealth() * 0.01f;
-            healthBarSlider.value = combatable.GetCurrentHealth() * 0.01f;
+            if (healthBarSlider != null)
+            {
+                healthBarSlider.maxValue = combatable.GetMaxHealth() * 0.01f;
+                healthBarSlider.value = combatable.GetCurrentHealth() * 0.01f;
+            }
 
             this.TryGetComponent(out enemy);
         }
 
         private void Update()
         {
-            healthBarSlider.value = combatable.GetCurrentHealth() * 0.01f;
+            if (maxPostureHits > 1)
+            {
+                timerBeforeReset += Time.deltaTime;
+
+                if (timerBeforeReset >= maxTimeBeforeReset)
+                {
+                    currentPostureHitCount = 0;
+                    timerBeforeReset = 0f;
+                }
+            }
+
+            if (healthBarSlider != null)
+            {
+                healthBarSlider.value = combatable.GetCurrentHealth() * 0.01f;
+            }
         }
 
         public override void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponSwingSfx)
@@ -70,29 +94,41 @@ namespace AF
                 Utils.PlaySfx(combatAudioSource, weaponSwingSfx);
             }
 
-            StartCoroutine(PlayHurtSfx());
-
             if (combatable.GetCurrentHealth() <= 0)
             {
 
                 Enemy enemy = (Enemy)this.character;
 
-                PlayerStatsManager.instance.currentExperience += enemy.experienceGained;
-
-                notificationManager.ShowNotification("Cacildes received " + enemy.experienceGained + " points of experience");
-
                 Loot loot = enemy.GetComponent<Loot>();
                 if (loot != null)
                 {
-                    loot.GetLoot();
+                    StartCoroutine(GiveLoot(loot));
                 }
 
                 Die();
             }
             else
             {
-                animator.SetTrigger(hashTakingDamage);
+                currentPostureHitCount++;
+
+                if (currentPostureHitCount >= maxPostureHits)
+                {
+                    currentPostureHitCount = 0;
+                    animator.SetTrigger(hashTakingDamage);
+                    StartCoroutine(PlayHurtSfx());
+                }
             }
+        }
+
+        IEnumerator GiveLoot(Loot loot)
+        {
+            yield return new WaitForSeconds(1f);
+
+            PlayerStatsManager.instance.currentExperience += enemy.experienceGained;
+
+            notificationManager.NotifyCoins(enemy.experienceGained);
+
+            loot.GetLoot();
         }
 
         #region Animation Clips

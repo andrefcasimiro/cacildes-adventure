@@ -140,7 +140,6 @@ namespace AF
 
             moveDirectionResult = GetMoveDirection();
         }
-
         protected void FixedUpdate()
         {
             if (IsBusy())
@@ -244,12 +243,12 @@ namespace AF
             var speed = ((isSprinting && isCollidingWithObject == false)
                 ? runSpeed
                 : walkSpeed) * Time.fixedDeltaTime;
-            
+
             if (isCollidingWithObject)
             {
                 targetVector.y = 0;
             }
-            
+
             var targetPosition = transform.position + targetVector * speed;
 
             rigidbody.position = targetPosition;
@@ -259,6 +258,8 @@ namespace AF
         {
             if (IsBusy() || isAttacking || PlayerStatsManager.instance.HasEnoughStaminaForAction(DODGE_STAMINA_COST) == false)
             {
+                PlayerStatsManager.instance.PlayDrainedStaminaSFX();
+
                 return;
             }
 
@@ -281,19 +282,12 @@ namespace AF
 
         public Vector3 GetMoveDirection()
         {
-            bool cameraInverted = Camera.main.transform.forward.z <= 0;
-
-            float invertion = cameraInverted ? -1 : 1;
-
-            float x = desiredMoveDirection.x;
-            float z = desiredMoveDirection.y;
-
-            x *= invertion;
-            z *= invertion;
-
-            return new Vector3(x, 0, z);
+            var target = Camera.main.transform.forward * desiredMoveDirection.y + Camera.main.transform.right * desiredMoveDirection.x;
+            target.y = 0;
+            return target.normalized;
         }
         #endregion
+
 
         public bool IsBusy()
         {

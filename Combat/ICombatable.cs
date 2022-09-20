@@ -5,8 +5,24 @@ namespace AF
 
     public interface ICombatable
     {
-        public void ActivateHitbox();
-        public void DeactivateHitbox();
+        public void ActivateLeftHandHitbox();
+        public void DeactivateLeftHandHitbox();
+
+        public void ActivateRightHandHitbox();
+        public void DeactivateRightHandHitbox();
+
+        public void ActivateRightLegHitbox();
+        public void DeactivateRightLegHitbox();
+
+        public void ActivateLeftLegHitbox();
+        public void DeactivateLeftLegHitbox();
+
+        public void ActivateHeadHitbox();
+        public void DeactivateHeadHitbox();
+
+        public void ActivateAreaOfImpactHitbox();
+        public void DeactivateAreaOfImpactHitbox();
+
         public void FireProjectile();
 
         public IWeaponInstance GetWeaponInstance();

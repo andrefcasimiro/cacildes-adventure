@@ -91,12 +91,12 @@ namespace AF
                 ShowEquipmentSelection();
             });
 
-            equippedAccessory2Button = this.root.Q<Button>("Accessory2Button");
+            /*equippedAccessory2Button = this.root.Q<Button>("Accessory2Button");
             SetupButtonClick(equippedAccessory2Button, () =>
             {
                 equipmentSelectionMode = EquipmentSelectionMode.ACCESSORY_2;
                 ShowEquipmentSelection();
-            });
+            });*/
 
             this.Disable();
         }
@@ -136,7 +136,7 @@ namespace AF
             equippedArmsButton.Q<Label>("Value").text = gauntlets != null ? gauntlets.name : "None";
             equippedLegsButton.Q<Label>("Value").text = legwear != null ? legwear.name : "None";
             equippedAccessory1Button.Q<Label>("Value").text = accessory1 != null ? accessory1.name : "None";
-            equippedAccessory2Button.Q<Label>("Value").text = accessory2 != null ? accessory2.name : "None";
+            // equippedAccessory2Button.Q<Label>("Value").text = accessory2 != null ? accessory2.name : "None";
         }
 
         public override void Disable()

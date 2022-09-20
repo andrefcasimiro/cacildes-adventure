@@ -6,8 +6,6 @@ namespace AF
     public class EnemyChasing : StateMachineBehaviour
     {
 
-        float projectileCooldown = 0f;
-
         Enemy enemy;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

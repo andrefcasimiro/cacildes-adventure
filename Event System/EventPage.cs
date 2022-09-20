@@ -10,6 +10,7 @@ namespace AF
         ON_KEY_PRESS,
         ON_PLAYER_TOUCH,
         ON_TARGET_TOUCH,
+        NO_TRIGGERED,
     }
 
     public class EventPage : InputListener
@@ -39,6 +40,9 @@ namespace AF
 
         public bool debug = false;
 
+        Player player;
+        PlayerCombatManager playerCombatManager;
+
         private void Awake()
         {
             this.eventParent = this.transform.GetComponentInParent<Event>();
@@ -55,6 +59,15 @@ namespace AF
         private void Start()
         {
             keyPressPromptManager = FindObjectOfType<KeyPressPromptManager>(true);
+
+            if (eventTrigger == EventTrigger.AUTOMATIC)
+            {   
+                // By Default, disable combat when player is near an event
+                PlayerCombatManager playerCombatManager = FindObjectOfType<Player>(true).GetComponent<PlayerCombatManager>();
+                playerCombatManager.DisableCombat();
+
+                StartCoroutine(DispatchEvents());
+            }
         }
 
         private new void OnEnable()
@@ -62,6 +75,11 @@ namespace AF
             base.OnEnable();
 
             canInteract = false;
+
+            if (eventTrigger == EventTrigger.NO_TRIGGERED)
+            {
+                return;
+            }
 
             StartCoroutine(AllowEventInteraction());
         }
@@ -77,7 +95,6 @@ namespace AF
         {
             base.OnDisable();
 
-            Player player = FindObjectOfType<Player>();
             if (player != null)
             {
                 player.SetBusy(false);
@@ -90,6 +107,29 @@ namespace AF
 
         private void Update()
         {
+            if (isRunning)
+            {
+                if (eventTrigger != EventTrigger.ON_PLAYER_TOUCH)
+                {
+                    if (player == null)
+                    {
+                        player = FindObjectOfType<Player>();
+                    }
+                    if (playerCombatManager == null)
+                    {
+                        playerCombatManager = player.GetComponent<PlayerCombatManager>();
+                    }
+
+                    playerCombatManager.canCombat = false;
+                    player.SetBusy(true);
+                }
+            }
+
+            if (eventTrigger == EventTrigger.AUTOMATIC)
+            {
+                FindObjectOfType<Player>(true).SetBusy(true);
+            }
+
             if (moveRoute == null)
             {
                 return;
@@ -123,6 +163,8 @@ namespace AF
                 Player player = FindObjectOfType<Player>();
                 if (player != null)
                 {
+                    PlayerCombatManager playerCombatManager = player.GetComponent<PlayerCombatManager>();
+                    playerCombatManager.canCombat = false;
                     player.SetBusy(true);
                 }
             }
@@ -148,6 +190,8 @@ namespace AF
                 Player player = FindObjectOfType<Player>();
                 if (player != null)
                 {
+                    PlayerCombatManager playerCombatManager = player.GetComponent<PlayerCombatManager>();
+                    playerCombatManager.canCombat = true;
                     player.SetBusy(false);
                 }
             }

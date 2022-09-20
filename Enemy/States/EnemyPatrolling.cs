@@ -9,6 +9,8 @@ namespace AF
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+            Player player = FindObjectOfType<Player>(true);
+
             animator.gameObject.TryGetComponent<Enemy>(out enemy);
             if (enemy == null)
             {
@@ -20,8 +22,6 @@ namespace AF
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            Debug.Log("Player Sighted: " + Utils.PlayerIsSighted(enemy, enemy.player, enemy.obstructionMask));
-
             // Chase Player if available
             if (
                 enemy.player.IsBusy() == false

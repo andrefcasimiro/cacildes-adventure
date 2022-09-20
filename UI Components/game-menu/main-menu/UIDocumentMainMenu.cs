@@ -11,7 +11,7 @@ namespace AF
         [Header("Main Menu Buttons")]
         public Button equipmentButton;
         public Button inventoryButton;
-        public Button managePartyButton;
+        public Button controlButton;
         public Button saveGameButton;
         public Button loadGameButton;
         public Button exitGameButton;
@@ -75,8 +75,12 @@ namespace AF
                 }
             });
 
-            this.managePartyButton = root.Q<Button>("ManagePartyButton");
-            SetupButtonClick(this.managePartyButton, () => { });
+            this.controlButton = root.Q<Button>("ControlsButton");
+            SetupButtonClick(this.controlButton, () => {
+                FindObjectOfType<UIDocumentControlsScreen>(true).Enable();
+                this.Disable();
+
+            });
 
             this.saveGameButton = root.Q<Button>("SaveGameButton");
             SetupButtonClick(this.saveGameButton, () => {
@@ -88,25 +92,31 @@ namespace AF
 
             this.loadGameButton = root.Q<Button>("LoadGameButton");
             SetupButtonClick(this.loadGameButton, () => {
+                if (SaveSystem.instance.canUse == false)
+                {
+                    return;
+                }
                 SaveSystem.instance.LoadGameData();
                 this.Disable();
             });
 
             this.exitGameButton = root.Q<Button>("ExitGameButton");
-            SetupButtonClick(this.exitGameButton, () => { });
+            SetupButtonClick(this.exitGameButton, () => {
+                Application.Quit();
+            });
 
             this.level = root.Q<VisualElement>("Level").Q<Label>("Value");
             this.currentExperience = root.Q<VisualElement>("CurrentExperience").Q<Label>("Value");
             this.hp = root.Q<VisualElement>("CurrentHP").Q<Label>("Value");
-            this.mp = root.Q<VisualElement>("CurrentMP").Q<Label>("Value");
+            //  this.mp = root.Q<VisualElement>("CurrentMP").Q<Label>("Value");
             this.stamina = root.Q<VisualElement>("CurrentStamina").Q<Label>("Value");
             this.reputation = root.Q<VisualElement>("Reputation").Q<Label>("Value");
             this.vitality = root.Q<VisualElement>("Vitality").Q<Label>("Value");
             this.endurance = root.Q<VisualElement>("Endurance").Q<Label>("Value");
-            this.intelligence = root.Q<VisualElement>("Intelligence").Q<Label>("Value");
+            // this.intelligence = root.Q<VisualElement>("Intelligence").Q<Label>("Value");
             this.strength = root.Q<VisualElement>("Strength").Q<Label>("Value");
             this.dexterity = root.Q<VisualElement>("Dexterity").Q<Label>("Value");
-            this.arcane = root.Q<VisualElement>("Arcane").Q<Label>("Value");
+            //  this.arcane = root.Q<VisualElement>("Arcane").Q<Label>("Value");
             this.charisma = root.Q<VisualElement>("Charisma").Q<Label>("Value");
             this.attackPower = root.Q<VisualElement>("AttackPower").Q<Label>("Value");
             this.physicalAttack = root.Q<VisualElement>("PhysicalAttack").Q<Label>("Value");
@@ -126,16 +136,16 @@ namespace AF
             this.level.text = PlayerStatsManager.instance.GetCurrentLevel().ToString();
             this.currentExperience.text = PlayerStatsManager.instance.currentExperience + "/" + PlayerStatsManager.instance.GetRequiredExperienceForNextLevel();
             this.hp.text = PlayerStatsManager.instance.GetCurrentHealth() + "/" + PlayerStatsManager.instance.GetMaxHealthPoints();
-            this.mp.text = PlayerStatsManager.instance.currentMagic + "/" + PlayerStatsManager.instance.GetMaxMagicPoints();
+            // this.mp.text = PlayerStatsManager.instance.currentMagic + "/" + PlayerStatsManager.instance.GetMaxMagicPoints();
             this.stamina.text = PlayerStatsManager.instance.GetCurrentStamina() + "/" + PlayerStatsManager.instance.GetMaxStaminaPoints();
             this.currentExperience.text = PlayerStatsManager.instance.currentExperience + "/" + PlayerStatsManager.instance.GetRequiredExperienceForNextLevel();
             this.reputation.text = PlayerStatsManager.instance.currentReputation.ToString();
             this.vitality.text = PlayerStatsManager.instance.vitality.ToString();
-            this.intelligence.text = PlayerStatsManager.instance.intelligence.ToString();
+            // this.intelligence.text = PlayerStatsManager.instance.intelligence.ToString();
             this.endurance.text = PlayerStatsManager.instance.endurance.ToString();
             this.strength.text = PlayerStatsManager.instance.strength.ToString();
             this.dexterity.text = PlayerStatsManager.instance.dexterity.ToString();
-            this.arcane.text = PlayerStatsManager.instance.arcane.ToString();
+            // this.arcane.text = PlayerStatsManager.instance.arcane.ToString();
             this.charisma.text = PlayerStatsManager.instance.charisma.ToString();
 
             var weapon = PlayerInventoryManager.instance.currentWeapon;
@@ -153,6 +163,7 @@ namespace AF
             this.physicalDefense.text = " " + PlayerStatsManager.instance.GetLevelPhysicalDefense().ToString();
             this.equipmentDefense.text = "+" + PlayerStatsManager.instance.GetEquipmentDefenseAbsorption().ToString();
 
+            this.saveGameButton.SetEnabled(SaveSystem.instance.canUse);
         }
 
         public override void Enable()

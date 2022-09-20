@@ -25,7 +25,7 @@ namespace AF
         public SerializableItem[] items;
         public string[] favoriteItems;
 
-        public string lastActiveCameraName;
+        public string lastActiveCameraUuid;
 
         public SerializableConsumable[] consumables;
         public SerializableStatusEffect[] statusEffects;
@@ -33,6 +33,7 @@ namespace AF
 
     public class SaveSystem : MonoBehaviour
     {
+        public bool canUse = true;
 
         public delegate void OnGameLoadEvent(GameData gameData);
         // the event itself
@@ -41,6 +42,7 @@ namespace AF
         public static SaveSystem instance;
 
         public AudioClip saveSfx;
+        public AudioClip saveErrorSfx;
 
         private void Awake()
         {
@@ -82,6 +84,24 @@ namespace AF
 
         public void SaveGameData()
         {
+            NotificationManager notificationManager = null;
+
+            // Check if any event is running first
+            EventPage[] eventPages = FindObjectsOfType<EventPage>(); // Only active ones
+            var runningEventPage = eventPages.FirstOrDefault(eventPage => eventPage.isRunning);
+            if (runningEventPage)
+            {
+                notificationManager = FindObjectOfType<NotificationManager>(true);
+                if (notificationManager != null)
+                {
+                    BGMManager.instance.PlaySound(saveErrorSfx, null);
+
+                    notificationManager.ShowNotification("Game can not be saved during an event.");
+                }
+
+                return;
+            }
+
             GameData gameData = new GameData();
 
             // Scene Name
@@ -190,11 +210,11 @@ namespace AF
             // Local Switches
             GameData savedGameData = Load<GameData>("gameData");
             List<SerializableLocalSwitch> alreadySavedLocalSwitches = (savedGameData != null && savedGameData.localSwitches != null) ? savedGameData.localSwitches.ToList() : new List<SerializableLocalSwitch>();
-            LocalSwitch[] localSwitchesInScene = FindObjectsOfType<LocalSwitch>(true);
+            List<RegisteredLocalSwitch> localSwitchesInScene = LocalSwitchManager.instance.registeredLocalSwitches;
 
-            foreach (LocalSwitch localSwitchInScene in localSwitchesInScene)
+            foreach (var localSwitchInScene in localSwitchesInScene)
             {
-                int idx = alreadySavedLocalSwitches.FindIndex(savedLocalSwitch => savedLocalSwitch.uuid == localSwitchInScene.ID);
+                int idx = alreadySavedLocalSwitches.FindIndex(savedLocalSwitch => savedLocalSwitch.uuid == localSwitchInScene.uuid);
                 if (idx != -1)
                 {
                     alreadySavedLocalSwitches[idx].localSwitchName = localSwitchInScene.localSwitchName.ToString();
@@ -202,7 +222,7 @@ namespace AF
                 else
                 {
                     SerializableLocalSwitch serializableLocalSwitch = new SerializableLocalSwitch();
-                    serializableLocalSwitch.uuid = localSwitchInScene.ID;
+                    serializableLocalSwitch.uuid = localSwitchInScene.uuid;
                     serializableLocalSwitch.localSwitchName = localSwitchInScene.localSwitchName.ToString();
                     alreadySavedLocalSwitches.Add(serializableLocalSwitch);
                 }
@@ -212,14 +232,14 @@ namespace AF
             // Activate game camera
             var sceneCameras = FindObjectsOfType<Cinemachine.CinemachineVirtualCamera>(true);
 
-            Cinemachine.CinemachineVirtualCamera activeCamera = sceneCameras.Count() > 0 ? sceneCameras.First(camera => camera.gameObject.activeSelf) : null;
+            Cinemachine.CinemachineVirtualCamera activeCamera = sceneCameras.Count() > 0 ? sceneCameras.First(camera => camera.gameObject.activeSelf && camera.isActiveAndEnabled) : null;
             if (activeCamera != null)
             {
-                gameData.lastActiveCameraName = activeCamera.gameObject.name;
+                gameData.lastActiveCameraUuid = activeCamera.gameObject.GetComponent<MonoBehaviourID>().ID;
             }
             else
             {
-                gameData.lastActiveCameraName = "Player Camera";
+                gameData.lastActiveCameraUuid = "Player Camera";
             }
 
             // Active Consumables
@@ -251,17 +271,37 @@ namespace AF
 
             Save(gameData, "gameData");
 
+
+            notificationManager = FindObjectOfType<NotificationManager>(true);
+            if (notificationManager != null)
+            {
+                BGMManager.instance.PlaySound(saveSfx, null);
+                notificationManager.ShowNotification("Game saved.");
+            }
             // MenuManager.instance.CloseAll();
+        }
+
+        public bool HasSaveGame()
+        {
+            string path = Path.Combine(Application.persistentDataPath, "gameData" + ".json");
+
+            return File.Exists(path);
         }
 
         public void LoadGameData()
         {
-            GameData gameData = Load<GameData>("gameData");
+
+            GameData gameData = GetGameData();
 
             // Load scene first
             SceneManager.LoadScene(gameData.currentSceneIndex);
 
             StartCoroutine(CallLoad(gameData));
+        }
+
+        public GameData GetGameData()
+        {
+            return Load<GameData>("gameData");
         }
 
         IEnumerator CallLoad(GameData gameData)
@@ -280,14 +320,16 @@ namespace AF
 
             if (sceneCameras.Length > 0)
             {
-                var targetCamera = sceneCameras.First(camera => camera.gameObject.name == gameData.lastActiveCameraName);
+                var targetCamera = sceneCameras.First(camera => camera.gameObject.GetComponent<MonoBehaviourID>().ID == gameData.lastActiveCameraUuid);
 
+                // Backup
                 if (targetCamera == null)
                 {
                     targetCamera = sceneCameras.First(camera => camera.gameObject.name == "Player Camera");
                 }
 
                 targetCamera.gameObject.SetActive(true);
+
                 foreach (var sceneCam in sceneCameras)
                 {
                     if (sceneCam != targetCamera)
@@ -299,7 +341,6 @@ namespace AF
 
         }
     }
-
 
     [System.Serializable]
     public class PlayerData

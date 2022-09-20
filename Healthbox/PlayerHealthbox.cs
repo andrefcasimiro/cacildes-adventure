@@ -10,13 +10,13 @@ namespace AF
         // References
         Player player => GetComponent<Player>();
 
-
         public GameObject shieldWoodImpactFx;
         public FloatingText damageFloatingText;
 
         public override void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponSwingSfx)
         {
             ShieldInstance shield = this.combatable.GetShieldInstance();
+            Enemy enemy = attackerTransform.GetComponent<Enemy>();
 
             if (
                 // Is has shield
@@ -27,7 +27,7 @@ namespace AF
                 && Vector3.Angle(transform.forward * -1, attackerTransform.forward) <= 90f
                 )
             {
-                float staminaCost = PlayerInventoryManager.instance.currentShield.blockStaminaCost;
+                float staminaCost = PlayerInventoryManager.instance.currentShield.blockStaminaCost + enemy.bonusBlockStaminaCost;
                 bool playerWontTakeDamage = PlayerStatsManager.instance.HasEnoughStaminaForAction(staminaCost);
 
                 Instantiate(shieldWoodImpactFx, shield.gameObject.transform);
@@ -43,6 +43,11 @@ namespace AF
             if (player.IsDodging())
             {
                 return;
+            }
+
+            if (enemy != null && enemy.weaponStatusEffect != null)
+            {
+                PlayerStatsManager.instance.UpdateStatusEffect(enemy.weaponStatusEffect, enemy.statusEffectAmount);
             }
 
             combatable.SetCurrentHealth(combatable.GetCurrentHealth() - damage);
@@ -66,14 +71,22 @@ namespace AF
 
             if (combatable.GetCurrentHealth() <= 0)
             {
-                UIDocumentGameOverScreen uIDocumentGameOverScreen = FindObjectOfType<UIDocumentGameOverScreen>(true);
-                uIDocumentGameOverScreen.ShowGameOverScreen();
                 Die();
+
+                StartCoroutine(ShowGameOverScreen());
             }
             else
             {
                 animator.SetTrigger(hashTakingDamage);
             }
         }
+
+        IEnumerator ShowGameOverScreen()
+        {
+            yield return new WaitForSeconds(2f);
+            UIDocumentGameOverScreen uIDocumentGameOverScreen = FindObjectOfType<UIDocumentGameOverScreen>(true);
+            uIDocumentGameOverScreen.ShowGameOverScreen();
+        }
     }
+
 }

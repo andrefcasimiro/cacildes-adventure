@@ -100,6 +100,8 @@ namespace AF
 
             yield return new WaitUntil(() => selectedChoice != null);
 
+            this.Disable();
+
             EventBase[] choiceEvents = selectedChoice.subEventPage.GetComponents<EventBase>();
 
             if (choiceEvents.Length > 0)

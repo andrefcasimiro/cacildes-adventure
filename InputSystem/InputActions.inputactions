@@ -305,7 +305,18 @@
                 {
                     "name": "",
                     "id": "c8235744-5cf6-465e-a6da-1aac64ba4742",
-                    "path": "<Gamepad>/dpad/up",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Guard",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ce2f0d6e-d809-41ab-82c5-4eae36ef888d",
+                    "path": "<Keyboard>/x",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

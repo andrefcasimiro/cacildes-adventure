@@ -16,21 +16,10 @@ namespace AF
         public SceneMusic[] sceneMusics;
         public AudioClip sceneAmbience;
 
+        public float fadeBetweenScenes = 1f;
+
         public void Start()
         {
-            if (sceneAmbience != null)
-            {
-                BGMManager.instance.ambienceAudioSource.PlayOneShot(sceneAmbience);
-            }
-
-            PlaySceneMusic();
-        }
-
-        public void PlaySceneMusic()
-        {
-            StopAllCoroutines();
-
-            StartCoroutine(DispatchSceneMusic());
 
             if (sceneAmbience == null)
             {
@@ -38,25 +27,28 @@ namespace AF
             }
             else
             {
-                BGMManager.instance.PlayMusic(sceneAmbience);
-            }
-        }
-
-        private IEnumerator DispatchSceneMusic()
-        {
-            foreach (var sceneMusic in sceneMusics)
-            {
-                yield return new WaitForSeconds(sceneMusic.startDelayTime);
-
-                BGMManager.instance.PlayMusic(sceneMusic.audioClip);
-
-                yield return new WaitForSeconds(sceneMusic.audioClip.length);
-
-                BGMManager.instance.StopMusic();
+                BGMManager.instance.PlayAmbience(sceneAmbience);
             }
 
             PlaySceneMusic();
         }
+
+        public void PlaySceneMusic()
+        {
+            if (sceneMusics.Length <= 0)
+            {
+                return;
+            }
+
+            if (BGMManager.instance.bgmAudioSource.clip != null && BGMManager.instance.bgmAudioSource.clip.name == this.sceneMusics[0].audioClip.name)
+            {
+                return;
+            }
+
+            BGMManager.instance.PlayMusic(sceneMusics[0].audioClip, fadeBetweenScenes);
+
+        }
+
     }
 
 }

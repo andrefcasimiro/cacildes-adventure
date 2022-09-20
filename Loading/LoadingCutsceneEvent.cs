@@ -37,6 +37,8 @@ namespace AF
 
         DialogueManager dialogueManager;
 
+        public float fadeOfPreviousMusic = 1f;
+
         private void Awake()
         {
             dialogueManager = FindObjectOfType<DialogueManager>(true);
@@ -66,7 +68,7 @@ namespace AF
 
                 if (ev.musicToPlay != null)
                 {
-                    BGMManager.instance.PlayMusic(ev.musicToPlay);
+                    BGMManager.instance.PlayMusic(ev.musicToPlay, fadeOfPreviousMusic);
                 }
 
                 Background b = new Background();

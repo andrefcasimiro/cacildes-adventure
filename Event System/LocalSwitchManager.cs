@@ -16,7 +16,7 @@ namespace AF
     public class LocalSwitchManager : MonoBehaviour, ISaveable
     {
         [SerializeField]
-        private List<RegisteredLocalSwitch> registeredLocalSwitches = new List<RegisteredLocalSwitch>();
+        public List<RegisteredLocalSwitch> registeredLocalSwitches = new List<RegisteredLocalSwitch>();
 
         public static LocalSwitchManager instance;
 
@@ -51,6 +51,8 @@ namespace AF
 
             this.GatherLocalSwitchesInActiveScene(localSwitchesInScene);
 
+            GameData gameData = SaveSystem.instance.GetGameData();
+
             // Load local switch values in memory for the given scene
             foreach (LocalSwitch localSwitchInScene in localSwitchesInScene)
             {
@@ -82,6 +84,7 @@ namespace AF
 
         public void OnGameLoaded(GameData gameData)
         {
+            // Empty local switches on the scene!
             foreach (SerializableLocalSwitch savedLocalSwitch in gameData.localSwitches)
             {
                 Enum.TryParse(savedLocalSwitch.localSwitchName, out LocalSwitchName nextLocalSwitchName);
@@ -95,6 +98,13 @@ namespace AF
         /// </summary>
         public void UpdateLocalSwitch(string uuid, LocalSwitchName nextLocalSwitchName)
         {
+            var targetLocalSwitchIdx = this.registeredLocalSwitches.FindIndex(registeredLocalSwitch => registeredLocalSwitch.uuid == uuid);
+            if (targetLocalSwitchIdx != -1)
+            {
+                this.registeredLocalSwitches[targetLocalSwitchIdx].localSwitchName = nextLocalSwitchName;
+            }
+
+            // Update local switch in scene, if available. If not, we already have its value stored in memory for when we visit the scene.
             LocalSwitch[] localSwitchesInScene = FindObjectsOfType<LocalSwitch>(true);
             LocalSwitch targetLocalSwitch = localSwitchesInScene.FirstOrDefault(localSwitchInScene => localSwitchInScene.ID == uuid);
 

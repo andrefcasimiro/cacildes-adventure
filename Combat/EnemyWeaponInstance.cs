@@ -3,7 +3,6 @@
 namespace AF
 {
 
-    [RequireComponent(typeof(BoxCollider))]
     public class EnemyWeaponInstance : MonoBehaviour, IWeaponInstance
     {
         public AudioClip weaponSwingSfx;
@@ -15,7 +14,7 @@ namespace AF
         AudioSource combatantAudioSource;
 
         // References
-        BoxCollider boxCollider => GetComponent<BoxCollider>();
+        Collider boxCollider => GetComponent<Collider>();
         Healthbox targetHealthbox;
 
         private void Awake()
@@ -43,6 +42,7 @@ namespace AF
             }
 
             boxCollider.enabled = true;
+
         }
 
         public void DisableHitbox()
@@ -67,10 +67,6 @@ namespace AF
 
             targetHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponSwingSfx);
 
-            if (enemy.weaponStatusEffect != null)
-            {
-                PlayerStatsManager.instance.UpdateStatusEffect(enemy.weaponStatusEffect, enemy.statusEffectAmount);
-            }
         }
 
     }

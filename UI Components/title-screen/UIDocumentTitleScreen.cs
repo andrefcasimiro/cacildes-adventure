@@ -14,6 +14,7 @@ namespace AF
         Button newGameButton;
         Button loadGameButton;
         Button controlsButton;
+        Button creditsButton;
         Button exitGameButton;
 
         protected override void Start()
@@ -40,9 +41,10 @@ namespace AF
                 this.Disable();
                 SaveSystem.instance.LoadGameData();
             });
+            loadGameButton.SetEnabled(SaveSystem.instance.HasSaveGame());
 
 
-             controlsButton = this.root.Q<Button>("ControlsGameButton");
+            controlsButton = this.root.Q<Button>("ControlsGameButton");
             SetupButtonClick(controlsButton, () =>
             {
                 this.Disable();
@@ -50,8 +52,16 @@ namespace AF
                 FindObjectOfType<UIDocumentControlsScreen>(true).Enable();
             });
 
+            creditsButton = this.root.Q<Button>("CreditsGameButton");
+            SetupButtonClick(creditsButton, () =>
+            {
+                this.Disable();
 
-             exitGameButton = this.root.Q<Button>("ExitGameButton");
+                FindObjectOfType<UIDocumentCreditsScreen>(true).Enable();
+            });
+
+
+            exitGameButton = this.root.Q<Button>("ExitGameButton");
             SetupButtonClick(exitGameButton, () =>
             {
                 this.Disable();
@@ -61,7 +71,7 @@ namespace AF
             Button itchIoButton = this.root.Q<Button>("ItchIo");
             SetupButtonClick(itchIoButton, () =>
             {
-                Application.OpenURL("https://twitter.com/CacildesGame");
+                Application.OpenURL("https://andrefcasimiro.itch.io/cacildes-adventure-episode-1");
             });
 
             Button twitterButton = this.root.Q<Button>("Twitter");

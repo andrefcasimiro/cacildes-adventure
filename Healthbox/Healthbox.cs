@@ -42,15 +42,23 @@ namespace AF
             Utils.PlaySfx(combatAudioSource, damageSfx);
         }
 
+        protected IEnumerator PlayDeathSfx()
+        {
+            yield return new WaitForSeconds(0.1f);
+            Utils.PlaySfx(combatAudioSource, deathGruntSfx);
+        }
+
         public void Die()
         {
+            StartCoroutine(PlayDeathSfx());
+
             animator.SetFloat(character.hashMovementSpeed, 0f);
             animator.SetTrigger(hashDying);
         }
 
         public void DieWithSound()
         {
-            StartCoroutine(PlayHurtSfx());
+            StartCoroutine(PlayDeathSfx());
             animator.SetFloat(character.hashMovementSpeed, 0f);
             animator.SetTrigger(hashDying);
         }

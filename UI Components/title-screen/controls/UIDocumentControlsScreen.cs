@@ -9,6 +9,8 @@ namespace AF
 
     public class UIDocumentControlsScreen : UIDocumentBase
     {
+        public bool goBackToMenu = false;
+
         protected override void Start()
         {
             base.Start();
@@ -18,14 +20,21 @@ namespace AF
             {
                 this.Disable();
 
-                FindObjectOfType<UIDocumentTitleScreen>(true).Enable();
+                // So lazy...
+                if (goBackToMenu)
+                {
+                    FindObjectOfType<UIDocumentMainMenu>(true).Enable();
+                }
+                else
+                {
+                    FindObjectOfType<UIDocumentTitleScreen>(true).Enable();
+                }
             });
             goGackButton.Focus();
 
 
             this.Disable();
         }
-
 
     }
 

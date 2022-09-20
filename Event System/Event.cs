@@ -76,13 +76,19 @@ namespace AF
                 target.gameObject.SetActive(true);
             }
 
-            MoveRoute moveRoute = GetComponentInChildren<MoveRoute>();
+            if (target == null)
+            {
+                return;
+            }
+
+            MoveRoute moveRoute = this.GetComponentInChildren<MoveRoute>();
             if (moveRoute != null)
             {
                 // Position new event page graphic in the same position of the previous event page to make the transition seamless
-                if (previousEventPage != null)
+                if (previousEventPage != null && target != null)
                 {
                     Transform previousEventPageTargetGraphic = previousEventPage.GetComponentInChildren<Animator>().transform;
+
                     Transform targetGraphic = target.GetComponentInChildren<Animator>().transform;
 
                     targetGraphic.transform.position = previousEventPageTargetGraphic.transform.position;

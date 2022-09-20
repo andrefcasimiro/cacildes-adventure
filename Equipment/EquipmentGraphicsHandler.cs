@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace AF
 {
@@ -10,10 +11,15 @@ namespace AF
         [HideInInspector] public Transform leftHand;
         [HideInInspector] public Transform rightHand;
 
-        [HideInInspector] public WeaponInstance weaponInstance;
+        [HideInInspector] public WeaponInstance leftHandWeaponInstance;
+        [HideInInspector] public WeaponInstance rightHandWeaponInstance;
+
+
         [HideInInspector] public ShieldInstance shieldInstance;
 
-        [HideInInspector] public GameObject weaponGraphic;
+        [HideInInspector] public GameObject leftWeaponGraphic;
+        [HideInInspector] public GameObject rightWeaponGraphic;
+
         [HideInInspector] public GameObject shieldGraphic;
 
         public List<string> helmetNakedParts = new List<string>
@@ -120,11 +126,24 @@ namespace AF
 
             if (weaponToEquip.graphic != null)
             {
-                weaponGraphic = Instantiate(weaponToEquip.graphic, leftHand);
+                if (weaponToEquip.isDualWielded)
+                {
+                    leftWeaponGraphic = Instantiate(weaponToEquip.graphic, leftHand);
+                    rightWeaponGraphic = Instantiate(weaponToEquip.graphic, rightHand);
+                }
+                else
+                {
+                    leftWeaponGraphic = Instantiate(weaponToEquip.graphic, leftHand);
+                }
             }
-            
-            if (weaponGraphic != null) {
-                this.weaponInstance = weaponGraphic.GetComponentInChildren<WeaponInstance>(true);
+
+            if (leftWeaponGraphic != null)
+            {
+                this.leftHandWeaponInstance = leftWeaponGraphic.GetComponentInChildren<WeaponInstance>(true);
+            }
+            if (rightWeaponGraphic != null)
+            {
+                this.rightHandWeaponInstance = rightWeaponGraphic.GetComponentInChildren<WeaponInstance>(true);
             }
 
             if (weaponToEquip.animatorOverrideController != null)
@@ -163,22 +182,35 @@ namespace AF
 
             ArmorSlot armorType = armor.armorType;
 
-            if (armorType == ArmorSlot.Head)
+            UnequipArmorSlot(armorType);
+
+
+            if (armorType == ArmorSlot.Head && armor != PlayerInventoryManager.instance.currentHelmet)
             {
                 PlayerInventoryManager.instance.currentHelmet = armor;
+
+                armor.OnEquip();
             }
-            else if (armorType == ArmorSlot.Chest)
+            else if (armorType == ArmorSlot.Chest && armor != PlayerInventoryManager.instance.currentChest)
             {
                 PlayerInventoryManager.instance.currentChest = armor;
+
+                armor.OnEquip();
             }
-            else if (armorType == ArmorSlot.Arms)
+            else if (armorType == ArmorSlot.Arms && armor != PlayerInventoryManager.instance.currentGauntlets)
             {
                 PlayerInventoryManager.instance.currentGauntlets = armor;
+
+                armor.OnEquip();
             }
-            else if (armorType == ArmorSlot.Legs)
+            else if (armorType == ArmorSlot.Legs && armor != PlayerInventoryManager.instance.currentLegwear)
             {
                 PlayerInventoryManager.instance.currentLegwear = armor;
+
+                armor.OnEquip();
             }
+
+            PlayerStatsManager.instance.HandleEquipmentChanges();
 
             ReloadEquipmentGraphics();
         }
@@ -187,21 +219,37 @@ namespace AF
         {
             if (accessory == null) return;
 
-            if (index == 0)
+            if (index == 0 && accessory != PlayerInventoryManager.instance.currentAccessory1)
             {
+                UnequipAccessory(0);
+
                 PlayerInventoryManager.instance.currentAccessory1 = accessory;
+                accessory.OnEquip();
             }
-            else
+            else if (index == 1 && accessory != PlayerInventoryManager.instance.currentAccessory2)
             {
+                UnequipAccessory(1);
+
                 PlayerInventoryManager.instance.currentAccessory2 = accessory;
+                accessory.OnEquip();
             }
+
+            PlayerStatsManager.instance.HandleEquipmentChanges();
         }
 
         public void UnequipWeapon()
         {
-            Destroy(weaponGraphic);
+            if (leftWeaponGraphic != null)
+            {
+                Destroy(leftWeaponGraphic);
+                this.leftHandWeaponInstance = null;
+            }
 
-            this.weaponInstance = null;
+            if (rightWeaponGraphic != null)
+            {
+                Destroy(rightWeaponGraphic);
+                this.rightHandWeaponInstance = null;
+            }
 
             PlayerInventoryManager.instance.currentWeapon = PlayerInventoryManager.instance.defaultUnarmedWeapon;
             FindObjectOfType<Player>().animator.runtimeAnimatorController = playerDefaultAnimator;
@@ -225,9 +273,17 @@ namespace AF
                 foreach (Transform t in player.GetComponentsInChildren<Transform>(true))
                 {
                     var helmet = PlayerInventoryManager.instance.currentHelmet;
-                    if (helmet != null && helmet.graphicNameToShow == t.gameObject.name)
+                    if (helmet != null)
                     {
-                        t.gameObject.SetActive(false);
+                        if (helmet.graphicNameToShow == t.gameObject.name)
+                        {
+                            helmet.OnUnequip();
+                            t.gameObject.SetActive(false);
+                        }
+
+                        if (helmet.graphicNamesToHide.Contains(t.gameObject.name)) {
+                            t.gameObject.SetActive(true);
+                        }
                     }
                 }
                 
@@ -239,9 +295,15 @@ namespace AF
                 {
                     var chest = PlayerInventoryManager.instance.currentChest;
 
-                    if (chest != null && chest.graphicNameToShow == t.gameObject.name)
-                    {
-                        t.gameObject.SetActive(false);
+                    if (chest != null) {
+                        if (chest.graphicNameToShow == t.gameObject.name) {
+                            chest.OnUnequip();
+                            t.gameObject.SetActive(false);
+                        }
+
+                        if (chest.graphicNamesToHide.Contains(t.gameObject.name)) {
+                            t.gameObject.SetActive(true);
+                        }
                     }
                 }
 
@@ -252,9 +314,19 @@ namespace AF
                 foreach (Transform t in player.GetComponentsInChildren<Transform>(true))
                 {
                     var gauntlets = PlayerInventoryManager.instance.currentGauntlets;
-                    if (gauntlets != null && gauntlets.graphicNameToShow == t.gameObject.name)
+                    if (gauntlets != null)
                     {
-                        t.gameObject.SetActive(false);
+                        if (gauntlets.graphicNameToShow == t.gameObject.name)
+                        {
+                            gauntlets.OnUnequip();
+
+                            t.gameObject.SetActive(false);
+                        }
+
+                        if (gauntlets.graphicNamesToHide.Contains(t.gameObject.name))
+                        {
+                            t.gameObject.SetActive(true);
+                        }
                     }
                 }
 
@@ -266,28 +338,52 @@ namespace AF
                 {
                     var legwear = PlayerInventoryManager.instance.currentLegwear;
 
-                    if (legwear != null && legwear.graphicNameToShow == t.gameObject.name)
+                    if (legwear != null)
                     {
-                        t.gameObject.SetActive(false);
+                        if (legwear.graphicNameToShow == t.gameObject.name)
+                        {
+                            legwear.OnUnequip();
+                            t.gameObject.SetActive(false);
+                        }
+
+                        if (legwear.graphicNamesToHide.Contains(t.gameObject.name))
+                        {
+                            t.gameObject.SetActive(true);
+                        }
                     }
                 }
 
                 PlayerInventoryManager.instance.currentLegwear = null;
             }
 
+            PlayerStatsManager.instance.HandleEquipmentChanges();
+
             ReloadEquipmentGraphics();
         }
 
         public void UnequipAccessory(int slotIndex)
         {
+
             if (slotIndex == 0)
             {
+                if (PlayerInventoryManager.instance.currentAccessory1 != null)
+                {
+                    PlayerInventoryManager.instance.currentAccessory1.OnUnequip();
+                }
+
                 PlayerInventoryManager.instance.currentAccessory1 = null;
             }
             else
             {
+                if (PlayerInventoryManager.instance.currentAccessory2 != null)
+                {
+                    PlayerInventoryManager.instance.currentAccessory2.OnUnequip();
+                }
+
                 PlayerInventoryManager.instance.currentAccessory2 = null;
             }
+
+            PlayerStatsManager.instance.HandleEquipmentChanges();
         }
 
         void ReloadEquipmentGraphics()
@@ -498,6 +594,8 @@ namespace AF
             {
                 UnequipAccessory(1);
             }
+
+            PlayerStatsManager.instance.HandleEquipmentChanges();
         }
 
         #endregion

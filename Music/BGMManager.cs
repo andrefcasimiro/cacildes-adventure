@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
+using System.Collections;
 
 namespace AF
 {
@@ -8,11 +10,6 @@ namespace AF
         public AudioSource bgmAudioSource;
         public AudioSource ambienceAudioSource;
         public AudioSource sfxAudioSource;
-
-        [HideInInspector]
-        public AudioClip currentMusic;
-        [HideInInspector]
-        public AudioClip previousMusic;
 
         public static BGMManager instance;
 
@@ -32,12 +29,9 @@ namespace AF
         {
         }
 
-        public void PlayMusic(AudioClip musicToPlay)
+        public void PlayMusic(AudioClip musicToPlay, float fadeAmount)
         {
-            this.previousMusic = this.currentMusic;
-            this.currentMusic = musicToPlay;
-
-            this.bgmAudioSource.clip = this.currentMusic;
+            this.bgmAudioSource.clip = musicToPlay;
             this.bgmAudioSource.Play();
         }
 
@@ -56,13 +50,6 @@ namespace AF
         {
             this.ambienceAudioSource.clip = null;
             this.ambienceAudioSource.Stop();
-        }
-
-        public void PlayPreviousMusic()
-        {
-            AudioClip musicToPlay = this.previousMusic;
-
-            this.PlayMusic(musicToPlay);
         }
 
         public void PlaySound(AudioClip sfxToPlay, AudioSource customAudioSource)

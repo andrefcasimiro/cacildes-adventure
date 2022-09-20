@@ -69,6 +69,9 @@ namespace AF
         // Animator Overrider
         public AnimatorOverrideController animatorOverrideController;
 
+        [Header("Dual Wielding Options")]
+        public bool isDualWielded = false;
+
     }
 
 }

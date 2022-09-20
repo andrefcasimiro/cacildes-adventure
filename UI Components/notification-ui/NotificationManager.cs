@@ -9,6 +9,8 @@ namespace AF
         public const float MAX_ITEM_DURATION = 5f;
         public const float MAX_ITEMS_IN_QUEUE = 5f;
 
+        public AudioClip coinSfx;
+
         bool isActive = false;
 
         float timePassed = 0f;
@@ -42,6 +44,13 @@ namespace AF
             }
 
             timePassed += Time.deltaTime;
+
+        }
+
+        public void NotifyCoins(float amount)
+        {
+            BGMManager.instance.PlaySound(coinSfx, null);
+            ShowNotification("Cacildes found " + amount + " gold coins");
 
         }
 

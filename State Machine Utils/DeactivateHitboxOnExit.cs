@@ -19,7 +19,12 @@ namespace AF
 
             if (combatManager != null)
             {
-                combatManager.DeactivateHitbox();
+                combatManager.DeactivateAreaOfImpactHitbox();
+                combatManager.DeactivateHeadHitbox();
+                combatManager.DeactivateLeftHandHitbox();
+                combatManager.DeactivateLeftLegHitbox();
+                combatManager.DeactivateRightHandHitbox();
+                combatManager.DeactivateRightLegHitbox();
             }
         }
     }
