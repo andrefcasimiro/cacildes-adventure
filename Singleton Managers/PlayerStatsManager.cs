@@ -677,7 +677,7 @@ namespace AF
                     return;
                 }
 
-                this.appliedStatus[idx].currentAmount = Mathf.Clamp(this.appliedStatus[idx].currentAmount + statusAmountToAdd, 0, this.appliedStatus[idx].statusEffect.maxAmountBeforeDamage);
+                this.appliedStatus[idx].currentAmount = Mathf.Clamp(this.appliedStatus[idx].currentAmount + statusAmountToAdd * Time.deltaTime, 0, this.appliedStatus[idx].statusEffect.maxAmountBeforeDamage);
 
                 // If amount of status reached 100%, damage player and mark the effect as temporarily permanent
                 if (

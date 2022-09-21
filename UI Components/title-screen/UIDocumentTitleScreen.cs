@@ -15,6 +15,7 @@ namespace AF
         Button loadGameButton;
         Button controlsButton;
         Button creditsButton;
+        Button openSavesFolderButton;
         Button exitGameButton;
 
         protected override void Start()
@@ -58,6 +59,14 @@ namespace AF
                 this.Disable();
 
                 FindObjectOfType<UIDocumentCreditsScreen>(true).Enable();
+            });
+
+            openSavesFolderButton = this.root.Q<Button>("OpenSavesFolderButton");
+            SetupButtonClick(openSavesFolderButton, () =>
+            {
+                string path = System.IO.Path.Combine(Application.persistentDataPath, "gameData" + ".json");
+
+                UnityEditor.EditorUtility.RevealInFinder(path);
             });
 
 

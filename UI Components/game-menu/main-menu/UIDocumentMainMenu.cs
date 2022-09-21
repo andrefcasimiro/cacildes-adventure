@@ -92,10 +92,6 @@ namespace AF
 
             this.loadGameButton = root.Q<Button>("LoadGameButton");
             SetupButtonClick(this.loadGameButton, () => {
-                if (SaveSystem.instance.canUse == false)
-                {
-                    return;
-                }
                 SaveSystem.instance.LoadGameData();
                 this.Disable();
             });
@@ -142,11 +138,37 @@ namespace AF
             this.reputation.text = PlayerStatsManager.instance.currentReputation.ToString();
             this.vitality.text = PlayerStatsManager.instance.vitality.ToString();
             // this.intelligence.text = PlayerStatsManager.instance.intelligence.ToString();
-            this.endurance.text = PlayerStatsManager.instance.endurance.ToString();
+
+            var enduranceBonus = 0;
+            if (PlayerInventoryManager.instance.currentHelmet != null)
+            {
+                enduranceBonus += PlayerInventoryManager.instance.currentHelmet.enduranceBonus;
+            }
+            if (PlayerInventoryManager.instance.currentChest != null)
+            {
+                enduranceBonus += PlayerInventoryManager.instance.currentChest.enduranceBonus;
+            }
+            if (PlayerInventoryManager.instance.currentGauntlets != null)
+            {
+                enduranceBonus += PlayerInventoryManager.instance.currentGauntlets.enduranceBonus;
+            }
+            if (PlayerInventoryManager.instance.currentLegwear != null)
+            {
+                enduranceBonus += PlayerInventoryManager.instance.currentLegwear.enduranceBonus;
+            }
+
+            this.endurance.text = (PlayerStatsManager.instance.endurance + enduranceBonus).ToString();
             this.strength.text = PlayerStatsManager.instance.strength.ToString();
             this.dexterity.text = PlayerStatsManager.instance.dexterity.ToString();
             // this.arcane.text = PlayerStatsManager.instance.arcane.ToString();
-            this.charisma.text = PlayerStatsManager.instance.charisma.ToString();
+
+
+            var charismaBonus = 0;
+            if (PlayerInventoryManager.instance.currentHelmet != null)
+            {
+                charismaBonus += PlayerInventoryManager.instance.currentHelmet.charismaBonus;
+            }
+            this.charisma.text = (PlayerStatsManager.instance.charisma + charismaBonus).ToString();
 
             var weapon = PlayerInventoryManager.instance.currentWeapon;
             this.attackPower.text = PlayerStatsManager.instance.GetWeaponAttack(weapon).ToString();
@@ -162,8 +184,6 @@ namespace AF
             this.defenseAbsorption.text = PlayerStatsManager.instance.GetDefenseAbsorption().ToString();
             this.physicalDefense.text = " " + PlayerStatsManager.instance.GetLevelPhysicalDefense().ToString();
             this.equipmentDefense.text = "+" + PlayerStatsManager.instance.GetEquipmentDefenseAbsorption().ToString();
-
-            this.saveGameButton.SetEnabled(SaveSystem.instance.canUse);
         }
 
         public override void Enable()

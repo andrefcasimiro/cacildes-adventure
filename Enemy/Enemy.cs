@@ -54,6 +54,7 @@ namespace AF
 
         [Header("Projectile Options")]
         public GameObject projectilePrefab;
+        [Range(0, 100f)]  public float chanceToFireViaWaitTime = 0f;
         public Transform projectileSpawnPoint;
         public float projectileCooldown = 0f;
         public float maxProjectileCooldown = 10f;
@@ -159,6 +160,23 @@ namespace AF
                     waitingCounter = 0f;
                     turnWaitingTime = 0f;
                     isWaiting = false;
+
+                    if (chanceToFireViaWaitTime != 0 && projectilePrefab != null)
+                    {
+                        var chanceToShoot = Random.Range(0f, 100f);
+                        if (chanceToShoot >= chanceToFireViaWaitTime)
+                        {
+
+                            if (Vector3.Distance(this.transform.position, player.transform.position) > 2f)
+                            {
+
+                                PrepareProjectile();
+                                return;
+
+                            }
+                        }
+                    }
+
                     animator.SetBool(hashCombatting, true);
                 }
             }
@@ -246,10 +264,11 @@ namespace AF
         {
             Utils.FaceTarget(this.transform, player.transform);
 
-            GameObject projectileInstance = Instantiate(projectilePrefab, this.projectileSpawnPoint.transform.position, Quaternion.identity);
+            GameObject projectileInstance = Instantiate(projectilePrefab);
+            projectileInstance.transform.position = projectileSpawnPoint.transform.position;
+            projectileInstance.transform.rotation = projectileSpawnPoint.transform.rotation;
 
             Projectile projectile = projectileInstance.GetComponent<Projectile>();
-
             projectile.Shoot(player.headTransform);
         }
 

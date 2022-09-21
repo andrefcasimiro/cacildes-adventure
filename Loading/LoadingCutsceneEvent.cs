@@ -39,6 +39,8 @@ namespace AF
 
         public float fadeOfPreviousMusic = 1f;
 
+        public bool exitGameAfterwords = false;
+
         private void Awake()
         {
             dialogueManager = FindObjectOfType<DialogueManager>(true);
@@ -111,6 +113,12 @@ namespace AF
 
         public void LoadNextScene()
         {
+            if (exitGameAfterwords)
+            {
+                Application.Quit();
+                return;
+            }
+
             MapManager.instance.SetSpawnGameObjectNameRef("Initial Spawnpoint");
 
             sceneLoadingOperation.allowSceneActivation = true;

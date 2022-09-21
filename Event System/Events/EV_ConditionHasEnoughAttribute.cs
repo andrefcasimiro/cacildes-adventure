@@ -39,7 +39,13 @@ namespace AF
             }
             else if (attribute == Attribute.Charisma)
             {
-                currentAttributeLevel = PlayerStatsManager.instance.charisma;
+                var bonus = 0;
+                if (PlayerInventoryManager.instance.currentHelmet != null)
+                {
+                    bonus += PlayerInventoryManager.instance.currentHelmet.charismaBonus;
+                }
+
+                currentAttributeLevel = PlayerStatsManager.instance.charisma + bonus;
             }
             else if (attribute == Attribute.Luck)
             {

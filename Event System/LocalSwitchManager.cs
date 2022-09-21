@@ -103,6 +103,13 @@ namespace AF
             {
                 this.registeredLocalSwitches[targetLocalSwitchIdx].localSwitchName = nextLocalSwitchName;
             }
+            else
+            {
+                RegisteredLocalSwitch registeredLocalSwitch = new RegisteredLocalSwitch();
+                registeredLocalSwitch.uuid = uuid;
+                registeredLocalSwitch.localSwitchName = nextLocalSwitchName;
+                this.registeredLocalSwitches.Add(registeredLocalSwitch);
+            }
 
             // Update local switch in scene, if available. If not, we already have its value stored in memory for when we visit the scene.
             LocalSwitch[] localSwitchesInScene = FindObjectsOfType<LocalSwitch>(true);

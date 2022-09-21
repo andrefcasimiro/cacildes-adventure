@@ -11,7 +11,6 @@ namespace AF
         public override IEnumerator Dispatch()
         {
             yield return null;
-            SaveSystem.instance.canUse = canUse;
         }
     }
 

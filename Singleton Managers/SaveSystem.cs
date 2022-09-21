@@ -33,8 +33,6 @@ namespace AF
 
     public class SaveSystem : MonoBehaviour
     {
-        public bool canUse = true;
-
         public delegate void OnGameLoadEvent(GameData gameData);
         // the event itself
         public event OnGameLoadEvent OnGameLoad;
@@ -97,6 +95,22 @@ namespace AF
                     BGMManager.instance.PlaySound(saveErrorSfx, null);
 
                     notificationManager.ShowNotification("Game can not be saved during an event.");
+                }
+
+                return;
+            }
+
+            UIDocumentBossHUD[] uIDocumentBossHUD = FindObjectsOfType<UIDocumentBossHUD>();
+            var runningBossfight = uIDocumentBossHUD.FirstOrDefault(uiDocument => uiDocument.IsVisible());
+
+            if (runningBossfight != null)
+            {
+                notificationManager = FindObjectOfType<NotificationManager>(true);
+                if (notificationManager != null)
+                {
+                    BGMManager.instance.PlaySound(saveErrorSfx, null);
+
+                    notificationManager.ShowNotification("Game can not be saved during a boss fight.");
                 }
 
                 return;
@@ -290,7 +304,6 @@ namespace AF
 
         public void LoadGameData()
         {
-
             GameData gameData = GetGameData();
 
             // Load scene first
@@ -338,7 +351,6 @@ namespace AF
                     }
                 }
             }
-
         }
     }
 
