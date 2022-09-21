@@ -65,8 +65,8 @@ namespace AF
             SetupButtonClick(openSavesFolderButton, () =>
             {
                 string path = System.IO.Path.Combine(Application.persistentDataPath, "gameData" + ".json");
-
-                UnityEditor.EditorUtility.RevealInFinder(path);
+                var itemPath = path.Replace(@"/", @"\");   // explorer doesn't like front slashes
+                System.Diagnostics.Process.Start("explorer.exe", "/select," + itemPath);
             });
 
 
