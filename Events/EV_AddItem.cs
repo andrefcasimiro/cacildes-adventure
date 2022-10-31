@@ -1,0 +1,39 @@
+﻿using System.Collections;
+using UnityEngine;
+
+namespace AF
+{
+
+    public class EV_AddItem : EventBase
+    {
+        public Item item;
+
+        public int amount = 1;
+
+        public bool showNotificationText = true;
+
+        public AudioClip pickUpSfx;
+
+        public override IEnumerator Dispatch()
+        {
+            yield return StartCoroutine(AddItem());
+        }
+
+        IEnumerator AddItem()
+        {
+            FindObjectOfType<PlayerInventory>(true).AddItem(item, amount);
+
+            if (pickUpSfx != null)
+            {
+                BGMManager.instance.PlaySound(pickUpSfx, null);
+            }
+
+            if (showNotificationText)
+            {
+            }
+
+            yield return null;
+        }
+    }
+
+}

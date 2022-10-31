@@ -10,7 +10,7 @@ namespace AF
 
         public void ActivateSwitch()
         {
-            SwitchManager.instance.UpdateSwitch(switchToActivate.switchName, true);
+            SwitchManager.instance.UpdateSwitch(switchToActivate.name, true);
 
             // Refresh all event pages in the scene
             Event[] events = FindObjectsOfType<Event>();

@@ -1,0 +1,214 @@
+using UnityEngine;
+using UnityEngine.EventSystems;
+using StarterAssets;
+using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
+using UnityEngine.Events;
+
+namespace AF
+{
+    public class MenuManager : MonoBehaviour
+    {
+        public GameObject equipmentListMenu;
+        public GameObject equipmentSelectionMenu;
+        public GameObject inventoryMenu;
+        public GameObject saveMenu;
+        public GameObject loadMenu;
+
+        public StarterAssetsInputs starterAssetsInputs;
+
+        public AudioClip clickSfx;
+        public AudioClip hoverSfx;
+
+        PlayerComponentManager playerComponentManager;
+
+        [HideInInspector] public Texture2D screenshotBeforeOpeningMenu;
+
+        UIDocumentAlchemyCraftScreen alchemyCraftScreen;
+
+        ClimbController climbController;
+
+        private void Start()
+        {
+            alchemyCraftScreen = FindObjectOfType<UIDocumentAlchemyCraftScreen>(true);
+
+            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
+
+            climbController = playerComponentManager.GetComponent<ClimbController>();
+        }
+
+        private void Update()
+        {
+            if (starterAssetsInputs.menu)
+            {
+                starterAssetsInputs.menu = false;
+             
+                if (!CanUseMenu())
+                {
+                    return;
+                }
+                
+                PlayHover();
+                this.screenshotBeforeOpeningMenu = ScreenCapture.CaptureScreenshotAsTexture();
+
+                if (IsMenuOpen())
+                {
+                    this.CloseMenu();
+                    starterAssetsInputs.cursorLocked = false;
+                    UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+                }
+                else
+                {
+                    this.OpenMenu();
+                    UnityEngine.Cursor.lockState = CursorLockMode.None;
+                }
+            }
+        }
+
+        bool CanUseMenu()
+        {
+            var titleScreen = FindObjectOfType<TitleScreenManager>(true);
+            if (titleScreen != null)
+            {
+                if (titleScreen.isActiveAndEnabled)
+                {
+                    return false;
+                }
+            }
+
+            if (alchemyCraftScreen.isActiveAndEnabled)
+            {
+                return false;
+            }
+
+            if (climbController.climbState != ClimbController.ClimbState.NONE)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void OpenMenu()
+        {
+            equipmentListMenu.SetActive(true);
+            equipmentSelectionMenu.SetActive(false);
+            inventoryMenu.SetActive(false);
+            saveMenu.SetActive(false);
+            loadMenu.SetActive(false);
+            EventSystem.current.sendNavigationEvents = true;
+        }
+
+        public void CloseMenu()
+        {
+            if (equipmentSelectionMenu.activeSelf)
+            {
+                equipmentSelectionMenu.SetActive(false);
+                equipmentListMenu.SetActive(true);
+                return;
+            }
+
+            equipmentListMenu.SetActive(false);
+            equipmentSelectionMenu.SetActive(false);
+            inventoryMenu.SetActive(false);
+            saveMenu.SetActive(false);
+            loadMenu.SetActive(false);
+
+            EventSystem.current.sendNavigationEvents = false;
+        }
+
+        public bool IsMenuOpen()
+        {
+            return this.equipmentListMenu.activeSelf || this.equipmentSelectionMenu.activeSelf || this.inventoryMenu.activeSelf
+                || this.saveMenu.activeSelf || this.loadMenu.activeSelf;
+        }
+
+        public void OpenEquipmentListMenu()
+        {
+            this.inventoryMenu.SetActive(false);
+            this.equipmentSelectionMenu.SetActive(false);
+            this.equipmentListMenu.SetActive(true);
+            this.saveMenu.SetActive(false);
+            this.loadMenu.SetActive(false);
+        }
+
+        public void OpenEquipmentSelectionScreen(UIDocumentEquipmentSelectionMenuV2.EquipmentType equipmentType)
+        {
+            this.equipmentSelectionMenu.GetComponent<UIDocumentEquipmentSelectionMenuV2>().selectedEquipmentType = equipmentType;
+            this.equipmentSelectionMenu.SetActive(true);
+            this.equipmentListMenu.SetActive(false);
+            this.inventoryMenu.SetActive(false);
+            this.saveMenu.SetActive(false);
+            this.loadMenu.SetActive(false);
+        }
+
+        public void OpenInventoryScreen()
+        {
+            this.inventoryMenu.SetActive(true);
+            this.equipmentSelectionMenu.SetActive(false);
+            this.equipmentListMenu.SetActive(false);
+            this.saveMenu.SetActive(false);
+            this.loadMenu.SetActive(false);
+        }
+
+        public void OpenSaveScreen()
+        {
+            this.inventoryMenu.SetActive(false);
+            this.equipmentSelectionMenu.SetActive(false);
+            this.equipmentListMenu.SetActive(false);
+            this.saveMenu.SetActive(true);
+            this.loadMenu.SetActive(false);
+        }
+
+        public void OpenLoadScreen()
+        {
+            this.inventoryMenu.SetActive(false);
+            this.equipmentSelectionMenu.SetActive(false);
+            this.equipmentListMenu.SetActive(false);
+            this.saveMenu.SetActive(false);
+            this.loadMenu.SetActive(true);
+        }
+
+        public void PlayClick()
+        {
+            BGMManager.instance.PlaySound(clickSfx, null);
+        }
+
+        public void PlayHover()
+        {
+            BGMManager.instance.PlaySound(hoverSfx, null);
+        }
+
+        public void SetActiveMenu(VisualElement root, string buttonNameToActivate)
+        {
+            root.Q<Button>("ButtonEquipment").RemoveFromClassList("active-menu-option");
+            root.Q<Button>("ButtonInventory").RemoveFromClassList("active-menu-option");
+            root.Q<Button>("ButtonSave").RemoveFromClassList("active-menu-option");
+            root.Q<Button>("ButtonLoad").RemoveFromClassList("active-menu-option");
+            root.Q<Button>(buttonNameToActivate).AddToClassList("active-menu-option");
+        }
+
+        public void SetupNavMenu(VisualElement root)
+        {
+            root.RegisterCallback<NavigationCancelEvent>(ev =>
+            {
+                CloseMenu();
+                
+            });
+
+            SetupButton(root.Q<Button>("ButtonEquipment"), () => { OpenEquipmentListMenu(); });
+            SetupButton(root.Q<Button>("ButtonInventory"), () => { OpenInventoryScreen(); });
+            SetupButton(root.Q<Button>("ButtonSave"), () => { OpenSaveScreen(); });
+            SetupButton(root.Q<Button>("ButtonLoad"), () => { OpenLoadScreen(); });
+            SetupButton(root.Q<Button>("ButtonExit"), () => { Application.Quit(); });
+        }
+
+        public void SetupButton(Button button, UnityAction callback)
+        {
+            button.RegisterCallback<ClickEvent>(ev => { callback.Invoke(); });
+            button.RegisterCallback<NavigationSubmitEvent>(ev => {
+                callback.Invoke();
+            });
+        }
+    }
+}
