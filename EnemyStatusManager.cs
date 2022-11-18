@@ -39,15 +39,17 @@ namespace AF
             }
         }
 
-        public void InflictStatusEffect(StatusEffect statusEffect, float amount)
+        public float InflictStatusEffect(StatusEffect statusEffect, float amount)
         {
+            float valueToReturn = 0f;
+
             var idx = this.appliedStatus.FindIndex(x => x.appliedStatus.statusEffect == statusEffect);
 
             if (idx != -1)
             {
                 if (this.appliedStatus[idx].appliedStatus.hasReachedTotalAmount)
                 {
-                    return;
+                    return valueToReturn;
                 }
 
                 this.appliedStatus[idx].appliedStatus.currentAmount += amount;
@@ -57,10 +59,18 @@ namespace AF
                     ShowTextAndParticleOnReachingFullAmount(this.appliedStatus[idx].appliedStatus.statusEffect);
 
                     this.appliedStatus[idx].appliedStatus.hasReachedTotalAmount = true;
-                    return;
+
+
+                    if (statusEffect.damagePercentualValue > 0)
+                    {
+                        var percentageOfHealthToTake = statusEffect.damagePercentualValue * enemyHealthController.maxHealth / 100;
+                        valueToReturn = percentageOfHealthToTake;
+                    }
+
+                    return valueToReturn;
                 }
 
-                return;
+                return valueToReturn;
             }
 
             var negativeStatusResistance = this.negativeStatusResistances.Find(x => x.statusEffect == statusEffect);
@@ -78,6 +88,12 @@ namespace AF
             if (appliedStatus.hasReachedTotalAmount)
             {
                 ShowTextAndParticleOnReachingFullAmount(appliedStatus.statusEffect);
+
+                if (appliedStatus.statusEffect.damagePercentualValue > 0)
+                {
+                    var percentageOfHealthToTake = appliedStatus.statusEffect.damagePercentualValue * enemyHealthController.maxHealth / 100;
+                    valueToReturn = percentageOfHealthToTake;
+                }
             }
 
             EnemyAppliedStatus enemyAppliedStatus = new EnemyAppliedStatus();
@@ -92,6 +108,8 @@ namespace AF
             uiIndicatorInstance.fill.sprite = enemyAppliedStatus.appliedStatus.statusEffect.spriteIndicator;
 
             this.appliedStatus.Add(enemyAppliedStatus);
+
+            return valueToReturn;
         }
 
         void ShowTextAndParticleOnReachingFullAmount(StatusEffect statusEffect)

@@ -5,9 +5,7 @@ namespace AF
 {
     public class PlayerHealthbox : MonoBehaviour
     {
-        public readonly int hashTakingDamage = Animator.StringToHash("TakingDamage");
         public readonly int hashDying = Animator.StringToHash("Dying");
-        public readonly int hashIsDead = Animator.StringToHash("Dead");
 
         // References
         PlayerCombatController playerCombatController => GetComponentInParent<PlayerCombatController>();
@@ -21,18 +19,61 @@ namespace AF
         public GameObject shieldWoodImpactFx;
         public FloatingText damageFloatingText;
 
-        [Header("Visuals")]
-        public DestroyableParticle damageParticlePrefab;
-
         [Header("Sounds")]
-        public AudioClip damageSfx;
         public AudioClip deathGruntSfx;
 
         Animator animator => GetComponentInParent<Animator>();
 
-        public void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponSwingSfx)
+        PlayerPoiseController playerPoiseController => GetComponentInParent<PlayerPoiseController>();
+
+        public void TakeEnvironmentalDamage(float damage)
+        {
+
+            if (Player.instance.currentHealth <= 0)
+            {
+                return;
+            }
+
+
+            if (playerPoiseController.isStunned)
+            {
+                return;
+            }
+
+
+            if (dodgeController.IsDodging())
+            {
+                return;
+            }
+
+
+            healthStatManager.SubtractAmount(damage);
+
+            if (damageFloatingText != null)
+            {
+                damageFloatingText.Show(damage);
+            }
+
+            if (playerPoiseController.damageParticlePrefab != null)
+            {
+                Instantiate(playerPoiseController.damageParticlePrefab, transform.position, Quaternion.identity);
+            }
+
+            if (Player.instance.currentHealth <= 0)
+            {
+
+                Die();
+            }
+        }
+
+        public void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponDamageSfx, int poiseDamage)
         {
             if (Player.instance.currentHealth <= 0)
+            {
+                return;
+            }
+
+            if (playerPoiseController.isStunned)
             {
                 return;
             }
@@ -80,31 +121,24 @@ namespace AF
                 damageFloatingText.Show(damage);
             }
 
-            if (damageParticlePrefab != null)
-            {
-                Instantiate(damageParticlePrefab, transform.position, Quaternion.identity);
-            }
 
-            if (weaponSwingSfx != null)
+            if (weaponDamageSfx != null)
             {
-                BGMManager.instance.PlaySound(weaponSwingSfx, playerCombatController.combatAudioSource);
+                BGMManager.instance.PlaySound(weaponDamageSfx, playerCombatController.combatAudioSource);
             }
-
-            StartCoroutine(PlayHurtSfx());
 
             if (Player.instance.currentHealth <= 0)
             {
-                Die();
+                if (playerPoiseController.damageParticlePrefab != null)
+                {
+                    Instantiate(playerPoiseController.damageParticlePrefab, transform.position, Quaternion.identity);
+                }
 
-                StartCoroutine(ShowGameOverScreen());
+                Die();
             }
             else
             {
-
-                if (climbController.climbState == ClimbController.ClimbState.NONE)
-                {
-                    animator.SetTrigger(hashTakingDamage);
-                }
+                playerPoiseController.IncreasePoiseDamage(poiseDamage);
             }
         }
         public void Die()
@@ -114,15 +148,11 @@ namespace AF
             playerComponentManager.DisableCharacterController();
             playerComponentManager.DisableComponents();
 
-            animator.SetTrigger(hashDying);
+            animator.Play(hashDying);
+
+            StartCoroutine(ShowGameOverScreen());
         }
         
-        protected IEnumerator PlayHurtSfx()
-        {
-            yield return new WaitForSeconds(0.1f);
-            BGMManager.instance.PlaySound(damageSfx, playerCombatController.combatAudioSource);
-        }
-
         protected IEnumerator PlayDeathSfx()
         {
             yield return new WaitForSeconds(0.1f);
@@ -132,8 +162,8 @@ namespace AF
         IEnumerator ShowGameOverScreen()
         {
             yield return new WaitForSeconds(2f);
-            /*UIDocumentGameOverScreen uIDocumentGameOverScreen = FindObjectOfType<UIDocumentGameOverScreen>(true);
-            uIDocumentGameOverScreen.ShowGameOverScreen();*/
+
+            FindObjectOfType<UIDocumentGameOver>(true).gameObject.SetActive(true);
         }
     }
 

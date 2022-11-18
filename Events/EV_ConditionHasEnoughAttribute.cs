@@ -5,7 +5,7 @@ namespace AF
 {
     public class EV_ConditionHasEnoughAttribute : EV_Condition
     {
-        public Attribute attribute;
+        // public Attribute attribute;
 
         public int requiredLevel;
 
@@ -13,7 +13,7 @@ namespace AF
         {
             var currentAttributeLevel = 0;
 
-            if (attribute == Attribute.Vitality)
+            /*if (attribute == Attribute.Vitality)
             {
                 currentAttributeLevel = Player.instance.vitality;
             }
@@ -28,7 +28,7 @@ namespace AF
             else if (attribute == Attribute.Dexterity)
             {
                 currentAttributeLevel = Player.instance.dexterity;
-            }
+            }*/
 
             yield return DispatchConditionResults(currentAttributeLevel >= requiredLevel);
         }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
@@ -62,7 +63,7 @@ namespace AF
 
             while (uIDocumentDialogueWindow.hasFinishedTypewriter == false)
             {
-                if (inputs.interact)
+                if (inputs.interact || Gamepad.current != null && Gamepad.current.buttonWest.isPressed)
                 {
                     uIDocumentDialogueWindow.ShowAllTextAtOnce();
                 }
@@ -72,7 +73,12 @@ namespace AF
 
             yield return new WaitUntil(() => inputs.interact == false);
 
-            yield return new WaitUntil(() => inputs.interact == true);
+            if (Gamepad.current != null)
+            {
+                yield return new WaitUntil(() => Gamepad.current.buttonWest.IsActuated() == false);
+            }
+
+            yield return new WaitUntil(() => inputs.interact == true || Gamepad.current != null && Gamepad.current.buttonWest.isPressed);
 
             if (dialogueChoices.Count > 0)
             {

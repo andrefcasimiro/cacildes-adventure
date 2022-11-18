@@ -29,6 +29,12 @@ namespace AF
                 enemySightController = enemy.GetComponent<EnemySightController>();
             }
 
+            if (enemyPathController.waypoints.Count < 0)
+            {
+                animator.SetBool(enemyPathController.hashPatrol, false);
+                return;
+            }
+
             enemyPathController.GotoNextPoint();
         }
 

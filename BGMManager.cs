@@ -2,6 +2,7 @@
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
+using System.Linq;
 
 namespace AF
 {
@@ -11,11 +12,16 @@ namespace AF
         public AudioClip uiDecision;
         public AudioClip uiSelect;
         public AudioClip uiCancel;
+        public AudioClip uiItemReceived;
 
         [Header("Misc Sounds")]
         public AudioClip alert;
         public AudioClip bookFlip;
-        public AudioClip cash;
+        public AudioClip cashRegister;
+        public AudioClip coin;
+        public AudioClip craftSuccess;
+        public AudioClip craftError;
+        public AudioClip gameOverFanfare;
 
         [Header("Audio Sources")]
         public AudioSource bgmAudioSource;
@@ -23,6 +29,9 @@ namespace AF
         public AudioSource sfxAudioSource;
 
         public static BGMManager instance;
+
+        float maxSelectCooldownTimer = .2f;
+        float selectCooldownTimer = Mathf.Infinity;
 
         private void Awake()
         {
@@ -33,6 +42,14 @@ namespace AF
             else
             {
                 instance = this;
+            }
+        }
+
+        private void Update()
+        {
+            if (selectCooldownTimer < maxSelectCooldownTimer)
+            {
+                selectCooldownTimer += Time.deltaTime;
             }
         }
 
@@ -80,9 +97,54 @@ namespace AF
 
         public void PlayUIDecision() { this.sfxAudioSource.PlayOneShot(uiDecision); }
         public void PlayUICancel() { this.sfxAudioSource.PlayOneShot(uiCancel); }
-        public void PlayUISelect() { this.sfxAudioSource.PlayOneShot(uiSelect); }
+        public void PlayUISelect() {
+            if (selectCooldownTimer < maxSelectCooldownTimer)
+            {
+                return;
+            }
+
+            this.sfxAudioSource.PlayOneShot(uiSelect);
+            selectCooldownTimer = 0;
+        }
+        public void PlayItem() { this.sfxAudioSource.PlayOneShot(uiItemReceived); }
         public void PlayBookFlip() { this.sfxAudioSource.PlayOneShot(bookFlip); }
-        public void PlayCash() { this.sfxAudioSource.PlayOneShot(cash); }
+        public void PlayCashRegister() { this.sfxAudioSource.PlayOneShot(cashRegister); }
+        public void PlayCoin() { this.sfxAudioSource.PlayOneShot(coin); }
         public void PlayAlert() { this.sfxAudioSource.PlayOneShot(alert); }
+        public void PlayCraftSuccess() { this.sfxAudioSource.PlayOneShot(craftSuccess); }
+        public void PlayCraftError() { this.sfxAudioSource.PlayOneShot(craftError); }
+        public void PlayGameOver() { this.sfxAudioSource.PlayOneShot(gameOverFanfare); }
+
+        public void PlayBattleMusic()
+        {
+            var battleMusic = FindObjectOfType<SceneSettings>(true).battleMusic;
+
+            if (battleMusic != null)
+            {
+
+                if (this.bgmAudioSource.clip != null && this.bgmAudioSource.clip.name == battleMusic.name)
+                {
+                    return;
+                }
+
+
+                PlayMusic(battleMusic);
+            }
+        }
+
+        public void PlayMapMusicAfterKillingEnemy(Enemy killedEnemy)
+        {
+            // Check if more enemies are in chase or combat state
+            var activeEnemies = FindObjectsOfType<Enemy>();
+
+            if (activeEnemies.FirstOrDefault(x => x.InCombatWithPlayer() && x != killedEnemy))
+            {
+                return;
+            }
+
+            // Play map music
+            FindObjectOfType<SceneSettings>(true).HandleSceneSound();
+
+        }
     }
 }

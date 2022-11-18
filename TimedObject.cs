@@ -8,6 +8,8 @@ namespace AF
 
     public class TimedObject : MonoBehaviour, IClockListener, ISaveable
     {
+        public string dayHours = "05-20";
+        public string nightHours = "20-5";
 
         DayTrigger[] dayTriggers;
         NightTrigger[] nightTriggers;

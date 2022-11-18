@@ -14,10 +14,18 @@ namespace AF
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             animator.gameObject.TryGetComponent<Enemy>(out enemy);
+
+            var deathCollider = animator.gameObject.GetComponentInChildren<DeathColliderRef>();
+            if (deathCollider != null)
+            {
+                deathCollider.GetComponent<BoxCollider>().enabled = true;
+            }
+
             if (enemy == null)
             {
                 enemy = animator.GetComponentInParent<Enemy>(true);
             }
+
 
             if (enemyHealthController == null)
             {
@@ -26,6 +34,7 @@ namespace AF
 
             enemy.GetComponent<Rigidbody>().isKinematic = turnKinematic;
             enemy.GetComponent<CapsuleCollider>().enabled = !disableCapsuleCollider;
+
 
             if (enemyHealthController != null)
             {
@@ -36,8 +45,11 @@ namespace AF
             {
                 enemyHealthController.onEnemyDeath.Invoke();
             }
+
             enemy.agent.enabled = false;
             enemy.enabled = false;
+
+            BGMManager.instance.PlayMapMusicAfterKillingEnemy(enemy);
         }
 
     }

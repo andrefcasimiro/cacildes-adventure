@@ -41,6 +41,8 @@ namespace AF
                 yield return null;
             }
 
+            // Fix bug where text is still showing in small
+            transform.localScale = new Vector3(0, 0, 0);
         }
     }
 }

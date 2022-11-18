@@ -28,12 +28,12 @@ namespace AF
         IMGUIContainer itemIcon;
         Label itemCounter;
 
-        private void Start()
+        private void OnEnable()
         {
             healthStatManager = FindObjectOfType<HealthStatManager>(true);
             staminaStatManager = FindObjectOfType<StaminaStatManager>(true);
 
-            root = this.uIDocument.rootVisualElement;
+            this.root = this.uIDocument.rootVisualElement;
             healthContainer = root.Q<VisualElement>("Health");
             healthFill = root.Q<VisualElement>("HealthFill");
             staminaContainer = root.Q<VisualElement>("Stamina");
@@ -47,7 +47,6 @@ namespace AF
 
         private void Update()
         {
-
             healthContainer.style.width = healthContainerBaseWidth + (Player.instance.vitality * containerMultiplierPerLevel);
             staminaContainer.style.width = staminaContainerBaseWidth + (Player.instance.endurance * containerMultiplierPerLevel);
 

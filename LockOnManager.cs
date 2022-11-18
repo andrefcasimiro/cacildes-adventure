@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
@@ -24,7 +25,6 @@ namespace AF
         public GameObject defaultCamera;
         public GameObject lockOnCamera;
 
-        List<LockOnRef> availableTargets = new List<LockOnRef>();
        public float maximumLockOnDistance = 15;
 
         public LockOnRef nearestLockOnTarget;
@@ -34,12 +34,16 @@ namespace AF
 
         public LayerMask blockLayer;
 
-        public float mouseSensitivityForNearbyTargets = 2f;
+        public float mouseSensitivityForNearbyTargets = 1.25f;
 
         //public float timeBeforeUnlocking = .5f;
         //float unlockTimer = 0f;
 
         int LayerEnvironment;
+
+
+        float maxTargetSwitchingCooldown = .3f;
+        float targetSwitchingCooldown = Mathf.Infinity;
 
         private void Awake()
         {
@@ -48,7 +52,6 @@ namespace AF
             inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
 
             LayerEnvironment = LayerMask.NameToLayer("Environment");
-
         }
 
         private void Start()
@@ -58,9 +61,13 @@ namespace AF
 
         private void Update()
         {
+            if (targetSwitchingCooldown < maxTargetSwitchingCooldown)
+            {
+                targetSwitchingCooldown += Time.deltaTime;
+            }
+
             if (inputs.lockOn)
             {
-
                 inputs.lockOn = false;
 
                 if (isLockedOn)
@@ -70,6 +77,7 @@ namespace AF
                 else
                 {
                     EnableLockOn();
+                    HandleLockOnClick();
                 }
             }
 
@@ -100,11 +108,15 @@ namespace AF
                 }
             }
 
-            if (isLockedOn)
+            /*if (isLockedOn)
             {
                 HandleLockOn();
-            }
+            }*/
 
+            if (isLockedOn)
+            {
+                HandleTargetSwitching();
+            }
         }
 
         public void SwitchToLeftTarget()
@@ -155,19 +167,15 @@ namespace AF
             rightLockTarget = null;
             leftLockTarget = null;
 
-            availableTargets.Clear();
-
             playerAnimator.SetFloat(hashStrafeHorizontal, 0);
             playerAnimator.SetFloat(hashStrafeVertical, 0);
         }
 
-        public void HandleLockOn()
-        {
-            float shortestDistance = Mathf.Infinity;
-            float shortestDistanceOfLeftTarget = Mathf.Infinity;
-            float shortestDistanceOfRightTarget = Mathf.Infinity;
+        public void HandleLockOnClick() {
+            List<LockOnRef> availableTargets = new List<LockOnRef>();
 
-            Collider[] colliders = Physics.OverlapSphere(playerAnimator.transform.position, 26);
+            float shortestDistance = Mathf.Infinity;
+            Collider[] colliders = Physics.OverlapSphere(playerAnimator.transform.position, isLockedOn ? 26 * 2 : 26);
 
             for (int i = 0; i < colliders.Length; i++)
             {
@@ -179,7 +187,7 @@ namespace AF
                     float distanceFromTarget = Vector3.Distance(enemy.transform.position, playerAnimator.transform.position);
                     //float viewableAngle = Vector3.Angle(lockTargetDirection, Camera.main.transform.forward);
 
-                    if (enemy.transform.root != playerAnimator.transform.root 
+                    if (enemy.transform.root != playerAnimator.transform.root
                         //&& viewableAngle > -50 && viewableAngle < 50
                         && distanceFromTarget <= maximumLockOnDistance)
                     {
@@ -200,11 +208,52 @@ namespace AF
                         nearestLockOnTarget = availableTargets[i];
                     }
                 }
+            }
 
-                if (nearestLockOnTarget == null) {
-                    break;
+            if (nearestLockOnTarget != null)
+            {
+                if (targetSwitchingCooldown < maxTargetSwitchingCooldown)
+                {
+                    return;
                 }
 
+                targetSwitchingCooldown = 0f;
+                lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = (nearestLockOnTarget.transform);
+            }
+            else
+            {
+                DisableLockOn();
+            }
+        }
+
+        public void HandleTargetSwitching()
+        {
+            List<LockOnRef> availableTargets = new List<LockOnRef>();
+
+            float shortestDistanceOfLeftTarget = Mathf.Infinity;
+            float shortestDistanceOfRightTarget = Mathf.Infinity;
+
+            Collider[] colliders = Physics.OverlapSphere(playerAnimator.transform.position, isLockedOn ? 26 * 2 : 26);
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                LockOnRef enemy = colliders[i].GetComponent<LockOnRef>();
+
+                if (enemy != null)
+                {
+                    Vector3 lockTargetDirection = enemy.transform.position - playerAnimator.transform.position;
+                    float distanceFromTarget = Vector3.Distance(enemy.transform.position, playerAnimator.transform.position);
+
+                    if (enemy.transform.root != playerAnimator.transform.root 
+                        && distanceFromTarget <= maximumLockOnDistance)
+                    {
+                        availableTargets.Add(enemy);
+                    }
+                }
+            }
+
+            for (int i = 0; i < availableTargets.Count; i++)
+            {
                 Vector3 relativeEnemyPosition = nearestLockOnTarget.transform.InverseTransformPoint(availableTargets[i].transform.position);
                 var distanceFromLeftTarget = nearestLockOnTarget.transform.position.x - availableTargets[i].transform.position.x;
                 var distanceFromRightTarget = nearestLockOnTarget.transform.position.x + availableTargets[i].transform.position.x;
@@ -230,24 +279,29 @@ namespace AF
 
                 if (inputs.look != Vector2.zero)
                 {
-                    if (inputs.look.x < -mouseSensitivityForNearbyTargets && leftLockTarget != null)
+                    if (
+                        (inputs.look.x < -mouseSensitivityForNearbyTargets || Gamepad.current != null && Gamepad.current.rightStick.left.isPressed)
+                        && leftLockTarget != null)
                     {
+                        if (targetSwitchingCooldown < maxTargetSwitchingCooldown) { return; }
+
                         SwitchToLeftTarget();
+                        targetSwitchingCooldown = 0f;
+                        return;
                     }
-                    else if (inputs.look.x > mouseSensitivityForNearbyTargets && rightLockTarget != null)
+                    else if (
+                        (inputs.look.x > mouseSensitivityForNearbyTargets || Gamepad.current != null && Gamepad.current.rightStick.right.isPressed)
+                        && rightLockTarget != null)
                     {
+                        if (targetSwitchingCooldown < maxTargetSwitchingCooldown) { return; }
+
                         SwitchToRightTarget();
+                        targetSwitchingCooldown = 0f;
+                        return;
                     }
                 }
-            }
 
-            if (nearestLockOnTarget != null)
-            {
-                lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = (nearestLockOnTarget.transform);
-            }
-            else
-            {
-                DisableLockOn();
+
             }
         }
 

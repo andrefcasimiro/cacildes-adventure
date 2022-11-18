@@ -19,19 +19,19 @@ namespace AF
             Player.instance.currentHealth = Mathf.Clamp(Player.instance.currentHealth - amount, 0, GetMaxHealth());
         }
 
-        public void RestoreHealthPercentage(int currentHealthPercentage)
+        public void RestoreHealthPercentage(float amount)
         {
-            var percentage = (this.GetMaxHealth() * currentHealthPercentage / 100);
-            var nextCurrentHealthValue = Mathf.Clamp(Player.instance.currentHealth + percentage, 0, this.GetMaxHealth());
+            var percentage = (this.GetMaxHealth() * amount / 100);
+            var nextValue = Mathf.Clamp(Player.instance.currentHealth + percentage, 0, this.GetMaxHealth());
 
-            Player.instance.currentHealth = nextCurrentHealthValue;
+            Player.instance.currentHealth = nextValue;
         }
 
-        public void RestoreHealthPoints(int healthPoints)
+        public void RestoreHealthPoints(float amount)
         {
-            var nextCurrentHealthValue = Mathf.Clamp(Player.instance.currentHealth + healthPoints, 0, this.GetMaxHealth());
+            var nextValue = Mathf.Clamp(Player.instance.currentHealth + amount, 0, this.GetMaxHealth());
 
-            Player.instance.currentHealth = nextCurrentHealthValue;
+            Player.instance.currentHealth = nextValue;
         }
     }
 

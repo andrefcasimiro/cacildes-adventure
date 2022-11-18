@@ -17,6 +17,8 @@ namespace AF
         [HideInInspector] public EnemyHealthController enemyHealthController;
         [HideInInspector] public EnemyProjectileController enemyProjectileController;
 
+        [HideInInspector] public Animator animator => GetComponent<Animator>();
+
         private void Start()
         {
             enemy = GetComponentInParent<Enemy>();
@@ -55,13 +57,29 @@ namespace AF
         {
             enemyCombatController.ActivateLeftHandHitbox();
         }
-        
+
+        public void ActivateLeftWeaponHitbox()
+        {
+            enemyCombatController.ActivateLeftHandHitbox();
+        }
+
         public void DeactivateLeftHandHitbox()
         {
             enemyCombatController.DeactivateLeftHandHitbox();
         }
-        
+
+        public void DeactivateLeftWeaponHitbox()
+        {
+            DeactivateRightHandHitbox();
+        }
+
+
         public void ActivateRightHandHitbox()
+        {
+            enemyCombatController.ActivateRightHandHitbox();
+        }
+
+        public void ActivateRightWeaponHitbox()
         {
             enemyCombatController.ActivateRightHandHitbox();
         }
@@ -69,6 +87,11 @@ namespace AF
         public void DeactivateRightHandHitbox()
         {
             enemyCombatController.DeactivateRightHandHitbox();
+        }
+
+        public void DeactivateRightWeaponHitbox()
+        {
+            DeactivateRightHandHitbox();
         }
 
         // LEGS
@@ -120,7 +143,14 @@ namespace AF
 
         #region Range Weapons
         // SHOOTING
-
+        public void ShowBow()
+        {
+            enemyProjectileController.ShowBow();
+        }
+        public void HideBow()
+        {
+            enemyProjectileController.HideBow();
+        }
         public void FireProjectile()
         {
             enemyProjectileController.FireProjectile();

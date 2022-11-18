@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AF
@@ -45,7 +46,7 @@ namespace AF
         MoveRoute parentMoveRoute;
 
         // Event Page transform child that controls movement
-        private GameObject eventPageTransform;
+        public GameObject eventPageTransform;
         private GameObject player;
 
         UIDocumentDialogueWindow uIDocumentDialogueWindow;
@@ -53,6 +54,8 @@ namespace AF
         DayNightManager dayNightManager;
 
         public bool allowTimePassage = false;
+
+        public bool dontAllowIfAnotherEventIsHappening = false;
 
         private void Awake()
         {
@@ -113,32 +116,45 @@ namespace AF
 
         public IEnumerator DispatchEvents()
         {
-            if (parentMoveRoute != null)
-            {
-                parentMoveRoute.Interrupt();
-            }
+            bool skip = false;
 
-            isRunning = true;
-
-            foreach (EventBase ev in pageEvents)
+            if (dontAllowIfAnotherEventIsHappening)
             {
-                if (ev != null)
-                {
-                    yield return StartCoroutine(ev.Dispatch());
+                if (FindObjectsOfType<EventPage>().FirstOrDefault(x => x.IsRunning())) {
+                    skip = true;
                 }
             }
 
-            isRunning = false;
-
-            if (dayNightManager.TimePassageAllowed())
+            if (skip == false)
             {
-                dayNightManager.tick = true;
+                if (parentMoveRoute != null)
+                {
+                    parentMoveRoute.Interrupt();
+                }
+
+                isRunning = true;
+
+                foreach (EventBase ev in pageEvents)
+                {
+                    if (ev != null)
+                    {
+                        yield return StartCoroutine(ev.Dispatch());
+                    }
+                }
+
+                isRunning = false;
+
+                if (dayNightManager.TimePassageAllowed())
+                {
+                    dayNightManager.tick = true;
+                }
+
+                if (parentMoveRoute != null)
+                {
+                    parentMoveRoute.ResumeCycle();
+                }
             }
 
-            if (parentMoveRoute != null)
-            {
-                parentMoveRoute.ResumeCycle();
-            }
         }
 
         public void Stop()

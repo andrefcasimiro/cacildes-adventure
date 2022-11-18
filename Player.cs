@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace AF
 {
@@ -12,6 +13,16 @@ namespace AF
         public bool hasReachedTotalAmount;
 
         public float currentAmount;
+    }
+
+    [System.Serializable]
+    public class AppliedConsumable
+    {
+        public Consumable.ConsumableEffect consumableEffect;
+
+        public Sprite consumableEffectSprite;
+
+        public float currentDuration;
     }
 
     public class Player : MonoBehaviour, ISaveable
@@ -58,10 +69,13 @@ namespace AF
 
         [Header("Recipes")]
         public List<AlchemyRecipe> alchemyRecipes = new List<AlchemyRecipe>();
+        public List<CookingRecipe> cookingRecipes = new List<CookingRecipe>();
 
         [Header("Status Effects")]
         public List<AppliedStatus> appliedStatus = new List<AppliedStatus>();
 
+        [Header("Consumables Effects")]
+        public List<AppliedConsumable> appliedConsumables = new List<AppliedConsumable>();
 
         private void Awake()
         {
@@ -134,6 +148,18 @@ namespace AF
             }
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                FindObjectOfType<DayNightManager>(true).SetTimeOfDay(Mathf.RoundToInt(Player.instance.timeOfDay) - 1, 0);
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                FindObjectOfType<DayNightManager>(true).SetTimeOfDay(Mathf.RoundToInt(Player.instance.timeOfDay) + 1, 0);
+            }
+        }
+
         public void OnGameLoaded(GameData gameData)
         {
             PlayerData playerData = gameData.playerData;
@@ -143,16 +169,65 @@ namespace AF
             favoriteItems.Clear();
             if (gameData.items.Length > 0)
             {
-                var items = Resources.FindObjectsOfTypeAll<Item>();
+                var accessories = Resources.LoadAll<Accessory>("Items/Accessories");
+                var alchemy = Resources.LoadAll<AlchemyIngredient>("Items/Alchemy");
+                var armors = Resources.LoadAll<Armor>("Items/Armors");
+                var consumables = Resources.LoadAll<Consumable>("Items/Consumables");
+                var craftables = Resources.LoadAll<CraftingMaterial>("Items/Craftables");
+                var gauntlets = Resources.LoadAll<Gauntlet>("Items/Gauntlets");
+                var helmets = Resources.LoadAll<Helmet>("Items/Helmets");
+                var legwears = Resources.LoadAll<Legwear>("Items/Legwears");
+                var shields = Resources.LoadAll<Shield>("Items/Shields");
+                var weapons = Resources.LoadAll<Weapon>("Items/Weapons");
 
                 foreach (var serializedItem in gameData.items)
                 {
-                    var itemInstance = items.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    object itemInstance = null;
+                    if (itemInstance == null)
+                    {
+                        itemInstance = accessories.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = alchemy.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = armors.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = consumables.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = craftables.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = gauntlets.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = helmets.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = legwears.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = shields.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = weapons.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
 
                     if (itemInstance != null)
                     {
                         var itemEntry = new ItemEntry();
-                        itemEntry.item = itemInstance;
+                        itemEntry.item = (Item)itemInstance;
                         itemEntry.amount = serializedItem.itemCount;
                         this.ownedItems.Add(itemEntry);
                     }
@@ -162,20 +237,22 @@ namespace AF
                 {
                     foreach (var serializedFavoriteItem in gameData.favoriteItems)
                     {
-                        var itemInstance = items.FirstOrDefault(i => i.name == serializedFavoriteItem);
+                        var favoriteItem = this.ownedItems.Find(x => x.item.name == serializedFavoriteItem);
 
-                        if (itemInstance != null)
+                        if (favoriteItem != null)
                         {
-                            this.favoriteItems.Add(itemInstance);
+                            this.favoriteItems.Add(favoriteItem.item);
                         }
                     }
                 }
 
+                FindObjectOfType<UIDocumentPlayerHUDV2>(true).gameObject.SetActive(true);
                 FindObjectOfType<UIDocumentPlayerHUDV2>(true).UpdateFavoriteItems();
             }
 
             // Status Effects
             this.appliedStatus.Clear();
+            FindObjectOfType<UIDocumentStatusEffectV2>(true).ClearAllNegativeStatusEntry();
 
             if (gameData.statusEffects.Length > 0)
             {
@@ -185,6 +262,39 @@ namespace AF
                     var statusEffect = Resources.Load<StatusEffect>("Status/" + savedStatus.statusEffectName);
 
                     playerStatusManager.InflictStatusEffect(statusEffect, savedStatus.currentAmount, savedStatus.hasReachedTotalAmount);
+                }
+            }
+
+            // Status Effects
+            this.appliedConsumables.Clear();
+            FindObjectOfType<UIDocumentStatusEffectV2>(true).ClearAllConsumableEntries();
+
+            if (gameData.consumables.Length > 0)
+            {
+                var playerConsumableManager = FindObjectOfType<PlayerConsumablesManager>(true);
+                foreach (var savedConsumable in gameData.consumables)
+                {
+                    AppliedConsumable appliedConsumable = new AppliedConsumable();
+                    Consumable.ConsumableEffect consumableEffect = new Consumable.ConsumableEffect();
+                    Enum.TryParse(savedConsumable.consumableName, out Consumable.ConsumablePropertyName consumableName);
+
+                    consumableEffect.consumablePropertyName = consumableName;
+                    consumableEffect.displayName = savedConsumable.displayName;
+                    consumableEffect.barColor = new Color(savedConsumable.barColor.r, savedConsumable.barColor.g, savedConsumable.barColor.b, savedConsumable.barColor.a);
+                    consumableEffect.value = savedConsumable.value;
+                    consumableEffect.effectDuration = savedConsumable.effectDuration;
+
+
+                    appliedConsumable.currentDuration = savedConsumable.currentDuration;
+
+                    var sprite = Resources.Load<Sprite>("Items/Consumables/" + savedConsumable.spriteFileName);
+
+                    consumableEffect.sprite = sprite;
+
+                    appliedConsumable.consumableEffect = consumableEffect;
+                    appliedConsumable.consumableEffectSprite = sprite;
+
+                    playerConsumableManager.AddConsumableEffect(appliedConsumable);
                 }
             }
 
@@ -221,19 +331,17 @@ namespace AF
                 }
             }
 
-            /*
-            this.appliedConsumables.Clear();
-            foreach (var serializedConsumable in gameData.consumables)
+            // Cooking Recipes
+            this.cookingRecipes.Clear();
+
+            if (gameData.cookingRecipes.Length > 0)
             {
-                var consumable = PlayerInventoryManager.instance.GetItem(serializedConsumable.consumableName);
-
-                AppliedConsumable appliedConsumable = new AppliedConsumable();
-                appliedConsumable.consumable = (Consumable)consumable;
-                appliedConsumable.currentDuration = serializedConsumable.currentDuration;
-
-                this.appliedConsumables.Add(appliedConsumable);
-            }*/
-
+                foreach (var recipeName in gameData.cookingRecipes)
+                {
+                    var recipe = Resources.Load<CookingRecipe>("Recipes/Cooking/" + recipeName);
+                    this.cookingRecipes.Add(recipe);
+                }
+            }
 
         }
     }

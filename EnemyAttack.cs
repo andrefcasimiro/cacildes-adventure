@@ -12,6 +12,8 @@ namespace AF {
 
         public float blockStaminaBonusCost = 0;
 
+        public int postureDamageBonus = 0;
+
         private Enemy enemy;
         private EnemyCombatController enemyCombatController;
 
@@ -33,6 +35,7 @@ namespace AF {
             enemyCombatController.statusEffectAmount = amountOfStatusApplied;
             enemyCombatController.weaponStatusEffect = statusEffect;
             enemyCombatController.bonusBlockStaminaCost = blockStaminaBonusCost;
+            enemyCombatController.currentPoiseDamage += postureDamageBonus;
         }
 
         public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -41,6 +44,8 @@ namespace AF {
             enemyCombatController.statusEffectAmount = 0f;
             enemyCombatController.weaponStatusEffect = null;
             enemyCombatController.bonusBlockStaminaCost = 0f;
+            enemyCombatController.currentPoiseDamage -= postureDamageBonus;
+
         }
     }
 }

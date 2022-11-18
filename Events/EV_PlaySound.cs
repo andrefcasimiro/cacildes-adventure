@@ -11,19 +11,11 @@ namespace AF
 
         public override IEnumerator Dispatch()
         {
-            yield return null;
 
-            if (soundClip != null)
-            {
-                if (audioSource != null)
-                {
-                    audioSource.PlayOneShot(soundClip);
-                }
-                else
-                {
-                    BGMManager.instance.PlaySound(soundClip, audioSource);
-                }
-            }
+            BGMManager.instance.PlaySound(soundClip, audioSource);
+
+            yield return null;
+        
         }
     }
 

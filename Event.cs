@@ -132,6 +132,14 @@ namespace AF
             }
 
             currentTarget.gameObject.SetActive(isActive);
+
+            if (isActive)
+            {
+                if (moveRoute != null)
+                {
+                    moveRoute.ResumeCycle();
+                }
+            }
         }
 
         public void OnGameLoaded(GameData gameData)

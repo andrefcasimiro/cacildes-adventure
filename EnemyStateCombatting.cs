@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using UnityEngine.AI;
 
 namespace AF
 {
@@ -27,6 +28,9 @@ namespace AF
         public string[] blockActions;
         public string[] shootActions;
 
+        [Header("Dodge Options")]
+        public bool dodgeLeftOrRight = false;
+
         Dictionary<CombatAction, System.Func<bool>> attackPlayerFlow = new Dictionary<CombatAction, System.Func<bool>>();
         Dictionary<CombatAction, System.Func<bool>> respondToPlayerFlow = new Dictionary<CombatAction, System.Func<bool>>();
 
@@ -45,7 +49,8 @@ namespace AF
             {
                 enemyCombatController = enemy.GetComponent<EnemyCombatController>();
             }
-
+            enemyCombatController.DisableAllWeaponHitboxes();
+    
             if (enemyBlockController == null)
             {
                 enemyBlockController = enemy.GetComponent<EnemyBlockController>();
@@ -176,6 +181,23 @@ namespace AF
             int dodgeDice = Random.Range(0, 100);
             if (dodgeDice < enemyDodgeController.weight && this.dodgeActions.Length > 0)
             {
+                if (dodgeLeftOrRight)
+                {
+                    NavMeshPath navMeshPath = new NavMeshPath();
+                    //create path and check if it can be done
+                    // and check if navMeshAgent can reach its target
+                    if (enemy.agent.CalculatePath(enemy.transform.right, navMeshPath) && navMeshPath.status != NavMeshPathStatus.PathInvalid)
+                    {
+                        animator.Play("Dodge_Right");
+                    }
+                    else if (enemy.agent.CalculatePath(enemy.transform.right * -1, navMeshPath) && navMeshPath.status != NavMeshPathStatus.PathInvalid)
+                    {
+                        animator.Play("Dodge_Left");
+                    }
+
+                    return true;
+                }
+
                 int dodgeClip = Random.Range(0, this.dodgeActions.Length);
                 animator.Play(this.dodgeActions[dodgeClip]);
 

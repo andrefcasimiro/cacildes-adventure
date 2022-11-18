@@ -10,30 +10,39 @@ namespace AF
         public Item item;
 
         [Range(0, 100)]
-        public int dropRarity;
+        public int chanceToGet;
     }
 
     public class Loot : MonoBehaviour
     {
         public List<DropCurrency> lootTable = new List<DropCurrency>();
         PlayerInventory playerInventory;
-
+        NotificationManager notificationManager;
 
         private void Start()
         {
+            notificationManager = FindObjectOfType<NotificationManager>(true);
             playerInventory = FindObjectOfType<PlayerInventory>(true);
         }
 
         public void GetLoot()
         {
+            bool hasPlayedFanfare = false;
             foreach (DropCurrency dropCurrency in lootTable)
             {
                 int calc_dropChance = Random.RandomRange(0, 101);
 
-                if (calc_dropChance > dropCurrency.dropRarity)
+                if (calc_dropChance < dropCurrency.chanceToGet)
                 {
-                    playerInventory.AddItem(dropCurrency.item, 1);
+                    if (hasPlayedFanfare == false)
+                    {
 
+                        BGMManager.instance.PlayItem();
+                        hasPlayedFanfare = true;
+                    }
+
+                    playerInventory.AddItem(dropCurrency.item, 1);
+                    notificationManager.ShowNotification("Found " + dropCurrency.item.name, dropCurrency.item.sprite);
                 }
             }
         }

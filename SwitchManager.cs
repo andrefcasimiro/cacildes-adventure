@@ -22,10 +22,6 @@ namespace AF
                 instance = this;
             }
 
-        }
-
-        private void Start()
-        {
             GetSwitches();
         }
 
@@ -38,6 +34,11 @@ namespace AF
             {
                 this.switches.Add(_switch);
             }
+        }
+
+        public void UpdateSwitchWithoutRefreshingEvents(string switchId, bool nextValue)
+        {
+            this.switches.Find(x => x.ID == switchId).value = nextValue;
         }
 
         public void UpdateSwitch(string switchID, bool nextValue)
@@ -58,6 +59,11 @@ namespace AF
             {
                 eventInScene.RefreshEventPages();
             }
+        }
+
+        public Switch GetSwitchInstance(string switchUUID)
+        {
+            return this.switches.Find(x => x.ID == switchUUID);
         }
 
         public bool GetSwitchValue(string switchID)

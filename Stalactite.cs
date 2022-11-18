@@ -20,7 +20,7 @@ namespace AF
         {
             if (other.gameObject.tag == "Player")
             {
-                other.GetComponent<PlayerHealthbox>().TakeDamage(damageInflicted, this.transform, null);
+                other.GetComponent<PlayerHealthbox>().TakeDamage(damageInflicted, this.transform, null, 5);
                 Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);
                 ResetStalacites();
             }

@@ -12,6 +12,11 @@ namespace AF
         private void Start()
         {
             enemyHealthController = GetComponentInParent<EnemyHealthController>(true);
+
+            if (enemyHealthController == null)
+            {
+                enemyHealthController = GetComponent<EnemyHealthController>();
+            }
         }
 
         public bool CanLockOn()

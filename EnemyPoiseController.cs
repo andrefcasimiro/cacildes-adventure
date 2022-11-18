@@ -8,11 +8,15 @@ namespace AF
     {
         public readonly int hashTakingDamage = Animator.StringToHash("TakingDamage");
 
-        [Header("Posture")]
+        [Header("Poise")]
         public int maxPoiseHits = 1;
         int currentPoiseHitCount = 0;
-        float timerBeforeReset;
+        float resetPositeTimer;
         public float maxTimeBeforeReset = 15f;
+        
+        public float maxCooldownBeforeTakingAnotherHitToPoise = 2f;
+        float cooldownBeforeTakingAnotherHitToPoise = Mathf.Infinity;
+
 
         [Header("Sounds")]
         public AudioClip damageSfx;
@@ -24,13 +28,18 @@ namespace AF
         {
             if (maxPoiseHits > 1)
             {
-                timerBeforeReset += Time.deltaTime;
+                resetPositeTimer += Time.deltaTime;
 
-                if (timerBeforeReset >= maxTimeBeforeReset)
+                if (resetPositeTimer >= maxTimeBeforeReset)
                 {
                     currentPoiseHitCount = 0;
-                    timerBeforeReset = 0f;
+                    resetPositeTimer = 0f;
                 }
+            }
+
+            if (cooldownBeforeTakingAnotherHitToPoise < maxCooldownBeforeTakingAnotherHitToPoise)
+            {
+                cooldownBeforeTakingAnotherHitToPoise += Time.deltaTime;
             }
         }
 
@@ -56,20 +65,21 @@ namespace AF
 
         public void ActivatePoiseDamage()
         {
-            currentPoiseHitCount = 0;
+            if (cooldownBeforeTakingAnotherHitToPoise < maxCooldownBeforeTakingAnotherHitToPoise)
+            {
+                return;
+            }
 
+            currentPoiseHitCount = 0;
+    
             if (enemy.animator != null)
             {
+                cooldownBeforeTakingAnotherHitToPoise = 0f;
+
                 enemy.animator.SetTrigger(hashTakingDamage);
+
+                BGMManager.instance.PlaySoundWithPitchVariation(damageSfx, enemyCombatController.combatAudioSource);
             }
-        }
-
-
-        public IEnumerator PlayHurtSfx()
-        {
-            yield return new WaitForSeconds(0.1f);
-
-            BGMManager.instance.PlaySoundWithPitchVariation(damageSfx, enemyCombatController.combatAudioSource);
         }
 
 

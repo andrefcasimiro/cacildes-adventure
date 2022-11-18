@@ -10,8 +10,8 @@ namespace AF
         public readonly int hashIsBlocking = Animator.StringToHash("IsBlocking");
 
         [Header("Block Settings")]
-        public GameObject shield;
         public DestroyableParticle blockParticleEffect;
+        public EnemyShieldCollider shield;
 
         [Header("Trigger Settings")]
         [Range(0, 100)] public int weight = 0;
@@ -19,6 +19,16 @@ namespace AF
         // Component refs
         private Enemy enemy => GetComponent<Enemy>();
         private EnemyHealthController enemyHealthController => GetComponent<EnemyHealthController>();
+
+        public bool hideShieldAutomatically = true;
+
+        private void Start()
+        {
+            if (shield != null && hideShieldAutomatically)
+            {
+                shield.gameObject.SetActive(false);
+            }
+        }
 
         public bool IsBlocking()
         {
@@ -28,10 +38,18 @@ namespace AF
         #region Animation Events
         public void ActivateBlock()
         {
+            if (shield != null && hideShieldAutomatically)
+            {
+                shield.gameObject.SetActive(true);
+            }
             enemyHealthController.DisableHealthHitboxes();
         }
         public void DeactivateBlock()
         {
+            if (shield != null && hideShieldAutomatically)
+            {
+                shield.gameObject.SetActive(false);
+            }
             enemyHealthController.EnableHealthHitboxes();
         }
         #endregion

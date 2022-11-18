@@ -80,10 +80,12 @@ namespace AF
 
         public void EnableHitbox()
         {
-            if (weaponSwingSfx != null && combatantAudioSource != null)
+
+            if (weaponSwingSfx != null)
             {
-                Utils.PlaySfx(combatantAudioSource, weaponSwingSfx);
+                BGMManager.instance.PlaySound(weaponSwingSfx, enemyCombatController.combatAudioSource);
             }
+
 
             boxCollider.enabled = true;
 
@@ -110,7 +112,8 @@ namespace AF
             {
                 return;
             }
-            
+
+
             GetPlayerComponents();
 
             float damageToReceive = Mathf.Clamp(
@@ -131,7 +134,7 @@ namespace AF
                 return;
             }
 
-            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponSwingSfx);
+            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemyCombatController.currentPoiseDamage);
 
             DisableHitbox();
 

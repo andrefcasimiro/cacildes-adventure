@@ -60,14 +60,11 @@ namespace AF
         private void Awake()
         {
             this.iClockListenersInScene = FindObjectsOfType<MonoBehaviour>(true).OfType<IClockListener>();
-
+            uIDocumentPlayerHUDV2 = FindObjectOfType<UIDocumentPlayerHUDV2>(true);
         }
 
         private void Start()
         {
-
-
-            playerHudRoot = FindObjectOfType<UIDocumentPlayerHUDV2>(true).root;
             sceneSettings = FindObjectOfType<SceneSettings>(true);
 
             if (Player.instance != null)
@@ -151,17 +148,16 @@ namespace AF
 
         void ShowClockText()
         {
-
-            if (playerHudRoot != null)
+            if (uIDocumentPlayerHUDV2 != null && uIDocumentPlayerHUDV2.root != null && uIDocumentPlayerHUDV2.isActiveAndEnabled)
             {
-                dayNightText = playerHudRoot.Q<VisualElement>("Clock").Q<Label>("Value");
+                dayNightText = uIDocumentPlayerHUDV2.root.Q<VisualElement>("Clock").Q<Label>("Value");
             }
 
             if (dayNightText == null)
             {
                 return;
             }
-
+                
             var hour = (int)(timeOfDay);
             var minutes = Mathf.Abs(hour - timeOfDay) * 60;
             minutes = (int)System.Math.Round(minutes, 2);
@@ -182,9 +178,9 @@ namespace AF
 
         void ShowClockIcon()
         {
-            if (playerHudRoot != null)
+            if (uIDocumentPlayerHUDV2.isActiveAndEnabled && uIDocumentPlayerHUDV2 != null && uIDocumentPlayerHUDV2.root != null)
             {
-                dayNightIcon = playerHudRoot.Q<IMGUIContainer>("DayTimeIcon");
+                dayNightIcon = uIDocumentPlayerHUDV2.root.Q<IMGUIContainer>("DayTimeIcon");
             }
 
             if (dayNightIcon == null)

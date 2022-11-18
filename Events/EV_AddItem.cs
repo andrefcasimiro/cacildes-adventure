@@ -14,9 +14,35 @@ namespace AF
 
         public AudioClip pickUpSfx;
 
+        [Header("Conditions")]
+        public string switchUuid;
+        public bool switchValue;
+
         public override IEnumerator Dispatch()
         {
-            yield return StartCoroutine(AddItem());
+            bool skip = false;
+
+            if (System.String.IsNullOrEmpty(switchUuid) == false)
+            {
+                // If depends on switch, evaluate value:
+                ; if (SwitchManager.instance.GetSwitchValue(switchUuid) == switchValue)
+                {
+                    skip = false;
+                }
+                else
+                {
+                    skip = true;
+                }
+            }
+
+            if (skip == false)
+            {
+                yield return StartCoroutine(AddItem());
+            }
+            else
+            {
+                yield return null;
+            }
         }
 
         IEnumerator AddItem()
@@ -30,6 +56,8 @@ namespace AF
 
             if (showNotificationText)
             {
+                BGMManager.instance.PlayItem();
+                FindObjectOfType<NotificationManager>(true).ShowNotification("Found x" + amount + " " + item.name + "", item.sprite);
             }
 
             yield return null;

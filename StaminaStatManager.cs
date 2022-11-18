@@ -11,6 +11,7 @@ namespace AF
 
         [Header("Regeneration Settings")]
         public float STAMINA_REGENERATION_RATE = 20f;
+        public float staminaRegenerationBonus = 0f;
         public const float EMPTY_STAMINA_REGENERATION_DELAY = 0.5f;
         public bool shouldRegenerateStamina = false;
 
@@ -19,6 +20,14 @@ namespace AF
         private void Awake()
         {
             inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
+        }
+
+        private void Start()
+        {
+            if (Player.instance.currentStamina < GetMaxStamina())
+            {
+                shouldRegenerateStamina = true;
+            }
         }
 
         public int GetMaxStamina()
@@ -57,7 +66,7 @@ namespace AF
 
         void HandleStaminaRegen()
         {
-            var finalRegenerationRate = STAMINA_REGENERATION_RATE;
+            var finalRegenerationRate = STAMINA_REGENERATION_RATE + staminaRegenerationBonus;
 
             Player.instance.currentStamina += Mathf.Clamp(finalRegenerationRate * Time.deltaTime, 0f, GetMaxStamina());
 
@@ -70,6 +79,21 @@ namespace AF
         public bool HasEnoughStaminaForAction(float actionStaminaCost)
         {
             return Player.instance.currentStamina - actionStaminaCost > 0;
+        }
+
+        public void RestoreStaminaPercentage(float amount)
+        {
+            var percentage = (this.GetMaxStamina() * amount / 100);
+            var nextValue = Mathf.Clamp(Player.instance.currentStamina + percentage, 0, this.GetMaxStamina());
+
+            Player.instance.currentStamina = nextValue;
+        }
+
+        public void RestoreStaminaPoints(float amount)
+        {
+            var nextValue = Mathf.Clamp(Player.instance.currentStamina + amount, 0, this.GetMaxStamina());
+
+            Player.instance.currentStamina = nextValue;
         }
     }
 }

@@ -25,9 +25,17 @@ namespace AF
         private float projectileCooldown = 0f;
 
         private Enemy enemy => GetComponent<Enemy>();
+        private EnemyCombatController enemyCombatController => GetComponent<EnemyCombatController>();
+
+        public GameObject bowGraphic;
 
         [HideInInspector]
         public bool isReadyToShoot = false;
+
+        private void Start()
+        {
+            HideBow();
+        }
 
         private void Update()
         {
@@ -49,6 +57,7 @@ namespace AF
 
         public void PrepareProjectile()
         {
+            enemy.agent.isStopped = true;
             enemy.animator.Play(hashShooting);
             projectileCooldown = 0f;
         }
@@ -73,6 +82,40 @@ namespace AF
             projectile.Shoot(enemy.playerCombatController.headRef.transform);
         }
         #endregion
+
+        public void ShowBow()
+        {
+            if (bowGraphic == null) { return; }
+
+            if (enemyCombatController.leftHandWeapon != null)
+            {
+                enemyCombatController.leftHandWeapon.gameObject.SetActive(false);
+            }
+
+            if (enemyCombatController.rightHandWeapon != null)
+            {
+                enemyCombatController.rightHandWeapon.gameObject.SetActive(false);
+            }
+
+            bowGraphic.gameObject.SetActive(true);
+        }
+        public void HideBow()
+        {
+            if (bowGraphic == null) { return; }
+
+            bowGraphic.gameObject.SetActive(false);
+
+            if (enemyCombatController.leftHandWeapon != null)
+            {
+                enemyCombatController.leftHandWeapon.gameObject.SetActive(true);
+            }
+
+            if (enemyCombatController.rightHandWeapon != null)
+            {
+                enemyCombatController.rightHandWeapon.gameObject.SetActive(true);
+            }
+
+        }
 
 
     }

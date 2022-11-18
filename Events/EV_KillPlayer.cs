@@ -10,10 +10,6 @@ namespace AF
         {
 
             FindObjectOfType<PlayerHealthbox>(true).Die();
-            /*
-             * UIDocumentGameOverScreen uIDocumentGameOverScreen = FindObjectOfType<UIDocumentGameOverScreen>(true);
-            uIDocumentGameOverScreen.ShowGameOverScreen();
-            */
             yield return null;
         }
     }

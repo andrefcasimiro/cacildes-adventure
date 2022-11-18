@@ -12,7 +12,10 @@ namespace AF
 
         private void Start()
         {
-            sightDistance = transform.localScale.y;
+            if (sightDistance == 0)
+            {
+                sightDistance = transform.localScale.y;
+            }
         }
 
         private void OnTriggerEnter(Collider other)

@@ -40,6 +40,7 @@ namespace AF
         public StatusEffect weaponStatusEffect = null;
         public float statusEffectAmount = 0f;
         public float bonusBlockStaminaCost = 0f;
+        public int currentPoiseDamage = 1;
 
         [Header("Light Attacks")]
         [Range(0, 100)] public int lightAttackWeight = 75;
@@ -59,6 +60,12 @@ namespace AF
         public CombatAction[] attackPlayer;
 
         private Enemy enemy => GetComponent<Enemy>();
+        EnemyHealthController enemyHealthController => GetComponent<EnemyHealthController>();
+
+        private void Start()
+        {
+            DisableAllWeaponHitboxes();
+        }
 
         private void Update()
         {

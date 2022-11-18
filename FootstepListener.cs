@@ -16,11 +16,23 @@ namespace AF
         public AudioClip landingSfx;
 
         ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
+        LockOnManager lockOnManager;
+
+        float maxCooldown = 0.1f;
+        float cooldown = Mathf.Infinity;
 
         private void Awake()
         {
-
+            lockOnManager = FindObjectOfType<LockOnManager>(true);
             footstepSystem = FindObjectOfType<FootstepSystem>(true);
+        }
+
+        private void Update()
+        {
+            if (cooldown < maxCooldown)
+            {
+                cooldown += Time.deltaTime;
+            }
         }
 
         public void PlayLanding(AnimationEvent animationEvent)
@@ -49,8 +61,25 @@ namespace AF
         /// </summary>
         public void PlayFootstep(AnimationEvent animationEvent)
         {
+            if (cooldown < maxCooldown) { return; }
+
+            bool bypassWeight = false;
+         
+            // Strafe diagonally edge-case
+            if (thirdPersonController != null)
+            {
+                // Is Player
+                if (lockOnManager.isLockedOn)
+                {
+                    if (thirdPersonController._input.move.x != 0 && thirdPersonController._input.move.y != 0)
+                    {
+                        bypassWeight = true;
+                    }
+                }
+            }
+
             // Avoid blends so we don't play double sounds if running and walking with blend at the same time
-            if (animationEvent.animatorClipInfo.weight <= 0.5f)
+            if (animationEvent.animatorClipInfo.weight <= 0.5f && bypassWeight == false)
             {
                 return;
             }
@@ -67,7 +96,8 @@ namespace AF
             }
 
             AudioClip clip = footstepSystem.GetFootstepClip(groundTag);
-            Utils.PlaySfx(footstepAudioSource, clip);
+            BGMManager.instance.PlaySound(clip, footstepAudioSource);
+            cooldown = 0f;
         }
 
         private string GetGroundTag()

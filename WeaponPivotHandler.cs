@@ -16,7 +16,7 @@ namespace AF
         public float blockRotationZ;
 
 
-        private void Start()
+        private void Awake()
         {
             originalPosition = this.transform.localPosition;
             originalRotation = this.transform.localRotation;

@@ -3,45 +3,127 @@ using System.Collections;
 
 namespace AF
 {
-    public class SceneSettings: MonoBehaviour
+    public class SceneSettings: MonoBehaviour, IClockListener
     {
         [Header("Music")]
-        public AudioClip sceneMusic;
-        public AudioClip sceneAmbience;
+        public AudioClip dayMusic;
+        public AudioClip nightMusic;
+
+        public AudioClip dayAmbience;
+        public AudioClip nightAmbience;
+
+        public AudioClip battleMusic;
 
         [Header("Map")]
         public bool isInterior;
         
         public void Start()
         {
-            if (sceneAmbience == null)
+            HandleSceneSound();
+        }
+
+        public void HandleSceneSound()
+        {
+            EvaluateMusic();
+            EvaluateAmbience();
+        }
+
+        void EvaluateMusic()
+        {
+            if (nightMusic == null && dayMusic == null)
             {
-                BGMManager.instance.StopAmbience();
+                BGMManager.instance.StopMusic();
+                return;
+            }
+
+            // Play day only
+            if (nightMusic == null)
+            {
+                if (IsPlayingSameMusic(dayMusic.name))
+                {
+                    return;
+                }
+
+                BGMManager.instance.PlayMusic(dayMusic);
+                return;
+            }
+
+            if (Player.instance.timeOfDay >= 20 && Player.instance.timeOfDay <= 24 || Player.instance.timeOfDay >= 0 && Player.instance.timeOfDay < 6)
+            {
+                if (IsPlayingSameMusic(nightMusic.name))
+                {
+                    return;
+                }
+
+                BGMManager.instance.PlayMusic(nightMusic);
             }
             else
             {
-                BGMManager.instance.PlayAmbience(sceneAmbience);
+                if (IsPlayingSameMusic(dayMusic.name))
+                {
+                    return;
+                }
+
+                BGMManager.instance.PlayMusic(dayMusic);
             }
 
-            PlaySceneMusic();
         }
 
-        public void PlaySceneMusic()
+        bool IsPlayingSameMusic(string musicClipName)
         {
-            if (sceneMusic == null)
+            return BGMManager.instance.bgmAudioSource.clip != null && BGMManager.instance.bgmAudioSource.clip.name == musicClipName;
+        }
+
+        void EvaluateAmbience()
+        {
+            if (nightAmbience == null && dayAmbience == null)
             {
+                BGMManager.instance.StopAmbience();
                 return;
             }
 
-            if (BGMManager.instance.bgmAudioSource.clip != null && BGMManager.instance.bgmAudioSource.clip.name == sceneMusic.name)
+            // Play day only
+            if (nightAmbience == null)
             {
+                if (IsPlayingSameAmbience(dayAmbience.name))
+                {
+                    return;
+                }
+
+                BGMManager.instance.PlayAmbience(dayAmbience);
                 return;
             }
 
-            BGMManager.instance.PlayMusic(sceneMusic);
+            if (Player.instance.timeOfDay >= 20 && Player.instance.timeOfDay <= 24 || Player.instance.timeOfDay >= 0 && Player.instance.timeOfDay < 6)
+            {
+                if (IsPlayingSameAmbience(nightAmbience.name))
+                {
+                    return;
+                }
+
+                BGMManager.instance.PlayAmbience(nightAmbience);
+            }
+            else
+            {
+                if (IsPlayingSameAmbience(dayAmbience.name))
+                {
+                    return;
+                }
+
+                BGMManager.instance.PlayAmbience(dayAmbience);
+            }
 
         }
 
+        bool IsPlayingSameAmbience(string musicClipName)
+        {
+            return BGMManager.instance.ambienceAudioSource.clip != null && BGMManager.instance.ambienceAudioSource.clip.name == musicClipName;
+        }
+
+        public void OnHourChanged()
+        {
+            HandleSceneSound();
+        }
     }
 
 }

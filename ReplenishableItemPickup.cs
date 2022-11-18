@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using StarterAssets;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -25,6 +26,8 @@ namespace AF
 
         private GameObject graphic;
 
+        public UnityEvent onItemPickup;
+
         private void Awake()
         {
             playerInventory = FindObjectOfType<PlayerInventory>(true);
@@ -36,6 +39,8 @@ namespace AF
 
         private void Start()
         {
+            this._variable = VariableManager.instance.GetVariableInstance(this.variableUuid);
+
             EvaluateVariable();
         }
 
@@ -80,6 +85,12 @@ namespace AF
 
                 uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
                 playerInventory.AddItem(item, quantity);
+                
+                BGMManager.instance.PlayItem();
+
+                if (onItemPickup != null) {
+                    onItemPickup.Invoke();
+                }
 
                 // Record the day that the item was picked
                 VariableManager.instance.UpdateVariable(this._variable.uuid.ToString(), Player.instance.daysPassed);

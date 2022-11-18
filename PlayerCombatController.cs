@@ -120,6 +120,8 @@ namespace AF
                 animator.CrossFade(hashLightAttack3, 0.05f);
             }
 
+            animator.SetBool(hashCombatting, true);
+
             staminaStatManager.DecreaseStamina(Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.lightAttackStaminaCost : unarmedLightAttackStaminaCost);
 
             attackComboIndex++;

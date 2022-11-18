@@ -5,8 +5,9 @@ namespace AF
 {
     public class VariableListener : MonoBehaviour
     {
+        public string variableUuid;
 
-        public Variable _variable;
+        protected Variable _variable;
 
         public virtual void EvaluateVariable() { }
 

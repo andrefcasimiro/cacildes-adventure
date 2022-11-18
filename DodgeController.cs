@@ -24,14 +24,25 @@ namespace AF
         [Header("Stamina")]
         public int dodgeCost = 15;
 
+        float maxStartupDelay = 0.25f;
+        float startupDelay = Mathf.Infinity;
 
         private void Awake()
         {
             menuManager = FindObjectOfType<MenuManager>(true);
         }
 
+        private void OnEnable()
+        {
+            startupDelay = 0f;
+        }
+        
         private void Update()
         {
+            if (startupDelay < maxStartupDelay)
+            {
+                startupDelay += Time.deltaTime;
+            }
 
             if (_input.dodge)
             {
@@ -51,6 +62,10 @@ namespace AF
 
         private bool CanDodge()
         {
+            if (startupDelay < maxStartupDelay)
+            {
+                return false;
+            }
 
             if (climbController.climbState != ClimbController.ClimbState.NONE)
             {

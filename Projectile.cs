@@ -20,6 +20,7 @@ namespace AF
 
         [Header("Stats")]
         public float projectileDamage = 50f;
+        public int projectilePoiseDamage = 5;
 
         [Header("Sound")]
         public AudioClip projectileImpactOnBodySfx;
@@ -94,7 +95,7 @@ namespace AF
                 return;
             }
 
-            playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx);
+            playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage);
 
 
         }

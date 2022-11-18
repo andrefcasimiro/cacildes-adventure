@@ -5,7 +5,9 @@ namespace AF
 {
     public class SwitchListener : MonoBehaviour
     {
-        public Switch _switch;
+        public string switchUuid;
+
+        [HideInInspector] public Switch _switch;
 
         public virtual void EvaluateSwitch() { }
 

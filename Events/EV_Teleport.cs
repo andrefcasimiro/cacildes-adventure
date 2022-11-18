@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace AF
@@ -10,10 +11,30 @@ namespace AF
         public string spawnGameObjectName;
         public string sceneName;
 
+        [Header("Conditions")]
+        public string switchUuid;
+        public bool switchValue;
 
         public override IEnumerator Dispatch()
         {
-            yield return StartCoroutine(Teleport());
+            bool skip = false;
+
+            if (System.String.IsNullOrEmpty(switchUuid) == false)
+            {
+                // If depends on switch, evaluate value:
+                ; if (SwitchManager.instance.GetSwitchValue(switchUuid) == switchValue)
+                {
+                    skip = false;
+                }
+                else
+                {
+                    skip = true;
+                }
+            }
+
+            if (skip == false) {
+                yield return StartCoroutine(Teleport());
+            }
         }
 
         private IEnumerator Teleport()

@@ -45,28 +45,32 @@ namespace AF
                 btn.Q<Label>("Value").text = System.DateTime.Parse(saveFileEntry.creationDate).ToString();
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 
-                // btn.Q<Button>("DeleteButton").style.display = saveFileEntry.fileFullPath.ToLower().Contains("quicksave") ? DisplayStyle.None : DisplayStyle.Flex;
+                var loadBtn = btn.Q<Button>("DeleteButton");
 
-                btn.Q<Button>("DeleteButton").RegisterCallback<ClickEvent>(ev =>
+                menuManager.SetupButton(loadBtn, () =>
                 {
                     SaveSystem.instance.LoadGameData(saveFileEntry.fileFullPath);
                     menuManager.CloseMenu();
                 });
+
                 btn.Q<Button>("DeleteButton").text = "Load";
 
-                btn.RegisterCallback<MouseEnterEvent>(ev =>
+                // Gamepad
+                btn.RegisterCallback<FocusInEvent>(ev =>
                 {
-                    root.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
-                    root.Q<Label>("Title").text = saveFileEntry.sceneName + ", " + saveFileEntry.level;
-                    root.Q<Label>("SubTitle").text = System.DateTime.Parse(saveFileEntry.creationDate).ToString();
-
-                    var totalGameTime = System.TimeSpan.FromSeconds(saveFileEntry.gameTime);
-                    root.Q<Label>("Description").text = "Total Game Time: " + totalGameTime.Hours + "h:" + totalGameTime.Minutes + "m:" + totalGameTime.Seconds + "s";
-
-                    root.Q<VisualElement>("ItemPreview").style.opacity = 1;
+                    ShowLoadInfo(btn, saveFileEntry);
+                });
+                btn.RegisterCallback<FocusOutEvent>(ev =>
+                {
+                    root.Q<VisualElement>("ItemPreview").style.opacity = 0;
                 });
 
-                btn.RegisterCallback<MouseLeaveEvent>(ev =>
+                // Mouse
+                btn.RegisterCallback<PointerEnterEvent>(ev =>
+                {
+                    ShowLoadInfo(btn, saveFileEntry);
+                });
+                btn.RegisterCallback<PointerOutEvent>(ev =>
                 {
                     root.Q<VisualElement>("ItemPreview").style.opacity = 0;
                 });
@@ -74,6 +78,20 @@ namespace AF
                 root.Q<ScrollView>().Add(btn);
             }
 
+        }
+
+        void ShowLoadInfo(VisualElement btn, SaveFileEntry saveFileEntry)
+        {
+
+            root.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
+            root.Q<Label>("Title").text = saveFileEntry.sceneName + ", " + saveFileEntry.level;
+            root.Q<Label>("SubTitle").text = System.DateTime.Parse(saveFileEntry.creationDate).ToString();
+
+            var totalGameTime = System.TimeSpan.FromSeconds(saveFileEntry.gameTime);
+            root.Q<Label>("Description").text = "Total Game Time: " + totalGameTime.Hours + "h:" + totalGameTime.Minutes + "m:" + totalGameTime.Seconds + "s";
+
+            root.Q<VisualElement>("ItemPreview").style.opacity = 1;
+            root.Q<ScrollView>().ScrollTo(btn);
         }
 
     }

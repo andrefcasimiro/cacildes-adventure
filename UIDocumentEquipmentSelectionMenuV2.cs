@@ -59,13 +59,13 @@ namespace AF
             // Hide Item Preview
             HideItemInfo();
 
-            this.root.Q<Button>("GoBackButton").RegisterCallback<ClickEvent>(ev =>
+            menuManager.SetupButton(this.root.Q<Button>("GoBackButton"), () =>
             {
                 menuManager.OpenEquipmentListMenu();
             });
 
             // Unequip Logic
-            this.root.Q<Button>("UnequipButton").RegisterCallback<ClickEvent>(ev =>
+            menuManager.SetupButton(this.root.Q<Button>("UnequipButton"), () =>
             {
                 unequipActions[selectedEquipmentType].Invoke();
 
@@ -117,19 +117,32 @@ namespace AF
                         weaponButton.Q<VisualElement>("Item").style.opacity = 1f;
                     }
 
-
-                    weaponButton.RegisterCallback<ClickEvent>(ev =>
+                    Button wpBtn = weaponButton.Q<Button>();
+                    menuManager.SetupButton(wpBtn, () =>
                     {
                         equipmentGraphicsHandler.EquipWeapon(weapon);
                         menuManager.PlayClick();
                         menuManager.OpenEquipmentListMenu();
                     });
 
-                    weaponButton.RegisterCallback<MouseEnterEvent>(ev =>
+                    wpBtn.RegisterCallback<FocusInEvent>(ev =>
                     {
                         ShowWeaponItemPreview(weapon);
+
+                        root.Q<ScrollView>().ScrollTo(wpBtn);
                     });
-                    weaponButton.RegisterCallback<MouseLeaveEvent>(ev =>
+                    wpBtn.RegisterCallback<FocusOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    wpBtn.RegisterCallback<MouseOverEvent>(ev =>
+                    {
+                        ShowWeaponItemPreview(weapon);
+
+                        root.Q<ScrollView>().ScrollTo(wpBtn);
+                    });
+                    wpBtn.RegisterCallback<MouseOutEvent>(ev =>
                     {
                         HideItemInfo();
                     });
@@ -274,8 +287,8 @@ namespace AF
                         itemButton.Q<VisualElement>("Item").style.opacity = 1f;
                     }
 
-
-                    itemButton.RegisterCallback<ClickEvent>(ev =>
+                    var itemBtn = itemButton.Q<Button>();
+                    menuManager.SetupButton(itemBtn, () =>
                     {
                         if (equipmentType == EquipmentType.Helmet) { equipmentGraphicsHandler.EquipHelmet(item as Helmet); }
                         if (equipmentType == EquipmentType.Armor) { equipmentGraphicsHandler.EquipArmor(item as ArmorBase); }
@@ -286,11 +299,22 @@ namespace AF
                         menuManager.OpenEquipmentListMenu();
                     });
 
-                    itemButton.RegisterCallback<MouseEnterEvent>(ev =>
+                    itemBtn.RegisterCallback<FocusInEvent>(ev =>
                     {
                         ShowArmorItemPreview(item as ArmorBase);
+                        root.Q<ScrollView>().ScrollTo(itemBtn);
                     });
-                    itemButton.RegisterCallback<MouseLeaveEvent>(ev =>
+                    itemBtn.RegisterCallback<FocusOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    itemBtn.RegisterCallback<PointerEnterEvent>(ev =>
+                    {
+                        ShowArmorItemPreview(item as ArmorBase);
+                        root.Q<ScrollView>().ScrollTo(itemBtn);
+                    });
+                    itemBtn.RegisterCallback<PointerLeaveEvent>(ev =>
                     {
                         HideItemInfo();
                     });

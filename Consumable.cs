@@ -1,66 +1,51 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace AF
 {
-    public enum Stat
-    {
-        None,
-        Health,
-        Magic,
-        Stamina,
-        Reputation
-    }
-
-    public enum Attribute
-    {
-        None,
-        Vitality,
-        Intelligence,
-        Endurance,
-        Strength,
-        Dexterity,
-        Arcane,
-        Charisma,
-        Luck,
-    }
-
-    public enum Action
-    {
-        Restore,
-        Regenerate,
-        Increase,
-        RemoveStatus
-    }
-
-    public enum ValueType
-    {
-        Point,
-        Percentage
-    }
-
     [CreateAssetMenu(menuName = "Item / New Consumable")]
     public class Consumable : Item
     {
-        public Stat stat = Stat.None;
+        public enum ConsumablePropertyName
+        {
+            HEALTH_REGENERATION,
+            STAMINA_REGENERATION_RATE,
+            JUMP_HEIGHT,
+            PHYSICAL_ATTACK_BONUS,
+        }
 
-        public Attribute attribute = Attribute.None;
-
-        public Action action;
-
-        public float value;
-
-        public ValueType valueType;
-
-        public StatusEffect statusEffectToRemove;
-
-        [Header("Regenerate Settings")]
-        public float effectDuration = 0f;
+        [System.Serializable]
+        public class ConsumableEffect
+        {
+            public ConsumablePropertyName consumablePropertyName;
+            public string displayName;
+            public Sprite sprite;
+            public Color barColor;
+            public float value;
+            public float effectDuration;
+        }
 
         [Header("FX")]
         public GameObject particleOnConsume;
         public AudioClip sfxOnConsume;
 
         public bool canFavorite = true;
+
+        [Header("Restore Health")]
+        public bool restoreHealth = false;
+        public bool restoreHealthInPercentage = false;
+        public float amountOfHealthToRestore = 0f;
+
+        [Header("Restore Stamina")]
+        public bool restoreStamina = false;
+        public bool restoreStaminaInPercentage = false;
+        public float amountOfStaminaToRestore = 0f;
+
+        [Header("Remove Negative Status")]
+        public bool removeNegativeStatus = false;
+        public StatusEffect statusToRemove;
+
+        public ConsumableEffect[] consumableEffects;
 
         public void OnConsume()
         {
@@ -77,42 +62,48 @@ namespace AF
                 Instantiate(particleOnConsume, GameObject.FindWithTag("Player").transform);
             }
 
-            if (action == Action.RemoveStatus)
+            if (restoreHealth)
             {
-                if (statusEffectToRemove != null)
+                var healthStatManager = FindObjectOfType<HealthStatManager>(true);
+                if (restoreHealthInPercentage)
                 {
-                    var targetAppliedStatus = Player.instance.appliedStatus.Find(x => x.statusEffect == statusEffectToRemove);
-                    if (targetAppliedStatus == null)
-                    {
-                        return;
-                    }
-
-                    playerInventory.GetComponent<PlayerStatusManager>().RemoveAppliedStatus(targetAppliedStatus);
-                    return;
+                    float percentage = healthStatManager.GetMaxHealth() * amountOfHealthToRestore / 100;
+                    healthStatManager.RestoreHealthPercentage(percentage);
+                }
+                else
+                {
+                    healthStatManager.RestoreHealthPoints(amountOfHealthToRestore);
                 }
             }
 
-            if (effectDuration != 0f)
+            if (restoreStamina)
             {
-                // PlayerStatsManager.instance.AddConsumable(this);
-                return;
+                var staminaStatManager = FindObjectOfType<StaminaStatManager>(true);
+                if (restoreStaminaInPercentage)
+                {
+                    float percentage = staminaStatManager.GetMaxStamina() * amountOfStaminaToRestore / 100;
+                    staminaStatManager.RestoreStaminaPercentage(percentage);
+                }
+                else
+                {
+                    staminaStatManager.RestoreStaminaPoints(amountOfStaminaToRestore);
+                }
+            }
+        
+            if (removeNegativeStatus)
+            {
+                FindObjectOfType<PlayerStatusManager>(true).RemoveAppliedStatus(Player.instance.appliedStatus.Find(x => x.statusEffect == statusToRemove));
             }
 
-            if (stat == Stat.Health)
+            var playerConsumablesManager = FindObjectOfType<PlayerConsumablesManager>(true);
+            foreach (var consumableEffect in consumableEffects)
             {
-                if (valueType == ValueType.Percentage)
-                {
-                    HealthStatManager healthStatManager = FindObjectOfType<HealthStatManager>(true);
-                    healthStatManager.RestoreHealthPercentage((int)Mathf.RoundToInt(value));
-                    return;
-                }
+                AppliedConsumable appliedConsumables = new AppliedConsumable();
+                appliedConsumables.consumableEffect = consumableEffect;
+                appliedConsumables.currentDuration = consumableEffect.effectDuration;
+                appliedConsumables.consumableEffectSprite = consumableEffect.sprite;
 
-                if (valueType == ValueType.Point)
-                {
-                    HealthStatManager healthStatManager = FindObjectOfType<HealthStatManager>(true);
-                    healthStatManager.RestoreHealthPoints((int)Mathf.RoundToInt(value));
-                    return;
-                }
+                playerConsumablesManager.AddConsumableEffect(appliedConsumables);
             }
         }
     }

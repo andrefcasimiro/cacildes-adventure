@@ -32,6 +32,8 @@ namespace AF
 
         private void Start()
         {
+            this._switch = SwitchManager.instance.GetSwitchInstance(this.switchUuid);
+
             EvaluateSwitch();
         }
 
@@ -73,10 +75,12 @@ namespace AF
 
                     uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
                     playerInventory.AddItem(item, quantity);
+
+                    BGMManager.instance.PlayItem();
                 }
 
 
-                SwitchManager.instance.UpdateSwitch(this._switch.ID, true);
+                SwitchManager.instance.UpdateSwitch(this.switchUuid, true);
             }
         }
 
@@ -92,7 +96,7 @@ namespace AF
 
         public override void EvaluateSwitch()
         {
-            this.gameObject.SetActive(!SwitchManager.instance.GetSwitchValue(this._switch.ID));
+            this.gameObject.SetActive(!SwitchManager.instance.GetSwitchValue(this.switchUuid));
         }
 
         private void OnDisable()

@@ -60,8 +60,17 @@ namespace AF
                 File.Delete(screenshotPath);
             }
 
-            var screenshot = FindObjectOfType<MenuManager>(true).screenshotBeforeOpeningMenu;
-            File.WriteAllBytes(Path.Combine(Application.persistentDataPath, fileName + ".jpg"), screenshot.EncodeToJPG());
+            var menuManager = FindObjectOfType<MenuManager>(true);
+
+            if (menuManager != null)
+            {
+                if (menuManager.screenshotBeforeOpeningMenu == null)
+                {
+                    menuManager.CaptureScreenshot();
+                }
+
+                File.WriteAllBytes(Path.Combine(Application.persistentDataPath, fileName + ".jpg"), menuManager.screenshotBeforeOpeningMenu.EncodeToJPG());
+            }
 
 
             string jsonDataString = JsonUtility.ToJson(data, true);
@@ -206,18 +215,23 @@ namespace AF
             }
             gameData.variables = variables.ToArray();
 
-            /*            // Active Consumables
-                        List<SerializableConsumable> activeConsumables = new List<SerializableConsumable>();
-                        foreach (var consumable in PlayerStatsManager.instance.appliedConsumables)
-                        {
-                            SerializableConsumable serializableConsumable = new SerializableConsumable();
+            // Active Consumables
+            List<SerializableConsumable> activeConsumables = new List<SerializableConsumable>();
+            foreach (var consumable in Player.instance.appliedConsumables)
+            {
+                SerializableConsumable serializableConsumable = new SerializableConsumable();
 
-                            serializableConsumable.consumableName = consumable.consumable.name;
-                            serializableConsumable.currentDuration = consumable.currentDuration;
+                serializableConsumable.consumableName = consumable.consumableEffect.consumablePropertyName.ToString();
+                serializableConsumable.displayName = consumable.consumableEffect.displayName;
+                serializableConsumable.barColor = consumable.consumableEffect.barColor;
+                serializableConsumable.value = consumable.consumableEffect.value;
+                serializableConsumable.effectDuration = consumable.consumableEffect.effectDuration;
+                serializableConsumable.currentDuration = consumable.currentDuration;
+                serializableConsumable.spriteFileName = consumable.consumableEffectSprite.name;
 
-                            activeConsumables.Add(serializableConsumable);
-                        }
-                        gameData.consumables = activeConsumables.ToArray();*/
+                activeConsumables.Add(serializableConsumable);
+            }
+            gameData.consumables = activeConsumables.ToArray();
 
             // Active Status Effects
             List<SerializableStatusEffect> activeStatusEffects = new List<SerializableStatusEffect>();
@@ -239,6 +253,14 @@ namespace AF
                 alchemyRecipesToSave.Add(alchemyRecipe.name);
             }
             gameData.alchemyRecipes = alchemyRecipesToSave.ToArray();
+
+            List<string> cookingRecipesToSave = new List<string>();
+            foreach (var recipe in Player.instance.cookingRecipes)
+            {
+                cookingRecipesToSave.Add(recipe.name);
+            }
+            gameData.cookingRecipes = cookingRecipesToSave.ToArray();
+
 
             Save(gameData, saveGameName);
         }
@@ -279,6 +301,12 @@ namespace AF
 
         IEnumerator CallLoad(GameData gameData)
         {
+            // If loading game, make sure we never show the title screen again
+            if (Player.instance.hasShownTitleScreen == false)
+            {
+                Player.instance.hasShownTitleScreen = true;
+            }
+
             yield return null;
 
             var loadingScreen = FindObjectOfType<UIDocumentLoadingScreen>(true);
@@ -319,6 +347,8 @@ namespace AF
             yield return new WaitForSeconds(0.1f);
 
             yield return loadingScreen.FadeAndDisable();
+
+            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
         }
         #endregion
 
@@ -431,6 +461,8 @@ namespace AF
         public SerializableStatusEffect[] statusEffects;
 
         public string[] alchemyRecipes;
+
+        public string[] cookingRecipes;
     }
 
     [System.Serializable]
@@ -493,6 +525,17 @@ namespace AF
     public class SerializableConsumable
     {
         public string consumableName;
+
+        public string displayName;
+
+        public Color barColor;
+
+        public float value;
+
+        public float effectDuration;
+
+        public string spriteFileName;
+
         public float currentDuration;
     }
 

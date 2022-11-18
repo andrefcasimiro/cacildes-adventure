@@ -3,6 +3,15 @@ using System.Linq;
 
 namespace AF
 {
+    public enum Stat
+    {
+        None,
+        Health,
+        Magic,
+        Stamina,
+        Reputation
+    }
+
     [CreateAssetMenu(menuName = "Status / New Status")]
     public class StatusEffect : ScriptableObject
     {
@@ -23,7 +32,6 @@ namespace AF
         [Header("Immediate Effect Options")]
         [Tooltip("If true, the effect will be applied once the bar reaches its full, and then the effect will be removed")]
         public bool effectIsImmediate = false;
-
 
         [Header("Effect over time Options")]
         public float damagePerSecond = 1;

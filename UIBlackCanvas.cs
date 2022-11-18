@@ -27,18 +27,21 @@ namespace AF
         private IEnumerator FadeAndDisable()
         {
             var root = GetComponent<UIDocument>().rootVisualElement;
-            var el = root.Q<VisualElement>("Background");
-            el.style.opacity = 1f;
-            while (el.style.opacity.value > 0f)
+            if (root != null)
             {
-                el.style.opacity = el.style.opacity.value + (Time.deltaTime * -fadeTime);
+                var el = root.Q<VisualElement>("Background");
+                el.style.opacity = 1f;
+                while (el.style.opacity.value > 0f)
+                {
+                    el.style.opacity = el.style.opacity.value + (Time.deltaTime * -fadeTime);
+
+                    yield return null;
+                }
 
                 yield return null;
+
+                this.gameObject.SetActive(false);
             }
-
-            yield return null;
-
-            this.gameObject.SetActive(false);
         }
 
         public void OnGameLoaded(GameData gameData)

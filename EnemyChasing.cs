@@ -15,9 +15,24 @@ namespace AF
         {
             animator.gameObject.TryGetComponent<Enemy>(out enemy);
 
+
             if (enemy == null)
             {
                 enemy = animator.GetComponentInParent<Enemy>(true);
+            }
+
+            if (enemy.isBoss)
+            {
+                if (enemy.bossMusic != null)
+                {
+                    BGMManager.instance.PlayMusic(enemy.bossMusic);
+                }
+
+                enemy.InitiateBossBattle();
+            }
+            else
+            {
+                BGMManager.instance.PlayBattleMusic();
             }
 
             if (enemyPathController == null)
@@ -40,7 +55,10 @@ namespace AF
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            enemy.agent.SetDestination(enemy.playerCombatController.transform.position);
+            if (enemy.agent.enabled)
+            {
+                enemy.agent.SetDestination(enemy.playerCombatController.transform.position);
+            }
 
             float distanceBetweenEnemyAndTarget = Vector3.Distance(enemy.agent.transform.position, enemy.playerCombatController.transform.position);
 
@@ -62,6 +80,8 @@ namespace AF
             {
                 animator.SetBool(enemy.hashChasing, false);
                 animator.SetBool(enemyPathController.hashPatrol, true);
+
+                BGMManager.instance.PlayMapMusicAfterKillingEnemy(enemy);
 
                 enemyProjectileController.isReadyToShoot = false;
             }

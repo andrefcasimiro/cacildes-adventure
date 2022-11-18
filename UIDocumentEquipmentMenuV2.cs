@@ -63,7 +63,6 @@ namespace AF
 
             // Weapon
             var weaponButtonElement = this.root.Q<VisualElement>("Weapon").Q<VisualElement>("Root").Q<Button>();
-            weaponButtonElement.Focus();
             weaponButtonElement.Q<Label>("Label").text = player.equippedWeapon != null ? player.equippedWeapon.name : "Weapon";
             weaponButtonElement.Q<Label>("Value").text = player.equippedWeapon != null
                 ? "+ " + (attackStatManager.GetWeaponAttack(player.equippedWeapon) - attackStatManager.GetCurrentPhysicalAttack()) + " ATK"
@@ -78,6 +77,10 @@ namespace AF
             {
                 weaponButtonElement.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(emptyWeaponSprite);
             }
+            menuManager.SetupButton(weaponButtonElement, () =>
+            {
+                menuManager.OpenEquipmentSelectionScreen(UIDocumentEquipmentSelectionMenuV2.EquipmentType.Weapon);
+            });
 
             // Shield
             var shieldButtonElement = this.root.Q<VisualElement>("Shield").Q<VisualElement>("Root").Q<Button>();
@@ -95,7 +98,7 @@ namespace AF
             {
                 shieldButtonElement.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(emptyShieldSprite);
             }
-            shieldButtonElement.RegisterCallback<ClickEvent>(ev =>
+            menuManager.SetupButton(shieldButtonElement, () =>
             {
                 menuManager.OpenEquipmentSelectionScreen(UIDocumentEquipmentSelectionMenuV2.EquipmentType.Shield);
             });
@@ -151,10 +154,11 @@ namespace AF
                 btnElement.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(emptySprite);
             }
 
-            btnElement.RegisterCallback<ClickEvent>(ev =>
+            menuManager.SetupButton(btnElement, () =>
             {
                 menuManager.OpenEquipmentSelectionScreen(equipmentType);
             });
+
         }
     }
 }

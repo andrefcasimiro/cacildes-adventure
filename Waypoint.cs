@@ -25,6 +25,11 @@ namespace AF
 
         public Transform lookDirection;
 
+        private void Start()
+        {
+            GetComponent<MeshRenderer>().enabled = false;
+        }
+
         public IEnumerator Dispatch()
         {
             animator = GetComponentInParent<MoveRoute>().animator;

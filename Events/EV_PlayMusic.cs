@@ -17,7 +17,7 @@ namespace AF
             if (playMapMusic)
             {
                 SceneSettings sceneSettings = FindObjectOfType<SceneSettings>(true);
-                sceneSettings.PlaySceneMusic();
+                sceneSettings.HandleSceneSound();
             }
             else
             {

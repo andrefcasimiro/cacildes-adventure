@@ -9,7 +9,7 @@ namespace AF
         DefenseStatManager defenseStatManager => GetComponent<DefenseStatManager>();
         HealthStatManager healthStatManager => GetComponent<HealthStatManager>();
         StaminaStatManager staminaStatManager => GetComponent<StaminaStatManager>();
-        PlayerHealthbox playerHealthbox => GetComponent<PlayerHealthbox>();
+        PlayerHealthbox playerHealthbox => GetComponentInChildren<PlayerHealthbox>();
 
         private void Update()
         {
@@ -31,8 +31,10 @@ namespace AF
 
                 Player.instance.appliedStatus[idx].currentAmount += amount;
 
-                if (Player.instance.appliedStatus[idx].currentAmount >= defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect))
+                float maxAmountBeforeSuffering = defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect);
+                if (Player.instance.appliedStatus[idx].currentAmount >= maxAmountBeforeSuffering)
                 {
+                    Player.instance.appliedStatus[idx].currentAmount = maxAmountBeforeSuffering;
                     Player.instance.appliedStatus[idx].hasReachedTotalAmount = true;
                     return;
                 }
@@ -121,10 +123,7 @@ namespace AF
 
                 if (Player.instance.currentHealth <= 0)
                 {
-                    // playerHealthbox.Die();
-
-                    //UIDocumentGameOverScreen uIDocumentGameOverScreen = FindObjectOfType<UIDocumentGameOverScreen>(true);
-                    //uIDocumentGameOverScreen.ShowGameOverScreen();
+                    playerHealthbox.Die();
 
                     // Remove this status
                     statusToDelete.Add(entry);

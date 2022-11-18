@@ -22,11 +22,12 @@ namespace AF
                 instance = this;
             }
 
+            GetVariables();
         }
 
-        private void Start()
+        public Variable GetVariableInstance(string uuid)
         {
-            GetVariables();
+            return this.variables.Find(x => x.uuid == uuid);
         }
 
         public void GetVariables()
@@ -47,7 +48,7 @@ namespace AF
             var sceneVariableListeners = FindObjectsOfType<VariableListener>(true);
             foreach (var sceneVariableListener in sceneVariableListeners)
             {
-                if (sceneVariableListener._variable.uuid == variableId)
+                if (sceneVariableListener.variableUuid == variableId)
                 {
                     sceneVariableListener.EvaluateVariable();
                 }

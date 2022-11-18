@@ -27,8 +27,16 @@ namespace AF
 
         PlayerInventory playerInventory;
 
+        MenuManager menuManager;
+
+        public AudioClip sfxOnEnterMenu;
+
+        NotificationManager notificationManager;
+
         private void Awake()
         {
+            notificationManager = FindObjectOfType<NotificationManager>(true);
+            menuManager = FindObjectOfType<MenuManager>(true);
             this.gameObject.SetActive(false);
         }
 
@@ -40,20 +48,33 @@ namespace AF
 
             UnityEngine.Cursor.lockState = CursorLockMode.None;
 
+            BGMManager.instance.PlaySound(sfxOnEnterMenu, null);
+
+
+            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
+
             DrawUI();
         }
 
         private void OnDisable()
         {
             UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+
+            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
+        }
+
+        private void Update()
+        {
+            UnityEngine.Cursor.lockState = CursorLockMode.None;
         }
 
         void DrawUI()
         {
+
             root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
 
             var buttonExit = root.Q<Button>("ButtonExit");
-            buttonExit.RegisterCallback<ClickEvent>(ev =>
+            menuManager.SetupButton(buttonExit, () =>
             {
                 FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
                 FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();
@@ -68,22 +89,28 @@ namespace AF
             {
                 buttonExit.text = "Exit Alchemy";
                 craftActivityTitle.text = "Alchemy Table";
-                var alchemyRecipes = Player.instance.alchemyRecipes;
-                    PopulateScrollView(alchemyRecipes);
+                PopulateScrollView(Player.instance.alchemyRecipes.ToArray());
             }
             else if (craftActivity == CraftActivity.COOKING)
             {
                 buttonExit.text = "Exit Cooking";
                 craftActivityTitle.text = "Cooking Table";
+                PopulateScrollView(Player.instance.cookingRecipes.ToArray());
             }
         }
 
-        void PopulateScrollView(List<AlchemyRecipe> ownedCraftingRecipes)
+        void PopulateScrollView(CraftingRecipe[] ownedCraftingRecipes)
         {
             var scrollView = this.root.Q<ScrollView>();
+            scrollView.RegisterCallback<NavigationCancelEvent>(ev =>
+            {
+                FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
+                FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();
+                this.gameObject.SetActive(false);
+            });
             scrollView.Clear();
 
-            if (ownedCraftingRecipes.Count <= 0) { return; }
+            if (ownedCraftingRecipes.Length <= 0) { return; }
 
             foreach (var recipe in ownedCraftingRecipes)
             {
@@ -93,11 +120,31 @@ namespace AF
                 scrollItem.Q<Label>("ItemName").text = (recipe.resultingItem.name);
                 scrollItem.Q<Label>("ItemDescription").text = (recipe.resultingItem.description);
 
-                scrollItem.Q<Button>("CraftButton").SetEnabled(CanCraftAlchemyItem(recipe));
-
-                scrollItem.Q<Button>("CraftButton").RegisterCallback<ClickEvent>(ev =>
+                var craftBtn = scrollItem.Q<Button>("CraftButton");
+                
+                if (CanCraftItem(recipe))
                 {
+                    craftBtn.style.opacity = 1f;
+                }
+                else
+                {
+                    craftBtn.style.opacity = 0.25f;
+                }
+
+                menuManager.SetupButton(craftBtn, () =>
+                {
+                    if (!CanCraftItem(recipe))
+                    {
+                        BGMManager.instance.PlayCraftError();
+                        notificationManager.ShowNotification("Crafting failed: missing ingredients", notificationManager.alchemyLackOfIngredients);
+                        return;
+                    }
+
+                    BGMManager.instance.PlayCraftSuccess();
+
                     playerInventory.AddItem(recipe.resultingItem, 1);
+
+                    notificationManager.ShowNotification("Received " + recipe.resultingItem.name, recipe.resultingItem.sprite);
 
                     foreach (var ingredient in recipe.ingredients)
                     {
@@ -107,46 +154,78 @@ namespace AF
                     DrawUI();
                 });
 
-                scrollItem.RegisterCallback<PointerEnterEvent>(ev =>
+                craftBtn.RegisterCallback<FocusInEvent>(ev =>
                 {
-                    root.Q<VisualElement>("ItemInfo").Clear();
+                    ShowRequiredIngredients(recipe);
 
-                    foreach (var ingredient in recipe.ingredients)
-                    {
-                        var ingredientItemEntry = ingredientItem.CloneTree();
-                        ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(ingredient.ingredient.sprite);
-                        ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name;
-
-                        var playerOwnedIngredient = Player.instance.ownedItems.Find(x => x.item == ingredient.ingredient);
-                        var playerOwnedIngredientAmount = 0;
-                        if (playerOwnedIngredient != null)
-                        {
-                            playerOwnedIngredientAmount = playerOwnedIngredient.amount;
-                        }
-                        ingredientItemEntry.Q<Label>("Amount").text = playerOwnedIngredientAmount + " / " + ingredient.amount;
-                        ingredientItemEntry.Q<Label>("Amount").style.opacity = playerOwnedIngredientAmount >= ingredient.amount ? 1 : 0.25f;
-
-                        root.Q<VisualElement>("ItemInfo").Add(ingredientItemEntry);
-                    }
-
-                    root.Q<VisualElement>("IngredientsListPreview").style.opacity = 1;
+                    scrollView.ScrollTo(craftBtn);
                 });
-                scrollItem.RegisterCallback<PointerLeaveEvent>(ev =>
+                craftBtn.RegisterCallback<FocusOutEvent>(ev =>
+                {
+                    root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
+                });
+
+                scrollItem.RegisterCallback<FocusInEvent>(ev =>
+                {
+                    ShowRequiredIngredients(recipe);
+                });
+                scrollItem.RegisterCallback<FocusOutEvent>(ev =>
+                {
+                    root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
+                });
+
+                scrollItem.RegisterCallback<MouseOverEvent>(ev =>
+                {
+                    ShowRequiredIngredients(recipe);
+                });
+                scrollItem.RegisterCallback<MouseOutEvent>(ev =>
                 {
                     root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
                 });
 
                 scrollView.Add(scrollItem);
             }
+
         }
 
-        bool CanCraftAlchemyItem(AlchemyRecipe recipe)
+        void ShowRequiredIngredients(CraftingRecipe recipe)
+        {
+            root.Q<VisualElement>("ItemInfo").Clear();
+
+            foreach (var ingredient in recipe.ingredients)
+            {
+                var ingredientItemEntry = ingredientItem.CloneTree();
+                ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(ingredient.ingredient.sprite);
+                ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name;
+
+                var playerOwnedIngredient = Player.instance.ownedItems.Find(x => x.item == ingredient.ingredient);
+                var playerOwnedIngredientAmount = 0;
+                if (playerOwnedIngredient != null)
+                {
+                    playerOwnedIngredientAmount = playerOwnedIngredient.amount;
+                }
+                ingredientItemEntry.Q<Label>("Amount").text = playerOwnedIngredientAmount + " / " + ingredient.amount;
+                ingredientItemEntry.Q<Label>("Amount").style.opacity = playerOwnedIngredientAmount >= ingredient.amount ? 1 : 0.25f;
+
+                root.Q<VisualElement>("ItemInfo").Add(ingredientItemEntry);
+            }
+
+            root.Q<VisualElement>("IngredientsListPreview").style.opacity = 1;
+        }
+
+        bool CanCraftItem(CraftingRecipe recipe)
         {
             bool hasEnoughMaterial = true;
 
             foreach (var ingredient in recipe.ingredients)
             {
                 var itemEntry = Player.instance.ownedItems.Find(x => x.item == ingredient.ingredient);
+
+                if (itemEntry == null)
+                {
+                    hasEnoughMaterial = false;
+                    break;
+                }
 
                 if (itemEntry.amount >= ingredient.amount)
                 {

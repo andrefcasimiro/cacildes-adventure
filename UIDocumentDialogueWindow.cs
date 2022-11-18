@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using StarterAssets;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
@@ -36,13 +37,17 @@ namespace AF
 
         [HideInInspector] public bool showHint = false;
 
+        MenuManager menuManager;
+
         private void Awake()
         {
+            menuManager = FindObjectOfType<MenuManager>(true);
             this.gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
+
             hasFinishedTypewriter = false;
 
             this.root = uiDocument.rootVisualElement;
@@ -55,6 +60,10 @@ namespace AF
             var actorTitleLabel = this.root.Q<Label>("ActorTitle");
             this.text = this.root.Q<Label>("MessageText");
             var actorSprite = this.root.Q<IMGUIContainer>("ActorSprite");
+
+
+            this.root.Q<VisualElement>("HintMessage").style.display = Gamepad.current != null ? DisplayStyle.None : DisplayStyle.Flex;
+            this.root.Q<VisualElement>("HintMessageGamePad").style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
 
             this.root.Q<VisualElement>("Hint").style.display = showHint ? DisplayStyle.Flex : DisplayStyle.None;
 
@@ -119,6 +128,11 @@ namespace AF
             dialogueChoicePanel.Clear();
             dialogueChoicePanel.style.display = DisplayStyle.None;
 
+            if (Gamepad.current != null)
+            {
+                yield return new WaitUntil(() => Gamepad.current.buttonWest.IsActuated() == false);
+            }
+
             if (dialogueChoices.Count > 0)
             {
                 UnityEngine.Cursor.lockState = CursorLockMode.None;
@@ -126,20 +140,50 @@ namespace AF
 
                 DialogueChoice selectedChoice = null;
 
+                // Hack for gamepad support
+                DialogueChoice focusedSelectedChoice = null;
+
+                Button elementToFocus = null;
                 foreach (var dialogueChoice in dialogueChoices)
                 {
                     var newDialogueChoiceItem = dialogueChoiceItem.CloneTree();
                     newDialogueChoiceItem.Q<Button>().text = dialogueChoice.choiceText;
-                    newDialogueChoiceItem.RegisterCallback<ClickEvent>(ev =>
+
+                    menuManager.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
                     {
-                        BGMManager.instance.PlaySound(choiceClickSfx, null);
                         selectedChoice = dialogueChoice;
                     });
+
+                    // Hack for gamepad support
+                    newDialogueChoiceItem.Q<Button>().RegisterCallback<FocusEvent>(ev =>
+                    {
+                        focusedSelectedChoice = dialogueChoice;
+                    });
+
+                    if (elementToFocus == null)
+                    {
+                        elementToFocus = newDialogueChoiceItem.Q<Button>();
+                        focusedSelectedChoice = dialogueChoice;
+                    }
+
                     dialogueChoicePanel.Add(newDialogueChoiceItem);
                 }
 
-                yield return new WaitUntil(() => selectedChoice != null);
+                FindObjectOfType<PlayerComponentManager>(true).DisableCharacterController();
+                FindObjectOfType<PlayerComponentManager>(true).DisableComponents();
+                elementToFocus.Focus();
+
+                yield return new WaitUntil(() => selectedChoice != null || (Gamepad.current != null && Gamepad.current.buttonWest.isPressed && focusedSelectedChoice != null));
                 UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+
+                FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();
+                FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
+
+                // Hack for gamepad support
+                if (selectedChoice == null && focusedSelectedChoice != null)
+                {
+                    selectedChoice = focusedSelectedChoice;
+                }
 
                 EventBase[] choiceEvents = selectedChoice.subEventPage.GetComponents<EventBase>();
 

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,6 +19,7 @@ namespace AF
         VisualElement root;
 
         public VisualTreeAsset itemButtonPrefab;
+
 
         private void Awake()
         {
@@ -54,7 +56,6 @@ namespace AF
 
             root.Q<ScrollView>().Clear();
 
-
             foreach (var item in itemsToShow)
             {
                 VisualElement cloneButton = itemButtonPrefab.CloneTree();
@@ -74,7 +75,7 @@ namespace AF
                 {
                     favoriteButton.Q<Label>().text = itemIsFavorited ? "Unfavorite" : "Favorite";
 
-                    favoriteButton.RegisterCallback<ClickEvent>((ev) =>
+                    menuManager.SetupButton(favoriteButton, () =>
                     {
                         var itemIsFavorited = Player.instance.favoriteItems.Contains(item.item);
                         if (itemIsFavorited)
@@ -94,8 +95,9 @@ namespace AF
                 useButton.style.display = consumable != null ? DisplayStyle.Flex : DisplayStyle.None;
                 if (consumable != null)
                 {
-                    useButton.RegisterCallback<ClickEvent>(ev =>
+                    menuManager.SetupButton(useButton, () =>
                     {
+
                         consumable.OnConsume();
 
                         UpdateItemsList();
@@ -104,6 +106,8 @@ namespace AF
 
                 cloneButton.RegisterCallback<PointerOverEvent>(ev =>
                 {
+                    root.Q<ScrollView>().ScrollTo(cloneButton);
+
                     RenderItemPreview(item.item);
                 });
 
@@ -111,9 +115,22 @@ namespace AF
                 {
                     HideItemPreview();
                 });
-                
+
+                cloneButton.RegisterCallback<FocusInEvent>(ev =>
+                {
+                    RenderItemPreview(item.item);
+
+                    root.Q<ScrollView>().ScrollTo(cloneButton);
+                });
+
+                cloneButton.RegisterCallback<FocusOutEvent>(ev =>
+                {
+                    HideItemPreview();
+                });
+
                 root.Q<ScrollView>().Add(cloneButton);
             }
+
         }
 
         void RenderItemPreview(Item item)

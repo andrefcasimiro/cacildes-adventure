@@ -7,10 +7,18 @@ namespace AF
     {
         public Switch targetSwitch;
         public bool newValue;
+        public bool shouldRefreshEvents = true;
 
         public override IEnumerator Dispatch()
         {
-            SwitchManager.instance.UpdateSwitch(targetSwitch.ID, newValue);
+            if (shouldRefreshEvents)
+            {
+                SwitchManager.instance.UpdateSwitch(targetSwitch.ID, newValue);
+            }
+            else
+            {
+                SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(targetSwitch.ID, newValue);
+            }
 
             yield return null;
         }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using StarterAssets;
+using JetBrains.Annotations;
 
 namespace AF
 {
@@ -45,6 +46,15 @@ namespace AF
 
         void HandleBlock()
         {
+            // If starting sprinting while running, cancel block
+            if (IsBlocking() && starterAssetsInputs.sprint)
+            {
+                parryTimer = 0;
+                blockCooldown = 0;
+                animator.SetBool(hashIsBlocking, false);
+                return;
+            }
+
             if (!CanBlock())
             {
                 return;
@@ -61,6 +71,11 @@ namespace AF
 
         bool CanBlock()
         {
+            if (starterAssetsInputs.sprint)
+            {
+                return false;
+            }
+
             if (playerCombatController.isCombatting)
             {
                 return false;

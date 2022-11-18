@@ -24,6 +24,8 @@ namespace AF
                 enemyCombatController = enemy.GetComponent<EnemyCombatController>();
             }
 
+            enemyCombatController.DisableAllWeaponHitboxes();
+
             float turnChance = Random.Range(enemyCombatController.minWaitingTimeBeforeResumingCombat, enemyCombatController.maxWaitingTimeBeforeResumingCombat);
             enemyCombatController.turnWaitingTime = turnChance;
         }

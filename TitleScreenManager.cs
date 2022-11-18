@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
@@ -18,16 +19,20 @@ namespace AF
 
         private void Awake()
         {
+        }
+
+        private void Start()
+        {
             if (Player.instance.hasShownTitleScreen)
             {
                 this.gameObject.SetActive(false);
                 return;
             }
-            else
-            {
-                Player.instance.hasShownTitleScreen = true;
-            }
 
+            if (Gamepad.current != null)
+            {
+                FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
+            }
 
             FindObjectOfType<UIBlackCanvas>(true).gameObject.SetActive(true);
 
@@ -41,10 +46,7 @@ namespace AF
             playerAnimator.transform.rotation = playerSleepTransform.rotation;
 
             playerAnimator.SetBool(hashIsSleeping, true);
-        }
 
-        private void Start()
-        {
             FindObjectOfType<UIBlackCanvas>(true).StartFade();
 
             StartCoroutine(SetTimeOfDay());
@@ -59,11 +61,15 @@ namespace AF
 
         public void StartGame()
         {
+            Player.instance.hasShownTitleScreen = true;
+
             StartCoroutine(OnGameStart());
         }
 
         public IEnumerator OnGameStart()
         {
+            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
+
             EventBase[] events = GetComponents<EventBase>();
 
             foreach (EventBase ev in events)
@@ -78,6 +84,13 @@ namespace AF
             playerAnimator.transform.position = playerAwakeTransform.position;
             playerComponentManager.EnableCharacterController();
             playerComponentManager.EnableComponents();
+
+            // Save game
+            yield return new WaitForEndOfFrame();
+            SaveSystem.instance.SaveGameData("autoSave");
+
+            yield return new WaitForEndOfFrame();
+
             this.gameObject.SetActive(false);
         }
     }

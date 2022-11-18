@@ -39,7 +39,7 @@ namespace AF
             {
                 currentTimeOnWaypoint += Time.deltaTime;
 
-                if (currentTimeOnWaypoint > enemyPathController.restingTimeOnWaypoint)
+                if (currentTimeOnWaypoint > enemyPathController.restingTimeOnWaypoint && enemyPathController.waypoints.Count > 0)
                 {
                     animator.SetBool(enemyPathController.hashPatrol, true);
                 }
