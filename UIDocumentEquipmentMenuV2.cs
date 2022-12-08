@@ -47,18 +47,19 @@ namespace AF
             this.root.Q<VisualElement>("EquipmentStats").Q<VisualElement>("Attack").Q<Label>("Value").text = 
                 "/ " + ((player.equippedWeapon != null ? attackStatManager.GetWeaponAttack(player.equippedWeapon) : attackStatManager.GetCurrentPhysicalAttack())) + "";
             this.root.Q<VisualElement>("EquipmentStats").Q<VisualElement>("Attack").Q<Label>("Explanation").text = 
-                "/ " + attackStatManager.GetCurrentPhysicalAttack() + " + " + weaponBonus.ToString() + " (Base + Weapon)";
+                "" + attackStatManager.GetCurrentPhysicalAttack() + " (Base) + " + weaponBonus.ToString() + " (Weapon)";
             this.root.Q<VisualElement>("EquipmentStats").Q<VisualElement>("Defense").Q<Label>("Value").text = 
                 "/ " + (defenseBonus + defenseStatManager.GetCurrentPhysicalDefense()).ToString() + "";
             this.root.Q<VisualElement>("EquipmentStats").Q<VisualElement>("Defense").Q<Label>("Explanation").text = 
-                "/ " + defenseStatManager.GetCurrentPhysicalDefense() + " + " + defenseBonus.ToString() + " (Base + Gear)";
+                "" + defenseStatManager.GetCurrentPhysicalDefense() + " (Base) + " + defenseBonus.ToString() + " (Gear)";
 
             this.root.Q<Label>("Attributes").text = "Vitality " + player.vitality + " / Endurance " + player.endurance + " / Strength "
                     + player.strength + " / Dexterity " + player.dexterity;
 
             var healthStatManager = FindObjectOfType<HealthStatManager>(true);
             var staminaStatManager = FindObjectOfType<StaminaStatManager>(true);
-            this.root.Q<Label>("Stats").text = "HP " + healthStatManager.GetMaxHealth() + " / Stamina " + staminaStatManager.GetMaxStamina()
+            var playerPoiseController = FindObjectOfType<PlayerPoiseController>(true);
+            this.root.Q<Label>("Stats").text = "HP " + healthStatManager.GetMaxHealth() + " / Stamina " + staminaStatManager.GetMaxStamina() + " / Poise " + playerPoiseController.maxPoiseHits
                     + " / Reputation " + player.currentReputation + " / Gold " + player.currentGold;
 
             // Weapon

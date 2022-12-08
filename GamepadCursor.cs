@@ -1,4 +1,7 @@
+using System;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Users;
@@ -30,9 +33,6 @@ namespace AF
         VisualElement cursorContainer;
         public IMGUIContainer mouseGUI;
 
-        float screenHeight;
-        float screenWidth;
-
         public PanelSettings panelSettings;
 
         public Vector2 previousPosition;
@@ -55,6 +55,7 @@ namespace AF
             mouseGUI.pickingMode = PickingMode.Ignore;
             mouseGUI.focusable = false;
 
+
             if (virtualMouse == null)
             {
                 virtualMouse = (Mouse)InputSystem.AddDevice("VirtualMouse");
@@ -68,7 +69,8 @@ namespace AF
 
             InputUser.PerformPairingWithDevice(virtualMouse, playerInput.user);
 
-            AnchorCursor(virtualMouse.position.ReadValue());
+            var scale = ResolveScale(GetDisplayRect(), Screen.dpi);
+            AnchorCursor(virtualMouse.position.ReadValue() * scale);
 
             InputSystem.onAfterUpdate += UpdateMotion;
         }
@@ -81,13 +83,17 @@ namespace AF
 
         private void Update()
         {
-            UnityEngine.Cursor.visible = false;
-            uIDocument.sortingOrder = Random.RandomRange(999, 9999);
+            uIDocument.sortingOrder = UnityEngine.Random.RandomRange(999, 9999);
 
             if (Gamepad.current == null)
             {
                 UnityEngine.Cursor.visible = true;
                 this.gameObject.SetActive(false);
+            }
+            else
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+                UnityEngine.Cursor.visible = false;
             }
         }
 
@@ -98,29 +104,45 @@ namespace AF
                 return;
             }
 
+
             Vector2 deltaValue = Gamepad.current.rightStick.ReadValue();
             deltaValue *= cursorSpeed * Time.deltaTime;
+
 
             Vector2 currentPosition = virtualMouse.position.ReadValue();
 
             Vector2 newPosition = currentPosition + deltaValue;
-            newPosition.x = Mathf.Clamp(newPosition.x, 0f, GetScreen().x - 25);
-            newPosition.y = Mathf.Clamp(newPosition.y, 0f, GetScreen().y - 25);
+
+            newPosition.x = Mathf.Clamp(newPosition.x, 0f, Screen.width - 25);
+            newPosition.y = Mathf.Clamp(newPosition.y, 0f, Screen.height - 25);
+
 
             InputState.Change(virtualMouse.position, newPosition);
             InputState.Change(virtualMouse.delta, deltaValue);
+
+
             previousPosition = newPosition;
+
+            Debug.Log("newPosition + " + newPosition);
+
             bool buttonSouthIsPressed = Gamepad.current.buttonSouth.IsPressed();
             if (previousMouseState != buttonSouthIsPressed)
             {
                 virtualMouse.CopyState<MouseState>(out var mouseState);
-                    
+
                 mouseState.WithButton(MouseButton.Left, Gamepad.current.buttonSouth.IsPressed());
 
                 previousMouseState = buttonSouthIsPressed;
             }
 
-            AnchorCursor(newPosition);  
+            newPosition *= ResolveScale(GetDisplayRect(), Screen.dpi);
+
+            AnchorCursor(newPosition);
+        }
+
+        float GetOffset()
+        {
+            return 25 * ResolveScale(GetDisplayRect(), Screen.dpi);
         }
 
         public Vector2 GetScreen()
@@ -128,9 +150,11 @@ namespace AF
             return new Vector2(uIDocument.rootVisualElement.resolvedStyle.width, uIDocument.rootVisualElement.resolvedStyle.height);
         }
 
+
+
         private void AnchorCursor(Vector2 position)
         {
-            mouseGUI.style.translate = new StyleTranslate(new Translate(position.x, GetScreen().y - 25 - position.y, 0));
+            mouseGUI.style.translate = new StyleTranslate(new Translate(position.x, GetScreen().y - GetOffset() - position.y, 0));
         }
 
         public float GetMouseSize()
@@ -138,6 +162,59 @@ namespace AF
             return mouseSize - padding;
         }
 
+        internal Rect GetDisplayRect()
+        {
+            if (uIDocument.panelSettings.targetTexture != null)
+            {
+                return new Rect(0f, 0f, uIDocument.panelSettings.targetTexture.width, uIDocument.panelSettings.targetTexture.height);
+            }
+
+            if (uIDocument.panelSettings.targetDisplay > 0 && uIDocument.panelSettings.targetDisplay < Display.displays.Length)
+            {
+                return new Rect(0f, 0f, Display.displays[uIDocument.panelSettings.targetDisplay].renderingWidth, Display.displays[uIDocument.panelSettings.targetDisplay].renderingHeight);
+            }
+
+            return new Rect(0f, 0f, Screen.width, Screen.height);
+        }
+
+        float ResolveScale(Rect targetRect, float screenDpi)
+        {
+            float num = 1f;
+
+            if (uIDocument.panelSettings.referenceResolution.x * uIDocument.panelSettings.referenceResolution.y != 0)
+            {
+                Vector2 vector = uIDocument.panelSettings.referenceResolution;
+                Vector2 vector2 = new Vector2(targetRect.width / vector.x, targetRect.height / vector.y);
+                float num2 = 0f;
+                switch (uIDocument.panelSettings.screenMatchMode)
+                {
+                    case PanelScreenMatchMode.Expand:
+                        num2 = Mathf.Min(vector2.x, vector2.y);
+                        break;
+                    case PanelScreenMatchMode.Shrink:
+                        num2 = Mathf.Max(vector2.x, vector2.y);
+                        break;
+                    default:
+                        {
+                            float t = Mathf.Clamp01(uIDocument.panelSettings.match);
+                            num2 = Mathf.Lerp(vector2.x, vector2.y, t);
+                            break;
+                        }
+                }
+
+                if (num2 != 0f)
+                {
+                    num = 1f / num2;
+                }
+
+                if (uIDocument.panelSettings.scale > 0f)
+                {
+                    return num / uIDocument.panelSettings.scale;
+                }
+            }
+
+            return 0f;
+        }
     }
 
 }

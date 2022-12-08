@@ -27,6 +27,7 @@ namespace AF
 
         IMGUIContainer itemIcon;
         Label itemCounter;
+        Label quickItemName;
 
         private void OnEnable()
         {
@@ -41,6 +42,7 @@ namespace AF
 
             itemIcon = root.Q<IMGUIContainer>("ItemIcon");
             itemCounter = root.Q<Label>("ItemCounterLabel");
+            quickItemName = root.Q<Label>("QuickItemName");
 
             UpdateFavoriteItems();
         }
@@ -77,17 +79,18 @@ namespace AF
                 return;
             }
 
-            itemIcon = root.Q<IMGUIContainer>("ItemIcon");
-            itemCounter = root.Q<Label>("ItemCounterLabel");
-
             itemIcon.style.backgroundImage = null;
             itemCounter.text = "";
             itemCounter.style.display = DisplayStyle.None;
+            quickItemName.text = "";
+
             if (Player.instance.favoriteItems.Count <= 0) { return; }
 
             itemIcon.style.backgroundImage = new StyleBackground(Player.instance.favoriteItems[0].sprite);
             itemCounter.text = Player.instance.ownedItems.Find(x => x.item == Player.instance.favoriteItems[0]).amount.ToString();
             itemCounter.style.display = DisplayStyle.Flex;
+            quickItemName.text = Player.instance.favoriteItems[0].name;
+
         }
 
     }
