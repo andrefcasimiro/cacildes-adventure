@@ -15,6 +15,8 @@ namespace AF
         HealthStatManager healthStatManager => GetComponentInParent<HealthStatManager>();
         ClimbController climbController => GetComponentInParent<ClimbController>();
         PlayerComponentManager playerComponentManager => GetComponentInParent<PlayerComponentManager>();
+        PlayerParryManager playerParryManager => GetComponentInParent<PlayerParryManager>();
+        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponentInParent<EquipmentGraphicsHandler>();
 
         public GameObject shieldWoodImpactFx;
         public FloatingText damageFloatingText;
@@ -78,29 +80,53 @@ namespace AF
                 return;
             }
 
-            GameObject shield = null;
             Enemy enemy = attackerTransform.GetComponent<Enemy>();
             EnemyCombatController enemyCombatController = enemy != null ? enemy.GetComponent<EnemyCombatController>() : null;
 
             if (
-                // Is has shield
-                shield != null
-                // And shield is visible
-                && shield.gameObject.activeSelf
+               playerParryManager.IsBlocking()
                 // And enemy is facing weapon
                 && Vector3.Angle(transform.forward * -1, attackerTransform.forward) <= 90f
                 && enemyCombatController != null
                 )
             {
-                float staminaCost = Player.instance.equippedShield.blockStaminaCost + enemyCombatController.bonusBlockStaminaCost;
-                bool playerWontTakeDamage = staminaStatManager.HasEnoughStaminaForAction(staminaCost);
+                float blockStaminaCost = 0;
+                float defenseAbsorption = 0;
+                if (Player.instance.equippedShield != null)
+                {
+                    blockStaminaCost = Player.instance.equippedShield.blockStaminaCost;
+                    defenseAbsorption = Player.instance.equippedShield.defenseAbsorption;
+                }
+                else if (Player.instance.equippedWeapon != null)
+                {
+                    blockStaminaCost = Player.instance.equippedWeapon.blockStaminaCost;
+                    defenseAbsorption = Player.instance.equippedWeapon.blockAbsorption;
+                }
 
-                Instantiate(shieldWoodImpactFx, shield.gameObject.transform);
+                float staminaCost = blockStaminaCost + enemyCombatController.bonusBlockStaminaCost;
+
+                bool playerCanBlock = staminaStatManager.HasEnoughStaminaForAction(staminaCost);
+
+                if (Player.instance.equippedShield != null)
+                {
+                    Instantiate(Player.instance.equippedShield.blockFx, equipmentGraphicsHandler.shieldGraphic.transform);
+                }
+                else if (Player.instance.equippedWeapon != null && equipmentGraphicsHandler.leftHand != null)
+                {
+                    Instantiate(Player.instance.equippedWeapon.blockFx, equipmentGraphicsHandler.leftHand.transform.position, Quaternion.identity);
+                }
+
                 staminaStatManager.DecreaseStamina(staminaCost);
 
-                if (playerWontTakeDamage)
+                if (playerCanBlock)
                 {
-                    return;
+                    damage = damage - ((int)(damage * defenseAbsorption / 100));
+                    playerCombatController.GetComponent<Animator>().Play("Blocking Hit");
+                }
+                else
+                {
+                    // Can not block attack, stop blocking
+                    playerCombatController.GetComponent<Animator>().SetBool(playerParryManager.hashIsBlocking, false);
                 }
             }
 
@@ -121,7 +147,6 @@ namespace AF
                 damageFloatingText.Show(damage);
             }
 
-
             if (weaponDamageSfx != null)
             {
                 BGMManager.instance.PlaySound(weaponDamageSfx, playerCombatController.combatAudioSource);
@@ -136,7 +161,7 @@ namespace AF
 
                 Die();
             }
-            else
+            else if (playerParryManager.IsBlocking() == false)
             {
                 playerPoiseController.IncreasePoiseDamage(poiseDamage);
             }

@@ -12,6 +12,8 @@ namespace AF
         DodgeController dodgeController => GetComponent<DodgeController>();
         PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
 
+        public bool isInBonfire = false;
+
         void Awake() {
             StartCoroutine(SpawnPlayer());
         }
@@ -48,6 +50,15 @@ namespace AF
             GetComponent<CharacterController>().enabled = true;
         }
 
+        public bool IsBusy()
+        {
+            if (isInBonfire)
+            {
+                return true;
+            }
+
+            return false;
+        }
 
     }
 

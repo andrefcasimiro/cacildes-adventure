@@ -95,5 +95,11 @@ namespace AF
 
             Player.instance.currentStamina = nextValue;
         }
+
+
+        public float GetStaminaPointsForGivenEndurance(int endurance)
+        {
+            return baseStamina + (int)(Mathf.Ceil(endurance * levelMultiplier));
+        }
     }
 }

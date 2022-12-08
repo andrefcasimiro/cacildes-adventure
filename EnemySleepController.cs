@@ -20,9 +20,9 @@ namespace AF
 
         private void Start()
         {
-            OnHourChanged();
-
             if (bed != null) { bed.gameObject.SetActive(false); }
+
+            OnHourChanged();
         }
 
         public void OnHourChanged()

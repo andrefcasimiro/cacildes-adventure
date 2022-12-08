@@ -48,10 +48,22 @@ namespace AF
             var sceneSwitchListeners = FindObjectsOfType<SwitchListener>(true);
             foreach (var sceneSwitchListener in sceneSwitchListeners)
             {
+                // if the switch listener starts as a deactivated gameobject, we need to fix the _switch
+                if (sceneSwitchListener._switch == null)
+                {
+                    sceneSwitchListener._switch = GetSwitchInstance(sceneSwitchListener.switchUuid);
+                }
+
                 if (sceneSwitchListener._switch.ID == switchID)
                 {
                     sceneSwitchListener.EvaluateSwitch();
                 }
+            }
+
+            var sceneMultipleSwitchListeners = FindObjectsOfType<MultipleSwitchDependent>(true);
+            foreach (var multipleSwichListener in sceneMultipleSwitchListeners)
+            {
+                multipleSwichListener.EvaluateSwitch();
             }
 
             var eventsInScene = FindObjectsOfType<Event>(true);
@@ -59,6 +71,7 @@ namespace AF
             {
                 eventInScene.RefreshEventPages();
             }
+
         }
 
         public Switch GetSwitchInstance(string switchUUID)

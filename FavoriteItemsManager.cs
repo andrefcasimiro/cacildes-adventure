@@ -48,7 +48,11 @@ namespace AF
                 }
 
                 Consumable consumableItem = (Consumable)currentItem;
-                consumableItem.OnConsume();
+                if (consumableItem != null)
+                {
+                    consumableItem.OnConsume();
+                }
+
             }
 
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();

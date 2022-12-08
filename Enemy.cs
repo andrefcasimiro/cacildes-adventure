@@ -26,6 +26,7 @@ namespace AF
 
         // Player Refs
         [HideInInspector] public PlayerCombatController playerCombatController;
+        [HideInInspector] public PlayerComponentManager playerComponentManager;
         private GameObject player;
 
         // Flags
@@ -47,6 +48,7 @@ namespace AF
         {
             playerCombatController = FindObjectOfType<PlayerCombatController>(true);
             player = playerCombatController.gameObject;
+            playerComponentManager = player.GetComponent<PlayerComponentManager>();
 
             if (fogWall != null)
             {

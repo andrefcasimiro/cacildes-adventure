@@ -80,6 +80,10 @@ namespace AF
             {
                 DrawWeaponsList();
             }
+            else if (selectedEquipmentType == EquipmentType.Shield)
+            {
+                DrawShieldsList();
+            }
             else if (selectedEquipmentType == EquipmentType.Helmet)
             {
                 DrawArmorItemsList(EquipmentType.Helmet, Player.instance.equippedHelmet);
@@ -170,7 +174,7 @@ namespace AF
 
                         if (isLowerWeapon)
                         {
-                            valueLabelElement.text = "- " + (attackStatManager.GetWeaponAttack(weapon) - attackStatManager.GetWeaponAttack(Player.instance.equippedWeapon)) + " ATK";
+                            valueLabelElement.text = "- " + Mathf.Abs(attackStatManager.GetWeaponAttack(weapon) - attackStatManager.GetWeaponAttack(Player.instance.equippedWeapon)) + " ATK";
                             valueLabelElement.RemoveFromClassList("same-value-equipment");
                             valueLabelElement.AddToClassList("lower-value-equipment");
                             valueLabelElement.RemoveFromClassList("higher-value-equipment");
@@ -243,11 +247,168 @@ namespace AF
                 }
             }
 
-            itemStats.Q<Label>("Value").text = "Value " + weapon.value + " / Weight " + weapon.weight; 
+            if (bonusLabel.text.Length <= 0)
+            {
+                bonusLabel.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                bonusLabel.style.display = DisplayStyle.Flex;
+            }
+
+            itemStats.Q<Label>("Value").text = "Value " + weapon.value + " / Speed Loss " + (weapon.speedPenalty != 0 ? "-" + weapon.speedPenalty.ToString().Replace(",", ".") : "0"); 
 
             itemPreviewElement.style.visibility = Visibility.Visible;
             itemStats.style.visibility = Visibility.Visible;
         }
+        #endregion
+
+        #region Shields
+        void DrawShieldsList()
+        {
+            var playerShields = playerInventory.GetShields();
+            if (playerShields.Count > 0)
+            {
+                foreach (var shield in playerShields)
+                {
+                    VisualElement shieldButton = equipmentSelectionItem.CloneTree();
+
+                    if (shield == Player.instance.equippedShield)
+                    {
+                        shieldButton.Q<VisualElement>("Item").style.opacity = 0.25f;
+                    }
+                    else
+                    {
+                        shieldButton.Q<VisualElement>("Item").style.opacity = 1f;
+                    }
+
+                    Button shieldBtn = shieldButton.Q<Button>();
+                    menuManager.SetupButton(shieldBtn, () =>
+                    {
+                        equipmentGraphicsHandler.EquipShield(shield);
+                        menuManager.PlayClick();
+                        menuManager.OpenEquipmentListMenu();
+                    });
+
+                    shieldBtn.RegisterCallback<FocusInEvent>(ev =>
+                    {
+                        ShowShieldItemPreview(shield);
+
+                        root.Q<ScrollView>().ScrollTo(shieldBtn);
+                    });
+                    shieldBtn.RegisterCallback<FocusOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    shieldBtn.RegisterCallback<MouseOverEvent>(ev =>
+                    {
+                        ShowShieldItemPreview(shield);
+
+                        root.Q<ScrollView>().ScrollTo(shieldBtn);
+                    });
+                    shieldBtn.RegisterCallback<MouseOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    shieldButton.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(shield.sprite);
+                    shieldButton.Q<Label>("Name").text = shield.name;
+
+                    var valueLabelElement = shieldButton.Q<Label>("Value");
+
+                    var equippedShieldAbsorption = Player.instance.equippedShield != null ? Player.instance.equippedShield.defenseAbsorption : 0f;
+
+                    bool isBetterShield = shield.defenseAbsorption - equippedShieldAbsorption > 0;
+
+                    if (isBetterShield)
+                    {
+                        valueLabelElement.text = "+ " + Mathf.Abs(equippedShieldAbsorption - shield.defenseAbsorption) + "% ATK Absorption";
+                        valueLabelElement.RemoveFromClassList("same-value-equipment");
+                        valueLabelElement.RemoveFromClassList("lower-value-equipment");
+                        valueLabelElement.AddToClassList("higher-value-equipment");
+                    }
+                    else
+                    {
+                        bool isWorseShield = shield.defenseAbsorption - equippedShieldAbsorption < 0;
+
+                        if (isWorseShield)
+                        {
+                            valueLabelElement.text = "- " + Mathf.Abs(equippedShieldAbsorption - shield.defenseAbsorption) + "% ATK Absorption";
+                            valueLabelElement.RemoveFromClassList("same-value-equipment");
+                            valueLabelElement.AddToClassList("lower-value-equipment");
+                            valueLabelElement.RemoveFromClassList("higher-value-equipment");
+                        }
+                        else
+                        {
+                            if (shield == Player.instance.equippedShield)
+                            {
+                                valueLabelElement.text = "(Equipped)";
+                            }
+                            else
+                            {
+                                valueLabelElement.text = "+ 0% ATK Absorption";
+                            }
+                            valueLabelElement.AddToClassList("same-value-equipment");
+                            valueLabelElement.RemoveFromClassList("lower-value-equipment");
+                            valueLabelElement.RemoveFromClassList("higher-value-equipment");
+                        }
+                    }
+
+                    this.root.Q<ScrollView>().Add(shieldButton);
+                }
+            }
+        }
+
+        void ShowShieldItemPreview(Shield shield)
+        {
+            var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
+            var itemStats = root.Q<VisualElement>("ItemStats");
+
+            itemPreviewElement.Q<Label>("Title").text = shield.name;
+            itemPreviewElement.Q<Label>("Description").text = shield.description;
+            itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(shield.sprite);
+
+            itemStats.Q<Label>("Damage").text = shield.defenseAbsorption + "% (Enemy ATK Absorption) / "
+                    + shield.blockStaminaCost + " (Stamina Cost Per Block)";
+
+            var bonusLabel = itemStats.Q<Label>("Bonus");
+            bonusLabel.text = "";
+            if (shield.fireDefense != 0)
+            {
+                if (bonusLabel.text.Length > 0)
+                {
+                    bonusLabel.text += " / ";
+                }
+
+                bonusLabel.text += "Fire DEF Bonus + " + shield.fireDefense;
+            }
+
+            if (shield.frostDefense != 0)
+            {
+                if (bonusLabel.text.Length > 0)
+                {
+                    bonusLabel.text += " / ";
+                }
+
+                bonusLabel.text += "Frost DEF Bonus + " + shield.frostDefense;
+            }
+
+            if (bonusLabel.text.Length <= 0)
+            {
+                bonusLabel.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                bonusLabel.style.display = DisplayStyle.Flex;
+            }
+
+            itemStats.Q<Label>("Value").text = "Value " + shield.value;
+
+            itemPreviewElement.style.visibility = Visibility.Visible;
+            itemStats.style.visibility = Visibility.Visible;
+        }
+
         #endregion
 
         #region Armors
@@ -395,7 +556,7 @@ namespace AF
                 itemStats.Q<Label>("Damage").text += " / Bleed Resistance + " + armor.bleedResistance;
             }
 
-            itemStats.Q<Label>("Bonus").text = "Value " + armor.value + " / Weight " + armor.weight;
+            itemStats.Q<Label>("Bonus").text = "Value " + armor.value + " / Poise Bonus: +" + armor.poiseBonus;
 
             itemStats.Q<Label>("Value").style.visibility = Visibility.Hidden;
 

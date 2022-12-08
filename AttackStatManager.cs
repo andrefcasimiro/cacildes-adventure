@@ -54,6 +54,19 @@ namespace AF
                 );
         }
 
+
+        public int GetCurrentPhysicalAttackForGivenStrengthAndDexterity(int strength, int dexterity)
+        {
+            return (int)Mathf.Round(
+                Mathf.Ceil(
+                    basePhysicalAttack
+                        + (strength * levelMultiplier)
+                        + (dexterity * levelMultiplier)
+                    )
+                );
+        }
+
+
         #region Weapon Attack
         public int GetWeaponAttack(Weapon weapon)
         {

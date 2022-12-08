@@ -19,6 +19,7 @@ namespace AF
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
 
         ClimbController climbController => GetComponent<ClimbController>();
+        PlayerShootingManager playerShootingManager => GetComponent<PlayerShootingManager>();
 
         public float unarmedParryWindow = .4f;
         float parryTimer = 0f;
@@ -42,6 +43,12 @@ namespace AF
             {
                 parryTimer += Time.deltaTime;
             }
+
+
+            if (IsBlocking())
+            {
+                animator.SetBool("HasShield", Player.instance.equippedShield != null);
+            }
         }
 
         void HandleBlock()
@@ -52,6 +59,7 @@ namespace AF
                 parryTimer = 0;
                 blockCooldown = 0;
                 animator.SetBool(hashIsBlocking, false);
+
                 return;
             }
 
@@ -67,10 +75,16 @@ namespace AF
             }
 
             animator.SetBool(hashIsBlocking, starterAssetsInputs.block);
+
         }
 
         bool CanBlock()
         {
+            if (playerShootingManager.IsShooting())
+            {
+                return false;
+            }
+
             if (starterAssetsInputs.sprint)
             {
                 return false;

@@ -77,6 +77,22 @@ namespace AF
             return weapons;
         }
 
+        public List<Shield> GetShields()
+        {
+            List<Shield> shields = new List<Shield>();
+
+            foreach (var item in Player.instance.ownedItems)
+            {
+                var possibleShield = item.item as Shield;
+                if (possibleShield != null)
+                {
+                    shields.Add(possibleShield);
+                }
+            }
+
+            return shields;
+        }
+
         public List<Helmet> GetHelmets()
         {
             List<Helmet> items = new List<Helmet>();

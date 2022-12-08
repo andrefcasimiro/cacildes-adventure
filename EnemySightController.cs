@@ -14,19 +14,35 @@ namespace AF
         public SightCone sightCone;
 
         private ClimbController player;
+        private PlayerComponentManager playerComponentManager;
+
         EnemyHealthController enemyHealthController => GetComponent<EnemyHealthController>();
 
         public UnityEvent onPlayerSight;
 
         EnemySleepController enemySleepController => GetComponent<EnemySleepController>();
 
-        private void Start()
+        public bool ignorePlayer = false;
+
+        private void Awake()
         {
             player = FindObjectOfType<ClimbController>(true);
+
+            playerComponentManager = player.GetComponent<PlayerComponentManager>();
         }
 
         public bool IsPlayerInSight()
         {
+            if (playerComponentManager.IsBusy())
+            {
+                return false;
+            }
+
+            if (ignorePlayer)
+            {
+                return false;
+            }
+
             if (enemyHealthController.currentHealth <= 0)
             {
                 return false;

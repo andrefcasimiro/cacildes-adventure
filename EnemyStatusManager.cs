@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -161,6 +162,17 @@ namespace AF
             Destroy(appliedStatus.fullAmountUIIndicator.gameObject);
 
             this.appliedStatus.Remove(appliedStatus);
+        }
+
+        public void ClearAllNegativeStatus()
+        {
+            EnemyAppliedStatus[] negativeStatusArray = new EnemyAppliedStatus[this.appliedStatus.Count];
+            this.appliedStatus.CopyTo(negativeStatusArray);
+
+            foreach (var _negativeStatus in negativeStatusArray)
+            {
+                RemoveAppliedStatus(_negativeStatus);
+            }
         }
 
         void EvaluateEffect(EnemyAppliedStatus enemyAppliedStatus, List<EnemyAppliedStatus> statusToDelete)

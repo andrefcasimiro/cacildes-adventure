@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
 using Mono.Cecil.Cil;
+using UnityEngine.SceneManagement;
 
 namespace AF
 {
@@ -34,9 +35,12 @@ namespace AF
         TitleScreenManager titleScreenManager;
         UIDocumentBook uIDocumentBook;
         UIDocumentGameOver uIDocumentGameOver;
+        
+
 
         private void Start()
         {
+
             titleScreen = FindObjectOfType<UIDocumentTitleScreen>(true);
             titleScreenManager = FindObjectOfType<TitleScreenManager>(true);
             uIDocumentBook = FindObjectOfType<UIDocumentBook>(true);
@@ -84,6 +88,11 @@ namespace AF
 
         bool CanUseMenu()
         {
+            if (playerComponentManager.isInBonfire)
+            {
+                return false;
+            }
+
             if (uIDocumentGameOver != null)
             {
                 if (uIDocumentGameOver.isActiveAndEnabled)
@@ -267,7 +276,12 @@ namespace AF
             SetupButton(root.Q<Button>("ButtonSave"), () => { OpenSaveScreen(); });
             SetupButton(root.Q<Button>("ButtonLoad"), () => { OpenLoadScreen(); });
             SetupButton(root.Q<Button>("ButtonControls"), () => { OpenControlsScreen(); });
-            SetupButton(root.Q<Button>("ButtonExit"), () => { Application.Quit(); });
+            SetupButton(root.Q<Button>("ButtonExit"), () => {
+
+                SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
+
+                Application.Quit();
+            });
         }
 
         public void SetupButton(Button button, UnityAction callback)

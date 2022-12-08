@@ -22,6 +22,8 @@ namespace AF
         public AudioClip craftSuccess;
         public AudioClip craftError;
         public AudioClip gameOverFanfare;
+        public AudioClip activateLever;
+        public AudioClip openHeavyDoor;
 
         [Header("Audio Sources")]
         public AudioSource bgmAudioSource;
@@ -114,6 +116,8 @@ namespace AF
         public void PlayCraftSuccess() { this.sfxAudioSource.PlayOneShot(craftSuccess); }
         public void PlayCraftError() { this.sfxAudioSource.PlayOneShot(craftError); }
         public void PlayGameOver() { this.sfxAudioSource.PlayOneShot(gameOverFanfare); }
+        public void PlayLever() { this.sfxAudioSource.PlayOneShot(activateLever); }
+        public void PlayHeavyDoor() { this.sfxAudioSource.PlayOneShot(openHeavyDoor); }
 
         public void PlayBattleMusic()
         {

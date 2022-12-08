@@ -16,10 +16,22 @@ namespace AF
 
         [Header("Map")]
         public bool isInterior;
-        
+
+        [Header("Debug")]
+        public bool enemiesIgnorePlayer;
+
         public void Start()
         {
             HandleSceneSound();
+
+            if (enemiesIgnorePlayer)
+            {
+                var allEnemies = FindObjectsOfType<EnemySightController>(true);
+                foreach (var enemy in allEnemies)
+                {
+                    enemy.ignorePlayer = true;
+                }
+            }
         }
 
         public void HandleSceneSound()

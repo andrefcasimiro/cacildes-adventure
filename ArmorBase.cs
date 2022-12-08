@@ -33,6 +33,8 @@ namespace AF
         public int strengthBonus = 0;
         public int dexterityBonus = 0;
 
+        public int poiseBonus = 0;
+
     }
 
 }

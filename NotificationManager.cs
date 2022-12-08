@@ -16,6 +16,8 @@ namespace AF
         public Sprite systemError;
         public Sprite alchemyLackOfIngredients;
         public Sprite recipeIcon;
+        public Sprite door;
+        public Sprite levelUp;
 
         public UIDocument uiDocumentNotificationUI;
 

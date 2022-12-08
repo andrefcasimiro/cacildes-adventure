@@ -7,11 +7,14 @@ public class SwitchDependent : SwitchListener, ISaveable
 {
     public bool value;
 
-    private void Start()
+    private void Awake()
     {
         // This is useless. We dont always need switch (the game object itself)
         this._switch = SwitchManager.instance.GetSwitchInstance(this.switchUuid);
+    }
 
+    private void Start()
+    {
         EvaluateSwitch();
     }
 

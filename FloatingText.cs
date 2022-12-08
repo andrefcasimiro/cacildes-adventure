@@ -14,6 +14,11 @@ namespace AF
 
         private void Start()
         {
+            Reset();
+        }
+
+        public void Reset()
+        {
             transform.localScale = new Vector3(0, 0, 0);
         }
 

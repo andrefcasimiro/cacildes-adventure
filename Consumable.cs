@@ -47,7 +47,7 @@ namespace AF
 
         public ConsumableEffect[] consumableEffects;
 
-        public void OnConsume()
+        public virtual void OnConsume()
         {
             PlayerInventory playerInventory = FindObjectOfType<PlayerInventory>(true);
             playerInventory.RemoveItem(this, 1);

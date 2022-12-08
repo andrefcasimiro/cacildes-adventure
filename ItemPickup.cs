@@ -13,6 +13,7 @@ namespace AF
         public AlchemyRecipe alchemyRecipe;
 
         public int quantity = 1;
+        public int gold = -1;
 
         StarterAssetsInputs inputs;
         UIDocumentKeyPromptAction uIDocumentKeyPrompt;
@@ -28,11 +29,12 @@ namespace AF
             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPromptAction>(true);
             uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
             inputs = FindObjectOfType<StarterAssetsInputs>(true);
+
+            this._switch = SwitchManager.instance.GetSwitchInstance(this.switchUuid);
         }
 
         private void Start()
         {
-            this._switch = SwitchManager.instance.GetSwitchInstance(this.switchUuid);
 
             EvaluateSwitch();
         }
@@ -62,8 +64,13 @@ namespace AF
 
                 uIDocumentKeyPrompt.gameObject.SetActive(false);
 
+                if (gold != -1)
+                {
+                    FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGold(gold);
+                    Player.instance.currentGold += gold;
+                }
                 // Is Alchemy Recipe?
-                if (alchemyRecipe != null)
+                else if (alchemyRecipe != null)
                 {
                     Player.instance.alchemyRecipes.Add(alchemyRecipe);
                 }
@@ -79,6 +86,7 @@ namespace AF
                     BGMManager.instance.PlayItem();
                 }
 
+                if (System.String.IsNullOrEmpty(this.switchUuid)) { return; }
 
                 SwitchManager.instance.UpdateSwitch(this.switchUuid, true);
             }

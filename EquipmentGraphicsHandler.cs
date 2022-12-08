@@ -32,9 +32,14 @@ namespace AF
         public Transform leftHolsterRef;
         public Transform rightHolsterRef;
 
+        public GameObject bow;
+
         StarterAssets.ThirdPersonController thirdPersonController => GetComponent<StarterAssets.ThirdPersonController>();
+        PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
 
         LockOnManager lockOnManager;
+
+        public float weightPenalty = 0;
 
         public List<string> helmetNakedParts = new List<string>
         {
@@ -62,8 +67,15 @@ namespace AF
 
         RuntimeAnimatorController playerDefaultAnimator;
 
+        private void Awake()
+        {
+            weightPenalty = Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.speedPenalty : 0;
+        }
+
         void Start()
         {
+            bow.gameObject.SetActive(false);
+
             lockOnManager = FindObjectOfType<LockOnManager>(true);
 
             HandRef[] handRefs = FindObjectsOfType<HandRef>(true);
@@ -134,6 +146,7 @@ namespace AF
             }
 
             Player.instance.equippedWeapon = weaponToEquip;
+            weightPenalty += weaponToEquip.speedPenalty;
 
             if (weaponToEquip.graphic != null)
             {
@@ -152,6 +165,13 @@ namespace AF
                 if (weaponToEquip.useBackRef)
                 {
                     leftWeaponGraphicBack = Instantiate(weaponToEquip.graphic, backRef);
+
+                    WeaponPivotHandler weaponPivotHandler = leftWeaponGraphicBack.GetComponentInChildren<WeaponPivotHandler>();
+                    if (weaponPivotHandler != null && weaponPivotHandler.useCustomBackRefTransform) {
+                        weaponPivotHandler.transform.localPosition = weaponPivotHandler.backPosition;
+                        weaponPivotHandler.transform.localRotation = Quaternion.Euler(new Vector3(weaponPivotHandler.backRotationX, weaponPivotHandler.backRotationY, weaponPivotHandler.backRotationZ));
+                    }
+
                     leftWeaponGraphicBack.SetActive(false);
                 }
                 else if (weaponToEquip.useHolsterRef)
@@ -197,7 +217,43 @@ namespace AF
                 GetComponent<Animator>().SetBool(lockOnManager.hashIsLockedOn, true);
             }
 
+            AssignWeaponHandlerRefs();
+
             DeactivateAllHitboxes();
+
+
+        }
+
+        public void AssignWeaponHandlerRefs()
+        {
+            if (playerCombatController.leftWeaponHandlerRef != null || playerCombatController.rightWeaponHandlerRef != null) { return; }
+
+            HandRef[] handRefs = GetComponentsInChildren<HandRef>(true);
+            foreach (var handRef in handRefs)
+            {
+                var weaponHandlerRefs = handRef.GetComponentsInChildren<WeaponHandlerRef>(true);
+
+                foreach (var weaponHandlerRef in weaponHandlerRefs)
+                {
+                    if (weaponHandlerRef != null)
+                    {
+                        if (weaponHandlerRef.isLeft)
+                        {
+                            playerCombatController.leftWeaponHandlerRef = weaponHandlerRef;
+                        }
+                        else
+                        {
+                            playerCombatController.rightWeaponHandlerRef = weaponHandlerRef;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void UnassignWeaponHandlerRefs()
+        {
+            playerCombatController.leftWeaponHandlerRef = null;
+            playerCombatController.rightWeaponHandlerRef = null;
         }
 
         public void EquipShield(Shield shieldToEquip)
@@ -211,7 +267,7 @@ namespace AF
 
             Player.instance.equippedShield = shieldToEquip;
 
-            shieldGraphic = Instantiate(shieldToEquip.graphic, rightHand);
+            shieldGraphic = Instantiate(shieldToEquip.graphic, leftHand);
             shieldGraphic.SetActive(false);
         }
 
@@ -404,6 +460,8 @@ namespace AF
 
         public void UnequipWeapon()
         {
+            UnassignWeaponHandlerRefs();
+
             if (leftWeaponGraphic != null)
             {
                 Destroy(leftWeaponGraphic);
@@ -429,6 +487,11 @@ namespace AF
             if (rightWeaponGraphicHolster != null)
             {
                 Destroy(rightWeaponGraphicHolster);
+            }
+
+            if (Player.instance.equippedWeapon != null)
+            {
+                weightPenalty -= Player.instance.equippedWeapon.speedPenalty;
             }
 
             Player.instance.equippedWeapon = null;
@@ -682,6 +745,22 @@ namespace AF
             DeactivateRightWeaponHitbox();
             DeactivateLeftFootHitbox();
             DeactivateRightFootHitbox();
+        }
+
+        public void ShowShield()
+        {
+            if (this.shieldGraphic != null)
+            {
+                this.shieldGraphic.gameObject.SetActive(true);
+            }
+        }
+
+        public void HideShield()
+        {
+            if (this.shieldGraphic != null)
+            {
+                this.shieldGraphic.gameObject.SetActive(false);
+            }
         }
 
         public void HideWeapons()

@@ -15,6 +15,14 @@ namespace AF
         public float blockRotationY;
         public float blockRotationZ;
 
+        [Header("Back Ref Transform")]
+        public bool useCustomBackRefTransform = false;
+
+        public Vector3 backPosition;
+        public float backRotationX;
+        public float backRotationY;
+        public float backRotationZ;
+
 
         private void Awake()
         {

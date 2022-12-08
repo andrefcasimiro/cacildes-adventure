@@ -299,7 +299,8 @@ namespace AF
             }
 
             // Stats
-            currentGold = playerData.currentGold;
+            currentGold = SaveSystem.instance.loadingFromGameOver ? 0 : playerData.currentGold;
+
             currentHealth = playerData.currentHealth;
             currentStamina = playerData.currentStamina;
             currentReputation = playerData.currentReputation;

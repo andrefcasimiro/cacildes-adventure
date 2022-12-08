@@ -68,6 +68,7 @@ namespace AF
                 var favoriteButton = cloneButton.Q<Button>("FavoriteButton");
 
                 var consumable = item.item as Consumable;
+
                 var isFavoritableConsumable = consumable != null && consumable.canFavorite;
                 favoriteButton.style.display = isFavoritableConsumable ? DisplayStyle.Flex : DisplayStyle.None;
 

@@ -33,6 +33,11 @@ namespace AF
 
             Player.instance.currentHealth = nextValue;
         }
+
+        public float GetHealthPointsForGivenVitality(int vitality)
+        {
+            return baseHealth + (int)(Mathf.Ceil(vitality * levelMultiplier));
+        }
     }
 
 }

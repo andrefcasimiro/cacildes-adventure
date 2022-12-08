@@ -95,6 +95,19 @@ namespace AF
             FindObjectOfType<UIDocumentStatusEffectV2>(true).RemoveNegativeStatusEntry(appliedStatus.statusEffect);
         }
 
+        public void RemoveAllStatus()
+        {
+            var playerNegativeStatus = Player.instance.appliedStatus;
+
+            foreach (var playerNegativeStat in playerNegativeStatus)
+            {
+
+                Player.instance.appliedStatus.Remove(playerNegativeStat);
+                FindObjectOfType<UIDocumentStatusEffectV2>(true).RemoveNegativeStatusEntry(playerNegativeStat.statusEffect);
+            }
+
+        }
+
         void EvaluateEffect(AppliedStatus entry, List<AppliedStatus> statusToDelete)
         {
             if (entry.statusEffect.statAffected == Stat.Health)

@@ -43,6 +43,7 @@ namespace AF
 
         // Graphics
         public GameObject graphic;
+        public DestroyableParticle blockFx;
 
     }
 

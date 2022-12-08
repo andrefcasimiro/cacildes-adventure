@@ -89,12 +89,21 @@ namespace AF
 
                     if (weapon != null)
                     {
+                        Debug.Log(other.gameObject.name);
                         if (other.gameObject.tag == "Metal" && weapon.metalImpactFx != null)
                         {
                             Instantiate(weapon.metalImpactFx, transform.position, Quaternion.identity);
-                            return;
+                        }
+                        
+                        if (other.gameObject.tag == "Water" && weapon.waterImpactFx != null)
+                        {
+                            Instantiate(weapon.waterImpactFx, transform.position, Quaternion.identity);
                         }
 
+                        if (other.gameObject.tag == "Wood" && weapon.woodImpactFx != null)
+                        {
+                            Instantiate(weapon.woodImpactFx, transform.position, Quaternion.identity);
+                        }
 
                     }
 

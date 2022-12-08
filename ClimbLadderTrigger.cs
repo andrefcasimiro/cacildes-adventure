@@ -29,6 +29,7 @@ namespace AF
 
         StarterAssetsInputs inputs;
         UIDocumentKeyPromptAction uIDocumentKeyPrompt;
+        PlayerShootingManager playerShootingManager => GetComponent<PlayerShootingManager>();
 
         private void Start()
         {
@@ -57,6 +58,11 @@ namespace AF
 
             climbController = other.gameObject.GetComponent<ClimbController>();
             if (climbController.climbState != ClimbController.ClimbState.NONE)
+            {
+                return;
+            }
+
+            if (playerShootingManager.IsShooting())
             {
                 return;
             }

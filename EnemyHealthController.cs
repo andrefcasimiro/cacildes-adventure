@@ -50,8 +50,11 @@ namespace AF
 
         bool isDisabled = false;
 
+        Vector3 startingPosition;
+
         private void Awake()
         {
+            startingPosition = transform.position;
             currentHealth = maxHealth;
         }
 
@@ -147,6 +150,8 @@ namespace AF
 
         public void EnableHealthHitboxes()
         {
+            this.enemyHealthHitboxes = GetComponentsInChildren<EnemyHealthHitbox>(true);
+
             foreach (var enemyHealthHitbox in enemyHealthHitboxes)
             {
                 enemyHealthHitbox.gameObject.SetActive(true);
@@ -225,6 +230,9 @@ namespace AF
                 appliedDamage = appliedDamage * enemyPostureController.bonusMultiplier;
             }
 
+            // Disable stunned stars on hit
+            enemyPostureController.stunnedParticle.gameObject.SetActive(false);
+
             // Elemental Damage Bonus
             if (weapon != null)
             {
@@ -288,10 +296,97 @@ namespace AF
             }
         }
 
+        public void TakeProjectileDamage(float damage, Projectile projectile)
+        {
+            Destroy(projectile.gameObject);
+
+            if (isDisabled)
+            {
+                return;
+            }
+
+            if (enemyBlockController != null && enemyBlockController.IsBlocking())
+            {
+                return;
+            }
+
+            if (this.currentHealth <= 0)
+            {
+                return;
+            }
+
+            if (enemySleepController != null && enemySleepController.isSleeping)
+            {
+                enemySleepController.WakeUp();
+            }
+
+            enemyCombatController.DisableAllWeaponHitboxes();
+
+            float physicalDamage = damage;
+
+            if (enemyPostureController.IsStunned())
+            {
+                damage = damage * enemyPostureController.bonusMultiplier;
+            }
+
+            // Disable stunned stars on hit
+            enemyPostureController.stunnedParticle.gameObject.SetActive(false);
+
+
+            this.currentHealth = Mathf.Clamp(currentHealth - damage, 0f, maxHealth);
+
+            if (damageParticlePrefab != null)
+            {
+                Instantiate(damageParticlePrefab, transform.position, Quaternion.identity);
+            }
+
+            // Status Effects
+            var bonusDamageToShow = 0f;
+            /*if (weapon != null && weapon.statusEffects != null && weapon.statusEffects.Length > 0)
+            {
+                foreach (var weaponStatusEffectPerHit in weapon.statusEffects)
+                {
+                    var storedResult = enemyStatusManager.InflictStatusEffect(weaponStatusEffectPerHit.statusEffect, weaponStatusEffectPerHit.amountPerHit);
+                    if (storedResult > 0)
+                    {
+                        bonusDamageToShow += storedResult;
+                    }
+                }
+            }*/
+
+            if (damageFloatingText != null)
+            {
+                damageFloatingText.Show(physicalDamage + bonusDamageToShow);
+            }
+
+
+            if (this.currentHealth <= 0)
+            {
+
+                Loot loot = enemy.GetComponent<Loot>();
+                if (loot != null)
+                {
+                    StartCoroutine(GiveLoot(loot));
+                }
+
+                Die();
+            }
+            else
+            {
+                enemyPoiseController.IncreasePoiseDamage(1);
+            }
+
+            if (enemyCombatController.IsCombatting() == false && enemyCombatController.IsWaiting() == false)
+            {
+                enemyCombatController.GetComponent<Animator>().SetBool(enemy.hashChasing, true);
+            }
+        }
+
         IEnumerator GiveLoot(Loot loot)
         {
             yield return new WaitForSeconds(1f);
 
+            FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGold(enemy.goldReceived);
             Player.instance.currentGold += (int)enemy.goldReceived;
 
             // notificationManager.NotifyCoins(enemy.experienceGained);
@@ -364,6 +459,45 @@ namespace AF
                     lockOnManager.DisableLockOn();
                 }
             }
+        }
+
+        public void Revive()
+        {
+            enemy.animator.SetBool("Dying", false);
+
+            this.currentHealth = maxHealth;
+            isDisabled = false;
+
+            this.transform.position = startingPosition;
+
+
+            var deathCollider = GetComponentInChildren<DeathColliderRef>(true);
+            if (deathCollider != null)
+            {
+                deathCollider.GetComponent<BoxCollider>().enabled = false;
+            }
+
+
+            enemy.GetComponent<Rigidbody>().isKinematic = false;
+            enemy.GetComponent<CapsuleCollider>().enabled = true;
+
+            enemy.agent.enabled = true;
+            enemy.enabled = true;
+
+            enemy.animator.Play("Idle");
+
+            // Remove all negative status
+            GetComponent<EnemyStatusManager>().ClearAllNegativeStatus();
+
+            // Clear damage text
+            var damageTexts = GetComponentsInChildren<FloatingText>(true);
+            foreach (var damageText in damageTexts)
+            {
+                damageText.Reset();
+            }
+
+            // Enable health hitboxes
+            EnableHealthHitboxes();
         }
 
     }

@@ -36,6 +36,7 @@ namespace AF
         ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
         PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
         UIDocumentDialogueWindow uIDocumentDialogueWindow;
+        PlayerShootingManager playerShootingManager => GetComponent<PlayerShootingManager>();
 
         bool canJumpAttack = true;
 
@@ -44,10 +45,39 @@ namespace AF
         [Header("Stamina")]
         public int unarmedLightAttackStaminaCost = 15;
 
+        public WeaponHandlerRef leftWeaponHandlerRef;
+        public WeaponHandlerRef rightWeaponHandlerRef;
+
+
         private void Start()
         {
+
             uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
             equipmentGraphicsHandler.DeactivateAllHitboxes();
+        }
+
+        private void OnAnimatorIK(int layerIndex)
+        {
+            if (playerParryManager.IsBlocking() && Player.instance.equippedShield != null)
+            {
+                return;
+            }
+
+            if (leftWeaponHandlerRef != null)
+            {
+                animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1f);
+                animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1f);
+                animator.SetIKPosition(AvatarIKGoal.LeftHand, leftWeaponHandlerRef.transform.position);
+                animator.SetIKRotation(AvatarIKGoal.LeftHand, leftWeaponHandlerRef.transform.rotation);
+            }
+
+            if (rightWeaponHandlerRef != null)
+            {
+                animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
+                animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1f);
+                animator.SetIKPosition(AvatarIKGoal.RightHand, rightWeaponHandlerRef.transform.position);
+                animator.SetIKRotation(AvatarIKGoal.RightHand, rightWeaponHandlerRef.transform.rotation);
+            }
         }
 
         private void Update()
@@ -151,6 +181,11 @@ namespace AF
 
         bool CanAttack()
         {
+            if (playerShootingManager.IsShooting())
+            {
+                return false;
+            }
+
             if (climbController.climbState != ClimbController.ClimbState.NONE)
             {
                 return false;
@@ -178,6 +213,7 @@ namespace AF
 
             return true;
         }
+
 
     }
 }

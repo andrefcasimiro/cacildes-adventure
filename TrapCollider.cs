@@ -18,6 +18,12 @@ namespace AF
 
         public void PlaySwingSound()
         {
+            // Not all trap colliders have soundsources sometimes (to not have multiple audiosources when only one is needed)
+            if (this.audioSource == null)
+            {
+                return;
+            }
+
             this.audioSource.Play();
         }
 

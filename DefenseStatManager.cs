@@ -64,6 +64,11 @@ namespace AF
             return (int)(this.basePhysicalDefense * Player.instance.endurance * levelMultiplier);
         }
 
+        public int GetCurrentPhysicalDefenseForGivenEndurance(int endurance)
+        {
+            return (int)(this.basePhysicalDefense * endurance * levelMultiplier);
+        }
+
         public float GetMaximumStatusResistanceBeforeSufferingStatusEffect(StatusEffect statusEffect)
         {
             var target = this.negativeStatusResistances.Find(x => x.statusEffect == statusEffect);

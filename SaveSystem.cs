@@ -29,6 +29,8 @@ namespace AF
 
         double totalPlayTimeInSeconds;
 
+        public bool loadingFromGameOver = false;
+
         private void Awake()
         {
             if (instance != null && instance != this)
@@ -261,6 +263,11 @@ namespace AF
             }
             gameData.cookingRecipes = cookingRecipesToSave.ToArray();
 
+            // Lost coins
+            LostCoins lostCoins = new LostCoins();
+            var activateLostCoinsPickupInstance = FindObjectOfType<ActivateLostCoinsPickup>(true);
+
+            gameData.lostCoins = LostCoinsManager.instance.lostCoins;
 
             Save(gameData, saveGameName);
         }
@@ -333,6 +340,11 @@ namespace AF
             player.GetComponent<CharacterController>().enabled = true;
             yield return null;
 
+            if (loadingFromGameOver == false)
+            {
+                LostCoinsManager.instance.lostCoins = gameData.lostCoins;
+            }
+
             var saveables = FindObjectsOfType<MonoBehaviour>(true).OfType<ISaveable>();
 
             foreach (ISaveable saveable in saveables)
@@ -348,7 +360,7 @@ namespace AF
 
             yield return loadingScreen.FadeAndDisable();
 
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
+            loadingFromGameOver = false;
         }
         #endregion
 
@@ -426,6 +438,16 @@ namespace AF
         public Texture2D screenshot;
         public bool isQuickSave;
     }
+    
+    [System.Serializable]
+    public class LostCoins
+    {
+        public Vector3 position;
+
+        public int amount;
+
+        public int sceneIndex;
+    }
 
     [System.Serializable]
     public class GameData
@@ -463,6 +485,8 @@ namespace AF
         public string[] alchemyRecipes;
 
         public string[] cookingRecipes;
+
+        public LostCoins lostCoins;
     }
 
     [System.Serializable]

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace AF
@@ -53,7 +54,7 @@ namespace AF
         }
 
         // HANDS
-        public void ActivateLeftHandHitbox()
+        public void ActivateLeftHandHitbox(AnimationEvent animationEvent)
         {
             enemyCombatController.ActivateLeftHandHitbox();
         }

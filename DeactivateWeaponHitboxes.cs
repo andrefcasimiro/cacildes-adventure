@@ -7,6 +7,19 @@ namespace AF
 
     public class DeactivateWeaponHitboxes : StateMachineBehaviour
     {
+        EquipmentGraphicsHandler equipmentGraphicsHandler;
+
+        public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        {
+            if (equipmentGraphicsHandler == null)
+            {
+                equipmentGraphicsHandler = animator.GetComponent<EquipmentGraphicsHandler>();
+            }
+
+            equipmentGraphicsHandler.DeactivateAllHitboxes();
+
+
+        }
 
         // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
         //override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

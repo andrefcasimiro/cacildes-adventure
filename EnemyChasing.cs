@@ -55,6 +55,7 @@ namespace AF
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+
             if (enemy.agent.enabled)
             {
                 enemy.agent.SetDestination(enemy.playerCombatController.transform.position);
@@ -76,7 +77,7 @@ namespace AF
                 }
             }
 
-            if (distanceBetweenEnemyAndTarget > enemy.maximumChaseDistance)
+            if (distanceBetweenEnemyAndTarget > enemy.maximumChaseDistance || enemy.playerComponentManager.IsBusy())
             {
                 animator.SetBool(enemy.hashChasing, false);
                 animator.SetBool(enemyPathController.hashPatrol, true);

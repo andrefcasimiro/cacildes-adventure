@@ -72,14 +72,22 @@ namespace AF
 
         public void UpdateFavoriteItems()
         {
+            if (!this.isActiveAndEnabled)
+            {
+                return;
+            }
+
+            itemIcon = root.Q<IMGUIContainer>("ItemIcon");
+            itemCounter = root.Q<Label>("ItemCounterLabel");
+
             itemIcon.style.backgroundImage = null;
             itemCounter.text = "";
-            root.Q<VisualElement>("ItemCounter").style.display = DisplayStyle.None;
+            itemCounter.style.display = DisplayStyle.None;
             if (Player.instance.favoriteItems.Count <= 0) { return; }
 
             itemIcon.style.backgroundImage = new StyleBackground(Player.instance.favoriteItems[0].sprite);
             itemCounter.text = Player.instance.ownedItems.Find(x => x.item == Player.instance.favoriteItems[0]).amount.ToString();
-            root.Q<VisualElement>("ItemCounter").style.display = DisplayStyle.Flex;
+            itemCounter.style.display = DisplayStyle.Flex;
         }
 
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
@@ -42,24 +43,18 @@ namespace AF
 
             FindObjectOfType<UIDocumentDialogueWindow>(true).gameObject.SetActive(false);
 
-            var menuManager = FindObjectOfType<MenuManager>(true);
-
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
-
-            menuManager.SetupButton(root.Q<Button>("btnLoadLastSave"), () =>
-            {
-
-                FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
-                this.gameObject.SetActive(false);
-                SaveSystem.instance.LoadLastSavedGame();
-            });
-            menuManager.SetupButton(root.Q<Button>("btnExitGame"), () =>
-            {
-                Application.Quit();
-            });
+            LostCoinsManager.instance.SetCoinsToRecover(FindObjectOfType<PlayerCombatController>(true).transform);
 
 
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
+            StartCoroutine(Reload());
+
+        }
+
+        IEnumerator Reload()
+        {
+            yield return new WaitForSeconds(4f);
+            SaveSystem.instance.loadingFromGameOver = true;
+            SaveSystem.instance.LoadLastSavedGame();
         }
 
     }

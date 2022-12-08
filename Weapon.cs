@@ -39,6 +39,11 @@ namespace AF
         [Header("Poise Damage")]
         public int poiseDamageBonus = 0;
 
+        [Header("Block Absorption")]
+        [Range(0, 100)]
+        public int blockAbsorption = 75;
+        public int blockStaminaCost = 20;
+
         [Header("Stamina")]
         public int lightAttackStaminaCost = 20;
         public int heavyAttackStaminaCost = 35;
@@ -54,7 +59,10 @@ namespace AF
         [Header("Visual")]
         public GameObject graphic;
         public DestroyableParticle metalImpactFx;
+        public DestroyableParticle woodImpactFx;
+        public DestroyableParticle waterImpactFx;
         public AnimatorOverrideController animatorOverrideController;
+        public DestroyableParticle blockFx;
 
         [Header("Audio")]
         public AudioClip swingSfx;
@@ -66,6 +74,10 @@ namespace AF
         [Header("Hide Options")]
         public bool useHolsterRef = false;
         public bool useBackRef = false;
+
+        [Header("Speed Penalty")]
+        [Tooltip("Will be added as a negative speed to the animator when equipped")]
+        public float speedPenalty = 0f;
 
     }
 

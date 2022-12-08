@@ -18,6 +18,7 @@ namespace AF
         private FootstepListener footstepListener => GetComponent<FootstepListener>();
         private EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
         private StaminaStatManager staminaStatManager => GetComponent<StaminaStatManager>();
+        PlayerShootingManager playerShootingManager => GetComponent<PlayerShootingManager>();
 
         private MenuManager menuManager;
 
@@ -62,6 +63,11 @@ namespace AF
 
         private bool CanDodge()
         {
+            if (playerShootingManager.IsShooting())
+            {
+                return false;
+            }
+
             if (startupDelay < maxStartupDelay)
             {
                 return false;

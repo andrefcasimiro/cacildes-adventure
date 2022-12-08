@@ -33,6 +33,9 @@ namespace AF
         Transform currentTarget;
         Vector3 targetDestination;
 
+        [HideInInspector]
+        public bool isFromPlayer = false;
+
         bool hasCollidedAlready = false;
 
         public void Shoot(Transform target)
@@ -49,6 +52,25 @@ namespace AF
             rigidBody.AddForce(this.transform.up * upwardsVelocity, forceMode);
             
         }
+        public void Shoot(Vector3 position, bool directToEnemy)
+        {
+            targetDestination = position;
+
+            transform.parent = null;
+
+            Quaternion arrowRotation = Quaternion.LookRotation(targetDestination - transform.position);
+            transform.rotation = arrowRotation;
+
+            if (directToEnemy == false)
+            {
+                rigidBody.AddForce(this.transform.up * upwardsVelocity, forceMode);
+            }
+
+            rigidBody.AddForce(this.transform.forward * forwardVelocity, forceMode);
+
+        }
+
+
 
         private void Update()
         {
@@ -68,34 +90,63 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag != "Player")
+            Debug.Log(other.gameObject.name);
+
+            if (hasCollidedAlready == true && isFromPlayer == false)
             {
                 return;
             }
 
-            if (hasCollidedAlready == true)
+            if (other.gameObject.tag != "Enemy" && isFromPlayer == false)
             {
-                return;
+                hasCollidedAlready = true;
             }
-
-            hasCollidedAlready = true;
 
             particleFx.gameObject.SetActive(false);
 
-            PlayerHealthbox playerHealthbox = other.gameObject.GetComponentInChildren<PlayerHealthbox>(true);
-            if (playerHealthbox == null)
+            // Is Player ?
+            if (isFromPlayer)
             {
-                // Colliding with something else
+                EnemyHealthHitbox enemyHealthHitbox = other.gameObject.GetComponentInChildren<EnemyHealthHitbox>(true);
 
-                if (projectileImpactOnBodySfx != null)
+                // Colliding with something else
+                if (enemyHealthHitbox == null)
                 {
-                    GetComponent<AudioSource>().PlayOneShot(projectileImpactOnBodySfx);
+                    if (projectileImpactOnBodySfx != null)
+                    {
+                        GetComponent<AudioSource>().PlayOneShot(projectileImpactOnBodySfx);
+                    }
+
+                    return;
                 }
-                
+
+                enemyHealthHitbox.enemyHealthController.TakeProjectileDamage(projectileDamage, this);
                 return;
             }
 
-            playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage);
+            PlayerHealthbox playerHealthbox = null;
+
+            if (other.gameObject.tag == "PlayerHealthbox")
+            {
+                playerHealthbox = other.gameObject.GetComponent<PlayerHealthbox>();
+            }
+            else if (other.gameObject.tag == "Player")
+            {
+                playerHealthbox = other.gameObject.GetComponentInChildren<PlayerHealthbox>(true);
+            }
+
+            if (playerHealthbox != null)
+            {
+                var playerParrymanager = FindObjectOfType<PlayerParryManager>(true);
+
+                if (playerParrymanager.IsBlocking() && Vector3.Angle(transform.forward, playerParrymanager.transform.forward * -1) <= 90f)
+                {
+                    Instantiate(Player.instance.equippedShield.blockFx, other.transform.position, Quaternion.identity);
+                    return;
+                }
+
+                playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage);
+            }
 
 
         }
