@@ -51,7 +51,7 @@ namespace AF
             unequipActions.Add(EquipmentType.Armor, equipmentGraphicsHandler.UnequipArmor);
             unequipActions.Add(EquipmentType.Gauntlets, equipmentGraphicsHandler.UnequipGauntlet);
             unequipActions.Add(EquipmentType.Legwear, equipmentGraphicsHandler.UnequipLegwear);
-            unequipActions.Add(EquipmentType.Accessories, equipmentGraphicsHandler.UnequipAccessory);
+            unequipActions.Add(EquipmentType.Accessories, OnUnequipAccessory);
 
             this.root = GetComponent<UIDocument>().rootVisualElement;
             menuManager.SetupNavMenu(root);
@@ -99,6 +99,10 @@ namespace AF
             else if (selectedEquipmentType == EquipmentType.Legwear)
             {
                 DrawArmorItemsList(EquipmentType.Legwear, Player.instance.equippedLegwear);
+            }
+            else if (selectedEquipmentType == EquipmentType.Accessories)
+            {
+                DrawAccessoriesList();
             }
         }
 
@@ -547,16 +551,42 @@ namespace AF
             {
                 itemStats.Q<Label>("Damage").text += " / Frost Defense + " + armor.frostDefense;
             }
-            if (armor.poisonResistance != 0)
+
+            foreach (var statusEffectResistance in armor.statusEffectResistances)
             {
-                itemStats.Q<Label>("Damage").text += " / Poison Resistance + " + armor.poisonResistance;
-            }
-            if (armor.bleedResistance != 0)
-            {
-                itemStats.Q<Label>("Damage").text += " / Bleed Resistance + " + armor.bleedResistance;
+                itemStats.Q<Label>("Damage").text += " / " + statusEffectResistance.statusEffect.name + " Resistance + " + statusEffectResistance.resistanceBonus;
             }
 
-            itemStats.Q<Label>("Bonus").text = "Value " + armor.value + " / Poise Bonus: +" + armor.poiseBonus;
+            if (itemStats.Q<Label>("Damage").text.Length <= 0)
+            {
+                itemStats.Q<Label>("Damage").style.display = DisplayStyle.None;
+            }
+            else
+            {
+                itemStats.Q<Label>("Damage").style.display = DisplayStyle.Flex;
+            }
+
+            itemStats.Q<Label>("Bonus").text = "";
+
+            itemStats.Q<Label>("Bonus").text += "Value " + armor.value;
+
+            if (armor.poiseBonus != 0)
+            {
+                itemStats.Q<Label>("Bonus").text += " / Poise Bonus +" + armor.poiseBonus;
+            }
+            if (armor.speedPenalty != 0)
+            {
+                itemStats.Q<Label>("Bonus").text += " / Speed Penalty -" + armor.speedPenalty.ToString().Replace(",", ".");
+            }
+
+            if (itemStats.Q<Label>("Bonus").text.Length <= 0)
+            {
+                itemStats.Q<Label>("Bonus").style.display = DisplayStyle.None;
+            }
+            else
+            {
+                itemStats.Q<Label>("Bonus").style.display = DisplayStyle.Flex;
+            }
 
             itemStats.Q<Label>("Value").style.visibility = Visibility.Hidden;
 
@@ -565,12 +595,192 @@ namespace AF
         }
         #endregion
 
+        #region Accessories
+        void DrawAccessoriesList()
+        {
+            var playerAccessories = playerInventory.GetAccessories();
+            if (playerAccessories.Count > 0)
+            {
+                foreach (var accessory in playerAccessories)
+                {
+                    VisualElement accessoryButton = equipmentSelectionItem.CloneTree();
+
+                    if (accessory == Player.instance.equippedAccessory)
+                    {
+                        accessoryButton.Q<VisualElement>("Item").style.opacity = 0.25f;
+                    }
+                    else
+                    {
+                        accessoryButton.Q<VisualElement>("Item").style.opacity = 1f;
+                    }
+
+                    Button accessoryBtn = accessoryButton.Q<Button>();
+                    menuManager.SetupButton(accessoryBtn, () =>
+                    {
+                        CheckIfAccessoryShouldBeDestroyed(Player.instance.equippedAccessory);
+
+                        equipmentGraphicsHandler.EquipAccessory(accessory);
+                        menuManager.PlayClick();
+                        menuManager.OpenEquipmentListMenu();
+                    });
+
+                    accessoryBtn.RegisterCallback<FocusInEvent>(ev =>
+                    {
+                        ShowAccessoryItemPreview(accessory);
+
+                        root.Q<ScrollView>().ScrollTo(accessoryBtn);
+                    });
+                    accessoryBtn.RegisterCallback<FocusOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    accessoryBtn.RegisterCallback<MouseOverEvent>(ev =>
+                    {
+                        ShowAccessoryItemPreview(accessory);
+
+                        root.Q<ScrollView>().ScrollTo(accessoryBtn);
+                    });
+                    accessoryBtn.RegisterCallback<MouseOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    accessoryButton.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(accessory.sprite);
+                    accessoryButton.Q<Label>("Name").text = accessory.name;
+
+                    var valueLabelElement = accessoryButton.Q<Label>("Value");
+                    valueLabelElement.text = accessory.smallEffectDescription;
+                    valueLabelElement.style.fontSize = 11;
+                    valueLabelElement.style.paddingRight = 5;
+
+                    valueLabelElement.RemoveFromClassList("same-value-equipment");
+                    valueLabelElement.RemoveFromClassList("lower-value-equipment");
+                    valueLabelElement.RemoveFromClassList("higher-value-equipment");
+
+                    this.root.Q<ScrollView>().Add(accessoryButton);
+                }
+            }
+        }
+
+        void ShowAccessoryItemPreview(Accessory accessory)
+        {
+            var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
+            var itemStats = root.Q<VisualElement>("ItemStats");
+
+            itemPreviewElement.Q<Label>("Title").text = accessory.name;
+            itemPreviewElement.Q<Label>("Description").text = accessory.description;
+            itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(accessory.sprite);
+
+            itemStats.Q<Label>("Damage").text = " ";
+
+            var bonusLabel = itemStats.Q<Label>("Bonus");
+            bonusLabel.text = "";
+
+            if (accessory.fireDefense != 0)
+            {
+                if (bonusLabel.text.Length > 0)
+                {
+                    bonusLabel.text += " / ";
+                }
+
+                bonusLabel.text += "Fire DEF Bonus + " + accessory.fireDefense;
+            }
+
+            if (accessory.frostDefense != 0)
+            {
+                if (bonusLabel.text.Length > 0)
+                {
+                    bonusLabel.text += " / ";
+                }
+
+                bonusLabel.text += "Frost DEF Bonus + " + accessory.frostDefense;
+            }
+
+
+            if (bonusLabel.text.Length <= 0)
+            {
+                bonusLabel.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                bonusLabel.style.display = DisplayStyle.Flex;
+            }
+
+            foreach (var statusEffectResistance in accessory.statusEffectResistances)
+            {
+                itemStats.Q<Label>("Damage").text += " / " + statusEffectResistance.statusEffect.name + " Resistance + " + statusEffectResistance.resistanceBonus;
+            }
+
+            itemStats.Q<Label>("Value").text = "";
+
+            itemStats.Q<Label>("Value").text += "Value " + accessory.value;
+
+            if (accessory.poiseBonus != 0)
+            {
+                itemStats.Q<Label>("Value").text += " / Poise Bonus +" + accessory.poiseBonus;
+            }
+
+            if (accessory.speedPenalty < 0)
+            {
+                itemStats.Q<Label>("Value").text += " / Speed Penalty +" + Mathf.Abs(accessory.speedPenalty).ToString().Replace(",", ".");
+            }
+            else if (accessory.speedPenalty > 0)
+            {
+                itemStats.Q<Label>("Value").text += " / Speed Penalty -" + accessory.speedPenalty.ToString().Replace(",", ".");
+            }
+
+
+            if (itemStats.Q<Label>("Value").text.Length <= 0)
+            {
+                itemStats.Q<Label>("Value").style.display = DisplayStyle.None;
+            }
+            else
+            {
+                itemStats.Q<Label>("Value").style.display = DisplayStyle.Flex;
+            }
+
+            itemPreviewElement.style.visibility = Visibility.Visible;
+            itemStats.style.visibility = Visibility.Visible;
+        }
+
+        #endregion
+
         void HideItemInfo()
         {
             root.Q<VisualElement>("ItemPreview").style.visibility = Visibility.Hidden;
             root.Q<VisualElement>("ItemStats").style.visibility = Visibility.Hidden;
         }
 
+        void OnUnequipAccessory()
+        {
+            var unequipedAccessory = Player.instance.equippedAccessory;
+
+            equipmentGraphicsHandler.UnequipAccessory();
+
+            CheckIfAccessoryShouldBeDestroyed(unequipedAccessory);
+        }
+
+        void CheckIfAccessoryShouldBeDestroyed(Accessory unequipedAccessory)
+        {
+            if (unequipedAccessory != null && unequipedAccessory.destroyOnUnequip)
+            {
+                FindObjectOfType<PlayerInventory>(true).RemoveItem(unequipedAccessory, 1);
+
+                var notificationManager = FindObjectOfType<NotificationManager>(true);
+                if (notificationManager != null)
+                {
+                    notificationManager.ShowNotification(unequipedAccessory.name + " was destroyed by unequiping it.", notificationManager.systemError);
+
+                    if (unequipedAccessory.onUnequipDestroySoundclip != null)
+                    {
+                        BGMManager.instance.PlaySound(unequipedAccessory.onUnequipDestroySoundclip, null);
+                    }
+                }
+
+                SaveSystem.instance.SaveGameData(unequipedAccessory.name + " destroyed");
+            }
+        }
 
     }
 }

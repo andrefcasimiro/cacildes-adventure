@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using StarterAssets;
 using UnityEngine.InputSystem;
+using System.Linq;
 
 namespace AF
 {
@@ -135,7 +136,8 @@ namespace AF
 
             if (dialogueChoices.Count > 0)
             {
-                UnityEngine.Cursor.lockState = CursorLockMode.None;
+                Utils.ShowCursor();
+
                 dialogueChoicePanel.style.display = DisplayStyle.Flex;
 
                 DialogueChoice selectedChoice = null;
@@ -147,7 +149,7 @@ namespace AF
                 foreach (var dialogueChoice in dialogueChoices)
                 {
                     var newDialogueChoiceItem = dialogueChoiceItem.CloneTree();
-                    newDialogueChoiceItem.Q<Button>().text = dialogueChoice.choiceText;
+                    newDialogueChoiceItem.Q<Button>().text = EvaluateDialogueChoiceText(dialogueChoice.choiceText);
 
                     menuManager.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
                     {
@@ -174,7 +176,8 @@ namespace AF
                 elementToFocus.Focus();
 
                 yield return new WaitUntil(() => selectedChoice != null || (Gamepad.current != null && Gamepad.current.buttonWest.isPressed && focusedSelectedChoice != null));
-                UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+
+                Utils.HideCursor();
 
                 FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();
                 FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
@@ -200,6 +203,28 @@ namespace AF
                 dialogueChoicePanel.style.display = DisplayStyle.None;
             }
 
+        }
+
+        public string EvaluateDialogueChoiceText(string text)
+        {
+            if (text.StartsWith("[companion_wait="))
+            {
+                var str = text.Split('=');
+                var companionId = str[1];
+                var companions = FindObjectsOfType<CompanionManager>(true);
+                var companion = companions.FirstOrDefault(x => x.companion.companionId == companionId);
+
+                if (companion.waitingForPlayer)
+                {
+                    return "Follow me";
+                }
+                else
+                {
+                    return "Wait here";
+                }
+            }
+
+            return text;
         }
     }
 

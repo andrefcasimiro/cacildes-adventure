@@ -19,7 +19,7 @@ namespace AF
 
         private void Update()
         {
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
+            // UnityEngine.Cursor.lockState = CursorLockMode.None;
         }
 
         private void OnEnable()

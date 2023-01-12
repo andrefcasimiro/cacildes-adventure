@@ -36,13 +36,14 @@ namespace AF
 
             if (other.gameObject.tag == "Enemy")
             {
-                other.GetComponent<EnemyHealthController>().TakeEnvironmentalDamage(damage);
+                other.GetComponent<EnemyManager>().TakeEnvironmentalDamage(damage);
 
-                var groundCheck = other.GetComponentInChildren<EnemyGroundCheck>();
-                if (groundCheck != null)
+                var rigidBody = other.GetComponent<Rigidbody>();
+                if (rigidBody != null)
                 {
-                    groundCheck.ApplyForce(moveForce * other.transform.position);
+                    rigidBody.AddForce(moveForce * other.ClosestPoint(other.transform.position), ForceMode.Acceleration);
                 }
+
             }
         }
         private void OnTriggerStay(Collider other)

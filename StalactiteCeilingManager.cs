@@ -8,8 +8,9 @@ namespace AF
     {
         public Cinemachine.CinemachineImpulseSource cinemachineImpulseSource;
 
-        public void Launch()
+        public void ShakeCamera()
         {
+
             // Rotate randomly
             var targetRot = Random.rotation;
             targetRot.x = 0;
@@ -17,11 +18,15 @@ namespace AF
 
             cinemachineImpulseSource.GenerateImpulse();
 
+        }
+
+        public void Launch()
+        {
             Stalactite[] stalactites = transform.GetComponentsInChildren<Stalactite>();
 
             foreach (Stalactite t in stalactites)
             {
-                t.GetComponent<Rigidbody>().isKinematic = false;
+                t.Drop();
             }
         }
 

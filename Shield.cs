@@ -45,6 +45,8 @@ namespace AF
         public GameObject graphic;
         public DestroyableParticle blockFx;
 
+        public float speedPenalty = 0f;
+
     }
 
 }

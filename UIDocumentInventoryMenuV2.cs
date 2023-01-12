@@ -228,6 +228,13 @@ namespace AF
                         list.Add(i);
                     }
                 }
+                else if (filterDropdown.value == "Cooking Ingredients")
+                {
+                    foreach (var i in GetUnknownItem<CookingIngredient>())
+                    {
+                        list.Add(i);
+                    }
+                }
             }
 
             if (textField.value.Length > 0 && textField.value != "Search Item...")

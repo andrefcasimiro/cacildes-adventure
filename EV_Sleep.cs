@@ -8,6 +8,8 @@ namespace AF
     {
         public int targetHour = 0;
 
+        public bool fadeToBlack = true;
+
         public override IEnumerator Dispatch()
         {
             bool isInteriorOriginal = FindObjectOfType<SceneSettings>(true).isInterior;
@@ -16,7 +18,10 @@ namespace AF
             FindObjectOfType<DayNightManager>(true).tick = true;
             var originalDaySpeed = Player.instance.daySpeed;
 
-            FindObjectOfType<UIBlackCanvas>(true).gameObject.SetActive(true);
+            if (fadeToBlack)
+            {
+                FindObjectOfType<UIBlackCanvas>(true).gameObject.SetActive(true);
+            }
             FindObjectOfType<UIDocumentDialogueWindow>(true).gameObject.SetActive(false);
 
             yield return null;
@@ -29,11 +34,15 @@ namespace AF
 
             FindObjectOfType<DayNightManager>(true).tick = FindObjectOfType<DayNightManager>(true).TimePassageAllowed();
             FindObjectOfType<SceneSettings>(true).isInterior = isInteriorOriginal;
-            
 
-            FindObjectOfType<UIBlackCanvas>(true).StartFade();
+            if (fadeToBlack) {
 
-            yield return new WaitForSeconds(FindObjectOfType<UIBlackCanvas>(true).fadeTime);
+                FindObjectOfType<UIBlackCanvas>(true).StartFade();
+
+                yield return new WaitForSeconds(FindObjectOfType<UIBlackCanvas>(true).fadeTime);
+            }
+
+            FindObjectOfType<PlayerComponentManager>(true).CurePlayer();
         }
 
     }

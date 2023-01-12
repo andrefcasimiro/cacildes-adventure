@@ -17,6 +17,10 @@ namespace AF
 
         StarterAssets.StarterAssetsInputs inputs;
 
+        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+
+        PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
+
         private void Awake()
         {
             inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
@@ -32,7 +36,7 @@ namespace AF
 
         public int GetMaxStamina()
         {
-            return baseStamina + (int)(Mathf.Ceil(Player.instance.endurance * levelMultiplier));
+            return baseStamina + (int)(Mathf.Ceil(Player.instance.endurance * levelMultiplier)) + (int)(equipmentGraphicsHandler.enduranceBonus * levelMultiplier);
         }
 
         public void DecreaseStamina(float amount)
@@ -67,6 +71,11 @@ namespace AF
         void HandleStaminaRegen()
         {
             var finalRegenerationRate = STAMINA_REGENERATION_RATE + staminaRegenerationBonus;
+
+            if (playerParryManager.IsBlocking())
+            {
+                finalRegenerationRate = finalRegenerationRate / 4;
+            }
 
             Player.instance.currentStamina += Mathf.Clamp(finalRegenerationRate * Time.deltaTime, 0f, GetMaxStamina());
 

@@ -7,7 +7,10 @@ namespace AF
 {
     public class DodgeController : MonoBehaviour
     {
-        public readonly int hashDodge = Animator.StringToHash("Dodge");
+        public readonly int hashRoll = Animator.StringToHash("Roll");
+        public readonly int hashDodgeRight = Animator.StringToHash("Dodge Right");
+        public readonly int hashDodgeLeft = Animator.StringToHash("Dodge Left");
+        public readonly int hashBackStep = Animator.StringToHash("BackStep");
         public readonly int hashIsDodging = Animator.StringToHash("IsDodging");
 
         private Animator animator => GetComponent<Animator>();
@@ -22,6 +25,8 @@ namespace AF
 
         private MenuManager menuManager;
 
+        private LockOnManager lockOnManager;
+
         [Header("Stamina")]
         public int dodgeCost = 15;
 
@@ -30,6 +35,7 @@ namespace AF
 
         private void Awake()
         {
+            lockOnManager = FindObjectOfType<LockOnManager>(true);
             menuManager = FindObjectOfType<MenuManager>(true);
         }
 
@@ -54,7 +60,8 @@ namespace AF
                     if (!IsDodging())
                     {
                         staminaStatManager.DecreaseStamina(dodgeCost);
-                        animator.CrossFade(hashDodge, 0.05f);
+
+                        HandleDodge();
                     }
 
                 }
@@ -90,6 +97,7 @@ namespace AF
 
             if (!staminaStatManager.HasEnoughStaminaForAction(dodgeCost))
             {
+                //BGMManager.instance.PlayInsufficientStamina();
                 return false;
             }
 
@@ -99,6 +107,35 @@ namespace AF
         public bool IsDodging()
         {
             return animator.GetBool(hashIsDodging);
+        }
+
+        void HandleDodge()
+        {
+            if (lockOnManager.isLockedOn)
+            {
+                if (_input.move.x > 0)
+                {
+                    animator.CrossFade(hashDodgeRight, 0.05f);
+
+
+                    return;
+                }
+                else if (_input.move.x < 0)
+                {
+                    animator.CrossFade(hashDodgeLeft, 0.05f);
+                    return;
+                }
+            }
+
+
+            if (_input.move == Vector2.zero)
+            {
+                animator.CrossFade(hashBackStep, 0.05f);
+                return;
+            }
+
+
+            animator.CrossFade(hashRoll, 0.05f);
         }
 
     }

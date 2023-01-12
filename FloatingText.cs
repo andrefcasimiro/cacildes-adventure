@@ -31,6 +31,9 @@ namespace AF
 
         public void ShowText(string textToDisplay)
         {
+            StopAllCoroutines();
+            Reset();
+
             text.text = textToDisplay;
             transform.localScale = new Vector3(100, 100, 100);
             StartCoroutine(Hide());

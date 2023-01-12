@@ -9,6 +9,7 @@ namespace AF
     public class EV_DisplayMessage : EventBase
     {
         public Character character;
+        public bool isCompanion = false;
 
         [TextArea] public string message;
 
@@ -34,9 +35,16 @@ namespace AF
         public bool equalsToVariableValue = true;
         public float variableValue = -1;
 
+        // Internal
+
         private void Awake()
         {
             dialogueManager = FindObjectOfType<DialogueManager>(true);
+
+            if (isCompanion)
+            {
+                this.character = GetComponentInParent<CompanionManager>(true).companion.character;
+            }
         }
 
         public override IEnumerator Dispatch()

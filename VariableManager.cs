@@ -65,7 +65,6 @@ namespace AF
                 return -1;
             }
 
-
             return targetVariable.value;
         }
 

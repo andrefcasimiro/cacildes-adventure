@@ -48,7 +48,15 @@ namespace AF
 
             animator.CrossFade(animationOnMoving, crossFadeTime);
 
+
             navMeshAgent.SetDestination(this.transform.position);
+
+
+            var lookDir = this.transform.position - navMeshAgent.transform.position;
+            var lookRot = Quaternion.LookRotation(lookDir);
+            navMeshAgent.updateRotation = false;
+            navMeshAgent.transform.rotation = lookRot;
+            navMeshAgent.updateRotation = true;
 
             while (Vector3.Distance(navMeshAgent.transform.position, this.transform.position) > stoppingDistance + navMeshAgent.radius)
             {

@@ -40,9 +40,9 @@ namespace AF
         public int poiseDamageBonus = 0;
 
         [Header("Block Absorption")]
-        [Range(0, 100)]
-        public int blockAbsorption = 75;
+        [Range(0, 100)] public int blockAbsorption = 75;
         public int blockStaminaCost = 20;
+        public float blockLayerWeight = 1f;
 
         [Header("Stamina")]
         public int lightAttackStaminaCost = 20;
@@ -70,6 +70,7 @@ namespace AF
 
         [Header("Dual Wielding Options")]
         public bool isDualWielded = false;
+        public bool halveDamage = false;
 
         [Header("Hide Options")]
         public bool useHolsterRef = false;

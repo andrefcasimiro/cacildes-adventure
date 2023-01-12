@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -28,6 +29,9 @@ namespace AF
         public CookingRecipe cookingRecipe;
         public string recipePickupSwitchUuid;
         Switch recipePickupSwitchInstance;
+
+        [Header("Events")]
+        public UnityEvent onRead;
 
         private void Awake()
         {
@@ -108,6 +112,8 @@ namespace AF
 
         public void Read()
         {
+            onRead.Invoke();
+
             if (recipePickupSwitchInstance != null && SwitchManager.instance.GetSwitchValue(recipePickupSwitchUuid) == false)
             {
                 BGMManager.instance.PlayItem();

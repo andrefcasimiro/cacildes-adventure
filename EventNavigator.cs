@@ -21,8 +21,11 @@ namespace AF
 
         StarterAssets.StarterAssetsInputs inputs;
 
+        UIDocumentDialogueWindow uIDocumentDialogueWindow;
+
         void Start()
         {
+            uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
             documentKeyPrompt = FindObjectOfType<UIDocumentEventKeyPrompt>(true);
             inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
         }
@@ -70,6 +73,14 @@ namespace AF
         {
             if (eventPage.IsRunning() || eventPage.eventTrigger != EventTrigger.ON_KEY_PRESS)
             {
+                return;
+            }
+
+            // If a dialogue is ocurring, ignore event interaction
+            if (uIDocumentDialogueWindow.isActiveAndEnabled)
+            {
+                documentKeyPrompt.gameObject.SetActive(false);
+
                 return;
             }
 

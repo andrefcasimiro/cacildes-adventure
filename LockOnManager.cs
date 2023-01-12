@@ -21,7 +21,6 @@ namespace AF
 
         StarterAssets.StarterAssetsInputs inputs;
 
-
         public GameObject defaultCamera;
         public GameObject lockOnCamera;
 
@@ -36,11 +35,7 @@ namespace AF
 
         public float mouseSensitivityForNearbyTargets = 1.25f;
 
-        //public float timeBeforeUnlocking = .5f;
-        //float unlockTimer = 0f;
-
         int LayerEnvironment;
-
 
         float maxTargetSwitchingCooldown = .3f;
         float targetSwitchingCooldown = Mathf.Infinity;
@@ -185,10 +180,10 @@ namespace AF
                 {
                     Vector3 lockTargetDirection = enemy.transform.position - playerAnimator.transform.position;
                     float distanceFromTarget = Vector3.Distance(enemy.transform.position, playerAnimator.transform.position);
-                    //float viewableAngle = Vector3.Angle(lockTargetDirection, Camera.main.transform.forward);
+                    float viewableAngle = Vector3.Angle(lockTargetDirection, Camera.main.transform.forward);
 
                     if (enemy.transform.root != playerAnimator.transform.root
-                        //&& viewableAngle > -50 && viewableAngle < 50
+                        && viewableAngle > -90 && viewableAngle < 90
                         && distanceFromTarget <= maximumLockOnDistance)
                     {
                         availableTargets.Add(enemy);
@@ -200,7 +195,7 @@ namespace AF
             {
                 float distanceFromTarget = Vector3.Distance(playerAnimator.transform.position, availableTargets[i].transform.position);
 
-                if (distanceFromTarget < shortestDistance && nearestLockOnTarget == null)
+                if (distanceFromTarget < shortestDistance)
                 {
                     shortestDistance = distanceFromTarget;
                     if (availableTargets[i].CanLockOn())
@@ -233,7 +228,7 @@ namespace AF
             float shortestDistanceOfLeftTarget = Mathf.Infinity;
             float shortestDistanceOfRightTarget = Mathf.Infinity;
 
-            Collider[] colliders = Physics.OverlapSphere(playerAnimator.transform.position, isLockedOn ? 26 * 2 : 26);
+            Collider[] colliders = Physics.OverlapSphere(playerAnimator.transform.position, isLockedOn ? 26 / 2 : 26);
 
             for (int i = 0; i < colliders.Length; i++)
             {
@@ -243,8 +238,10 @@ namespace AF
                 {
                     Vector3 lockTargetDirection = enemy.transform.position - playerAnimator.transform.position;
                     float distanceFromTarget = Vector3.Distance(enemy.transform.position, playerAnimator.transform.position);
+                    float viewableAngle = Vector3.Angle(lockTargetDirection, Camera.main.transform.forward);
 
-                    if (enemy.transform.root != playerAnimator.transform.root 
+                    if (enemy.transform.root != playerAnimator.transform.root
+                        && viewableAngle > -90 && viewableAngle < 90
                         && distanceFromTarget <= maximumLockOnDistance)
                     {
                         availableTargets.Add(enemy);
@@ -258,7 +255,7 @@ namespace AF
                 var distanceFromLeftTarget = nearestLockOnTarget.transform.position.x - availableTargets[i].transform.position.x;
                 var distanceFromRightTarget = nearestLockOnTarget.transform.position.x + availableTargets[i].transform.position.x;
 
-                if (relativeEnemyPosition.x > 0.00 && distanceFromLeftTarget < shortestDistanceOfLeftTarget)
+                if (relativeEnemyPosition.x > 0.00 && distanceFromLeftTarget <= shortestDistanceOfLeftTarget)
                 {
                     shortestDistanceOfLeftTarget = distanceFromLeftTarget;
 
@@ -267,7 +264,7 @@ namespace AF
                         leftLockTarget = availableTargets[i];
                     }
                 }
-                if (relativeEnemyPosition.x < 0.00 && distanceFromRightTarget < shortestDistanceOfRightTarget)
+                if (relativeEnemyPosition.x < 0.00 && distanceFromRightTarget <= shortestDistanceOfRightTarget)
                 {
                     shortestDistanceOfRightTarget = distanceFromRightTarget;
 

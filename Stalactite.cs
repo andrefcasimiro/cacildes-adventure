@@ -11,24 +11,39 @@ namespace AF
 
         Vector3 originalPosition;
 
+        float maxCooldownOnAir = 5f;
+        float cooldownOnAir = Mathf.Infinity;
+
         private void Awake()
         {
             originalPosition = transform.localPosition;
+        }
+
+        private void Update()
+        {
+            if (cooldownOnAir < maxCooldownOnAir)
+            {
+                cooldownOnAir += Time.deltaTime;
+            }
+
+            if (cooldownOnAir >= maxCooldownOnAir)
+            {
+                ResetStalacites();
+            }
+        }
+
+        public void Drop()
+        {
+            GetComponent<Rigidbody>().isKinematic = false;
+            cooldownOnAir = 0f;
         }
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.tag == "Player")
             {
-                other.GetComponent<PlayerHealthbox>().TakeDamage(damageInflicted, this.transform, null, 5);
+                FindObjectOfType<PlayerHealthbox>(true).TakeDamage(damageInflicted, this.transform, null, 5);
                 Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);
-                ResetStalacites();
-            }
-
-            if (other.gameObject.tag == "Mud")
-            {
-                Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);
-
                 ResetStalacites();
             }
         }

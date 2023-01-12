@@ -13,6 +13,8 @@ namespace AF
         public AudioClip uiSelect;
         public AudioClip uiCancel;
         public AudioClip uiItemReceived;
+        public AudioClip insufficientStamina;
+        public AudioClip quickItemSwitch;
 
         [Header("Misc Sounds")]
         public AudioClip alert;
@@ -24,6 +26,8 @@ namespace AF
         public AudioClip gameOverFanfare;
         public AudioClip activateLever;
         public AudioClip openHeavyDoor;
+        public AudioClip companionJoin;
+        public AudioClip companionLeave;
 
         [Header("Audio Sources")]
         public AudioSource bgmAudioSource;
@@ -118,6 +122,10 @@ namespace AF
         public void PlayGameOver() { this.sfxAudioSource.PlayOneShot(gameOverFanfare); }
         public void PlayLever() { this.sfxAudioSource.PlayOneShot(activateLever); }
         public void PlayHeavyDoor() { this.sfxAudioSource.PlayOneShot(openHeavyDoor); }
+        public void PlayInsufficientStamina() { this.sfxAudioSource.PlayOneShot(insufficientStamina); }
+        public void PlayQuickItemSwitch() { this.sfxAudioSource.PlayOneShot(quickItemSwitch); }
+        public void PlayCompanionJoin() { this.sfxAudioSource.PlayOneShot(companionJoin); }
+        public void PlayCompanionLeave() { this.sfxAudioSource.PlayOneShot(companionLeave); }
 
         public void PlayBattleMusic()
         {
@@ -136,12 +144,12 @@ namespace AF
             }
         }
 
-        public void PlayMapMusicAfterKillingEnemy(Enemy killedEnemy)
+        public void PlayMapMusicAfterKillingEnemy(EnemyManager killedEnemy)
         {
             // Check if more enemies are in chase or combat state
-            var activeEnemies = FindObjectsOfType<Enemy>();
+            var activeEnemies = FindObjectsOfType<EnemyManager>();
 
-            if (activeEnemies.FirstOrDefault(x => x.InCombatWithPlayer() && x != killedEnemy))
+            if (activeEnemies.FirstOrDefault(x => x.IsInCombat() && x != killedEnemy))
             {
                 return;
             }

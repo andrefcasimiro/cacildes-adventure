@@ -1,3 +1,4 @@
+using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,36 @@ namespace AF
 {
     public class PlayerInventory : MonoBehaviour
     {
+        public readonly int hashDrinking = Animator.StringToHash("Drinking");
+        public readonly int hashEating = Animator.StringToHash("Eating");
+        public readonly int hashIsConsumingItem = Animator.StringToHash("IsConsumingItem");
+
+
         FavoriteItemsManager favoriteItemsManager => GetComponent<FavoriteItemsManager>();
+
+        public Consumable currentConsumedItem;
+        GameObject consumableGraphicInstance;
+
+        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+
+        Animator animator => GetComponent<Animator>();
+
+        PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
+
+        DodgeController dodgeController => GetComponent<DodgeController>();
+        ClimbController climbController => GetComponent<ClimbController>();
+        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
+        PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
+        PlayerPoiseController playerPoiseController => GetComponent<PlayerPoiseController>();
+
+        public Transform handItemRef;
+
+        NotificationManager notificationManager;
+
+        private void Awake()
+        {
+            notificationManager = FindObjectOfType<NotificationManager>(true);
+        }
 
         public void AddItem(Item item, int quantity)
         {
@@ -93,6 +123,22 @@ namespace AF
             return shields;
         }
 
+        public List<Accessory> GetAccessories()
+        {
+            List<Accessory> accessories = new List<Accessory>();
+
+            foreach (var item in Player.instance.ownedItems)
+            {
+                var possibleAccessory = item.item as Accessory;
+                if (possibleAccessory != null)
+                {
+                    accessories.Add(possibleAccessory);
+                }
+            }
+
+            return accessories;
+        }
+
         public List<Helmet> GetHelmets()
         {
             List<Helmet> items = new List<Helmet>();
@@ -156,6 +202,134 @@ namespace AF
             }
 
             return items;
+        }
+
+
+        public bool IsConsumingItem()
+        {
+            return animator.GetBool(hashIsConsumingItem);
+        }
+
+        public void PrepareItemForConsuming(Consumable consumable)
+        {
+            if (IsConsumingItem())
+            {
+                return;
+            }
+
+            if (playerParryManager.IsBlocking())
+            {
+                animator.SetBool(playerParryManager.hashIsBlocking, false);
+
+            }
+
+            if (playerPoiseController.isStunned)
+            {
+                notificationManager.ShowNotification("Can't consume item while stunned", notificationManager.systemError);
+                return;
+            }
+
+            if (playerPoiseController.IsTakingDamage())
+            {
+                notificationManager.ShowNotification("Can't consume item while taking damage", notificationManager.systemError);
+                return;
+            }
+
+            if (dodgeController.IsDodging())
+            {
+                notificationManager.ShowNotification("Can't consume item while dodging", notificationManager.systemError);
+                return;
+            }
+
+            if (!thirdPersonController.Grounded)
+            {
+                notificationManager.ShowNotification("Can't consume item while on air", notificationManager.systemError);
+                return;
+            }
+
+            if (climbController.climbState != ClimbController.ClimbState.NONE)
+            {
+                notificationManager.ShowNotification("Can't consume item while climbing", notificationManager.systemError);
+                return;
+            }
+
+            if (Player.instance.currentHealth <= 0)
+            {
+                return;
+            }
+
+            this.currentConsumedItem = consumable;
+
+            if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.DRINK)
+            {
+                animator.Play(hashDrinking);
+            }
+            else if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.EAT)
+            {
+                animator.Play(hashEating);
+            }
+
+            equipmentGraphicsHandler.HideWeapons();
+
+            if (consumable.graphic != null)
+            {
+                consumableGraphicInstance = Instantiate(consumable.graphic, handItemRef);
+            }
+
+            playerComponentManager.DisableCharacterController();
+            playerComponentManager.DisableComponents();
+        }
+
+        public void FinishItemConsumption()
+        {
+            if (currentConsumedItem.destroyItemOnConsumeMoment)
+            {
+                StartCoroutine(RecoverControl(currentConsumedItem.onConsumeActionType == Consumable.OnConsumeActionType.DRINK ? 0.7f : 0.9f));
+            }
+            else
+            {
+                StartCoroutine(RecoverControl(0f));
+            }
+
+            currentConsumedItem = null;
+            Destroy(this.consumableGraphicInstance);
+        }
+
+
+        IEnumerator RecoverControl(float waitTime)
+        {
+            yield return new WaitForSeconds(waitTime);
+
+            playerComponentManager.EnableCharacterController();
+            playerComponentManager.EnableComponents();
+        }
+
+        /// <summary>
+        /// Animation Event
+        /// </summary>
+        public void OnItemConsumed()
+        {
+            if (currentConsumedItem == null)
+            {
+                return;
+            }
+
+            if (currentConsumedItem.sfxOnConsume != null)
+            {
+                BGMManager.instance.PlaySound(currentConsumedItem.sfxOnConsume, null);
+            }
+
+            if (currentConsumedItem.particleOnConsume != null)
+            {
+                Instantiate(currentConsumedItem.particleOnConsume, GameObject.FindWithTag("Player").transform);
+            }
+
+            currentConsumedItem.OnConsumeSuccess();
+
+            if (currentConsumedItem.destroyItemOnConsumeMoment)
+            {
+                FinishItemConsumption();
+            }
         }
     }
 

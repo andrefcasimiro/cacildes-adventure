@@ -8,7 +8,7 @@ namespace AF
     [System.Serializable]
     public class CraftingIngredientEntry
     {
-        public AlchemyIngredient ingredient;
+        public CraftingMaterial ingredient;
 
         public int amount;
     }

@@ -7,15 +7,21 @@ namespace AF
 
     public class RecoverPostureOnExit : StateMachineBehaviour
     {
-        public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        EnemyManager enemyManager;
+
+        public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            EnemyPostureController enemyPostureController = animator.GetComponent<EnemyPostureController>();
-            if (enemyPostureController == null)
+            enemyManager = animator.GetComponent<EnemyManager>();
+            if (enemyManager == null)
             {
-                enemyPostureController = animator.GetComponentInParent<EnemyPostureController>();
+                enemyManager = animator.GetComponentInParent<EnemyManager>();
             }
 
-            enemyPostureController.RecoverPosture();
+        }
+
+        public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        {
+            enemyManager.RecoverPosture();
         }
     }
 

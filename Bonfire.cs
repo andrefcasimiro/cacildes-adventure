@@ -26,11 +26,10 @@ namespace AF
         public void ActivateBonfire()
         {
             // Cure player
-            playerComponentManager.GetComponent<HealthStatManager>().RestoreHealthPercentage(100);
-            playerComponentManager.GetComponent<PlayerStatusManager>().RemoveAllStatus();
+            playerComponentManager.CurePlayer();
 
-            // Find all enemies
-            var allEnemiesInScene = FindObjectsOfType<Enemy>(true);
+            // Find all active enemies in scene
+            var allEnemiesInScene = FindObjectsOfType<EnemyManager>();
             foreach (var enemy in allEnemiesInScene)
             {
                 if (enemy.isBoss)
@@ -38,7 +37,9 @@ namespace AF
                     continue;
                 }
 
-                enemy.GetComponent<EnemyHealthController>().Revive();
+                enemy.enabled = true;
+                enemy.Revive();
+
             }
 
             fireFx.gameObject.SetActive(true);
@@ -60,7 +61,9 @@ namespace AF
 
         public void ExitBonfire()
         {
+
             // Save Game
+            SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
             SaveSystem.instance.SaveGameData(bonfireName);
 
             uiDocumentBonfireMenu.gameObject.SetActive(false);
@@ -70,6 +73,8 @@ namespace AF
             playerComponentManager.isInBonfire = false;
 
             StartCoroutine(PutFireOut());
+
+            playerComponentManager.CurePlayer();
         }
 
         IEnumerator ShowBonfireUI()
@@ -91,8 +96,7 @@ namespace AF
             playerComponentManager.EnableCharacterController();
             playerComponentManager.EnableComponents();
 
-            UnityEngine.Cursor.visible = false;
-            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+            Utils.HideCursor();
         }
 
 

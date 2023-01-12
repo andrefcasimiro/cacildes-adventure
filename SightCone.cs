@@ -6,17 +6,7 @@ namespace AF
 {
     public class SightCone : MonoBehaviour
     {
-        public float sightDistance = 0.0f;
-
         public bool playerWithinRange = false;
-
-        private void Start()
-        {
-            if (sightDistance == 0)
-            {
-                sightDistance = transform.localScale.y;
-            }
-        }
 
         private void OnTriggerEnter(Collider other)
         {

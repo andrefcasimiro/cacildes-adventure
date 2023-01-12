@@ -6,6 +6,12 @@ namespace AF
     [CreateAssetMenu(menuName = "Item / New Consumable")]
     public class Consumable : Item
     {
+        public enum OnConsumeActionType
+        {
+            EAT,
+            DRINK
+        }
+
         public enum ConsumablePropertyName
         {
             HEALTH_REGENERATION,
@@ -26,8 +32,10 @@ namespace AF
         }
 
         [Header("FX")]
+        public GameObject graphic;
         public GameObject particleOnConsume;
         public AudioClip sfxOnConsume;
+        public bool destroyItemOnConsumeMoment = true;
 
         public bool canFavorite = true;
 
@@ -47,20 +55,26 @@ namespace AF
 
         public ConsumableEffect[] consumableEffects;
 
+        public OnConsumeActionType onConsumeActionType = OnConsumeActionType.DRINK;
+
         public virtual void OnConsume()
         {
             PlayerInventory playerInventory = FindObjectOfType<PlayerInventory>(true);
+
+            playerInventory.PrepareItemForConsuming(this);
+
+        }
+
+        public virtual void OnConsumeSuccess()
+        {
+            PlayerInventory playerInventory = FindObjectOfType<PlayerInventory>(true);
+
+            if (Player.instance.currentHealth <= 0)
+            {
+                return;
+            }
+
             playerInventory.RemoveItem(this, 1);
-
-            if (sfxOnConsume != null)
-            {
-                BGMManager.instance.PlaySound(sfxOnConsume, null);
-            }
-
-            if (particleOnConsume != null)
-            {
-                Instantiate(particleOnConsume, GameObject.FindWithTag("Player").transform);
-            }
 
             if (restoreHealth)
             {

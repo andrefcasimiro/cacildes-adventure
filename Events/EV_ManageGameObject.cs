@@ -10,12 +10,10 @@ namespace AF
 
         public bool isActive;
 
-
         public override IEnumerator Dispatch()
-        {
+        {    
+            gameObjectTarget.SetActive(isActive);
             yield return null;
-
-            gameObjectTarget.gameObject.SetActive(isActive);
         }
     }
 

@@ -5,6 +5,5 @@ namespace AF
 {
     public class UIDocumentEventKeyPrompt : UIDocumentKeyPromptBase
     {
-
     }
 }

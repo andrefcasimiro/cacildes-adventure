@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AF
@@ -56,6 +57,16 @@ namespace AF
                 RemoveConsumable(consumableToDelete);
             }
 
+        }
+
+        public void ClearAllConsumables()
+        {
+             var consumables = Player.instance.appliedConsumables.ToList();
+
+            foreach (var c in consumables)
+            {
+                RemoveConsumable(c);
+            }
         }
 
         public void RemoveConsumable(AppliedConsumable consumableToDelete)

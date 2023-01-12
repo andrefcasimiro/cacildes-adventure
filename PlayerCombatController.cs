@@ -82,6 +82,7 @@ namespace AF
 
         private void Update()
         {
+
             // If has attacked on air, allow again if grounded
             if (canJumpAttack == false)
             {
@@ -93,14 +94,14 @@ namespace AF
 
             isCombatting = animator.GetBool(hashCombatting);
 
-            if (timeSinceLastAttack > maxIdleCombo)
-            {
-                attackComboIndex = 0;
-                timeSinceLastAttack = 0;
-            }
-            else if (attackComboIndex != 0)
+            if (timeSinceLastAttack < maxIdleCombo)
             {
                 timeSinceLastAttack += Time.deltaTime;
+            }
+
+            if (attackComboIndex != 0 && timeSinceLastAttack >= maxIdleCombo)
+            {
+                attackComboIndex = 0;
             }
 
             if (starterAssetsInputs.lightAttack)
@@ -129,7 +130,7 @@ namespace AF
             {
                 return;
             }
-
+            
             equipmentGraphicsHandler.ShowWeapons();
 
             if (attackComboIndex > 2)
@@ -173,6 +174,8 @@ namespace AF
             var staminaCost = Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.lightAttackStaminaCost : unarmedLightAttackStaminaCost;
             if (staminaStatManager.HasEnoughStaminaForAction(staminaCost) == false)
             {
+                //BGMManager.instance.PlayInsufficientStamina();
+
                 return false;
             }
 

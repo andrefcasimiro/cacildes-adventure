@@ -29,44 +29,26 @@ namespace AF
         [Header("Negative Status Resistances")]
         public List<NegativeStatusResistance> negativeStatusResistances = new List<NegativeStatusResistance>();
 
-        public int GetDefenseAbsorption()
+        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+
+        public float GetDefenseAbsorption()
         {
-            var equipmentBonus = 0f;
-
-            var player = Player.instance;
-            
-            if (player.equippedHelmet != null)
-            {
-                equipmentBonus += player.equippedHelmet.physicalDefense;
-            }
-            if (player.equippedArmor != null)
-            {
-                equipmentBonus += player.equippedArmor.physicalDefense;
-            }
-            if (player.equippedGauntlets != null)
-            {
-                equipmentBonus += player.equippedGauntlets.physicalDefense;
-            }
-            if (player.equippedLegwear != null)
-            {
-                equipmentBonus += player.equippedLegwear.physicalDefense;
-            }
-
             return (int)(
                 GetCurrentPhysicalDefense()
-                + equipmentBonus
+                + equipmentGraphicsHandler.equipmentPhysicalDefense // Equipment Bonus
                 + physicalDefenseBonus
+                + (equipmentGraphicsHandler.enduranceBonus * levelMultiplier)
             );
         }
 
         public int GetCurrentPhysicalDefense()
         {
-            return (int)(this.basePhysicalDefense * Player.instance.endurance * levelMultiplier);
+            return (int)(this.basePhysicalDefense + Player.instance.endurance * levelMultiplier);
         }
 
         public int GetCurrentPhysicalDefenseForGivenEndurance(int endurance)
         {
-            return (int)(this.basePhysicalDefense * endurance * levelMultiplier);
+            return (int)(this.basePhysicalDefense + (endurance * levelMultiplier));
         }
 
         public float GetMaximumStatusResistanceBeforeSufferingStatusEffect(StatusEffect statusEffect)
@@ -79,7 +61,15 @@ namespace AF
                 return 100f;
             }
 
-            return target.resistance + (Player.instance.endurance * levelMultiplier);
+            var bonusFromEquipment = 0f;
+
+            var idx = equipmentGraphicsHandler.statusEffectResistances.FindIndex(x => x.statusEffect == statusEffect);
+            if (idx != -1)
+            {
+                bonusFromEquipment += equipmentGraphicsHandler.statusEffectResistances[idx].resistanceBonus;
+            }
+
+            return target.resistance + bonusFromEquipment + (Player.instance.endurance * levelMultiplier);
         }
 
     }

@@ -29,12 +29,13 @@ namespace AF
 
         StarterAssetsInputs inputs;
         UIDocumentKeyPromptAction uIDocumentKeyPrompt;
-        PlayerShootingManager playerShootingManager => GetComponent<PlayerShootingManager>();
+        PlayerShootingManager playerShootingManager;
 
         private void Start()
         {
             inputs = FindObjectOfType<StarterAssetsInputs>(true);
             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPromptAction>(true);
+            playerShootingManager = FindObjectOfType<PlayerShootingManager>(true);
         }
 
         private void OnTriggerEnter(Collider other)

@@ -24,12 +24,12 @@ namespace AF
         private void Update()
         {
             this.root.Focus();
-            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+            
+            //UnityEngine.Cursor.lockState = CursorLockMode.Locked;
         }
 
         private void OnEnable()
         {
-
             this.root = GetComponent<UIDocument>().rootVisualElement;
             this.root.focusable = true;
             this.root.Focus();

@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace AF
 {
@@ -24,6 +27,8 @@ namespace AF
         float maxTimerBeforeAllowingDamageAgain = .5f;
         float damageCooldownTimer = Mathf.Infinity;
 
+        List<EnemyHealthHitbox> hitEnemies = new List<EnemyHealthHitbox>();
+
         private void Awake()
         {
             attackStatManager = GetComponentInParent<AttackStatManager>();
@@ -43,9 +48,17 @@ namespace AF
                 timer += Time.deltaTime;
             }
 
-            if (damageCooldownTimer <= maxTimerBeforeAllowingDamageAgain)
+
+            if (hitEnemies.Count > 0)
             {
-                damageCooldownTimer += Time.deltaTime;
+                if (damageCooldownTimer <= maxTimerBeforeAllowingDamageAgain)
+                {
+                    damageCooldownTimer += Time.deltaTime;
+                }
+                else
+                {
+                    hitEnemies.Clear();
+                }
             }
         }
 
@@ -89,12 +102,11 @@ namespace AF
 
                     if (weapon != null)
                     {
-                        Debug.Log(other.gameObject.name);
                         if (other.gameObject.tag == "Metal" && weapon.metalImpactFx != null)
                         {
                             Instantiate(weapon.metalImpactFx, transform.position, Quaternion.identity);
                         }
-                        
+
                         if (other.gameObject.tag == "Water" && weapon.waterImpactFx != null)
                         {
                             Instantiate(weapon.waterImpactFx, transform.position, Quaternion.identity);
@@ -103,6 +115,12 @@ namespace AF
                         if (other.gameObject.tag == "Wood" && weapon.woodImpactFx != null)
                         {
                             Instantiate(weapon.woodImpactFx, transform.position, Quaternion.identity);
+
+                            var destroyable = other.GetComponent<Destroyable>();
+                            if (destroyable != null)
+                            {
+                                destroyable.OnDestroy();
+                            }
                         }
 
                     }
@@ -114,19 +132,21 @@ namespace AF
             // If hit enemy, dont allow to hit objects to avoid overlap
             timer = 0;
 
-            if (damageCooldownTimer <= maxTimerBeforeAllowingDamageAgain) {
-                return;
+            if (!hitEnemies.Contains(enemyHealthHitbox))
+            {
+                hitEnemies.Add(enemyHealthHitbox);
+
+                enemyHealthHitbox.enemyManager.TakeDamage(
+                    attackStatManager,
+                    weapon,
+                    this.transform,
+                    (weapon != null && weapon.impactFleshSfx != null) ? weapon.impactFleshSfx : hitImpactSfx,
+                    enemyHealthHitbox.damageBonus);
+
+                enemyHealthHitbox.enemyManager.BreakCompanionFocus();
+
+                damageCooldownTimer = 0f;
             }
-
-            DisableHitbox();
-
-            enemyHealthHitbox.enemyHealthController.TakeDamage(
-                attackStatManager,
-                weapon,
-                this.transform,
-                (weapon != null && weapon.impactFleshSfx != null) ? weapon.impactFleshSfx : hitImpactSfx);
-
-            maxTimerBeforeAllowingDamageAgain = 0f;
         }
 
     }

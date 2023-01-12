@@ -42,7 +42,7 @@ namespace AF
                 return;
             }
 
-            Utils.PlaySfx(footstepAudioSource, landingSfx);
+            BGMManager.instance.PlaySound(landingSfx, footstepAudioSource);
         }
 
         public void PlayCloth(AnimationEvent animationEvent)
@@ -52,7 +52,7 @@ namespace AF
                 return;
             }
 
-            Utils.PlaySfx(footstepAudioSource, onJumpSfx);
+            BGMManager.instance.PlaySound(onJumpSfx, footstepAudioSource);
         }
 
 

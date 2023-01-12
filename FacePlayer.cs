@@ -5,14 +5,14 @@ namespace AF
 
     public class FacePlayer : StateMachineBehaviour
     {
-        Enemy enemy;
+        EnemyManager enemy;
 
         override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            animator.gameObject.TryGetComponent<Enemy>(out enemy);
+            animator.gameObject.TryGetComponent<EnemyManager>(out enemy);
             if (enemy == null)
             {
-                enemy = animator.GetComponentInParent<Enemy>(true);
+                enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
 
             enemy.facePlayer = true;

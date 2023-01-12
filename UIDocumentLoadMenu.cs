@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,8 +10,7 @@ namespace AF
     public class UIDocumentLoadMenu : MonoBehaviour
     {
         MenuManager menuManager;
-        VisualElement root;
-
+        
         public VisualTreeAsset loadButtonEntryPrefab;
 
         private void Awake()
@@ -20,20 +20,34 @@ namespace AF
 
         private void OnEnable()
         {
-            this.root = GetComponent<UIDocument>().rootVisualElement;
-            menuManager.SetupNavMenu(this.root);
-            menuManager.SetActiveMenu(this.root, "ButtonLoad");
+            var root = GetComponent<UIDocument>().rootVisualElement;
+            menuManager.SetupNavMenu(root);
+            menuManager.SetActiveMenu(root, "ButtonLoad");
 
-            DrawUI();
+            DrawUI(root, true);
         }
 
-        void DrawUI()
+        public void DrawUI(VisualElement targetRoot, bool showDeleteButton)
         {
 
             List<SaveFileEntry> saveFiles = SaveSystem.instance.GetSaveFiles();
 
-            root.Q<ScrollView>().Clear();
-            root.Q<VisualElement>("ItemPreview").style.opacity = 0;
+            if (saveFiles.Count > 0)
+            {
+                saveFiles.Sort((a, b) =>
+                {
+                    var aDate = DateTime.Parse(a.creationDate);
+                    var bDate = DateTime.Parse(b.creationDate);
+
+                    return bDate.CompareTo(aDate);
+                });
+
+            }
+
+            targetRoot.Q<ScrollView>().Clear();
+            targetRoot.Q<VisualElement>("SaveGameItemPreview").style.opacity = 0;
+
+            menuManager = FindObjectOfType<MenuManager>(true);
 
             foreach (var saveFileEntry in saveFiles)
             {
@@ -41,57 +55,65 @@ namespace AF
 
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 
-                btn.Q<Label>("Name").text = (saveFileEntry.isQuickSave ? "Quick Save / " : "") + saveFileEntry.sceneName + " / Lv " + saveFileEntry.level;
+                btn.Q<Label>("Name").text = saveFileEntry.sceneName + " / Level " + saveFileEntry.level + "";
                 btn.Q<Label>("Value").text = System.DateTime.Parse(saveFileEntry.creationDate).ToString();
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 
-                var loadBtn = btn.Q<Button>("DeleteButton");
+                var loadBtn = btn.Q<Button>("LoadButton");
+                var deleteBtn = btn.Q<Button>("DeleteButton");
+
+                deleteBtn.style.display = showDeleteButton ? DisplayStyle.Flex : DisplayStyle.None;
 
                 menuManager.SetupButton(loadBtn, () =>
                 {
                     SaveSystem.instance.LoadGameData(saveFileEntry.fileFullPath);
                     menuManager.CloseMenu();
                 });
+                menuManager.SetupButton(deleteBtn, () =>
+                {
+                    SaveSystem.instance.DeleteSaveFile(saveFileEntry.fileFullPath, saveFileEntry.fileFullPath.Replace("json", "jpg"));
+                    DrawUI(targetRoot, showDeleteButton);
+                });
 
-                btn.Q<Button>("DeleteButton").text = "Load";
+                btn.Q<Button>("LoadButton").text = "Load";
 
                 // Gamepad
                 btn.RegisterCallback<FocusInEvent>(ev =>
                 {
-                    ShowLoadInfo(btn, saveFileEntry);
+                    ShowLoadInfo(targetRoot, saveFileEntry);
                 });
                 btn.RegisterCallback<FocusOutEvent>(ev =>
                 {
-                    root.Q<VisualElement>("ItemPreview").style.opacity = 0;
+                    targetRoot.Q<VisualElement>("SaveGameItemPreview").style.opacity = 0;
                 });
 
                 // Mouse
-                btn.RegisterCallback<PointerEnterEvent>(ev =>
+                btn.Q<VisualElement>("SavedGameEntry").RegisterCallback<MouseEnterEvent>(ev =>
                 {
-                    ShowLoadInfo(btn, saveFileEntry);
+                    ShowLoadInfo(targetRoot, saveFileEntry);
                 });
-                btn.RegisterCallback<PointerOutEvent>(ev =>
+                btn.Q<VisualElement>("SavedGameEntry").RegisterCallback<MouseLeaveEvent>(ev =>
                 {
-                    root.Q<VisualElement>("ItemPreview").style.opacity = 0;
+                    targetRoot.Q<VisualElement>("SaveGameItemPreview").style.opacity = 0;
                 });
 
-                root.Q<ScrollView>().Add(btn);
+                targetRoot.Q<ScrollView>().Add(btn);
             }
 
         }
 
-        void ShowLoadInfo(VisualElement btn, SaveFileEntry saveFileEntry)
+        void ShowLoadInfo(VisualElement root, SaveFileEntry saveFileEntry)
         {
 
             root.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
-            root.Q<Label>("Title").text = saveFileEntry.sceneName + ", " + saveFileEntry.level;
-            root.Q<Label>("SubTitle").text = System.DateTime.Parse(saveFileEntry.creationDate).ToString();
+            root.Q<Label>("Title").text = saveFileEntry.sceneName + " / Level " + saveFileEntry.level;
+            root.Q<Label>("SubTitle").text = "Saved at: " + System.DateTime.Parse(saveFileEntry.creationDate).ToString();
 
             var totalGameTime = System.TimeSpan.FromSeconds(saveFileEntry.gameTime);
-            root.Q<Label>("Description").text = "Total Game Time: " + totalGameTime.Hours + "h:" + totalGameTime.Minutes + "m:" + totalGameTime.Seconds + "s";
+            root.Q<Label>("Description").text = "Total Play Time: " + totalGameTime.Hours + "h " + totalGameTime.Minutes + "m " + totalGameTime.Seconds + "s";
+            root.Q<Label>("CurrentObjectiveText").text = "" + saveFileEntry.currentObjective;
 
-            root.Q<VisualElement>("ItemPreview").style.opacity = 1;
-            root.Q<ScrollView>().ScrollTo(btn);
+            root.Q<VisualElement>("SaveGameItemPreview").style.opacity = 1;
         }
 
     }

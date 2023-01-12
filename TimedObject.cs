@@ -11,19 +11,16 @@ namespace AF
         public string dayHours = "05-20";
         public string nightHours = "20-5";
 
-        DayTrigger[] dayTriggers;
-        NightTrigger[] nightTriggers;
-
         private void Start()
         {
-            this.dayTriggers = transform.GetComponentsInChildren<DayTrigger>(true);
-            this.nightTriggers = transform.GetComponentsInChildren<NightTrigger>(true);
-
             OnHourChanged();
         }
 
         public void OnHourChanged()
         {
+            var dayTriggers = transform.GetComponentsInChildren<DayTrigger>(true);
+            var nightTriggers = transform.GetComponentsInChildren<NightTrigger>(true);
+
             if (Player.instance.timeOfDay >= 5 && Player.instance.timeOfDay < 20)
             {
                 if (dayTriggers.Length > 0)

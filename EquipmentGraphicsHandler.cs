@@ -39,7 +39,22 @@ namespace AF
 
         LockOnManager lockOnManager;
 
-        public float weightPenalty = 0;
+        [Header("Equipment Modifiers")]
+        public float weightPenalty = 0f;
+        public int equipmentPoise = 0;
+        public float equipmentPhysicalDefense = 0;
+        public List<ArmorBase.StatusEffectResistance> statusEffectResistances = new List<ArmorBase.StatusEffectResistance>();
+        
+        public int vitalityBonus = 0;
+        public int enduranceBonus = 0;
+        public int strengthBonus = 0;
+        public int dexterityBonus = 0;
+
+        public float fireDefenseBonus = 0;
+        public float frostDefenseBonus = 0;
+        public float lightningDefenseBonus = 0;
+
+        public float additionalCoinPercentage = 0;
 
         public List<string> helmetNakedParts = new List<string>
         {
@@ -69,7 +84,7 @@ namespace AF
 
         private void Awake()
         {
-            weightPenalty = Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.speedPenalty : 0;
+            
         }
 
         void Start()
@@ -146,7 +161,6 @@ namespace AF
             }
 
             Player.instance.equippedWeapon = weaponToEquip;
-            weightPenalty += weaponToEquip.speedPenalty;
 
             if (weaponToEquip.graphic != null)
             {
@@ -221,7 +235,10 @@ namespace AF
 
             DeactivateAllHitboxes();
 
+            RecalculateEquipmentBonus();
 
+
+            GetComponent<Animator>().SetLayerWeight(1, weaponToEquip.blockLayerWeight);
         }
 
         public void AssignWeaponHandlerRefs()
@@ -269,6 +286,9 @@ namespace AF
 
             shieldGraphic = Instantiate(shieldToEquip.graphic, leftHand);
             shieldGraphic.SetActive(false);
+
+
+            RecalculateEquipmentBonus();
         }
 
         #region Helmet
@@ -287,6 +307,8 @@ namespace AF
             }
 
             ReloadEquipmentGraphics();
+
+            RecalculateEquipmentBonus();
         }
 
         public void UnequipHelmet()
@@ -311,6 +333,8 @@ namespace AF
 
             Player.instance.equippedHelmet = null;
             ReloadEquipmentGraphics();
+
+            RecalculateEquipmentBonus();
         }
         #endregion
 
@@ -330,6 +354,8 @@ namespace AF
             }
 
             ReloadEquipmentGraphics();
+
+            RecalculateEquipmentBonus();
         }
 
         public void UnequipArmor()
@@ -354,6 +380,8 @@ namespace AF
 
             Player.instance.equippedArmor = null;
             ReloadEquipmentGraphics();
+
+            RecalculateEquipmentBonus();
         }
         #endregion
 
@@ -373,6 +401,8 @@ namespace AF
             }
 
             ReloadEquipmentGraphics();
+
+            RecalculateEquipmentBonus();
         }
 
         public void UnequipGauntlet()
@@ -397,6 +427,8 @@ namespace AF
 
             Player.instance.equippedGauntlets = null;
             ReloadEquipmentGraphics();
+
+            RecalculateEquipmentBonus();
         }
         #endregion
 
@@ -416,6 +448,8 @@ namespace AF
             }
 
             ReloadEquipmentGraphics();
+
+            RecalculateEquipmentBonus();
         }
 
         public void UnequipLegwear()
@@ -440,6 +474,8 @@ namespace AF
 
             Player.instance.equippedLegwear = null;
             ReloadEquipmentGraphics();
+
+            RecalculateEquipmentBonus();
         }
         #endregion
 
@@ -456,6 +492,8 @@ namespace AF
 
                 Player.instance.equippedAccessory = accessoryToEquip;
             }
+
+            RecalculateEquipmentBonus();
         }
 
         public void UnequipWeapon()
@@ -489,17 +527,16 @@ namespace AF
                 Destroy(rightWeaponGraphicHolster);
             }
 
-            if (Player.instance.equippedWeapon != null)
-            {
-                weightPenalty -= Player.instance.equippedWeapon.speedPenalty;
-            }
-
             Player.instance.equippedWeapon = null;
             GetComponent<Animator>().runtimeAnimatorController = playerDefaultAnimator;
             if (lockOnManager.isLockedOn)
             {
                 GetComponent<Animator>().SetBool(lockOnManager.hashIsLockedOn, true);
             }
+
+            GetComponent<Animator>().SetLayerWeight(1, 1f);
+
+            RecalculateEquipmentBonus();
         }
 
         public void UnequipShield()
@@ -507,11 +544,15 @@ namespace AF
             Destroy(shieldGraphic);
 
             Player.instance.equippedShield = null;
+
+            RecalculateEquipmentBonus();
         }
 
         public void UnequipAccessory()
         {
             Player.instance.equippedAccessory = null;
+
+            RecalculateEquipmentBonus();
         }
 
         void ReloadEquipmentGraphics()
@@ -902,5 +943,265 @@ namespace AF
 
         #endregion
 
-    }
+        #region Equipment Modifiers
+        public void RecalculateEquipmentBonus()
+        {
+            UpdateWeightPenalty();
+            UpdateArmorPoise();
+            UpdateEquipmentPhysicalDefense();
+            UpdateStatusEffectResistances();
+            UpdateAttributes();
+            UpdateAdditionalCoinPercentage();
+        }
+
+        void UpdateWeightPenalty()
+        {
+            this.weightPenalty = 0f;
+
+            if (Player.instance.equippedWeapon != null)
+            {
+                this.weightPenalty += Player.instance.equippedWeapon.speedPenalty;
+            }
+            if (Player.instance.equippedShield != null)
+            {
+                this.weightPenalty += Player.instance.equippedShield.speedPenalty;
+            }
+            if (Player.instance.equippedHelmet != null)
+            {
+                this.weightPenalty += Player.instance.equippedHelmet.speedPenalty;
+            }
+            if (Player.instance.equippedArmor != null)
+            {
+                this.weightPenalty += Player.instance.equippedArmor.speedPenalty;
+            }
+            if (Player.instance.equippedGauntlets != null)
+            {
+                this.weightPenalty += Player.instance.equippedGauntlets.speedPenalty;
+            }
+            if (Player.instance.equippedLegwear != null)
+            {
+                this.weightPenalty += Player.instance.equippedLegwear.speedPenalty;
+            }
+            if (Player.instance.equippedAccessory != null)
+            {
+                this.weightPenalty += Player.instance.equippedAccessory.speedPenalty;
+            }
+
+            // Offset (in the case where an item removes weight penalties, like a ring of havel or something
+            if (this.weightPenalty < 0)
+            {
+                this.weightPenalty = 0;
+            }
+        }
+
+        void UpdateArmorPoise()
+        {
+            this.equipmentPoise = 0;
+
+            if (Player.instance.equippedHelmet != null)
+            {
+                equipmentPoise += Player.instance.equippedHelmet.poiseBonus;
+            }
+            if (Player.instance.equippedArmor != null)
+            {
+                equipmentPoise += Player.instance.equippedArmor.poiseBonus;
+            }
+            if (Player.instance.equippedGauntlets != null)
+            {
+                equipmentPoise += Player.instance.equippedGauntlets.poiseBonus;
+            }
+            if (Player.instance.equippedLegwear != null)
+            {
+                equipmentPoise += Player.instance.equippedLegwear.poiseBonus;
+            }
+            if (Player.instance.equippedAccessory != null)
+            {
+                equipmentPoise += Player.instance.equippedAccessory.poiseBonus;
+            }
+        }
+
+        void UpdateEquipmentPhysicalDefense()
+        {
+            this.equipmentPhysicalDefense = 0f;
+
+            var player = Player.instance;
+
+            if (player.equippedHelmet != null)
+            {
+                equipmentPhysicalDefense += player.equippedHelmet.physicalDefense;
+            }
+
+            if (player.equippedArmor != null)
+            {
+                equipmentPhysicalDefense += player.equippedArmor.physicalDefense;
+            }
+
+            if (player.equippedGauntlets != null)
+            {
+                equipmentPhysicalDefense += player.equippedGauntlets.physicalDefense;
+            }
+
+            if (player.equippedLegwear != null)
+            {
+                equipmentPhysicalDefense += player.equippedLegwear.physicalDefense;
+            }
+
+            if (player.equippedAccessory != null)
+            {
+                equipmentPhysicalDefense += player.equippedAccessory.physicalDefense;
+            }
+        }
+
+        void UpdateStatusEffectResistances()
+        {
+            this.statusEffectResistances.Clear();
+
+            if (Player.instance.equippedHelmet != null && Player.instance.equippedHelmet.statusEffectResistances.Length > 0)
+            {
+                foreach (var statusEffectResistance in Player.instance.equippedHelmet.statusEffectResistances)
+                {
+                    HandleStatusEffectEntry(statusEffectResistance);
+                }
+            }
+
+            if (Player.instance.equippedArmor != null && Player.instance.equippedArmor.statusEffectResistances.Length > 0)
+            {
+                foreach (var statusEffectResistance in Player.instance.equippedArmor.statusEffectResistances)
+                {
+                    HandleStatusEffectEntry(statusEffectResistance);
+                }
+            }
+
+            if (Player.instance.equippedGauntlets != null && Player.instance.equippedGauntlets.statusEffectResistances.Length > 0)
+            {
+                foreach (var statusEffectResistance in Player.instance.equippedGauntlets.statusEffectResistances)
+                {
+                    HandleStatusEffectEntry(statusEffectResistance);
+                }
+            }
+
+            if (Player.instance.equippedLegwear != null && Player.instance.equippedLegwear.statusEffectResistances.Length > 0)
+            {
+                foreach (var statusEffectResistance in Player.instance.equippedLegwear.statusEffectResistances)
+                {
+                    HandleStatusEffectEntry(statusEffectResistance);
+                }
+            }
+
+            if (Player.instance.equippedAccessory != null && Player.instance.equippedAccessory.statusEffectResistances.Length > 0)
+            {
+                foreach (var statusEffectResistance in Player.instance.equippedAccessory.statusEffectResistances)
+                {
+                    HandleStatusEffectEntry(statusEffectResistance);
+                }
+            }
+        }
+
+        void HandleStatusEffectEntry(ArmorBase.StatusEffectResistance statusEffectResistance)
+        {
+            var idx = this.statusEffectResistances.FindIndex(x => x.statusEffect == statusEffectResistance.statusEffect);
+            if (idx != -1)
+            {
+                this.statusEffectResistances[idx].resistanceBonus += statusEffectResistance.resistanceBonus;
+            }
+            else
+            {
+                this.statusEffectResistances.Add(statusEffectResistance);
+            }
+        }
+
+        void UpdateAttributes()
+        {
+            this.vitalityBonus = 0;
+            this.enduranceBonus = 0;
+            this.strengthBonus = 0;
+            this.dexterityBonus = 0;
+
+            this.fireDefenseBonus = 0;
+            this.frostDefenseBonus = 0;
+            this.lightningDefenseBonus = 0;
+
+
+            if (Player.instance.equippedHelmet != null)
+            {
+                this.vitalityBonus += Player.instance.equippedHelmet.vitalityBonus;
+                this.enduranceBonus += Player.instance.equippedHelmet.enduranceBonus;
+                this.strengthBonus += Player.instance.equippedHelmet.strengthBonus;
+                this.dexterityBonus += Player.instance.equippedHelmet.dexterityBonus;
+                this.fireDefenseBonus += Player.instance.equippedHelmet.fireDefense;
+                this.frostDefenseBonus += Player.instance.equippedHelmet.frostDefense;
+                this.lightningDefenseBonus += Player.instance.equippedHelmet.lightningDefense;
+            }
+            if (Player.instance.equippedArmor != null)
+            {
+                this.vitalityBonus += Player.instance.equippedArmor.vitalityBonus;
+                this.enduranceBonus += Player.instance.equippedArmor.enduranceBonus;
+                this.strengthBonus += Player.instance.equippedArmor.strengthBonus;
+                this.dexterityBonus += Player.instance.equippedArmor.dexterityBonus;
+                this.fireDefenseBonus += Player.instance.equippedArmor.fireDefense;
+                this.frostDefenseBonus += Player.instance.equippedArmor.frostDefense;
+                this.lightningDefenseBonus += Player.instance.equippedArmor.lightningDefense;
+            }
+            if (Player.instance.equippedGauntlets != null)
+            {
+                this.vitalityBonus += Player.instance.equippedGauntlets.vitalityBonus;
+                this.enduranceBonus += Player.instance.equippedGauntlets.enduranceBonus;
+                this.strengthBonus += Player.instance.equippedGauntlets.strengthBonus;
+                this.dexterityBonus += Player.instance.equippedGauntlets.dexterityBonus;
+                this.fireDefenseBonus += Player.instance.equippedGauntlets.fireDefense;
+                this.frostDefenseBonus += Player.instance.equippedGauntlets.frostDefense;
+                this.lightningDefenseBonus += Player.instance.equippedGauntlets.lightningDefense;
+            }
+            if (Player.instance.equippedLegwear != null)
+            {
+                this.vitalityBonus += Player.instance.equippedLegwear.vitalityBonus;
+                this.enduranceBonus += Player.instance.equippedLegwear.enduranceBonus;
+                this.strengthBonus += Player.instance.equippedLegwear.strengthBonus;
+                this.dexterityBonus += Player.instance.equippedLegwear.dexterityBonus;
+                this.fireDefenseBonus += Player.instance.equippedLegwear.fireDefense;
+                this.frostDefenseBonus += Player.instance.equippedLegwear.frostDefense;
+                this.lightningDefenseBonus += Player.instance.equippedLegwear.lightningDefense;
+            }
+            if (Player.instance.equippedAccessory != null)
+            {
+                this.vitalityBonus += Player.instance.equippedAccessory.vitalityBonus;
+                this.enduranceBonus += Player.instance.equippedAccessory.enduranceBonus;
+                this.strengthBonus += Player.instance.equippedAccessory.strengthBonus;
+                this.dexterityBonus += Player.instance.equippedAccessory.dexterityBonus;
+                this.fireDefenseBonus += Player.instance.equippedAccessory.fireDefense;
+                this.frostDefenseBonus += Player.instance.equippedAccessory.frostDefense;
+                this.lightningDefenseBonus += Player.instance.equippedAccessory.lightningDefense;
+            }
+
+        }
+
+        void UpdateAdditionalCoinPercentage()
+        {
+            additionalCoinPercentage = 0f;
+
+            if (Player.instance.equippedHelmet != null)
+            {
+                additionalCoinPercentage += Player.instance.equippedHelmet.additionalCoinPercentage;
+            }
+            if (Player.instance.equippedArmor != null)
+            {
+                additionalCoinPercentage += Player.instance.equippedArmor.additionalCoinPercentage;
+            }
+            if (Player.instance.equippedGauntlets != null)
+            {
+                additionalCoinPercentage += Player.instance.equippedGauntlets.additionalCoinPercentage;
+            }
+            if (Player.instance.equippedLegwear != null)
+            {
+                additionalCoinPercentage += Player.instance.equippedLegwear.additionalCoinPercentage;
+            }
+            if (Player.instance.equippedAccessory != null)
+            {
+                additionalCoinPercentage += Player.instance.equippedAccessory.additionalCoinPercentage;
+            }
+        }
+
+            #endregion
+
+        }
 }

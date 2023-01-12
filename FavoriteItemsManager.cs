@@ -31,6 +31,8 @@ namespace AF
                 inputs.switchFavoriteItem = false;
 
                 SwitchFavoriteItemsOrder();
+
+                BGMManager.instance.PlayQuickItemSwitch();
             }
         }
 

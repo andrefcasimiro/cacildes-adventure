@@ -34,7 +34,6 @@ namespace AF
 
         private void Start()
         {
-
             notificationManager = FindObjectOfType<NotificationManager>(true);
         }
 
@@ -138,6 +137,8 @@ namespace AF
             });
 
             DrawUI(root);
+
+            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
         }
 
         void DrawUI(VisualElement root)
@@ -182,7 +183,7 @@ namespace AF
 
         private void Update()
         {
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
+            // UnityEngine.Cursor.lockState = CursorLockMode.None;
         }
 
         int GetDesiredLevelsAmount()

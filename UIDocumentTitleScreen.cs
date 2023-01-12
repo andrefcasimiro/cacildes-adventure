@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
@@ -16,6 +17,8 @@ namespace AF
 
         private void Awake()
         {
+            Utils.ShowCursor();
+
             menuManager = FindObjectOfType<MenuManager>(true);
         }
 
@@ -29,7 +32,10 @@ namespace AF
 
         private void OnEnable()
         {
+
             var root = GetComponent<UIDocument>().rootVisualElement;
+
+            root.Q<Label>("Version").text = Application.version;
 
             menuManager.SetupButton(
                 root.Q<Button>("NewGameButton"),
@@ -63,6 +69,19 @@ namespace AF
                     this.gameObject.SetActive(false);
                 });
             menuManager.SetupButton(
+                root.Q<Button>("ControlsButton"),
+                () =>
+                {
+                    FindObjectOfType<UIDocumentTitleScreenControls>(true).gameObject.SetActive(true);
+                    this.gameObject.SetActive(false);
+                });
+            menuManager.SetupButton(
+                root.Q<Button>("ExitButton"),
+                () =>
+                {
+                    Application.Quit();
+                });
+            menuManager.SetupButton(
                 root.Q<Button>("btnBlogger"),
                 () =>
                 {
@@ -83,11 +102,6 @@ namespace AF
 
         }
 
-        private void Update()
-        {
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
-
-        }
-
     }
 }
+    

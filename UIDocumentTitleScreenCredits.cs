@@ -11,6 +11,11 @@ namespace AF
         VisualElement root;
         MenuManager menuManager;
 
+        public Credits credits;
+
+        public VisualTreeAsset sectionTitle;
+        public VisualTreeAsset sectionEntry;
+
         private void Awake()
         {
             menuManager = FindObjectOfType<MenuManager>(true);
@@ -33,16 +38,43 @@ namespace AF
         {
             var closeBtn = root.Q<Button>("CloseBtn");
 
+            var scrollPanel = root.Q<ScrollView>();
 
-            var scrollContent = root.Q<ScrollView>().Children();
-            foreach (var child in scrollContent)
+            scrollPanel.Clear();
+
+            foreach (var creditSection in credits.creditsSections)
             {
-                child.RegisterCallback<FocusInEvent>(ev =>
-                {
-                    root.Q<ScrollView>().ScrollTo(child);
-                });
-            }
+                var sectionTitleClone = sectionTitle.CloneTree();
+                sectionTitleClone.Q<Label>("SectionTitle").text = creditSection.sectionTitle;
+                scrollPanel.Add(sectionTitleClone);
 
+                foreach (var creditEntry in creditSection.creditEntry)
+                {
+
+                    var sectionEntryClone = sectionEntry.CloneTree();
+
+                    var urlButton = sectionEntryClone.Q<Button>("UrlButton");
+                    if (System.String.IsNullOrEmpty(creditEntry.authorUrl))
+                    {
+                        urlButton.style.display = DisplayStyle.None;
+                    }
+                    else
+                    {
+                        urlButton.style.backgroundImage = new StyleBackground(creditEntry.urlSprite);
+                        urlButton.clicked += () =>
+                        {
+                            Application.OpenURL(creditEntry.authorUrl);
+                        };
+
+                        urlButton.style.display = DisplayStyle.Flex;
+                    }
+
+                    sectionEntryClone.Q<Label>("Author").text = creditEntry.author;
+                    sectionEntryClone.Q<Label>("Description").text = creditEntry.contribution;
+
+                    sectionTitleClone.Add(sectionEntryClone);
+                }
+            }
 
             menuManager.SetupButton(closeBtn, () =>
             {
@@ -58,7 +90,6 @@ namespace AF
 
         private void Update()
         {
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
         }
 
     }

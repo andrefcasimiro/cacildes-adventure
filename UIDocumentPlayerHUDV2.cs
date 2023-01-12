@@ -24,6 +24,7 @@ namespace AF
 
         HealthStatManager healthStatManager;
         StaminaStatManager staminaStatManager;
+        EquipmentGraphicsHandler equipmentGraphicsHandler;
 
         IMGUIContainer itemIcon;
         Label itemCounter;
@@ -33,6 +34,7 @@ namespace AF
         {
             healthStatManager = FindObjectOfType<HealthStatManager>(true);
             staminaStatManager = FindObjectOfType<StaminaStatManager>(true);
+            equipmentGraphicsHandler = FindObjectOfType<EquipmentGraphicsHandler>(true);
 
             this.root = this.uIDocument.rootVisualElement;
             healthContainer = root.Q<VisualElement>("Health");
@@ -49,8 +51,8 @@ namespace AF
 
         private void Update()
         {
-            healthContainer.style.width = healthContainerBaseWidth + (Player.instance.vitality * containerMultiplierPerLevel);
-            staminaContainer.style.width = staminaContainerBaseWidth + (Player.instance.endurance * containerMultiplierPerLevel);
+            healthContainer.style.width = healthContainerBaseWidth + ((Player.instance.vitality + equipmentGraphicsHandler.vitalityBonus) * containerMultiplierPerLevel);
+            staminaContainer.style.width = staminaContainerBaseWidth + ((Player.instance.endurance + equipmentGraphicsHandler.enduranceBonus) * containerMultiplierPerLevel);
 
             float healthPercentage = Mathf.Clamp(
                 (Player.instance.currentHealth * 100) / healthStatManager.GetMaxHealth(),
@@ -84,7 +86,7 @@ namespace AF
             itemCounter.style.display = DisplayStyle.None;
             quickItemName.text = "";
 
-            if (Player.instance.favoriteItems.Count <= 0) { return; }
+            if (Player.instance == null || Player.instance.favoriteItems == null || Player.instance.favoriteItems.Count <= 0) { return; }
 
             itemIcon.style.backgroundImage = new StyleBackground(Player.instance.favoriteItems[0].sprite);
             itemCounter.text = Player.instance.ownedItems.Find(x => x.item == Player.instance.favoriteItems[0]).amount.ToString();

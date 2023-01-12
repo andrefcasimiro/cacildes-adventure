@@ -77,6 +77,15 @@ namespace AF
         [Header("Consumables Effects")]
         public List<AppliedConsumable> appliedConsumables = new List<AppliedConsumable>();
 
+        [Header("Enemies Scale")]
+        public float enemiesHealthMultiplierPerLevel = 0.25f;
+        public float enemiesAttackMultiplierPerLevel = 0.15f;
+        public float enemiesPostureMultiplierPerLevel = 0.15f;
+
+        public string currentObjective = "";
+
+        public List<SerializedCompanion> companions = new List<SerializedCompanion>();
+
         private void Awake()
         {
             if (instance != null && instance != this)
@@ -164,6 +173,11 @@ namespace AF
         {
             PlayerData playerData = gameData.playerData;
 
+            // Companions
+            //var companions = Resources.LoadAll<Companion>("Companions");
+            companions.Clear();
+            companions = gameData.companions.ToList();
+
             // Items
             ownedItems.Clear();
             favoriteItems.Clear();
@@ -171,14 +185,15 @@ namespace AF
             {
                 var accessories = Resources.LoadAll<Accessory>("Items/Accessories");
                 var alchemy = Resources.LoadAll<AlchemyIngredient>("Items/Alchemy");
+                var cookingIngredients = Resources.LoadAll<CookingIngredient>("Items/Cooking");
                 var armors = Resources.LoadAll<Armor>("Items/Armors");
                 var consumables = Resources.LoadAll<Consumable>("Items/Consumables");
-                var craftables = Resources.LoadAll<CraftingMaterial>("Items/Craftables");
                 var gauntlets = Resources.LoadAll<Gauntlet>("Items/Gauntlets");
                 var helmets = Resources.LoadAll<Helmet>("Items/Helmets");
                 var legwears = Resources.LoadAll<Legwear>("Items/Legwears");
                 var shields = Resources.LoadAll<Shield>("Items/Shields");
                 var weapons = Resources.LoadAll<Weapon>("Items/Weapons");
+                var keyItems = Resources.LoadAll<Item>("Items/Key Items");
 
                 foreach (var serializedItem in gameData.items)
                 {
@@ -193,15 +208,15 @@ namespace AF
                     }
                     if (itemInstance == null)
                     {
+                        itemInstance = cookingIngredients.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
                         itemInstance = armors.FirstOrDefault(i => i.name == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
                         itemInstance = consumables.FirstOrDefault(i => i.name == serializedItem.itemName);
-                    }
-                    if (itemInstance == null)
-                    {
-                        itemInstance = craftables.FirstOrDefault(i => i.name == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
@@ -222,6 +237,10 @@ namespace AF
                     if (itemInstance == null)
                     {
                         itemInstance = weapons.FirstOrDefault(i => i.name == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = keyItems.FirstOrDefault(i => i.name == serializedItem.itemName);
                     }
 
                     if (itemInstance != null)
@@ -344,7 +363,54 @@ namespace AF
                 }
             }
 
+            this.currentObjective = gameData.currentObjective;
         }
+
+        #region AI Formulas
+
+        /**
+            Base Health: 1100
+
+            LV2
+            1100 + (1100 * 2 * 0.1) = 1320
+
+            LV5
+            1100 + (1100 * 5 * 0.1) = 1650
+
+            LV10
+            1100 + (1100 * 10 * 0.1) = 2200
+
+            LV20
+            1100 + (1100 * 20 * 0.1) = 3300
+
+            LV50
+            1100 + (1100 * 50 * 0.1) = 5500
+
+
+            Base Health: 500
+            LV2 = 600
+            LV15 = 1250
+            LV50 = 3000
+        */
+        public int CalculateAIHealth(int baseValue, int currentLevel)
+        {
+            return baseValue + Mathf.RoundToInt(baseValue * currentLevel * .1f);
+        }
+
+        public int CalculateAIAttack(int baseValue, int currentLevel)
+        {
+            return baseValue + Mathf.RoundToInt(baseValue * currentLevel * .1f);
+        }
+        public int CalculateAIPosture(int baseValue, int currentLevel)
+        {
+            return baseValue + Mathf.RoundToInt(baseValue * currentLevel * .1f);
+        }
+
+        public int CalculateAIGenericValue(int baseValue, int currentLevel)
+        {
+            return baseValue + Mathf.RoundToInt(baseValue * currentLevel * .1f);
+        }
+        #endregion
     }
 
 }

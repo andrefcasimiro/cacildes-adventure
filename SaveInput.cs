@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace AF
 {
@@ -21,9 +22,9 @@ namespace AF
             {
                 inputs.quickSave = false;
 
-                menuManager.screenshotBeforeOpeningMenu = ScreenCapture.CaptureScreenshotAsTexture();
+                SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
 
-                SaveSystem.instance.SaveGameData(SaveSystem.instance.QUICK_SAVE_FILE_NAME);
+                SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
             }
 
             if (inputs.quickLoad)

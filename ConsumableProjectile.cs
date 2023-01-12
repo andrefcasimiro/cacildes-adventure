@@ -20,6 +20,11 @@ namespace AF
 
         public override void OnConsume()
         {
+            if (Player.instance.currentHealth <= 0)
+            {
+                return;
+            }
+
             var playerShootingManager = FindObjectOfType<PlayerShootingManager>(true);
 
             if (projectileType == ProjectileType.BOW)

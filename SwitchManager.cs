@@ -38,12 +38,21 @@ namespace AF
 
         public void UpdateSwitchWithoutRefreshingEvents(string switchId, bool nextValue)
         {
-            this.switches.Find(x => x.ID == switchId).value = nextValue;
+            var switchIndex = this.switches.FindIndex(x => x.ID == switchId);
+
+            this.switches[switchIndex].value = nextValue;
+
+            HandleObjectiveUpdate(switchIndex);
+
         }
 
         public void UpdateSwitch(string switchID, bool nextValue)
         {
-            this.switches.Find(x => x.ID == switchID).value = nextValue;
+
+            var switchIndex = this.switches.FindIndex(x => x.ID == switchID);
+            this.switches[switchIndex].value = nextValue;
+
+            HandleObjectiveUpdate(switchIndex);
 
             var sceneSwitchListeners = FindObjectsOfType<SwitchListener>(true);
             foreach (var sceneSwitchListener in sceneSwitchListeners)
@@ -74,6 +83,17 @@ namespace AF
 
         }
 
+        void HandleObjectiveUpdate(int switchIndex)
+        {
+            if (this.switches[switchIndex].updateObjective)
+            {
+                if (System.String.IsNullOrEmpty(this.switches[switchIndex].newObjective) == false)
+                {
+                    Player.instance.currentObjective = this.switches[switchIndex].newObjective;
+                }
+            }
+        }
+
         public Switch GetSwitchInstance(string switchUUID)
         {
             return this.switches.Find(x => x.ID == switchUUID);
@@ -100,6 +120,16 @@ namespace AF
             {
                 UpdateSwitch(savedSwitch.uuid, savedSwitch.value);
             }
+        }
+
+        public new void SendMessage(string switchUuid)
+        {
+            if (System.String.IsNullOrEmpty(switchUuid))
+            {
+                return;
+            }
+
+            UpdateSwitch(switchUuid, true);
         }
     }
 

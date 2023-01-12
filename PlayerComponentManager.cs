@@ -12,15 +12,13 @@ namespace AF
         DodgeController dodgeController => GetComponent<DodgeController>();
         PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
 
+        public bool isInTutorial = false;
         public bool isInBonfire = false;
 
-        void Awake() {
-            StartCoroutine(SpawnPlayer());
-        }
+        CharacterController characterController => GetComponent<CharacterController>();
 
-        IEnumerator SpawnPlayer() {
-            yield return null;
-            TeleportManager.instance.SpawnPlayer(this.gameObject);
+        private void Start()
+        {
         }
 
         public void EnableComponents()
@@ -42,22 +40,34 @@ namespace AF
 
         public void DisableCharacterController()
         {
-            GetComponent<CharacterController>().enabled = false;
+            characterController.enabled = false;
         }
 
         public void EnableCharacterController()
         {
-            GetComponent<CharacterController>().enabled = true;
+            characterController.enabled = true;
         }
 
         public bool IsBusy()
         {
+            if (isInTutorial)
+            {
+                return true;
+            }
+
             if (isInBonfire)
             {
                 return true;
             }
 
             return false;
+        }
+
+        public void CurePlayer()
+        {
+            GetComponent<HealthStatManager>().RestoreHealthPercentage(100);
+            GetComponent<StaminaStatManager>().RestoreStaminaPercentage(100);
+            GetComponent<PlayerStatusManager>().RemoveAllStatus();
         }
 
     }

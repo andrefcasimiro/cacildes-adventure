@@ -5,31 +5,19 @@ namespace AF
 
     public class ShowBowOnStateEnter : StateMachineBehaviour
     {
-
-        Enemy enemy;
-        EnemyProjectileController enemyProjectileController;
+        EnemyManager enemy;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            animator.gameObject.TryGetComponent<Enemy>(out enemy);
+            animator.gameObject.TryGetComponent<EnemyManager>(out enemy);
 
             if (enemy == null)
             {
-                enemy = animator.GetComponentInParent<Enemy>(true);
+                enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
 
-            if (enemyProjectileController == null)
-            {
-                enemyProjectileController = enemy.GetComponent<EnemyProjectileController>();
-            }
-
-            if (enemyProjectileController != null)
-            {
-                enemyProjectileController.ShowBow();
-            }
-
+            enemy.ShowBow();
             enemy.agent.isStopped = true;
-
         }
 
     }

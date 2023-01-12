@@ -16,6 +16,10 @@ namespace AF
         [TextArea]
         public string description;
 
+        [Header("Update Objective")]
+        public bool updateObjective = false;
+        public string newObjective = "";
+
     }
 
 }

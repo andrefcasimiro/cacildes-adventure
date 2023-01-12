@@ -105,6 +105,12 @@ namespace AF
                 return false;
             }
 
+            // If player is on the ground for being stunned
+            if (animator.GetBool("IsStunned"))
+            {
+                return false;
+            }
+
             return true;
         }
 

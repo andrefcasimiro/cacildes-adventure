@@ -33,6 +33,8 @@ namespace AF
         public int basePhysicalAttack = 100;
         public float levelMultiplier = 3.25f;
 
+        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+
         private void Start()
         {
             this.scalingDictionary.Add("E", E);
@@ -50,6 +52,8 @@ namespace AF
                     basePhysicalAttack
                         + (Player.instance.strength * levelMultiplier)
                         + (Player.instance.dexterity * levelMultiplier)
+                        + (equipmentGraphicsHandler.strengthBonus * levelMultiplier)
+                        + (equipmentGraphicsHandler.dexterityBonus * levelMultiplier)
                     ) + physicalAttackBonus
                 );
         }
@@ -70,12 +74,19 @@ namespace AF
         #region Weapon Attack
         public int GetWeaponAttack(Weapon weapon)
         {
-            return (int)(
+            var value = (int)(
                 GetCurrentPhysicalAttack()
                 + weapon.physicalAttack
                 + GetStrengthBonusFromWeapon(weapon)
                 + GetDexterityBonusFromWeapon(weapon)
             );
+
+            if (weapon.halveDamage)
+            {
+                return (int)(value / 2);
+            }
+
+            return value;
         }
         #endregion
 
@@ -93,6 +104,12 @@ namespace AF
 
         #endregion
 
+        public float GetArrowDamageBonus()
+        {
+            Debug.Log((Player.instance.dexterity * this.levelMultiplier));
+            Debug.Log(equipmentGraphicsHandler.dexterityBonus * this.levelMultiplier);
+            return Mathf.Ceil(Player.instance.dexterity * this.levelMultiplier + equipmentGraphicsHandler.dexterityBonus * this.levelMultiplier);
+        }
 
     }
 }

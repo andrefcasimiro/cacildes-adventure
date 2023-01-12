@@ -5,15 +5,14 @@ namespace AF
 
     public class DisableOnDeath : StateMachineBehaviour
     {
-        Enemy enemy;
-        EnemyHealthController enemyHealthController;
+        EnemyManager enemy;
 
         public bool turnKinematic = true;
         public bool disableCapsuleCollider = true;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            animator.gameObject.TryGetComponent<Enemy>(out enemy);
+            animator.gameObject.TryGetComponent<EnemyManager>(out enemy);
 
             var deathCollider = animator.gameObject.GetComponentInChildren<DeathColliderRef>();
             if (deathCollider != null)
@@ -23,33 +22,19 @@ namespace AF
 
             if (enemy == null)
             {
-                enemy = animator.GetComponentInParent<Enemy>(true);
-            }
-
-
-            if (enemyHealthController == null)
-            {
-                enemyHealthController = enemy.GetComponent<EnemyHealthController>();
+                enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
 
             enemy.GetComponent<Rigidbody>().isKinematic = turnKinematic;
             enemy.GetComponent<CapsuleCollider>().enabled = !disableCapsuleCollider;
 
+            enemy.DisableHealthHitboxes();
 
-            if (enemyHealthController != null)
-            {
-                enemyHealthController.DisableHealthHitboxes();
-            }
+            enemy.onEnemyDeath.Invoke();
 
-            if (enemyHealthController.onEnemyDeath != null)
-            {
-                enemyHealthController.onEnemyDeath.Invoke();
-            }
 
             enemy.agent.enabled = false;
             enemy.enabled = false;
-
-            BGMManager.instance.PlayMapMusicAfterKillingEnemy(enemy);
         }
 
     }

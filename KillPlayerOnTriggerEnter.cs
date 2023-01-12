@@ -18,8 +18,14 @@ namespace AF
 
             if (other.gameObject.tag == "Enemy")
             {
-                BGMManager.instance.PlaySound(waterSfx, other.GetComponent<EnemyCombatController>().combatAudioSource);
-                other.GetComponent<EnemyHealthController>().TakeEnvironmentalDamage(Mathf.Infinity);
+                var enemyManager = other.GetComponent<EnemyManager>();
+
+                if (enemyManager != null)
+                {
+                    BGMManager.instance.PlaySound(waterSfx, enemyManager.combatAudioSource);
+                    enemyManager.TakeEnvironmentalDamage(9999999);
+                }
+
             }
         }
     }

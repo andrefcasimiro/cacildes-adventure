@@ -7,8 +7,6 @@ namespace AF
     {
         public string variableUuid;
 
-        protected Variable _variable;
-
         public virtual void EvaluateVariable() { }
 
     }

@@ -1,3 +1,4 @@
+using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,7 +34,6 @@ namespace AF
             {
                 FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
             }
-
             FindObjectOfType<UIBlackCanvas>(true).gameObject.SetActive(true);
 
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
@@ -70,6 +70,10 @@ namespace AF
         {
             FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
 
+            Utils.HideCursor();
+
+            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
+
             EventBase[] events = GetComponents<EventBase>();
 
             foreach (EventBase ev in events)
@@ -87,11 +91,15 @@ namespace AF
 
             // Save game
             yield return new WaitForEndOfFrame();
+            
+            SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
+
             SaveSystem.instance.SaveGameData("autoSave");
 
             yield return new WaitForEndOfFrame();
 
             this.gameObject.SetActive(false);
+
         }
     }
 

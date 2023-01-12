@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 namespace AF
 {
@@ -18,15 +19,27 @@ namespace AF
         public bool isInterior;
 
         [Header("Debug")]
-        public bool enemiesIgnorePlayer;
+        public bool enemiesIgnorePlayer = false;
 
+        void Awake()
+        {
+            StartCoroutine(SpawnPlayer());
+        }
+
+        IEnumerator SpawnPlayer()
+        {
+            yield return null;
+
+            var player = FindObjectOfType<PlayerCombatController>(true);
+            TeleportManager.instance.SpawnPlayer(player.gameObject);
+        }
         public void Start()
         {
             HandleSceneSound();
 
             if (enemiesIgnorePlayer)
             {
-                var allEnemies = FindObjectsOfType<EnemySightController>(true);
+                var allEnemies = FindObjectsOfType<EnemyManager>(true);
                 foreach (var enemy in allEnemies)
                 {
                     enemy.ignorePlayer = true;
@@ -36,6 +49,13 @@ namespace AF
 
         public void HandleSceneSound()
         {
+            // Don't change map music if a combat is on going
+            var allEnemies = FindObjectsOfType<EnemyManager>(true);
+            if (allEnemies != null && allEnemies.Length > 0 && allEnemies.FirstOrDefault(x => x.IsInCombat()))
+            {
+                return;
+            }
+
             EvaluateMusic();
             EvaluateAmbience();
         }

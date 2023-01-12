@@ -47,7 +47,7 @@ namespace AF
             climbState = ClimbState.ENTERING;
             
             GetComponent<CharacterController>().enabled = false;
-            this.transform.position = transformRef.position;
+            this.transform.position = transformRef.position + new Vector3(0, 0.05f, 0f); // Offset
             this.transform.rotation = transformRef.rotation;
 
             animator.Play(hashStartFromBottom);

@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -10,10 +12,8 @@ namespace AF
 
     public class SaveSystem : MonoBehaviour
     {
-
-/*        public delegate void OnGameLoadEvent(GameData gameData);
-        // the event itself
-        public event OnGameLoadEvent OnGameLoad;*/
+        [HideInInspector] public Texture2D currentScreenshot;
+        public Texture2D fallbackSaveScreenshot;
 
         public static SaveSystem instance;
 
@@ -62,17 +62,13 @@ namespace AF
                 File.Delete(screenshotPath);
             }
 
-            var menuManager = FindObjectOfType<MenuManager>(true);
-
-            if (menuManager != null)
+            var targetScreenshot = fallbackSaveScreenshot;
+            if (currentScreenshot != null)
             {
-                if (menuManager.screenshotBeforeOpeningMenu == null)
-                {
-                    menuManager.CaptureScreenshot();
-                }
-
-                File.WriteAllBytes(Path.Combine(Application.persistentDataPath, fileName + ".jpg"), menuManager.screenshotBeforeOpeningMenu.EncodeToJPG());
+                targetScreenshot = currentScreenshot;
             }
+
+            File.WriteAllBytes(Path.Combine(Application.persistentDataPath, fileName + ".jpg"), targetScreenshot.EncodeToJPG());
 
 
             string jsonDataString = JsonUtility.ToJson(data, true);
@@ -112,6 +108,8 @@ namespace AF
             // World
             gameData.timeOfDay = Player.instance.timeOfDay;
             gameData.daysPassed = Player.instance.daysPassed;
+
+            gameData.currentObjective = Player.instance.currentObjective;
 
             // Scene Name
             Scene scene = SceneManager.GetActiveScene();
@@ -269,6 +267,10 @@ namespace AF
 
             gameData.lostCoins = LostCoinsManager.instance.lostCoins;
 
+
+            // Save companions
+            gameData.companions = Player.instance.companions.ToArray();
+
             Save(gameData, saveGameName);
         }
         #endregion
@@ -404,7 +406,13 @@ namespace AF
                     targetTexture.LoadImage(File.ReadAllBytes(screenshots[i]));
                     saveFileEntry.screenshot = targetTexture;
                 }
-                saveFileEntry.isQuickSave = gameData.isQuickSave;
+
+                saveFileEntry.currentObjective = "";
+                var currentObjective = gameData.currentObjective;
+                if (currentObjective != null)
+                {
+                    saveFileEntry.currentObjective = currentObjective;
+                }
 
                 saveList.Add(saveFileEntry);
             }
@@ -424,6 +432,14 @@ namespace AF
             return File.Exists(path);
         }
 
+        public string GetTotalPlayTime()
+        {
+            var secondsPlayed = totalPlayTimeInSeconds + (System.DateTime.Now - sessionStartDateTime).TotalSeconds;
+            var date = TimeSpan.FromSeconds(secondsPlayed);
+
+            return "" + date.Hours + "h:" + date.Minutes + "m:" + date.Seconds + "s";
+        }
+
         #endregion
     }
 
@@ -436,7 +452,7 @@ namespace AF
         public string creationDate;
         public double gameTime;
         public Texture2D screenshot;
-        public bool isQuickSave;
+        public string currentObjective;
     }
     
     [System.Serializable]
@@ -447,6 +463,17 @@ namespace AF
         public int amount;
 
         public int sceneIndex;
+    }
+
+    [System.Serializable]
+    public class SerializedCompanion {
+        public string companionId;
+
+        public bool isWaitingForPlayer;
+
+        public int waitingForPlayerSceneIndex;
+
+        public Vector3 waitingForPlayerPosition;
     }
 
     [System.Serializable]
@@ -487,6 +514,10 @@ namespace AF
         public string[] cookingRecipes;
 
         public LostCoins lostCoins;
+
+        public string currentObjective;
+
+        public SerializedCompanion[] companions;
     }
 
     [System.Serializable]

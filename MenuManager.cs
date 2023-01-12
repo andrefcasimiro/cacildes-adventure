@@ -25,8 +25,6 @@ namespace AF
 
         PlayerComponentManager playerComponentManager;
 
-        [HideInInspector] public Texture2D screenshotBeforeOpeningMenu;
-
         UIDocumentAlchemyCraftScreen alchemyCraftScreen;
 
         ClimbController climbController;
@@ -54,11 +52,6 @@ namespace AF
             uIDocumentGameOver = FindObjectOfType<UIDocumentGameOver>(true);
         }
 
-        public void CaptureScreenshot()
-        {
-            this.screenshotBeforeOpeningMenu = ScreenCapture.CaptureScreenshotAsTexture();
-        }
-
         private void Update()
         {
             if (starterAssetsInputs.menu)
@@ -71,7 +64,6 @@ namespace AF
                 }
                 
                 PlayHover();
-                this.screenshotBeforeOpeningMenu = ScreenCapture.CaptureScreenshotAsTexture();
 
                 if (IsMenuOpen())
                 {
@@ -80,7 +72,10 @@ namespace AF
                 }
                 else
                 {
-                    UnityEngine.Cursor.lockState = CursorLockMode.None;
+                    // Get screenshot before opening menu
+                    SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
+
+                    Utils.ShowCursor();
                     this.OpenMenu();
                 }
             }
@@ -88,7 +83,7 @@ namespace AF
 
         bool CanUseMenu()
         {
-            if (playerComponentManager.isInBonfire)
+            if (playerComponentManager.IsBusy())
             {
                 return false;
             }
@@ -156,7 +151,7 @@ namespace AF
                 return;
             }
 
-            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+            Utils.HideCursor();
 
             equipmentListMenu.SetActive(false);
             equipmentSelectionMenu.SetActive(false);
@@ -277,7 +272,6 @@ namespace AF
             SetupButton(root.Q<Button>("ButtonLoad"), () => { OpenLoadScreen(); });
             SetupButton(root.Q<Button>("ButtonControls"), () => { OpenControlsScreen(); });
             SetupButton(root.Q<Button>("ButtonExit"), () => {
-
                 SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
 
                 Application.Quit();
@@ -301,6 +295,10 @@ namespace AF
             });
 
             button.RegisterCallback<MouseOverEvent>(ev => {
+                BGMManager.instance.PlayUISelect();
+            });
+
+            button.RegisterCallback<PointerEnterEvent>(ev => {
                 BGMManager.instance.PlayUISelect();
             });
         }

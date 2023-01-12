@@ -10,63 +10,53 @@ namespace AF
     /// </summary>
     public class AnimationEventHandler : MonoBehaviour
     {
-        [HideInInspector] public Enemy enemy;
-        [HideInInspector] public EnemyBuffController enemyBuffController;
-        [HideInInspector] public EnemyCombatController enemyCombatController;
-        [HideInInspector] public EnemyDodgeController enemyDodgeController;
-        [HideInInspector] public EnemyBlockController enemyBlockController;
-        [HideInInspector] public EnemyHealthController enemyHealthController;
-        [HideInInspector] public EnemyProjectileController enemyProjectileController;
-
+        [HideInInspector] public EnemyManager enemy;
         [HideInInspector] public Animator animator => GetComponent<Animator>();
 
         private void Start()
         {
-            enemy = GetComponentInParent<Enemy>();
-            enemyBuffController = GetComponentInParent<EnemyBuffController>();
-            enemyCombatController = GetComponentInParent<EnemyCombatController>();
-            enemyDodgeController = GetComponentInParent<EnemyDodgeController>();
-            enemyBlockController = GetComponentInParent<EnemyBlockController>();
-            enemyHealthController = GetComponentInParent<EnemyHealthController>();
-            enemyProjectileController = GetComponentInParent<EnemyProjectileController>();
+            enemy = GetComponentInParent<EnemyManager>();
         }
 
         #region Attack Hitboxes
         // BUFFS
         public void CastBuff()
         {
-            if (enemyBuffController == null)
-            {
-                return;
-            }
-
-            enemyBuffController.CastBuff();
+            enemy.OnBuffStart();
+        }
+        public void OnBuffStart()
+        {
+            enemy.OnBuffStart();
+        }
+        public void OnBuffEnd( )
+        {
+            enemy.OnBuffEnd();
         }
 
         // Adapter
         public void ActivateHitbox()
         {
-            enemyCombatController.ActivateLeftHandHitbox();
+            enemy.ActivateLeftHandHitbox();
         }
         public void DeactivateHitbox()
         {
-            enemyCombatController.DeactivateLeftHandHitbox();
+            enemy.DeactivateLeftHandHitbox();
         }
 
         // HANDS
         public void ActivateLeftHandHitbox(AnimationEvent animationEvent)
         {
-            enemyCombatController.ActivateLeftHandHitbox();
+            enemy.ActivateLeftHandHitbox();
         }
 
         public void ActivateLeftWeaponHitbox()
         {
-            enemyCombatController.ActivateLeftHandHitbox();
+            enemy.ActivateLeftHandHitbox();
         }
 
         public void DeactivateLeftHandHitbox()
         {
-            enemyCombatController.DeactivateLeftHandHitbox();
+            enemy.DeactivateLeftHandHitbox();
         }
 
         public void DeactivateLeftWeaponHitbox()
@@ -77,17 +67,17 @@ namespace AF
 
         public void ActivateRightHandHitbox()
         {
-            enemyCombatController.ActivateRightHandHitbox();
+            enemy.ActivateRightHandHitbox();
         }
 
         public void ActivateRightWeaponHitbox()
         {
-            enemyCombatController.ActivateRightHandHitbox();
+            enemy.ActivateRightHandHitbox();
         }
 
         public void DeactivateRightHandHitbox()
         {
-            enemyCombatController.DeactivateRightHandHitbox();
+            enemy.DeactivateRightHandHitbox();
         }
 
         public void DeactivateRightWeaponHitbox()
@@ -98,46 +88,46 @@ namespace AF
         // LEGS
         public void ActivateLeftLegHitbox()
         {
-            enemyCombatController.ActivateLeftLegHitbox();
+            enemy.ActivateLeftLegHitbox();
         }
 
         public void DeactivateLeftLegHitbox()
         {
-            enemyCombatController.DeactivateLeftLegHitbox();
+            enemy.DeactivateLeftLegHitbox();
         }
 
         public void ActivateRightLegHitbox()
         {
-            enemyCombatController.ActivateRightLegHitbox();
+            enemy.ActivateRightLegHitbox();
         }
 
         public void DeactivateRightLegHitbox()
         {
-            enemyCombatController.DeactivateRightLegHitbox();
+            enemy.DeactivateRightLegHitbox();
         }
 
         // HEAD
 
         public void ActivateHeadHitbox()
         {
-            enemyCombatController.ActivateHeadHitbox();
+            enemy.ActivateHeadHitbox();
         }
 
         public void DeactivateHeadHitbox()
         {
-            enemyCombatController.DeactivateHeadHitbox();
+            enemy.DeactivateHeadHitbox();
         }
 
         // AOE
 
         public void ActivateAreaOfImpactHitbox()
         {
-            enemyCombatController.ActivateAreaOfImpactHitbox();
+            enemy.ActivateAreaOfImpactHitbox();
         }
 
         public void DeactivateAreaOfImpactHitbox()
         {
-            enemyCombatController.DeactivateAreaOfImpactHitbox();
+            enemy.DeactivateAreaOfImpactHitbox();
         }
         #endregion
 
@@ -146,15 +136,15 @@ namespace AF
         // SHOOTING
         public void ShowBow()
         {
-            enemyProjectileController.ShowBow();
+            enemy.ShowBow();
         }
         public void HideBow()
         {
-            enemyProjectileController.HideBow();
+            enemy.HideBow();
         }
         public void FireProjectile()
         {
-            enemyProjectileController.FireProjectile();
+            enemy.FireProjectile();
         }
         #endregion
 
@@ -162,20 +152,20 @@ namespace AF
         // IFRAMING
         public void ActivateDodge()
         {
-            enemyDodgeController.ActivateDodge();
+            enemy.ActivateDodge();
         }
         public void DeactivateDodge()
         {
-            enemyDodgeController.DeactivateDodge();
+            enemy.DeactivateDodge();
         }
 
         public void ActivateBlock()
         {
-            enemyBlockController.ActivateBlock();
+            enemy.ActivateBlock();
         }
         public void DeactivateBlock()
         {
-            enemyBlockController.DeactivateBlock();
+            enemy.DeactivateBlock();
         }
         #endregion
     }

@@ -32,7 +32,6 @@ namespace AF
 
         public void RefreshEventPages()
         {
-
             EventPage previousEventPage = null;
 
             // Deactivate all event pages

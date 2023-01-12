@@ -19,6 +19,8 @@ namespace AF
         VisualElement positiveContainer;
         VisualElement negativeContainer;
 
+        DefenseStatManager defenseStatManager;
+
         // Start is called before the first frame update
         void Awake()
         {
@@ -36,7 +38,7 @@ namespace AF
             ClearAllNegativeStatusEntry();
             ClearAllConsumableEntries();
 
-            var defenseStatManager = FindObjectOfType<DefenseStatManager>(true);
+            this.defenseStatManager = FindObjectOfType<DefenseStatManager>(true);
             foreach (var negativeStatus in Player.instance.appliedStatus)
             {
                 AddNegativeStatusEntry(negativeStatus.statusEffect, defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(negativeStatus.statusEffect));
@@ -92,6 +94,10 @@ namespace AF
             var appliedStatus = Player.instance.appliedStatus.Find(x => x.statusEffect.name == statusEntry.name);
 
             float percentage = appliedStatus.currentAmount * 100 / statusEntry.Q<VisualElement>("Bar").style.width.value.value; //100px is the width of the status bar
+
+            statusEntry.Q<VisualElement>("Bar").style.width = new Length(defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(appliedStatus.statusEffect), LengthUnit.Pixel);
+
+
             statusEntry.Q<VisualElement>("BarFill").style.width = new Length(percentage, LengthUnit.Percent);
 
             var appliedStatusLabel = statusEntry.Q<Label>("AppliedStatusLabel");

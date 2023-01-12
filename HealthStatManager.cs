@@ -9,9 +9,11 @@ namespace AF
         public int baseHealth = 100;
         public float levelMultiplier = 3.25f;
 
+        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+
         public int GetMaxHealth()
         {
-            return baseHealth + (int)(Mathf.Ceil(Player.instance.vitality * levelMultiplier));
+            return baseHealth + (int)(Mathf.Ceil(Player.instance.vitality * levelMultiplier)) + (int)(equipmentGraphicsHandler.vitalityBonus * levelMultiplier);
         }
 
         public void SubtractAmount(float amount)

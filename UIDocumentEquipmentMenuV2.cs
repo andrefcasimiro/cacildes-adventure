@@ -59,7 +59,7 @@ namespace AF
             var healthStatManager = FindObjectOfType<HealthStatManager>(true);
             var staminaStatManager = FindObjectOfType<StaminaStatManager>(true);
             var playerPoiseController = FindObjectOfType<PlayerPoiseController>(true);
-            this.root.Q<Label>("Stats").text = "HP " + healthStatManager.GetMaxHealth() + " / Stamina " + staminaStatManager.GetMaxStamina() + " / Poise " + playerPoiseController.maxPoiseHits
+            this.root.Q<Label>("Stats").text = "HP " + healthStatManager.GetMaxHealth() + " / Stamina " + staminaStatManager.GetMaxStamina() + " / Poise " + playerPoiseController.GetMaxPoise()
                     + " / Reputation " + player.currentReputation + " / Gold " + player.currentGold;
 
             // Weapon
@@ -72,7 +72,7 @@ namespace AF
             if (player.equippedWeapon != null)
             {
                 weaponButtonElement.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(player.equippedWeapon.sprite);
-                weaponButtonElement.Q<IMGUIContainer>("Icon").style.opacity =1f;
+                weaponButtonElement.Q<IMGUIContainer>("Icon").style.opacity = 1f;
             }
             else
             {

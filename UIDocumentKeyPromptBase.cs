@@ -42,6 +42,11 @@ namespace AF
             root.Q<Label>("InputText").text = action;
         }
 
+        private void OnDisable()
+        {
+            action = "";
+        }
+
     }
 
 }

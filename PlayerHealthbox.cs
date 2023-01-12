@@ -1,5 +1,8 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using Unity.Services.Analytics;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace AF
 {
@@ -63,6 +66,12 @@ namespace AF
 
             if (Player.instance.currentHealth <= 0)
             {
+                // Track player death
+                AnalyticsService.Instance.CustomData("player_killed_by_environment",
+                new Dictionary<string, object>()
+                {
+                                            { "killed_at", SceneManager.GetActiveScene().name },
+                });
 
                 Die();
             }
@@ -80,14 +89,13 @@ namespace AF
                 return;
             }
 
-            Enemy enemy = attackerTransform.GetComponent<Enemy>();
-            EnemyCombatController enemyCombatController = enemy != null ? enemy.GetComponent<EnemyCombatController>() : null;
+            EnemyManager enemy = attackerTransform.GetComponent<EnemyManager>();
 
             if (
                playerParryManager.IsBlocking()
                 // And enemy is facing weapon
                 && Vector3.Angle(transform.forward * -1, attackerTransform.forward) <= 90f
-                && enemyCombatController != null
+                && enemy != null
                 )
             {
                 float blockStaminaCost = 0;
@@ -103,7 +111,7 @@ namespace AF
                     defenseAbsorption = Player.instance.equippedWeapon.blockAbsorption;
                 }
 
-                float staminaCost = blockStaminaCost + enemyCombatController.bonusBlockStaminaCost;
+                float staminaCost = blockStaminaCost + enemy.bonusBlockStaminaCost;
 
                 bool playerCanBlock = staminaStatManager.HasEnoughStaminaForAction(staminaCost);
 
@@ -113,7 +121,10 @@ namespace AF
                 }
                 else if (Player.instance.equippedWeapon != null && equipmentGraphicsHandler.leftHand != null)
                 {
-                    Instantiate(Player.instance.equippedWeapon.blockFx, equipmentGraphicsHandler.leftHand.transform.position, Quaternion.identity);
+                    if (Player.instance.equippedWeapon.blockFx != null)
+                    {
+                        Instantiate(Player.instance.equippedWeapon.blockFx, equipmentGraphicsHandler.leftHand.transform.position, Quaternion.identity);
+                    }
                 }
 
                 staminaStatManager.DecreaseStamina(staminaCost);
@@ -135,9 +146,9 @@ namespace AF
                 return;
             }
 
-            if (enemyCombatController != null && enemyCombatController.weaponStatusEffect != null)
+            if (enemy != null && enemy.weaponStatusEffect != null)
             {
-                playerStatusManager.InflictStatusEffect(enemyCombatController.weaponStatusEffect, enemyCombatController.statusEffectAmount, false);
+                playerStatusManager.InflictStatusEffect(enemy.weaponStatusEffect, enemy.statusEffectAmount, false);
             }
 
             healthStatManager.SubtractAmount(damage);
@@ -159,6 +170,26 @@ namespace AF
                     Instantiate(playerPoiseController.damageParticlePrefab, transform.position, Quaternion.identity);
                 }
 
+                // Track player death
+                AnalyticsService.Instance.CustomData("player_killed_by_enemy",
+                new Dictionary<string, object>()
+                {
+                                            { "killed_by", enemy.name + " (Lv. " + enemy.currentLevel + ") on map " + SceneManager.GetActiveScene().name },
+                                            { "player_level", FindObjectOfType<PlayerLevelManager>(true).GetCurrentLevel() },
+                                            { "player_vitality", Player.instance.vitality },
+                                            { "player_endurance", Player.instance.endurance },
+                                            { "player_strength", Player.instance.strength },
+                                            { "player_dexterity", Player.instance.dexterity },
+                                            { "player_weapon", Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.name : "Unarmed" },
+                                            { "player_shield", Player.instance.equippedShield != null ? Player.instance.equippedShield.name : "-" },
+                                            { "player_helmet", Player.instance.equippedHelmet != null ? Player.instance.equippedHelmet.name : "-" },
+                                            { "player_armor", Player.instance.equippedArmor != null ? Player.instance.equippedArmor.name : "-" },
+                                            { "player_gauntlets", Player.instance.equippedGauntlets != null ? Player.instance.equippedGauntlets.name : "-" },
+                                            { "player_legwear", Player.instance.equippedLegwear != null ? Player.instance.equippedLegwear.name : "-" },
+                                            { "player_acessory", Player.instance.equippedAccessory != null ? Player.instance.equippedAccessory.name : "-" },
+                }
+    );
+
                 Die();
             }
             else if (playerParryManager.IsBlocking() == false)
@@ -174,6 +205,9 @@ namespace AF
             playerComponentManager.DisableComponents();
 
             animator.Play(hashDying);
+
+            // Remove active consumables
+            playerCombatController.GetComponent<PlayerConsumablesManager>().ClearAllConsumables();
 
             StartCoroutine(ShowGameOverScreen());
         }

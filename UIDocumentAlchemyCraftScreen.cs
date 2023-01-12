@@ -20,7 +20,8 @@ namespace AF
         [Header("UI")]
         public VisualTreeAsset recipeItem;
         public VisualTreeAsset ingredientItem;
-        public Sprite backgroundImage;
+        public Sprite alchemyBackgroundImage;
+        public Sprite cookingBackgroundImage;
 
         UIDocument uIDocument => GetComponent<UIDocument>();
         [HideInInspector] public VisualElement root;
@@ -46,7 +47,8 @@ namespace AF
 
             playerInventory = FindObjectOfType<PlayerInventory>(true);
 
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
+
+            Utils.ShowCursor();
 
             BGMManager.instance.PlaySound(sfxOnEnterMenu, null);
 
@@ -58,14 +60,11 @@ namespace AF
 
         private void OnDisable()
         {
-            UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-
             FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
         }
 
         private void Update()
         {
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
         }
 
         void DrawUI()
@@ -79,20 +78,23 @@ namespace AF
                 FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
                 FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();
                 this.gameObject.SetActive(false);
+                Utils.HideCursor();
             });
 
             var craftActivityTitle = root.Q<Label>("CraftActivityTitle");
 
-            root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(backgroundImage);
-
             if (craftActivity == CraftActivity.ALCHEMY)
             {
+                root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(alchemyBackgroundImage);
+
                 buttonExit.text = "Exit Alchemy";
                 craftActivityTitle.text = "Alchemy Table";
                 PopulateScrollView(Player.instance.alchemyRecipes.ToArray());
             }
             else if (craftActivity == CraftActivity.COOKING)
             {
+                root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(cookingBackgroundImage);
+
                 buttonExit.text = "Exit Cooking";
                 craftActivityTitle.text = "Cooking Table";
                 PopulateScrollView(Player.instance.cookingRecipes.ToArray());

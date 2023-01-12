@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.UIElements;
 using MouseButton = UnityEngine.InputSystem.LowLevel.MouseButton;
@@ -40,8 +41,16 @@ namespace AF
         public float mouseSize = 25;
         public float padding = 0.5f;
 
+
         private void OnEnable()
         {
+            EventSystem.current.SetSelectedGameObject(null);
+
+            if (Gamepad.current == null)
+            {
+                return;
+            }
+
             this.root = uIDocument.rootVisualElement;
 
             this.root.pickingMode = PickingMode.Ignore;
@@ -65,6 +74,11 @@ namespace AF
                 InputSystem.AddDevice(virtualMouse);
             }
 
+
+            Vector2 initialPos = new Vector2(Screen.width / 2, Screen.height / 2);
+
+            previousPosition = initialPos;
+
             InputState.Change(virtualMouse.position, previousPosition);
 
             InputUser.PerformPairingWithDevice(virtualMouse, playerInput.user);
@@ -73,27 +87,28 @@ namespace AF
             AnchorCursor(virtualMouse.position.ReadValue() * scale);
 
             InputSystem.onAfterUpdate += UpdateMotion;
+
         }
 
         private void OnDisable()
         {
-            InputSystem.RemoveDevice(virtualMouse);
-            InputSystem.onAfterUpdate -= UpdateMotion;
+            if (virtualMouse != null)
+            {
+                InputSystem.RemoveDevice(virtualMouse);
+                InputSystem.onAfterUpdate -= UpdateMotion;
+            }
         }
 
         private void Update()
         {
-            uIDocument.sortingOrder = UnityEngine.Random.RandomRange(999, 9999);
-
-            if (Gamepad.current == null)
+            if (Gamepad.current != null)
             {
-                UnityEngine.Cursor.visible = true;
-                this.gameObject.SetActive(false);
+                uIDocument.sortingOrder = UnityEngine.Random.RandomRange(999, 9999);
+                EventSystem.current.SetSelectedGameObject(null);
             }
             else
             {
-                EventSystem.current.SetSelectedGameObject(null);
-                UnityEngine.Cursor.visible = false;
+                this.gameObject.SetActive(false);
             }
         }
 
@@ -123,7 +138,6 @@ namespace AF
 
             previousPosition = newPosition;
 
-            Debug.Log("newPosition + " + newPosition);
 
             bool buttonSouthIsPressed = Gamepad.current.buttonSouth.IsPressed();
             if (previousMouseState != buttonSouthIsPressed)
@@ -147,7 +161,7 @@ namespace AF
 
         public Vector2 GetScreen()
         {
-            return new Vector2(uIDocument.rootVisualElement.resolvedStyle.width, uIDocument.rootVisualElement.resolvedStyle.height);
+            return new Vector2(this.root.resolvedStyle.width, this.root.resolvedStyle.height);
         }
 
 

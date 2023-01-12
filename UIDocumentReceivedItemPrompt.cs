@@ -10,6 +10,16 @@ namespace AF
 
     public class UIDocumentReceivedItemPrompt : MonoBehaviour
     {
+        [System.Serializable]
+        public class ItemsReceived
+        {
+
+            public string itemName = "Item Name";
+            public int quantity = 0;
+            public Sprite sprite = null;
+
+        }
+
         public UIDocument uiDocument;
 
         public AudioClip onConfirmSfx;
@@ -17,10 +27,10 @@ namespace AF
         VisualElement root;
         StarterAssetsInputs inputs;
 
+        public VisualTreeAsset receivedItemPrefab;
 
-        public string itemName = "Item Name";
-        public int quantity = 0;
-        public Sprite sprite = null;
+        public List<ItemsReceived> itemsUI = new List<ItemsReceived>();
+
 
         private void Awake()
         {
@@ -45,9 +55,25 @@ namespace AF
                 root.Q<IMGUIContainer>("GamepadIcon").style.display = DisplayStyle.None;
             }
 
-            this.root.Q<VisualElement>("ActionButtons").Q<Label>("ItemName").text = itemName;
-            this.root.Q<Label>("ItemQuantity").text = quantity.ToString();
-            this.root.Q<IMGUIContainer>("ItemSprite").style.backgroundImage = new StyleBackground(sprite);
+            var rootPanel = this.root.Q<VisualElement>("ReceivedItemsContainer");
+            rootPanel.Clear();
+
+            foreach (var itemUIEntry in itemsUI)
+            {
+
+                var clone = receivedItemPrefab.CloneTree();
+
+
+
+                clone.Q<VisualElement>("ActionButtons").Q<Label>("ItemName").text = itemUIEntry.itemName;
+                clone.Q<Label>("ItemQuantity").text = itemUIEntry.quantity.ToString();
+                clone.Q<IMGUIContainer>("ItemSprite").style.backgroundImage = new StyleBackground(itemUIEntry.sprite);
+
+
+                rootPanel.Add(clone);
+
+            }
+
 
         }
 

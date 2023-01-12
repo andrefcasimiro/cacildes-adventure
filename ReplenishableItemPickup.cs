@@ -7,11 +7,23 @@ using UnityEngine.Events;
 namespace AF
 {
 
-    public class ReplenishableItemPickup : VariableListener
-    {
-        public Item item;
 
+    public class ReplenishableItemPickup : VariableListener, IClockListener
+    {
+        [System.Serializable]
+        public class ReplenishableItemEntry
+        {
+            public Item item;
+            public int quantity = 1;
+            [Range(0, 100)] public float chance = 100;
+        }
+
+        [Header("Single Item")]
+        public Item item;
         public int quantity = 1;
+
+        [Header("Multiple Items")]
+        public ReplenishableItemEntry[] replenishableItemEntries;
 
         StarterAssetsInputs inputs;
         UIDocumentKeyPromptAction uIDocumentKeyPrompt;
@@ -23,6 +35,7 @@ namespace AF
 
         [Header("Day / Night Manager")]
         public int daysToRespawn = 3;
+        [Range(0, 23)] public int hourToReplenish = 6;
 
         private GameObject graphic;
 
@@ -39,8 +52,6 @@ namespace AF
 
         private void Start()
         {
-            this._variable = VariableManager.instance.GetVariableInstance(this.variableUuid);
-
             EvaluateVariable();
         }
 
@@ -79,13 +90,45 @@ namespace AF
 
                 uIDocumentKeyPrompt.gameObject.SetActive(false);
 
-                uIDocumentReceivedItemPrompt.itemName = item.name;
-                uIDocumentReceivedItemPrompt.quantity = quantity;
-                uIDocumentReceivedItemPrompt.sprite = item.sprite;
 
-                uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
-                playerInventory.AddItem(item, quantity);
-                
+                if (item != null)
+                {
+
+                    UIDocumentReceivedItemPrompt.ItemsReceived itemReceived = new UIDocumentReceivedItemPrompt.ItemsReceived();
+
+                    itemReceived.itemName = item.name;
+                    itemReceived.quantity = quantity;
+                    itemReceived.sprite = item.sprite;
+
+                    uIDocumentReceivedItemPrompt.itemsUI.Clear();
+                    uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
+
+                    uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
+                    playerInventory.AddItem(item, quantity);
+                }
+                else if (replenishableItemEntries.Length > 0)
+                {
+                    uIDocumentReceivedItemPrompt.itemsUI.Clear();
+
+                    foreach (var possibleItem in replenishableItemEntries)
+                    {
+                        var calcChance = Random.Range(0, 100);
+                        if (calcChance <= possibleItem.chance)
+                        {
+                            UIDocumentReceivedItemPrompt.ItemsReceived itemReceived = new UIDocumentReceivedItemPrompt.ItemsReceived();
+
+                            itemReceived.itemName = possibleItem.item.name;
+                            itemReceived.quantity = possibleItem.quantity;
+                            itemReceived.sprite = possibleItem.item.sprite;
+
+                            uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
+                            playerInventory.AddItem(possibleItem.item, possibleItem.quantity);
+                        }
+                    }
+
+                    uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
+                }
+
                 BGMManager.instance.PlayItem();
 
                 if (onItemPickup != null) {
@@ -93,7 +136,7 @@ namespace AF
                 }
 
                 // Record the day that the item was picked
-                VariableManager.instance.UpdateVariable(this._variable.uuid.ToString(), Player.instance.daysPassed);
+                VariableManager.instance.UpdateVariable(variableUuid, Player.instance.daysPassed);
             }
         }
 
@@ -118,18 +161,12 @@ namespace AF
             {
                 return;
             }
-
-            if (Player.instance.daysPassed > VariableManager.instance.GetVariableValue(_variable.uuid) + daysToRespawn)
-            {
-                VariableManager.instance.UpdateVariable(this._variable.uuid, -1);
-
-                graphic.SetActive(true);
-            }
         }
 
+        // Runs on start and game loaded
         public override void EvaluateVariable()
         {
-            var variableValue = VariableManager.instance.GetVariableValue(_variable.uuid);
+            var variableValue = VariableManager.instance.GetVariableValue(variableUuid);
 
             // Item not picked up
             if (variableValue == -1)
@@ -138,18 +175,58 @@ namespace AF
                 return;
             }
 
-            bool hasReplenished = Player.instance.daysPassed > variableValue + daysToRespawn;
-            if (hasReplenished)
+            if (HasReplenished())
             {
                 graphic.SetActive(true);
-                VariableManager.instance.UpdateVariable(this._variable.uuid, -1);
+                VariableManager.instance.UpdateVariable(variableUuid, -1);
                 return;
             }
 
             graphic.SetActive(false);
         }
 
+        // Runs every hour change
+        public void OnHourChanged()
+        {
+            // Graphic is active, has not been picked up yet
+            if (graphic.activeSelf)
+            {
+                return;
+            }
 
+            if (HasReplenished())
+            {
+                // If is only one day passed, only enable after passing the hour threshold
+                if ((Player.instance.daysPassed - 1) == VariableManager.instance.GetVariableValue(variableUuid))
+                {
+                    if (Player.instance.timeOfDay >= hourToReplenish)
+                    {
+                        Replenish();
+                    }
+                }
+                else
+                {
+                    Replenish();
+                }
+            }
+        }
+
+        void Replenish()
+        {
+            VariableManager.instance.UpdateVariable(variableUuid, -1);
+            graphic.SetActive(true);
+        }
+
+        bool HasReplenished()
+        {
+            if (Player.instance.daysPassed > VariableManager.instance.GetVariableValue(variableUuid) + daysToRespawn)
+            {
+                return true;
+            }
+
+            return false;
+
+        }
     }
 
 }

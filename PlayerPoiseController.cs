@@ -7,10 +7,10 @@ namespace AF
     {
         public readonly int hashStunnedDamage = Animator.StringToHash("StunnedDamage");
         public readonly int hashTakingDamage = Animator.StringToHash("TakingDamage");
+        public readonly int hashIsTakingDamage = Animator.StringToHash("IsTakingDamage");
 
         [Header("Posture")]
-        public int maxPoiseCountBeforeStunned = 5;
-        public int maxPoiseHits = 1;
+        public int unarmedPoiseHits = 1;
         int currentPoiseHitCount = 0;
         float timerBeforeReset;
         public float maxTimeBeforeReset = 15f;
@@ -20,6 +20,7 @@ namespace AF
 
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
         PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
+        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
         ClimbController climbController => GetComponent<ClimbController>();
 
@@ -36,28 +37,31 @@ namespace AF
 
         private void Update()
         {
-            if (maxPoiseHits > 1)
-            {
-                timerBeforeReset += Time.deltaTime;
 
-                if (timerBeforeReset >= maxTimeBeforeReset)
-                {
-                    currentPoiseHitCount = 0;
-                    timerBeforeReset = 0f;
-                }
+            if (currentPoiseHitCount <= 0)
+            {
+                return;
+            }
+
+            timerBeforeReset += Time.deltaTime;
+
+            if (timerBeforeReset >= maxTimeBeforeReset)
+            {
+                currentPoiseHitCount = 0;
+                timerBeforeReset = 0f;
             }
         }
 
         public void IncreasePoiseDamage(int poiseDamage)
         {
-            currentPoiseHitCount = currentPoiseHitCount + 1 + poiseDamage;
+            currentPoiseHitCount += poiseDamage + 1;
 
             if (climbController.climbState != ClimbController.ClimbState.NONE)
             {
                 return;
             }
 
-            if (currentPoiseHitCount >= maxPoiseHits)
+            if (currentPoiseHitCount >= GetMaxPoise())
             {
                 ActivatePoiseDamage();
             }
@@ -70,7 +74,7 @@ namespace AF
                 Instantiate(damageParticlePrefab, transform.position, Quaternion.identity);
             }
 
-            if (currentPoiseHitCount >= maxPoiseCountBeforeStunned)
+            if (currentPoiseHitCount >= GetMaxPoise() * 3)
             {
                 isStunned = true;
                 animator.Play(hashStunnedDamage);
@@ -104,5 +108,16 @@ namespace AF
 
             BGMManager.instance.PlaySoundWithPitchVariation(damageSfx, playerCombatController.combatAudioSource);
         }
+
+        public int GetMaxPoise()
+        {
+            return unarmedPoiseHits + equipmentGraphicsHandler.equipmentPoise;
+        }
+
+        public bool IsTakingDamage()
+        {
+            return animator.GetBool(hashIsTakingDamage);
+        }
+
     }
 }

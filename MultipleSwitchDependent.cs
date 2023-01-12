@@ -9,6 +9,7 @@ public class MultipleSwitchDependent : MonoBehaviour, ISaveable
     public class SwitchEntry
     {
         public string switchUuid;
+        public string description;
         public bool requiredValue;
     }
 

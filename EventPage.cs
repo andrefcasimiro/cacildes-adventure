@@ -104,8 +104,21 @@ namespace AF
 
         }
 
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.gameObject.tag == "Player" && eventTrigger == EventTrigger.ON_PLAYER_TOUCH && IsRunning() == false)
+            {
+                BeginEvent();
+            }
+        }
+
         public void BeginEvent()
         {
+            if (FindObjectOfType<MenuManager>(true).IsMenuOpen())
+            {
+                return;
+            }
+
             if (dayNightManager.TimePassageAllowed() && allowTimePassage == false)
             {
                 dayNightManager.tick = false;

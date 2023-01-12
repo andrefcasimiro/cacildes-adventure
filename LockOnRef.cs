@@ -7,21 +7,16 @@ namespace AF
 
     public class LockOnRef : MonoBehaviour
     {
-        [HideInInspector] public EnemyHealthController enemyHealthController;
+        [HideInInspector] public EnemyManager enemyManager;
 
         private void Start()
         {
-            enemyHealthController = GetComponentInParent<EnemyHealthController>(true);
-
-            if (enemyHealthController == null)
-            {
-                enemyHealthController = GetComponent<EnemyHealthController>();
-            }
+            enemyManager = GetComponentInParent<EnemyManager>(true);
         }
 
         public bool CanLockOn()
         {
-            return enemyHealthController.currentHealth > 0;
+            return enemyManager.currentHealth > 0;
         }
     }
 

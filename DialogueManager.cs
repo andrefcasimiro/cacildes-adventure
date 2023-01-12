@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 namespace AF
 {
@@ -11,6 +12,10 @@ namespace AF
         public string choiceText;
 
         public GameObject subEventPage;
+
+        [Header("Depends on Switch?")]
+        public string switchUuid;
+        public bool switchValue = false;
     }
 
     public class DialogueManager : MonoBehaviour
@@ -26,8 +31,6 @@ namespace AF
 
         public IEnumerator ShowDialogueWithChoices(Character character, string message, List<DialogueChoice> dialogueChoices, float textDelay, bool showHint)
         {
-            
-
             uIDocumentDialogueWindow.gameObject.SetActive(false);
 
             uIDocumentDialogueWindow.showHint = showHint;
@@ -53,7 +56,18 @@ namespace AF
                 // We need to copy clean the dialogue choices so we make sure we dont mutate the event's choice, very funny bug
                 foreach (var clonedChoice in dialogueChoices)
                 {
-                    uIDocumentDialogueWindow.dialogueChoices.Add(clonedChoice);
+                    if (System.String.IsNullOrEmpty(clonedChoice.switchUuid) == false)
+                    {
+                        // Evaluate switch
+                        if (SwitchManager.instance.GetSwitchValue(clonedChoice.switchUuid) == clonedChoice.switchValue)
+                        {
+                            uIDocumentDialogueWindow.dialogueChoices.Add(clonedChoice);
+                        }
+                    }
+                    else
+                    {
+                        uIDocumentDialogueWindow.dialogueChoices.Add(clonedChoice);
+                    }
                 }
             }
 

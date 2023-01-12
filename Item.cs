@@ -15,7 +15,7 @@ namespace AF
         [TextArea]
         public string description;
 
-        public int value = 0;
+        public float value = 0;
 
         public float weight = 0;
 

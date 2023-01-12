@@ -19,6 +19,10 @@ namespace AF
 
         public bool deactivateTriggerOnInput = false;
 
+        [Tooltip("When we don't want to deactivate the trigger on input, but we also dont want it to register more inputs")]
+        public bool triggerOnlyOnce = false;
+        bool hasTriggered = false;
+
         private void Awake()
         {
             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPromptAction>(true);
@@ -44,8 +48,18 @@ namespace AF
                 return;
             }
 
+            if (triggerOnlyOnce && hasTriggered)
+            {
+                return;
+            }
+
             if (inputs.interact)
             {
+                if (triggerOnlyOnce)
+                {
+                    hasTriggered = true;
+                }
+
                 inputs.interact = false;
 
                 uIDocumentKeyPrompt.gameObject.SetActive(false);

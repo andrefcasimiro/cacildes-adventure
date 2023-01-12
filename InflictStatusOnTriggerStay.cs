@@ -7,7 +7,7 @@ namespace AF
     public class InflictStatusOnTriggerStay : MonoBehaviour
     {
         public StatusEffect statusEffect;
-        public float amount = 0.1f;
+        public float amount = 10;
 
         private void OnTriggerStay(Collider other)
         {
@@ -21,11 +21,11 @@ namespace AF
                 }
                 else
                 {
-                    var enemyStatus = other.GetComponent<EnemyStatusManager>();
+                    var enemy = other.GetComponent<EnemyManager>();
 
-                    if (enemyStatus != null)
+                    if (enemy != null)
                     {
-                        enemyStatus.InflictStatusEffect(statusEffect, amount * Time.deltaTime);
+                        enemy.InflictStatusEffect(statusEffect, amount * Time.deltaTime);
                     }
                 }
 

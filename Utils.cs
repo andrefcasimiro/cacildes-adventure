@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
@@ -15,23 +16,24 @@ namespace AF
             origin.rotation = rotation;
         }
 
-        public static bool PlayerIsSighted(Enemy enemy, GameObject player, LayerMask obstructionMask)
+        public static void ShowCursor()
         {
-
-            return false;
-        }
-
-        public static void PlaySfx(AudioSource source, AudioClip clip)
-        {
-            if (clip == null)
+            if (Gamepad.current == null)
             {
-                return;
+                Cursor.visible = true;
+            }
+            else
+            {
+                Cursor.visible = false;
             }
 
-            float pitch = Random.Range(0.99f, 1.01f);
-            source.pitch = pitch;
+            Cursor.lockState = CursorLockMode.None;
+        }
 
-            source.PlayOneShot(clip);
+        public static void HideCursor()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
 
     }

@@ -49,6 +49,16 @@ namespace AF
                 player.transform.position = spawnGameObject.transform.position;
                 player.transform.rotation = spawnGameObject.transform.rotation;
 
+                if (spawnGameObject.gameObject.transform.childCount > 0)
+                {
+                    var reference = spawnGameObject.gameObject.transform.GetChild(0).transform.position;
+
+                    var rot = reference - player.transform.position;
+                    rot.y = 0;
+                    var lookRot = Quaternion.LookRotation(rot);
+                    player.transform.rotation = lookRot;
+                }
+
                 this.spawnGameObjectNameRef = null;
             }
         }

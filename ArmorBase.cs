@@ -12,16 +12,23 @@ namespace AF
 
     public class ArmorBase : Item
     {
+        [System.Serializable]
+        public class StatusEffectResistance
+        {
+            public StatusEffect statusEffect;
+            public float resistanceBonus;
+        }
+
         [Header("Stats")]
         public float physicalDefense;
 
+        [Header("Elemental")]
         public float fireDefense;
         public float frostDefense;
         public float lightningDefense;
 
-        public float bleedResistance;
-        public float fatigueResistance;
-        public float poisonResistance;
+        [Header("Negative Status Resistances")]
+        public StatusEffectResistance[] statusEffectResistances;
 
         [Header("Graphics")]
         public string graphicNameToShow;
@@ -33,7 +40,15 @@ namespace AF
         public int strengthBonus = 0;
         public int dexterityBonus = 0;
 
+        [Header("Poise")]
         public int poiseBonus = 0;
+
+        [Header("Speed Penalties")]
+        public float speedPenalty = 0;
+
+        [Header("Coins")]
+        [Range(0, 100f)]
+        public float additionalCoinPercentage = 0f;
 
     }
 

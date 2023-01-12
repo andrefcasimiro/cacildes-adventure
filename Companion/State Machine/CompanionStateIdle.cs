@@ -1,0 +1,44 @@
+﻿using UnityEngine;
+
+namespace AF
+{
+
+    public class CompanionStateIdle : StateMachineBehaviour
+    {
+        CompanionManager companionManager;
+
+        public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        {
+            if (companionManager == null)
+            {
+                animator.gameObject.TryGetComponent<CompanionManager>(out companionManager);
+
+                companionManager = animator.GetComponentInParent<CompanionManager>(true);
+            }
+            companionManager.agent.isStopped = false;
+
+            companionManager.agent.stoppingDistance = companionManager.defaultStoppingDistance;
+
+            companionManager.EnableGenericTrigger();
+        }
+
+        public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        {
+            if (companionManager.waitingForPlayer || companionManager.inParty == false)
+            {
+                return;
+            }
+
+            if (companionManager.ShouldRunToPlayer())
+            {
+                animator.SetBool(companionManager.hashRunToPlayer, true);
+            }
+            else if (companionManager.ShouldWalkToPlayer())
+            {
+                animator.SetBool(companionManager.hashWalkToPlayer, true);
+            }
+        }
+
+    }
+
+}

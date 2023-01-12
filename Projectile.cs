@@ -33,7 +33,6 @@ namespace AF
         Transform currentTarget;
         Vector3 targetDestination;
 
-        [HideInInspector]
         public bool isFromPlayer = false;
 
         bool hasCollidedAlready = false;
@@ -44,7 +43,6 @@ namespace AF
             targetDestination = target.transform.position;
 
             transform.parent = null;
-
 
             Quaternion arrowRotation = Quaternion.LookRotation(targetDestination - transform.position);
             transform.rotation = arrowRotation;
@@ -90,14 +88,13 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            Debug.Log(other.gameObject.name);
 
             if (hasCollidedAlready == true && isFromPlayer == false)
             {
                 return;
             }
 
-            if (other.gameObject.tag != "Enemy" && isFromPlayer == false)
+            if (other.gameObject.tag != "Enemy" && other.gameObject.tag != "EnemyHealthHitbox" && other.gameObject.tag != "" && isFromPlayer == false)
             {
                 hasCollidedAlready = true;
             }
@@ -120,7 +117,7 @@ namespace AF
                     return;
                 }
 
-                enemyHealthHitbox.enemyHealthController.TakeProjectileDamage(projectileDamage, this);
+                enemyHealthHitbox.enemyManager.TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
                 return;
             }
 
