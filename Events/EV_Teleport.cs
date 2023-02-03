@@ -9,7 +9,7 @@ namespace AF
     {
 
         public string spawnGameObjectName;
-        public string sceneName;
+        public TeleportManager.SceneName sceneName;
 
         [Header("Conditions")]
         public string switchUuid;
@@ -39,8 +39,12 @@ namespace AF
 
         private IEnumerator Teleport()
         {
+            FindObjectOfType<UIDocumentLoadingScreen>(true).gameObject.SetActive(true);
+            FindObjectOfType<UIDocumentLoadingScreen>(true).UpdateLoadingBar(0f);
             yield return null;
+
             TeleportManager.instance.Teleport(sceneName, spawnGameObjectName);
+            yield return null;
         }
 
     }

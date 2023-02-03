@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace AF
 {
-
     public class CompanionWeaponHitbox : MonoBehaviour
     {
         public AudioClip weaponSwingSfx;
@@ -12,7 +11,6 @@ namespace AF
 
         // References
         Collider boxCollider => GetComponent<Collider>();
-
         TrailRenderer trailRenderer => GetComponent<TrailRenderer>();
 
         float maxTimerBeforeAllowingDamageAgain = .5f;
@@ -21,10 +19,8 @@ namespace AF
         private void Awake()
         {
             companionManager = GetComponentInParent<CompanionManager>();
-
         }
 
-        // Start is called before the first frame update
         void Start()
         {
             DisableHitbox();
@@ -37,7 +33,6 @@ namespace AF
                 damageCooldownTimer += Time.deltaTime;
             }
         }
-
 
         public void EnableHitbox()
         {
@@ -52,7 +47,6 @@ namespace AF
             {
                 trailRenderer.enabled = true;
             }
-
         }
 
         public void DisableHitbox()
@@ -83,8 +77,12 @@ namespace AF
                 return;
             }
 
-            enemy.enemyManager.TakeEnvironmentalDamage(companionManager.GetCompanionAttack());
-            enemy.enemyManager.FocusOnCompanion(this.companionManager);
+            enemy.enemyManager.enemyHealthController.TakeEnvironmentalDamage(companionManager.GetCompanionAttack());
+            
+            if (enemy.enemyManager.enemyTargetController != null)
+            {
+                enemy.enemyManager.enemyTargetController.FocusOnCompanion(this.companionManager);
+            }
 
             BGMManager.instance.PlaySound(weaponImpactSfx, companionManager.combatAudioSource);
 
@@ -92,7 +90,5 @@ namespace AF
 
             damageCooldownTimer = 0f;
         }
-
     }
-
 }

@@ -24,7 +24,7 @@ namespace AF
 
             companionManager.agent.isStopped = true;
 
-            if (companionManager.currentEnemy == null || companionManager.currentEnemy.currentHealth <= 0)
+            if (companionManager.currentEnemy == null || companionManager.currentEnemy.enemyHealthController.currentHealth <= 0)
             {
                 companionManager.StopCombat();
             }

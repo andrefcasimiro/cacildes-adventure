@@ -61,7 +61,7 @@ namespace AF
             var allCompanionsInScene = FindObjectsOfType<CompanionManager>(true);
             allCompanionsInScene.FirstOrDefault(x => x.companion == companion).inParty = true;
 
-            BGMManager.instance.PlayCompanionJoin();
+            Soundbank.instance.PlayCompanionJoinParty();
             notificationManager.ShowNotification(companion.character.name + " has joined the party!", companion.character.avatar);
 
             // Revaluate any objects in scene that depend on party elements
@@ -85,7 +85,7 @@ namespace AF
 
             Player.instance.companions.Remove(companionInstance);
 
-            BGMManager.instance.PlayCompanionLeave();
+            Soundbank.instance.PlayCompanionLeaveParty();
             notificationManager.ShowNotification(companion.character.name + " has left the party!", companion.character.avatar);
 
             // Revaluate any objects in scene that depend on party elements

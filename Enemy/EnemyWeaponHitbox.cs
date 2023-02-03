@@ -10,8 +10,6 @@ namespace AF
 
         EnemyManager enemy;
 
-        AudioSource combatantAudioSource;
-
         // References
         Collider boxCollider => GetComponent<Collider>();
         PlayerHealthbox playerHealthbox;
@@ -108,7 +106,7 @@ namespace AF
         {
             if (other.gameObject.tag == "PlayerCompanionHealthHitbox")
             {
-                other.GetComponentInParent<CompanionManager>().TakeDamage(enemy.GetCurrentAttack(), enemy);
+                other.GetComponentInParent<CompanionManager>().TakeDamage(enemy.enemyCombatController.GetCurrentAttack(), enemy);
 
                 return;
             }
@@ -121,8 +119,8 @@ namespace AF
             GetPlayerComponents();
 
             float damageToReceive = Mathf.Clamp(
-                enemy.GetCurrentAttack() - defenseStatManager.GetDefenseAbsorption(),
-                UnityEngine.Random.RandomRange(1, 10),
+                enemy.enemyCombatController.GetCurrentAttack() - defenseStatManager.GetDefenseAbsorption(),
+                UnityEngine.Random.Range(1, 10),
                 healthStatManager.GetMaxHealth()
             );
 
@@ -131,20 +129,18 @@ namespace AF
                 return;
             }
 
-            if (playerParryManager.IsParrying())
+            if (playerParryManager.IsParrying() && enemy.enemyPostureController != null)
             {
                 playerParryManager.InstantiateParryFx();
-                enemy.TakePostureDamage();
+                enemy.enemyPostureController.TakePostureDamage();
                 return;
             }
 
-            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.currentPoiseDamage);
+            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.enemyCombatController.currentAttackPoiseDamage);
 
             DisableHitbox();
 
             damageCooldownTimer = 0f;
         }
-
     }
-
 }

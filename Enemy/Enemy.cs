@@ -4,13 +4,12 @@ using UnityEngine;
 
 namespace AF
 {
-    [CreateAssetMenu(menuName = "Enemy / New Enemy")]
+    [CreateAssetMenu(menuName = "NPCs / Enemy / New Enemy")]
     public class Enemy : ScriptableObject
     {
         [Header("Generic")]
         public string name;
         public bool isMale = true;
-
 
         [Header("Stats")]
         public int baseHealth = 1100;
@@ -50,7 +49,7 @@ namespace AF
         [Header("EXP & Loot")]
         public int baseGold = 500;
 
-        public List<DropCurrency> lootTable = new List<DropCurrency>();
+        public List<EnemyLoot.DropCurrency> lootTable = new List<EnemyLoot.DropCurrency>();
     }
 
 }

@@ -429,7 +429,10 @@ namespace AF
                 animator.Play(hashInjured);
                 injuredCooldown = 0;
 
-                enemyManager.BreakCompanionFocus();
+                if (enemyManager.enemyTargetController != null)
+                {
+                    enemyManager.enemyTargetController.BreakCompanionFocus();
+                }
             }
             else
             {

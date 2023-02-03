@@ -15,9 +15,13 @@ namespace AF
 
                 companionManager = animator.GetComponentInParent<CompanionManager>(true);
             }
-            companionManager.agent.isStopped = false;
 
-            companionManager.agent.stoppingDistance = companionManager.defaultStoppingDistance;
+            if (companionManager.agent != null && companionManager.gameObject.activeSelf && companionManager.agent.isOnNavMesh)
+            {
+                companionManager.agent.isStopped = false;
+
+                companionManager.agent.stoppingDistance = companionManager.defaultStoppingDistance;
+            }
 
             companionManager.EnableGenericTrigger();
         }

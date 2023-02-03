@@ -56,7 +56,7 @@ namespace AF
 
             if (showNotificationText)
             {
-                BGMManager.instance.PlayItem();
+                Soundbank.instance.PlayItemReceived();
                 FindObjectOfType<NotificationManager>(true).ShowNotification("Found x" + amount + " " + item.name + "", item.sprite);
             }
 
