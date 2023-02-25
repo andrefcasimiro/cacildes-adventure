@@ -211,47 +211,47 @@ namespace AF
                     object itemInstance = null;
                     if (itemInstance == null)
                     {
-                        itemInstance = accessories.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = accessories.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = alchemy.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = alchemy.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = cookingIngredients.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = cookingIngredients.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = armors.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = armors.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = consumables.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = consumables.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = gauntlets.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = gauntlets.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = helmets.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = helmets.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = legwears.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = legwears.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = shields.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = shields.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = weapons.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = weapons.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = keyItems.FirstOrDefault(i => i.name == serializedItem.itemName);
+                        itemInstance = keyItems.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
 
                     if (itemInstance != null)
@@ -267,7 +267,7 @@ namespace AF
                 {
                     foreach (var serializedFavoriteItem in gameData.favoriteItems)
                     {
-                        var favoriteItem = this.ownedItems.Find(x => x.item.name == serializedFavoriteItem);
+                        var favoriteItem = this.ownedItems.Find(x => x.item.name.GetEnglishText() == serializedFavoriteItem);
 
                         if (favoriteItem != null)
                         {
@@ -437,9 +437,9 @@ namespace AF
             this.companions.Clear();
 
             // Reset all switches
-            foreach (var _switch in SwitchManager.instance.switches)
+            foreach (var _switch in SwitchManager.instance.switchEntryInstances)
             {
-                _switch.value = false;
+                _switch.currentValue = false;
             }
 
             // Reset all variables

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using StarterAssets;
 
@@ -28,13 +26,13 @@ namespace AF
         ClimbController climbController;
 
         StarterAssetsInputs inputs;
-        UIDocumentKeyPromptAction uIDocumentKeyPrompt;
+        UIDocumentKeyPrompt uIDocumentKeyPrompt;
         PlayerShootingManager playerShootingManager;
 
         private void Start()
         {
             inputs = FindObjectOfType<StarterAssetsInputs>(true);
-            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPromptAction>(true);
+            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
             playerShootingManager = FindObjectOfType<PlayerShootingManager>(true);
         }
 

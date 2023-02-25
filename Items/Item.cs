@@ -8,12 +8,9 @@ namespace AF
     {
         public Sprite sprite;
 
-        public string name;
+        public new LocalizedText name;
 
-        public string smallEffectDescription;
-
-        [TextArea]
-        public string description;
+        public LocalizedText description;
 
         public float value = 0;
 

@@ -26,10 +26,52 @@ namespace AF
 
         NotificationManager notificationManager;
 
+        [Header("Localization")]
+        public LocalizedText backToBonfireText;
+        public LocalizedText levelUpText;
+        public LocalizedText currentLevelText;
+        public LocalizedText currentAndRequiredGoldText;
+        public LocalizedText maximumHealthText;
+        public LocalizedText maximumStaminaText;
+        public LocalizedText physicalAttackPowerText;
+        public LocalizedText physicalDefenseAbsorption;
+        public LocalizedText vigorText;
+        public LocalizedText vigorExplanationText;
+        public LocalizedText enduranceText;
+        public LocalizedText enduranceExplanationText;
+        public LocalizedText strengthText;
+        public LocalizedText strengthExplanationText;
+        public LocalizedText dexterityText;
+        public LocalizedText dexterityExplanationText;
+        public LocalizedText confirmText;
+
+        VisualElement root;
+
+        void TranslateRoot()
+        {
+            root.Q<Button>("ButtonExit").text = backToBonfireText.GetText();
+            root.Q<Label>("Title").text = levelUpText.GetText();
+            root.Q<Label>("CurrentLevel").text = currentLevelText.GetText();
+            root.Q<Label>("CurrentGoldAndRequired").text = currentAndRequiredGoldText.GetText();
+            root.Q<Label>("MaximumHealthText").text = maximumHealthText.GetText();
+            root.Q<Label>("MaximumStaminaText").text = maximumStaminaText.GetText();
+            root.Q<Label>("PhysicalAttackPowerLabel").text = physicalAttackPowerText.GetText();
+            root.Q<Label>("PhysicalDefenseAbsorptionLabel").text = physicalDefenseAbsorption.GetText();
+            root.Q<Label>("VigorText").text = vigorText.GetText();
+            root.Q<Label>("VigorDescriptionText").text = vigorExplanationText.GetText();
+            root.Q<Label>("EnduranceText").text = enduranceText.GetText();
+            root.Q<Label>("EnduranceDescriptionText").text = enduranceExplanationText.GetText();
+            root.Q<Label>("StrengthText").text = strengthText.GetText();
+            root.Q<Label>("StrengthExplanationText").text = strengthExplanationText.GetText();
+            root.Q<Label>("DexterityText").text = dexterityText.GetText();
+            root.Q<Label>("DexterityExplanationText").text = dexterityExplanationText.GetText();
+            root.Q<Button>("ConfirmButton").text = confirmText.GetText();
+        }
+
+
         private void Awake()
         {
-            this.gameObject.SetActive(false);
-
+            gameObject.SetActive(false);
         }
 
         private void Start()
@@ -53,7 +95,8 @@ namespace AF
             desiredDexterity = Player.instance.dexterity;
             desiredEndurance = Player.instance.endurance;
 
-            var root = GetComponent<UIDocument>().rootVisualElement;
+            root = GetComponent<UIDocument>().rootVisualElement;
+            TranslateRoot();
 
             root.Q<Button>("ButtonExit").RegisterCallback<ClickEvent>(ev =>
             {
@@ -69,13 +112,14 @@ namespace AF
                 virtualGold += playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
                 DrawUI(root);
             });
+
             root.Q<VisualElement>("Vigor").Q<Button>("IncreaseBtn").RegisterCallback<ClickEvent>(ev =>
             {
                 desiredVitality++;
                 virtualGold -= playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount() - 1);
                 DrawUI(root);
             });
-            
+
             root.Q<VisualElement>("Endurance").Q<Button>("DecreaseBtn").RegisterCallback<ClickEvent>(ev =>
             {
                 desiredEndurance--;
@@ -95,6 +139,7 @@ namespace AF
                 virtualGold += playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
                 DrawUI(root);
             });
+
             root.Q<VisualElement>("Strength").Q<Button>("IncreaseBtn").RegisterCallback<ClickEvent>(ev =>
             {
                 desiredStrength++;
@@ -108,6 +153,7 @@ namespace AF
                 virtualGold += playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
                 DrawUI(root);
             });
+
             root.Q<VisualElement>("Dexterity").Q<Button>("IncreaseBtn").RegisterCallback<ClickEvent>(ev =>
             {
                 desiredDexterity++;
@@ -126,7 +172,7 @@ namespace AF
                 Player.instance.currentGold = virtualGold;
 
                 var newLevel = playerLevelManager.GetCurrentLevel();
-                
+
                 if (oldLevel != newLevel)
                 {
                     BGMManager.instance.PlaySound(levelUpSound, null);
@@ -143,7 +189,6 @@ namespace AF
 
         void DrawUI(VisualElement root)
         {
-
             root.Q<VisualElement>("Level").Q<Label>("Value").text = GetDesiredLevelsAmount() + "";
             root.Q<VisualElement>("Gold").Q<Label>("Value").text = virtualGold + "/" + playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
 
@@ -168,7 +213,6 @@ namespace AF
             root.Q<VisualElement>("Dexterity").Q<Button>("DecreaseBtn").SetEnabled(desiredDexterity > Player.instance.dexterity);
             root.Q<VisualElement>("Dexterity").Q<Button>("IncreaseBtn").SetEnabled(HasEnoughExperienceForLevelling(virtualGold, GetDesiredLevelsAmount() + 1));
             root.Q<VisualElement>("Dexterity").Q<Label>("Value").text = desiredDexterity + "";
-
         }
 
         public bool HasEnoughExperienceForLevelling(float experience, int levelDesired)

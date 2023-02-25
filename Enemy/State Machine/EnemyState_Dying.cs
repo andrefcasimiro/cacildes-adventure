@@ -11,7 +11,7 @@ namespace AF
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            animator.gameObject.TryGetComponent<EnemyManager>(out enemy);
+            animator.gameObject.TryGetComponent(out enemy);
 
             var deathCollider = animator.gameObject.GetComponentInChildren<DeathColliderRef>();
             if (deathCollider != null)
@@ -25,7 +25,12 @@ namespace AF
             }
 
             enemy.GetComponent<Rigidbody>().isKinematic = turnKinematic;
-            enemy.GetComponent<CapsuleCollider>().enabled = !disableCapsuleCollider;
+
+            var capsuleColliders = enemy.GetComponents<CapsuleCollider>();
+            foreach (var capsuleCollider in capsuleColliders)
+            {
+                capsuleCollider.enabled = false;
+            }
 
             enemy.enemyHealthController.DisableHealthHitboxes();
 

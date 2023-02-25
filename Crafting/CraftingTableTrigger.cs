@@ -1,95 +1,43 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using StarterAssets;
-using UnityEngine.Events;
 
 namespace AF
 {
-    public class CraftingTableTrigger : MonoBehaviour
+    public class CraftingTableTrigger : MonoBehaviour, IEventNavigatorCapturable
     {
         public UIDocumentAlchemyCraftScreen.CraftActivity craftActivity;
 
-        StarterAssetsInputs inputs;
-        UIDocumentKeyPromptAction uIDocumentKeyPrompt;
+        StarterAssetsInputs inputs => FindObjectOfType<StarterAssetsInputs>(true);
+        UIDocumentKeyPrompt uIDocumentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
+        UIDocumentAlchemyCraftScreen alchemyCraftScreen => FindObjectOfType<UIDocumentAlchemyCraftScreen>(true);
 
-        UIDocumentAlchemyCraftScreen alchemyCraftScreen;
-
-        private void Awake()
+        public void OnCaptured()
         {
-            alchemyCraftScreen = FindObjectOfType<UIDocumentAlchemyCraftScreen>(true);
-            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPromptAction>(true);
-            inputs = FindObjectOfType<StarterAssetsInputs>(true);
-        }
-
-        private void Start()
-        {
-
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.gameObject.tag != "Player")
-            {
-                return;
-            }
-
             uIDocumentKeyPrompt.key = "E";
 
             if (craftActivity == UIDocumentAlchemyCraftScreen.CraftActivity.ALCHEMY)
             {
-                uIDocumentKeyPrompt.action = "Use Alchemy Table";
+                uIDocumentKeyPrompt.action = LocalizedTerms.UseAlchemyTable();
             }
             else if (craftActivity == UIDocumentAlchemyCraftScreen.CraftActivity.COOKING)
             {
-                uIDocumentKeyPrompt.action = "Cook";
+                uIDocumentKeyPrompt.action = LocalizedTerms.Cook();
             }
 
             uIDocumentKeyPrompt.gameObject.SetActive(true);
         }
 
-        private void OnTriggerStay(Collider other)
+        public void OnInvoked()
         {
-            if (other.gameObject.tag != "Player")
-            {
-                return;
-            }
-
-            if (inputs.interact)
-            {
-                inputs.interact = false;
-                
-
-                uIDocumentKeyPrompt.gameObject.SetActive(false);
-
-                FindObjectOfType<PlayerComponentManager>(true).DisableComponents();
-                FindObjectOfType<PlayerComponentManager>(true).DisableCharacterController();
-
-
-                alchemyCraftScreen.craftActivity = craftActivity;
-                alchemyCraftScreen.gameObject.SetActive(true);
-            }
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (other.gameObject.tag != "Player")
-            {
-                return;
-            }
+            inputs.interact = false;
 
             uIDocumentKeyPrompt.gameObject.SetActive(false);
+
+            FindObjectOfType<PlayerComponentManager>(true).DisableComponents();
+            FindObjectOfType<PlayerComponentManager>(true).DisableCharacterController();
+
+            alchemyCraftScreen.craftActivity = craftActivity;
+            alchemyCraftScreen.gameObject.SetActive(true);
         }
-
-        private void OnDisable()
-        {
-            if (uIDocumentKeyPrompt != null)
-            {
-                uIDocumentKeyPrompt.gameObject.SetActive(false);
-            }
-        }
-
-
     }
-
 }

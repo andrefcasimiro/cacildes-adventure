@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using StarterAssets;
 using UnityEngine.Events;
@@ -7,13 +5,13 @@ using UnityEngine.Events;
 namespace AF
 {
 
-    public class GenericTrigger : MonoBehaviour
+    public class GenericTrigger : MonoBehaviour, IEventNavigatorCapturable
     {
         StarterAssetsInputs inputs;
-        UIDocumentKeyPromptAction uIDocumentKeyPrompt;
+        UIDocumentKeyPrompt uIDocumentKeyPrompt;
 
         [Header("Notification")]
-        public string actionName = "Activate";
+        public LocalizedText actionName;
 
         public UnityEvent onActivate;
 
@@ -25,29 +23,24 @@ namespace AF
 
         private void Awake()
         {
-            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPromptAction>(true);
+            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
             inputs = FindObjectOfType<StarterAssetsInputs>(true);
         }
 
-        private void OnTriggerEnter(Collider other)
+        public void OnCaptured()
         {
-            if (other.gameObject.tag != "Player")
-            {
-                return;
-            }
-
             uIDocumentKeyPrompt.key = "E";
-            uIDocumentKeyPrompt.action = actionName;
+            uIDocumentKeyPrompt.action = actionName.GetText();
             uIDocumentKeyPrompt.gameObject.SetActive(true);
+
+            if (inputs.interact)
+            {
+                OnInvoked();
+            }
         }
 
-        private void OnTriggerStay(Collider other)
+        public void OnInvoked()
         {
-            if (other.gameObject.tag != "Player")
-            {
-                return;
-            }
-
             if (triggerOnlyOnce && hasTriggered)
             {
                 return;
@@ -71,22 +64,6 @@ namespace AF
                     this.gameObject.SetActive(false);
                 }
             }
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (other.gameObject.tag != "Player")
-            {
-                return;
-            }
-
-            uIDocumentKeyPrompt.gameObject.SetActive(false);
-        }
-
-        private void OnDisable()
-        {
-            if (uIDocumentKeyPrompt == null) { return; }
-            uIDocumentKeyPrompt.gameObject.SetActive(false);
         }
 
     }

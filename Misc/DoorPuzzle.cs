@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
@@ -8,57 +6,49 @@ namespace AF
     {
         public GameObject leverInactive;
         public GameObject leverActive;
-
         public GameObject key;
-
         public GameObject door;
 
-        NotificationManager notificationManager;
+        NotificationManager notificationManager = FindObjectOfType<NotificationManager>(true);
 
-        private void Awake()
-        {
-            this._switch = SwitchManager.instance.GetSwitchInstance(this.switchUuid);
-
-        }
+        [Header("Localization")]
+        public LocalizedText doorOpenedText;
 
         private void Start()
         {
-
-            notificationManager = FindObjectOfType<NotificationManager>(true);
-
-            EvaluateSwitch();
+            Refresh();
         }
 
         public void OnGameLoaded(GameData gameData)
         {
-            EvaluateSwitch();
+            Refresh();
         }
 
         public void Unlock()
         {
-            SwitchManager.instance.UpdateSwitch(this.switchUuid, true);
+            SwitchManager.instance.UpdateSwitch(switchEntry, true);
 
             Soundbank.instance.PlayLeverActivated();
 
-            notificationManager.ShowNotification("A door was opened somewhere", notificationManager.door);
+            notificationManager.ShowNotification(doorOpenedText.GetText(), notificationManager.door);
         }
 
 
-        public override void EvaluateSwitch()
+        public override void Refresh()
         {
-            bool puzzleIsSolved = SwitchManager.instance.GetSwitchValue(this.switchUuid);
+            bool puzzleIsSolved = SwitchManager.instance.GetSwitchCurrentValue(switchEntry);
 
             if (key != null)
             {
-                key.gameObject.SetActive(false);
+                key.SetActive(false);
             }
             else if (leverActive != null && leverInactive != null)
             {
-                leverActive.gameObject.SetActive(puzzleIsSolved);
-                leverInactive.gameObject.SetActive(!puzzleIsSolved);
+                leverActive.SetActive(puzzleIsSolved);
+                leverInactive.SetActive(!puzzleIsSolved);
             }
 
-            door.gameObject.SetActive(!puzzleIsSolved);
+            door.SetActive(!puzzleIsSolved);
         }
 
     }

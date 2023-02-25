@@ -1,18 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
 {
-
     public class ActivateSwitchAction : MonoBehaviour
     {
-        public string switchUuid;
+        public SwitchEntry switchEntry;
 
         public void ActivateSwitch()
         {
-            SwitchManager.instance.UpdateSwitch(switchUuid, true);
+            SwitchManager.instance.UpdateSwitch(switchEntry, true);
         }
     }
-
 }

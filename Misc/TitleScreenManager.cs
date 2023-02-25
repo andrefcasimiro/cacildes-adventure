@@ -18,22 +18,16 @@ namespace AF
 
         public int gameStartHour = 11;
 
-        private void Awake()
-        {
-        }
-
         private void Start()
         {
             if (Player.instance.hasShownTitleScreen)
             {
-                this.gameObject.SetActive(false);
+                gameObject.SetActive(false);
                 return;
             }
 
-            if (Gamepad.current != null)
-            {
-                FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
-            }
+            Utils.ShowCursor();
+
             FindObjectOfType<UIBlackCanvas>(true).gameObject.SetActive(true);
 
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
@@ -98,9 +92,7 @@ namespace AF
 
             yield return new WaitForEndOfFrame();
 
-            this.gameObject.SetActive(false);
-
+            gameObject.SetActive(false);
         }
     }
-
 }

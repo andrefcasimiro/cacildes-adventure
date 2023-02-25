@@ -1,19 +1,22 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEngine.InputSystem;
 
 namespace AF
 {
-
     public class UIDocumentTitleScreen : MonoBehaviour
     {
-        UIDocument uIDocument => GetComponent<UIDocument>();
+        [Header("Localization")]
+        public LocalizedText gameTitle;
+        public LocalizedText newGameText;
+        public LocalizedText loadGameText;
+        public LocalizedText playTutorialText;
+        public LocalizedText controlsText;
+        public LocalizedText creditsText;
+        public LocalizedText exitGameText;
 
+        UIDocument document => GetComponent<UIDocument>();
         TitleScreenManager titleScreenManager => GetComponentInParent<TitleScreenManager>();
-
         MenuManager menuManager;
-        bool hasFocused = false;
 
         private void Awake()
         {
@@ -30,12 +33,24 @@ namespace AF
             }
         }
 
+        void TranslateText(VisualElement root)
+        {
+            root.Q<Label>("GameTitle").text = gameTitle.GetText();
+            root.Q<Button>("NewGameButton").text = newGameText.GetText();
+            root.Q<Button>("ContinueButton").text = loadGameText.GetText();
+            root.Q<Button>("PlayTutorialButton").text = playTutorialText.GetText();
+            root.Q<Button>("ControlsButton").text = controlsText.GetText();
+            root.Q<Button>("CreditsButton").text = creditsText.GetText();
+            root.Q<Button>("ExitButton").text = exitGameText.GetText();
+        }
+
         private void OnEnable()
         {
-
-            var root = GetComponent<UIDocument>().rootVisualElement;
+            var root = document.rootVisualElement;
 
             root.Q<Label>("Version").text = Application.version;
+
+            TranslateText(root);
 
             menuManager.SetupButton(
                 root.Q<Button>("NewGameButton"),
@@ -45,14 +60,14 @@ namespace AF
 
                     titleScreenManager.StartGame();
 
-                    this.gameObject.SetActive(false);
+                    gameObject.SetActive(false);
                 });
             menuManager.SetupButton(
                 root.Q<Button>("ContinueButton"),
                 () =>
                 {
                     FindObjectOfType<UIDocumentTitleScreenLoadMenu>(true).gameObject.SetActive(true);
-                    this.gameObject.SetActive(false);
+                    gameObject.SetActive(false);
                 });
             menuManager.SetupButton(
                 root.Q<Button>("PlayTutorialButton"),
@@ -65,21 +80,21 @@ namespace AF
                 () =>
                 {
                     FindObjectOfType<UIDocumentTitleScreenCredits>(true).gameObject.SetActive(true);
-                    this.gameObject.SetActive(false);
+                    gameObject.SetActive(false);
                 });
             menuManager.SetupButton(
                 root.Q<Button>("ControlsButton"),
                 () =>
                 {
                     FindObjectOfType<UIDocumentTitleScreenControls>(true).gameObject.SetActive(true);
-                    this.gameObject.SetActive(false);
+                    gameObject.SetActive(false);
                 });
             menuManager.SetupButton(
                 root.Q<Button>("ControlsButton"),
                 () =>
                 {
                     FindObjectOfType<UIDocumentTitleScreenControls>(true).gameObject.SetActive(true);
-                    this.gameObject.SetActive(false);
+                    gameObject.SetActive(false);
                 });
             menuManager.SetupButton(
                 root.Q<Button>("ExitButton"),
@@ -105,9 +120,6 @@ namespace AF
                 {
                     Application.OpenURL("https://twitter.com/CacildesGame");
                 });
-
         }
-
     }
 }
-    

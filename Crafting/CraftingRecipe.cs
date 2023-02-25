@@ -15,6 +15,8 @@ namespace AF
 
     public class CraftingRecipe : ScriptableObject
     {
+        public new LocalizedText name;
+
         public Consumable resultingItem;
 
         public List<CraftingIngredientEntry> ingredients = new List<CraftingIngredientEntry>();

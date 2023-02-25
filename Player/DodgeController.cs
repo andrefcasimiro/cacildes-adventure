@@ -75,7 +75,7 @@ namespace AF
                 var destroyable = other.GetComponent<Destroyable>();
                 if (destroyable != null)
                 {
-                    destroyable.OnDestroy();
+                    destroyable.DestroyObject(other.ClosestPointOnBounds(destroyable.transform.position));
                 }
             }
         }

@@ -25,7 +25,7 @@ namespace AF
 
         public int MAX_SAVE_FILES_ALLOWED = 15;
 
-        public System.DateTime sessionStartDateTime;
+        public DateTime sessionStartDateTime;
 
         double totalPlayTimeInSeconds;
 
@@ -42,7 +42,7 @@ namespace AF
                 instance = this;
             }
 
-            sessionStartDateTime = System.DateTime.Now;
+            sessionStartDateTime = DateTime.Now;
         }
 
         #region System
@@ -92,7 +92,7 @@ namespace AF
         {
             // Check if any event is running first
             EventPage[] eventPages = FindObjectsOfType<EventPage>(); // Only active ones
-            var runningEventPage = eventPages.FirstOrDefault(eventPage => eventPage.IsRunning());
+            var runningEventPage = eventPages.FirstOrDefault(eventPage => eventPage.isRunning);
             if (runningEventPage)
             {
                 return;
@@ -142,37 +142,37 @@ namespace AF
 
             if (Player.instance.equippedWeapon != null)
             {
-                playerEquipmentData.weaponName = Player.instance.equippedWeapon.name;
+                playerEquipmentData.weaponName = Player.instance.equippedWeapon.name.GetEnglishText();
             }
 
             if (Player.instance.equippedShield != null)
             {
-                playerEquipmentData.shieldName = Player.instance.equippedShield.name;
+                playerEquipmentData.shieldName = Player.instance.equippedShield.name.GetEnglishText();
             }
 
             if (Player.instance.equippedHelmet != null)
             {
-                playerEquipmentData.helmetName = Player.instance.equippedHelmet.name;
+                playerEquipmentData.helmetName = Player.instance.equippedHelmet.name.GetEnglishText();
             }
 
             if (Player.instance.equippedArmor != null)
             {
-                playerEquipmentData.chestName = Player.instance.equippedArmor.name;
+                playerEquipmentData.chestName = Player.instance.equippedArmor.name.GetEnglishText();
             }
 
             if (Player.instance.equippedLegwear != null)
             {
-                playerEquipmentData.legwearName = Player.instance.equippedLegwear.name;
+                playerEquipmentData.legwearName = Player.instance.equippedLegwear.name.GetEnglishText();
             }
 
             if (Player.instance.equippedGauntlets != null)
             {
-                playerEquipmentData.gauntletsName = Player.instance.equippedGauntlets.name;
+                playerEquipmentData.gauntletsName = Player.instance.equippedGauntlets.name.GetEnglishText();
             }
 
             if (Player.instance.equippedAccessory != null)
             {
-                playerEquipmentData.accessory1Name = Player.instance.equippedAccessory.name;
+                playerEquipmentData.accessory1Name = Player.instance.equippedAccessory.name.GetEnglishText();
             }
 
             gameData.playerEquipmentData = playerEquipmentData;
@@ -182,23 +182,23 @@ namespace AF
             foreach (Player.ItemEntry itemEntry in Player.instance.ownedItems)
             {
                 SerializableItem serializableItem = new SerializableItem();
-                serializableItem.itemName = itemEntry.item.name;
+                serializableItem.itemName = itemEntry.item.name.GetEnglishText();
                 serializableItem.itemCount = itemEntry.amount;
                 serializableItems.Add(serializableItem);
             }
             gameData.items = serializableItems.ToArray();
 
             // Player Inventory - Favorite Items
-            gameData.favoriteItems = Player.instance.favoriteItems.Select(i => i.name).ToArray();
+            gameData.favoriteItems = Player.instance.favoriteItems.Select(i => i.name.GetEnglishText()).ToArray();
 
             // Switches
             List<SerializableSwitch> switches = new List<SerializableSwitch>();
-            foreach (var _switch in SwitchManager.instance.switches)
+            foreach (var _switch in SwitchManager.instance.switchEntryInstances)
             {
                 SerializableSwitch serializableSwitch = new SerializableSwitch();
-                serializableSwitch.uuid = _switch.ID;
-                serializableSwitch.switchName = _switch.name;
-                serializableSwitch.value = _switch.value;
+                serializableSwitch.uuid = _switch.switchEntry.name;
+                serializableSwitch.switchName = _switch.switchEntry.name;
+                serializableSwitch.value = _switch.currentValue;
                 switches.Add(serializableSwitch);
             }
             gameData.switches = switches.ToArray();
@@ -250,14 +250,14 @@ namespace AF
             List<string> alchemyRecipesToSave = new List<string>();
             foreach (var alchemyRecipe in Player.instance.alchemyRecipes)
             {
-                alchemyRecipesToSave.Add(alchemyRecipe.name);
+                alchemyRecipesToSave.Add(alchemyRecipe.name.GetEnglishText());
             }
             gameData.alchemyRecipes = alchemyRecipesToSave.ToArray();
 
             List<string> cookingRecipesToSave = new List<string>();
             foreach (var recipe in Player.instance.cookingRecipes)
             {
-                cookingRecipesToSave.Add(recipe.name);
+                cookingRecipesToSave.Add(recipe.name.GetEnglishText());
             }
             gameData.cookingRecipes = cookingRecipesToSave.ToArray();
 
@@ -285,7 +285,7 @@ namespace AF
 
         public void LoadLastSavedGame()
         {
-            string[] files = System.IO.Directory.GetFiles(Application.persistentDataPath, "*.json");
+            string[] files = Directory.GetFiles(Application.persistentDataPath, "*.json");
 
 
             string targetFile = "";
@@ -301,7 +301,7 @@ namespace AF
                 }
             }
 
-            if (System.String.IsNullOrEmpty(targetFile) == false)
+            if (string.IsNullOrEmpty(targetFile) == false)
             {
                 LoadGameData(targetFile);
             }
@@ -336,8 +336,6 @@ namespace AF
 
             var saveables = FindObjectsOfType<MonoBehaviour>(true).OfType<ISaveable>();
 
-
-
             foreach (ISaveable saveable in saveables)
             {
                 saveable.OnGameLoaded(gameData);
@@ -345,7 +343,7 @@ namespace AF
             }
 
             totalPlayTimeInSeconds = gameData.gameTime;
-            sessionStartDateTime = System.DateTime.Now;
+            sessionStartDateTime = DateTime.Now;
 
             yield return new WaitForSeconds(0.1f);
 
@@ -375,8 +373,8 @@ namespace AF
         {
             List<SaveFileEntry> saveList = new List<SaveFileEntry>();
 
-            string[] files = System.IO.Directory.GetFiles(Application.persistentDataPath, "*.json");
-            string[] screenshots = System.IO.Directory.GetFiles(Application.persistentDataPath, "*.jpg");
+            string[] files = Directory.GetFiles(Application.persistentDataPath, "*.json");
+            string[] screenshots = Directory.GetFiles(Application.persistentDataPath, "*.jpg");
 
             for (int i = 0; i < files.Length; i++)
             {
@@ -390,7 +388,7 @@ namespace AF
                 saveFileEntry.sceneName = gameData.currentSceneName;
                 var targetTexture = new Texture2D(2, 2);
 
-                if (screenshots.Length > 0 && System.String.IsNullOrEmpty(screenshots[i]) == false)
+                if (screenshots.Length > 0 && string.IsNullOrEmpty(screenshots[i]) == false)
                 {
                     targetTexture.LoadImage(File.ReadAllBytes(screenshots[i]));
                     saveFileEntry.screenshot = targetTexture;
@@ -423,7 +421,7 @@ namespace AF
 
         public string GetTotalPlayTime()
         {
-            var secondsPlayed = totalPlayTimeInSeconds + (System.DateTime.Now - sessionStartDateTime).TotalSeconds;
+            var secondsPlayed = totalPlayTimeInSeconds + (DateTime.Now - sessionStartDateTime).TotalSeconds;
             var date = TimeSpan.FromSeconds(secondsPlayed);
 
             return "" + date.Hours + "h:" + date.Minutes + "m:" + date.Seconds + "s";

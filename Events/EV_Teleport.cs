@@ -1,28 +1,25 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace AF
 {
-
     public class EV_Teleport : EventBase
     {
-
         public string spawnGameObjectName;
         public TeleportManager.SceneName sceneName;
 
         [Header("Conditions")]
-        public string switchUuid;
+        public SwitchEntry switchEntry;
         public bool switchValue;
 
         public override IEnumerator Dispatch()
         {
             bool skip = false;
 
-            if (System.String.IsNullOrEmpty(switchUuid) == false)
+            if (switchEntry != null)
             {
                 // If depends on switch, evaluate value:
-                ; if (SwitchManager.instance.GetSwitchValue(switchUuid) == switchValue)
+                ; if (SwitchManager.instance.GetSwitchCurrentValue(switchEntry) == switchValue)
                 {
                     skip = false;
                 }
@@ -32,7 +29,8 @@ namespace AF
                 }
             }
 
-            if (skip == false) {
+            if (skip == false)
+            {
                 yield return StartCoroutine(Teleport());
             }
         }
@@ -46,7 +44,5 @@ namespace AF
             TeleportManager.instance.Teleport(sceneName, spawnGameObjectName);
             yield return null;
         }
-
     }
-
 }

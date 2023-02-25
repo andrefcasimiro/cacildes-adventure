@@ -15,17 +15,17 @@ namespace AF
         public AudioClip pickUpSfx;
 
         [Header("Conditions")]
-        public string switchUuid;
+        public SwitchEntry switchEntry;
         public bool switchValue;
 
         public override IEnumerator Dispatch()
         {
             bool skip = false;
 
-            if (System.String.IsNullOrEmpty(switchUuid) == false)
+            if (switchEntry != null)
             {
                 // If depends on switch, evaluate value:
-                ; if (SwitchManager.instance.GetSwitchValue(switchUuid) == switchValue)
+                ; if (SwitchManager.instance.GetSwitchCurrentValue(switchEntry) == switchValue)
                 {
                     skip = false;
                 }
@@ -57,7 +57,7 @@ namespace AF
             if (showNotificationText)
             {
                 Soundbank.instance.PlayItemReceived();
-                FindObjectOfType<NotificationManager>(true).ShowNotification("Found x" + amount + " " + item.name + "", item.sprite);
+                FindObjectOfType<NotificationManager>(true).ShowNotification(LocalizedTerms.Found() + " x" + amount + " " + item.name.GetText() + "", item.sprite);
             }
 
             yield return null;

@@ -103,7 +103,7 @@ namespace AF
         {
             if (Gamepad.current != null)
             {
-                uIDocument.sortingOrder = UnityEngine.Random.RandomRange(999, 9999);
+                uIDocument.sortingOrder = UnityEngine.Random.Range(999, 9999);
                 EventSystem.current.SetSelectedGameObject(null);
             }
             else

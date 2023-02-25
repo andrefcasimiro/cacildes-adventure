@@ -10,7 +10,7 @@ namespace AF
 
         Quaternion initialRotation;
 
-        public AudioClip onDestroySfx;
+        public DestroyableParticle onDestroyParticle;
 
         bool isDestroyed = false;
 
@@ -22,7 +22,7 @@ namespace AF
             replacement.gameObject.SetActive(false);
         }
 
-        public void OnDestroy()
+        public void DestroyObject(Vector3 contactPosition)
         {
             if (isDestroyed)
             {
@@ -30,9 +30,7 @@ namespace AF
             }
 
             isDestroyed = true;
-
-            var playerCombatController = FindObjectOfType<PlayerCombatController>(true);
-            BGMManager.instance.PlaySound(onDestroySfx, playerCombatController.combatAudioSource);
+            Instantiate(onDestroyParticle, contactPosition, Quaternion.identity);
 
             replacement.gameObject.SetActive(true);
 

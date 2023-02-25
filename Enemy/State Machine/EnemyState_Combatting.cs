@@ -78,6 +78,7 @@ namespace AF
                 return;
             }
 
+            // Then evaluate combat decision
             if (playerCombatController.isCombatting)
             {
                 RespondToPlayer();
@@ -114,12 +115,6 @@ namespace AF
 
         public void RespondToPlayer()
         {
-            if (playerCombatController.isCombatting == false)
-            {
-                animator.SetBool(enemy.hashIsWaiting, true);
-                return;
-            }
-
             foreach (var combatAction in attackPlayerFlow)
             {
                 var combatActionValue = combatAction.Value();
@@ -210,8 +205,6 @@ namespace AF
         bool UseBuffDice()
         {
             int dice = Random.Range(0, 100);
-
-            int clip = 0;
 
             if (enemy.enemyBuffController == null || enemy.enemyBuffController.buffs.Length <= 0)
             {

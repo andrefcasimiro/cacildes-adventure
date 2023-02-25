@@ -2,19 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 
 namespace AF
 {
     [System.Serializable]
     public class DialogueChoice
     {
-        public string choiceText;
+        public LocalizedText choiceText;
 
         public GameObject subEventPage;
 
         [Header("Depends on Switch?")]
-        public string switchUuid;
+        public SwitchEntry switchEntry;
         public bool switchValue = false;
     }
 
@@ -29,7 +28,7 @@ namespace AF
             inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
         }
 
-        public IEnumerator ShowDialogueWithChoices(Character character, string message, List<DialogueChoice> dialogueChoices, float textDelay, bool showHint)
+        public IEnumerator ShowDialogueWithChoices(Character character, LocalizedText message, List<DialogueChoice> dialogueChoices, float textDelay, bool showHint)
         {
             uIDocumentDialogueWindow.gameObject.SetActive(false);
 
@@ -39,7 +38,7 @@ namespace AF
             if (character != null)
             {
                 uIDocumentDialogueWindow.actorName = character.name;
-                uIDocumentDialogueWindow.actorTitle = character.title;
+                uIDocumentDialogueWindow.actorTitle = character.title.GetText();
                 uIDocumentDialogueWindow.actorAvatar = character.avatar;
             }
             else
@@ -48,7 +47,8 @@ namespace AF
                 uIDocumentDialogueWindow.actorTitle = "";
                 uIDocumentDialogueWindow.actorAvatar = null;
             }
-            uIDocumentDialogueWindow.dialogueText = message;
+
+            uIDocumentDialogueWindow.dialogueText = message.GetText();
             uIDocumentDialogueWindow.dialogueChoices.Clear();
 
             if (dialogueChoices != null && dialogueChoices.Count > 0)
@@ -56,10 +56,10 @@ namespace AF
                 // We need to copy clean the dialogue choices so we make sure we dont mutate the event's choice, very funny bug
                 foreach (var clonedChoice in dialogueChoices)
                 {
-                    if (System.String.IsNullOrEmpty(clonedChoice.switchUuid) == false)
+                    if (clonedChoice.switchEntry != null)
                     {
                         // Evaluate switch
-                        if (SwitchManager.instance.GetSwitchValue(clonedChoice.switchUuid) == clonedChoice.switchValue)
+                        if (SwitchManager.instance.GetSwitchCurrentValue(clonedChoice.switchEntry) == clonedChoice.switchValue)
                         {
                             uIDocumentDialogueWindow.dialogueChoices.Add(clonedChoice);
                         }

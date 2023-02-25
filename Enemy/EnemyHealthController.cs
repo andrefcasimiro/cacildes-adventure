@@ -307,6 +307,8 @@ namespace AF
 
         IEnumerator DieFlow()
         {
+            enemyManager.animator.SetBool(enemyManager.hashDying, true);
+
             // Interrupt all buffs
             if (enemyManager.enemyBuffController != null)
             {
@@ -320,8 +322,6 @@ namespace AF
 
             yield return PlayDeathSfx();
 
-            enemyManager.animator.CrossFade(enemyManager.hashDying, 0.2f);
-
             if (enemyBossController != null)
             {
                 if (enemyBossController.fogWall != null)
@@ -333,7 +333,7 @@ namespace AF
 
                 if (enemyBossController.updateSwitchOnKill == false)
                 {
-                    SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(enemyBossController.bossSwitchUuid, true);
+                    SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(enemyBossController.bossSwitchEntry, true);
                 }
             }
 
@@ -400,7 +400,7 @@ namespace AF
             // Update switch with refresh must be at the very last part of all the die flow
             if (enemyBossController != null && enemyBossController.updateSwitchOnKill == false)
             {
-                SwitchManager.instance.UpdateSwitch(enemyBossController.bossSwitchUuid, true);
+                SwitchManager.instance.UpdateSwitch(enemyBossController.bossSwitchEntry, true);
             }
         }
 

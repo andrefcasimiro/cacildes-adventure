@@ -1,14 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using StarterAssets;
 using UnityEngine.SceneManagement;
-using Unity.Services.Core;
-using Unity.Services.Analytics;
 
 namespace AF
 {
-
     public class ItemPickup : SwitchListener
     {
         public Item item;
@@ -21,7 +16,7 @@ namespace AF
         public int gold = -1;
 
         StarterAssetsInputs inputs;
-        UIDocumentKeyPromptAction uIDocumentKeyPrompt;
+        UIDocumentKeyPrompt uIDocumentKeyPrompt;
         UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
         PlayerInventory playerInventory;
 
@@ -34,22 +29,19 @@ namespace AF
         private void Awake()
         {
             playerInventory = FindObjectOfType<PlayerInventory>(true);
-            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPromptAction>(true);
+            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
             uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
             inputs = FindObjectOfType<StarterAssetsInputs>(true);
-
-            this._switch = SwitchManager.instance.GetSwitchInstance(this.switchUuid);
         }
 
         private void Start()
         {
-
-            EvaluateSwitch();
+            Refresh();
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag != "Player")
+            if (!other.gameObject.CompareTag("Player"))
             {
                 return;
             }
@@ -61,7 +53,7 @@ namespace AF
 
         private void OnTriggerStay(Collider other)
         {
-            if (other.gameObject.tag != "Player")
+            if (!other.gameObject.CompareTag("Player"))
             {
                 return;
             }
@@ -88,6 +80,7 @@ namespace AF
                             );*/
                     }
                 }
+
                 // Is Alchemy Recipe?
                 else if (alchemyRecipe != null)
                 {
@@ -97,7 +90,7 @@ namespace AF
                 {
                     UIDocumentReceivedItemPrompt.ItemsReceived itemReceived = new UIDocumentReceivedItemPrompt.ItemsReceived();
 
-                    itemReceived.itemName = item.name;
+                    itemReceived.itemName = item.name.GetText();
                     itemReceived.quantity = quantity;
                     itemReceived.sprite = item.sprite;
 
@@ -127,10 +120,9 @@ namespace AF
 
                     foreach (var item in items)
                     {
-
                         UIDocumentReceivedItemPrompt.ItemsReceived itemReceived = new UIDocumentReceivedItemPrompt.ItemsReceived();
 
-                        itemReceived.itemName = item.name;
+                        itemReceived.itemName = item.name.GetText();
                         itemReceived.quantity = 1;
                         itemReceived.sprite = item.sprite;
 
@@ -156,16 +148,16 @@ namespace AF
                     Soundbank.instance.PlayItemReceived();
                 }
 
-                if (System.String.IsNullOrEmpty(this.switchUuid))
+                if (switchEntry == null)
                 {
                     return;
                 }
 
-                SwitchManager.instance.UpdateSwitch(this.switchUuid, true);
+                SwitchManager.instance.UpdateSwitch(switchEntry, true);
 
                 if (gold != -1)
                 {
-                    // Save Game
+                    // Save Game to prevent us from dying and picking money infinitely
                     SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
                     SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
                 }
@@ -174,7 +166,7 @@ namespace AF
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.gameObject.tag != "Player")
+            if (!other.CompareTag("Player"))
             {
                 return;
             }
@@ -182,17 +174,19 @@ namespace AF
             uIDocumentKeyPrompt.gameObject.SetActive(false);
         }
 
-        public override void EvaluateSwitch()
-        {
-            this.gameObject.SetActive(!SwitchManager.instance.GetSwitchValue(this.switchUuid));
-        }
-
         private void OnDisable()
         {
-            if (uIDocumentKeyPrompt == null) { return; }
+            if (uIDocumentKeyPrompt == null)
+            {
+                return;
+            }
+
             uIDocumentKeyPrompt.gameObject.SetActive(false);
         }
 
+        public override void Refresh()
+        {
+            gameObject.SetActive(!SwitchManager.instance.GetSwitchCurrentValue(switchEntry));
+        }
     }
-
 }

@@ -10,7 +10,7 @@ namespace AF
         public bool becomeAgressiveOnAttacked = true;
 
         [Header("Agressive By Switch")]
-        public string switchUuidToBecomeAgressive = "";
+        public SwitchEntry switchToBecomeAgressive;
         public bool switchUuidValueToBecomeAgressive = true;
 
         [Header("Agressive By Faction")]
@@ -30,9 +30,9 @@ namespace AF
                 return;
             }
 
-            if (System.String.IsNullOrEmpty(switchUuidToBecomeAgressive) == false)
+            if (switchToBecomeAgressive != null)
             {
-                var shouldBecomeAgressive = SwitchManager.instance.GetSwitchValue(switchUuidToBecomeAgressive) == switchUuidValueToBecomeAgressive;
+                var shouldBecomeAgressive = SwitchManager.instance.GetSwitchCurrentValue(switchToBecomeAgressive) == switchUuidValueToBecomeAgressive;
                 if (shouldBecomeAgressive)
                 {
                     TurnAgressive();

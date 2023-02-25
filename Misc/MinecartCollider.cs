@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -7,7 +5,7 @@ namespace AF
 {
     public class MinecartCollider : MonoBehaviour
     {
-        public string switchUuid;
+        public SwitchEntry switchEntry;
         public DestroyableParticle mineCartColliderExplosion;
         public AudioSource miningCartSoundsource;
  
@@ -22,11 +20,8 @@ namespace AF
 
         public void Explode()
         {
-            Instantiate(mineCartColliderExplosion, this.transform.position, Quaternion.identity);
-            SwitchManager.instance.UpdateSwitch(switchUuid, true);
-
+            Instantiate(mineCartColliderExplosion, transform.position, Quaternion.identity);
+            SwitchManager.instance.UpdateSwitch(switchEntry, true);
         }
-
     }
-
 }

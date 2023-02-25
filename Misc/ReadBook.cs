@@ -1,53 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace AF
 {
-    public class ReadBook : MonoBehaviour
+    public class ReadBook : MonoBehaviour, IEventNavigatorCapturable
     {
         public Book book;
 
         [Header("Note")]
-        public string noteTitle = "";
+        public LocalizedText noteTitle;
 
-        [TextArea]
-        public string[] notePages;
+        public LocalizedText[] notePages;
 
         public int page = -1;
-
-        UIDocumentBook uIDocumentBook;
-
-        PlayerComponentManager playerComponentManager;
-
-        float maxNavigateCoolDown = 0.1f;
-        float currentNavigateCooldown = Mathf.Infinity;
 
         [Header("Recipe Pickup")]
         public AlchemyRecipe alchemyRecipe;
         public CookingRecipe cookingRecipe;
-        public string recipePickupSwitchUuid;
-        Switch recipePickupSwitchInstance;
 
         [Header("Events")]
         public UnityEvent onRead;
 
         [Header("Switch")]
         public bool updateSwitchUponReading = false;
-        public string switchUuid;
+        public SwitchEntry switchEntry;
         public bool newSwitchValue;
 
-        private void Awake()
-        {
-            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
-            uIDocumentBook = FindObjectOfType<UIDocumentBook>(true);
-        }
+        float maxNavigateCoolDown = 0.1f;
+        float currentNavigateCooldown = Mathf.Infinity;
 
-        private void Start()
-        {
-            this.recipePickupSwitchInstance = SwitchManager.instance.GetSwitchInstance(this.recipePickupSwitchUuid);
-        }
+        UIDocumentKeyPrompt documentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
+        UIDocumentBook uIDocumentBook => FindObjectOfType<UIDocumentBook>(true);
+        PlayerComponentManager playerComponentManager => FindObjectOfType<PlayerComponentManager>(true);
 
         private void Update()
         {
@@ -80,7 +64,7 @@ namespace AF
 
                 if (notePages[page] != null)
                 {
-                    uIDocumentBook.ShowNote(page == 0 ? noteTitle : "", notePages[page]);
+                    uIDocumentBook.ShowNote(page == 0 ? noteTitle.GetText() : "", notePages[page].GetText());
                 }
 
                 return;
@@ -124,28 +108,28 @@ namespace AF
 
             if (updateSwitchUponReading)
             {
-                SwitchManager.instance.UpdateSwitch(switchUuid, newSwitchValue);
-            }
-
-            if (recipePickupSwitchInstance != null && SwitchManager.instance.GetSwitchValue(recipePickupSwitchUuid) == false)
-            {
-                Soundbank.instance.PlayItemReceived();
-
-                var notificationManager = FindObjectOfType<NotificationManager>(true);
-
-                if (alchemyRecipe != null)
+                if (SwitchManager.instance.GetSwitchCurrentValue(switchEntry) == false)
                 {
-                    notificationManager.ShowNotification("Learned recipe: " + alchemyRecipe.name, notificationManager.recipeIcon);
-                    Player.instance.alchemyRecipes.Add(alchemyRecipe);
-                }
-                else if (cookingRecipe != null)
-                {
+                    if (alchemyRecipe != null || cookingRecipe != null)
+                    {
+                        Soundbank.instance.PlayItemReceived();
 
-                    notificationManager.ShowNotification("Learned recipe: " + cookingRecipe.name, notificationManager.recipeIcon);
-                    Player.instance.cookingRecipes.Add(cookingRecipe);
-                }
+                        var notificationManager = FindObjectOfType<NotificationManager>(true);
 
-                SwitchManager.instance.UpdateSwitch(recipePickupSwitchUuid, true);
+                        if (alchemyRecipe != null)
+                        {
+                            notificationManager.ShowNotification(LocalizedTerms.LearnedRecipe() + alchemyRecipe.name, notificationManager.recipeIcon);
+                            Player.instance.alchemyRecipes.Add(alchemyRecipe);
+                        }
+                        else if (cookingRecipe != null)
+                        {
+                            notificationManager.ShowNotification(LocalizedTerms.LearnedRecipe() + cookingRecipe.name, notificationManager.recipeIcon);
+                            Player.instance.cookingRecipes.Add(cookingRecipe);
+                        }
+                    }
+
+                    SwitchManager.instance.UpdateSwitch(switchEntry, true);
+                }
             }
 
             if (IsNote())
@@ -169,9 +153,8 @@ namespace AF
             }
             else
             {
-                uIDocumentBook.ShowNote(noteTitle, notePages[page]);
+                uIDocumentBook.ShowNote(noteTitle.GetText(), notePages[page].GetText());
             }
-
         }
 
         public void CloseBook()
@@ -193,6 +176,33 @@ namespace AF
             return book == null;
         }
 
-    }
+        public void OnCaptured()
+        {
+            if (IsReading())
+            {
+                return;
+            }
 
+            documentKeyPrompt.key = "E";
+
+            string title;
+            if (IsNote())
+            {
+                title = noteTitle.GetText();
+            }
+            else
+            {
+                title = book.name;
+            }
+
+            documentKeyPrompt.action = LocalizedTerms.Read() + " '" + title + "'";
+            documentKeyPrompt.gameObject.SetActive(true);
+        }
+
+        public void OnInvoked()
+        {
+            Read();
+            documentKeyPrompt.gameObject.SetActive(false);
+        }
+    }
 }

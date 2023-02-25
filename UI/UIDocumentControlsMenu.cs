@@ -1,15 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AF
 {
-
+    [RequireComponent(typeof(UIControlsLocalization))]
     public class UIDocumentControlsMenu : MonoBehaviour
     {
         MenuManager menuManager;
         VisualElement root;
+
+        UIControlsLocalization uIControlsLocalization => GetComponent<UIControlsLocalization>();
 
         private void Awake()
         {
@@ -18,14 +18,11 @@ namespace AF
 
         private void OnEnable()
         {
-            this.root = GetComponent<UIDocument>().rootVisualElement;
-            menuManager.SetupNavMenu(this.root);
-            menuManager.SetActiveMenu(this.root, "ButtonControls");
+            root = GetComponent<UIDocument>().rootVisualElement;
+            uIControlsLocalization.Translate(root);
 
+            menuManager.SetupNavMenu(root);
+            menuManager.SetActiveMenu(root, "ButtonControls");
         }
-
-
-
     }
-
 }

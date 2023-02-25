@@ -50,7 +50,7 @@ namespace AF
             {
                 bool allSwitchConditions = evtPage.switchConditions.All(
                     // Evaluate if switch value equals the current value on the switch manager database
-                    pageSwitch => (pageSwitch.value == SwitchManager.instance.GetSwitchValue(pageSwitch.switchCondition.ID))
+                    pageSwitch => (pageSwitch.value == SwitchManager.instance.GetSwitchCurrentValue(pageSwitch.switchEntryCondition))
                     );
 
                 if (allSwitchConditions)

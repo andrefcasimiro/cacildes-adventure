@@ -39,7 +39,7 @@ namespace AF
         public int darknessMinimumLevel;
 
         // Weight
-        public float weight;
+        public new float weight;
 
         // Graphics
         public GameObject graphic;

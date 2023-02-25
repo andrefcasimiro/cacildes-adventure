@@ -9,6 +9,8 @@ namespace AF
         public int healthBonus = 0;
         public int staminaBonus = 0;
 
+        public LocalizedText smallEffectDescription;
+
         [Header("Destroy On Equip Edge Case")]
         public bool destroyOnUnequip = false;
         public AudioClip onUnequipDestroySoundclip;

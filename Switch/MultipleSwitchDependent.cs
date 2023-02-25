@@ -1,37 +1,34 @@
 using AF;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MultipleSwitchDependent : MonoBehaviour, ISaveable
 {
     [System.Serializable]
-    public class SwitchEntry
+    public class MultipleSwitchEntry
     {
-        public string switchUuid;
-        public string description;
+        public SwitchEntry switchEntry;
         public bool requiredValue;
     }
 
-    public SwitchEntry[] switches;
+    public MultipleSwitchEntry[] switches;
 
     private void Start()
     {
-        EvaluateSwitch();
+        Refresh();
     }
 
     public void OnGameLoaded(GameData gameData)
     {
-        EvaluateSwitch();
+        Refresh();
     }
 
-    public void EvaluateSwitch()
+    public void Refresh()
     {
         bool childrenAreActive = false;
 
-        foreach (var switchEntry in switches)
+        foreach (var _switch in switches)
         {
-            if (SwitchManager.instance.GetSwitchValue(switchEntry.switchUuid) == switchEntry.requiredValue)
+            if (SwitchManager.instance.GetSwitchCurrentValue(_switch.switchEntry) == _switch.requiredValue)
             {
                 childrenAreActive = true;
                 continue;
@@ -43,5 +40,4 @@ public class MultipleSwitchDependent : MonoBehaviour, ISaveable
 
         transform.GetChild(0).gameObject.SetActive(childrenAreActive);
     }
-
 }

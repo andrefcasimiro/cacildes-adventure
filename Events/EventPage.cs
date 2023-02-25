@@ -15,16 +15,14 @@ namespace AF
     [System.Serializable]
     public class EventPageSwitch
     {
-        public Switch switchCondition;
+        public SwitchEntry switchEntryCondition;
 
         public bool value;
     }
 
-    public class EventPage : MonoBehaviour
+    public class EventPage : MonoBehaviour, IEventNavigatorCapturable
     {
         public EventTrigger eventTrigger = EventTrigger.ON_KEY_PRESS;
-
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
 
         [Header("Day / Time Settings")]
         public float appearFrom = 00.00f;
@@ -34,59 +32,49 @@ namespace AF
         [Header("Switches")]
         public EventPageSwitch[] switchConditions;
 
-        public string notificationText;
+        [Header("Key Prompt")]
+        public LocalizedText notificationText;
+        public LocalizedTerms.LocalizedAction localizedAction;
 
         [Header("Cancel Event")]
         public float maxDistanceBeforeStoppingEvent = 5f;
 
         [HideInInspector] public Event eventParent;
-
         [HideInInspector] public List<EventBase> pageEvents = new List<EventBase>();
-
-        [HideInInspector] private bool isRunning = false;
-
+        [HideInInspector] public bool isRunning = false;
         MoveRoute parentMoveRoute;
 
-        // Event Page transform child that controls movement
-        public GameObject eventPageTransform;
-        private GameObject player;
-
-        UIDocumentDialogueWindow uIDocumentDialogueWindow;
-
-        DayNightManager dayNightManager;
-
+        [Header("Settings")]
         public bool allowTimePassage = false;
 
-        public bool dontAllowIfAnotherEventIsHappening = false;
+        // Event Page transform child that controls movement
+        private GameObject player;
+
+        DayNightManager dayNightManager => FindObjectOfType<DayNightManager>(true);
+        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        UIDocumentDialogueWindow uIDocumentDialogueWindow => FindObjectOfType<UIDocumentDialogueWindow>(true);
+        UIDocumentKeyPrompt documentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
 
         private void Awake()
         {
             useTimeOfDay = appearFrom != 00.00f || appearUntil != 24.00f;
 
-            uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
+            eventParent = transform.GetComponentInParent<Event>();
 
-            this.eventParent = this.transform.GetComponentInParent<Event>();
-
-            if (this.eventParent != null)
+            if (eventParent != null)
             {
-                parentMoveRoute = this.eventParent.moveRoute;
+                parentMoveRoute = eventParent.moveRoute;
             }
 
             EventBase[] gatheredEvents = GetComponents<EventBase>();
 
-            this.pageEvents.Clear();
+            pageEvents.Clear();
             foreach (EventBase ev in gatheredEvents)
             {
                 pageEvents.Add(ev);
             }
 
             player = GameObject.FindWithTag("Player");
-        }
-
-
-        private void Start()
-        {
-            dayNightManager = FindObjectOfType<DayNightManager>(true);
         }
 
         private void Update()
@@ -96,11 +84,11 @@ namespace AF
                 parentMoveRoute.StartCycle();
             }
 
-            if (IsRunning() && eventPageTransform != null)
+            if (isRunning)
             {
-                if (Vector3.Distance(eventPageTransform.transform.position, player.transform.position) >= maxDistanceBeforeStoppingEvent)
+                if (Vector3.Distance(transform.position, player.transform.position) >= maxDistanceBeforeStoppingEvent)
                 {
-                    Stop();
+                    StopEvent();
                 }
             }
 
@@ -108,7 +96,7 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag == "Player" && eventTrigger == EventTrigger.ON_PLAYER_TOUCH && IsRunning() == false)
+            if (other.gameObject.CompareTag("Player") && eventTrigger == EventTrigger.ON_PLAYER_TOUCH && isRunning == false)
             {
                 BeginEvent();
             }
@@ -136,48 +124,25 @@ namespace AF
 
         public IEnumerator DispatchEvents()
         {
-            bool skip = false;
-
-            if (dontAllowIfAnotherEventIsHappening)
+            if (parentMoveRoute != null)
             {
-                if (FindObjectsOfType<EventPage>().FirstOrDefault(x => x.IsRunning())) {
-                    skip = true;
+                parentMoveRoute.Interrupt();
+            }
+
+            isRunning = true;
+
+            foreach (EventBase ev in pageEvents)
+            {
+                if (ev != null)
+                {
+                    yield return StartCoroutine(ev.Dispatch());
                 }
             }
 
-            if (skip == false)
-            {
-                if (parentMoveRoute != null)
-                {
-                    parentMoveRoute.Interrupt();
-                }
-
-                isRunning = true;
-
-                foreach (EventBase ev in pageEvents)
-                {
-                    if (ev != null)
-                    {
-                        yield return StartCoroutine(ev.Dispatch());
-                    }
-                }
-
-                isRunning = false;
-
-                if (dayNightManager.TimePassageAllowed())
-                {
-                    dayNightManager.tick = true;
-                }
-
-                if (parentMoveRoute != null)
-                {
-                    parentMoveRoute.ResumeCycle();
-                }
-            }
-
+            StopEvent();
         }
 
-        public void Stop()
+        void StopEvent()
         {
             if (dayNightManager.TimePassageAllowed())
             {
@@ -187,7 +152,6 @@ namespace AF
             StopAllCoroutines();
 
             isRunning = false;
-            
 
             // Dialogue Cancelling
             uIDocumentDialogueWindow.gameObject.SetActive(false);
@@ -196,6 +160,8 @@ namespace AF
             {
                 parentMoveRoute.ResumeCycle();
             }
+
+            SwitchManager.instance.UpdateQueuedSwitches();
         }
 
         public bool CanRunEventPage()
@@ -209,10 +175,50 @@ namespace AF
             return true;
         }
 
-        public bool IsRunning()
+        public void OnCaptured()
         {
-            return isRunning;
+            if (isRunning || eventTrigger != EventTrigger.ON_KEY_PRESS || CanRunEventPage() == false)
+            {
+                return;
+            }
+
+            // If a dialogue is ocurring, ignore event interaction
+            if (uIDocumentDialogueWindow.isActiveAndEnabled)
+            {
+                documentKeyPrompt.gameObject.SetActive(false);
+
+                return;
+            }
+
+            documentKeyPrompt.key = "E";
+
+            if (localizedAction != LocalizedTerms.LocalizedAction.NONE)
+            {
+                documentKeyPrompt.action = LocalizedTerms.GetActionText(localizedAction);
+            }
+            else
+            {
+                documentKeyPrompt.action = notificationText.GetText();
+            }
+
+            documentKeyPrompt.eventUuid = gameObject.name;
+            documentKeyPrompt.gameObject.SetActive(true);
+
+        }
+
+        public void OnInvoked()
+        {
+            if (isRunning || CanRunEventPage() == false)
+            {
+                return;
+            }
+
+            BeginEvent();
+        }
+
+        private void OnDisable()
+        {
+            isRunning = false;
         }
     }
-
 }

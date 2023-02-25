@@ -41,14 +41,10 @@ namespace AF
             {
                 BGMManager.instance.PlayBattleMusic();
             }
-
-            enemy.agent.enabled = true;
-            enemy.agent.isStopped = false;
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            enemy.agent.isStopped = false;
             if (enemy.agent.enabled)
             {
                 if (enemy.enemyTargetController.ignoreCompanions == false && enemy.enemyTargetController.currentCompanion != null)

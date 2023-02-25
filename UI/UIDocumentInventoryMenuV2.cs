@@ -60,7 +60,7 @@ namespace AF
             {
                 VisualElement cloneButton = itemButtonPrefab.CloneTree();
                 cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.item.sprite);
-                cloneButton.Q<Label>("ItemName").text = item.item.name + " ( " + item.amount + " )";
+                cloneButton.Q<Label>("ItemName").text = item.item.name.GetText() + " ( " + item.amount + " )";
 
                 var itemIsFavorited = Player.instance.favoriteItems.Contains(item.item);
                 cloneButton.Q<VisualElement>("FavoriteIcon").style.display = itemIsFavorited ? DisplayStyle.Flex : DisplayStyle.None;
@@ -138,8 +138,8 @@ namespace AF
         {
             var itemPreview = root.Q<VisualElement>("ItemPreview");
             itemPreview.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.sprite);
-            itemPreview.Q<Label>("Title").text = item.name;
-            itemPreview.Q<Label>("Description").text = item.description;
+            itemPreview.Q<Label>("Title").text = item.name.GetText();
+            itemPreview.Q<Label>("Description").text = item.description.GetText();
 
 
             itemPreview.style.opacity = 1;
@@ -241,7 +241,7 @@ namespace AF
             {
                 foreach (var item in list)
                 {
-                    if (item.item.name.ToLower().Contains(textField.value.ToLower()))
+                    if (item.item.name.GetText().ToLower().Contains(textField.value.ToLower()))
                     {
                         finalItems.Add(item);
                     }

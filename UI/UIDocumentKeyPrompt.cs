@@ -1,16 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using StarterAssets;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace AF
 {
-
-    public class UIDocumentKeyPromptBase : MonoBehaviour
+    public class UIDocumentKeyPrompt : MonoBehaviour
     {
-        public UIDocument uiDocument;
+        public UIDocument uiDocument => GetComponent<UIDocument>();
 
         public string key = "E";
         public string action = "Pick Item";
@@ -20,7 +16,7 @@ namespace AF
 
         private void Awake()
         {
-            this.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
 
         private void OnEnable()
@@ -36,7 +32,6 @@ namespace AF
             {
                 root.Q<IMGUIContainer>("KeyboardIcon").style.display = DisplayStyle.Flex;
                 root.Q<IMGUIContainer>("GamepadIcon").style.display = DisplayStyle.None;
-
                 root.Q<IMGUIContainer>("KeyboardIcon").Q<Label>("KeyText").text = key;
             }
 
@@ -47,7 +42,5 @@ namespace AF
         {
             action = "";
         }
-
     }
-
 }

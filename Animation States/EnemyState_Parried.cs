@@ -1,19 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace AF
 {
 
-    public class DisableNavMeshUpdatePositionOnStateEnter : StateMachineBehaviour
+    public class EnemyState_Parried : StateMachineBehaviour
     {
         EnemyManager enemy;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
 
-            animator.TryGetComponent<EnemyManager>( out enemy);
+            animator.TryGetComponent(out enemy);
 
             if (enemy == null)
             {
@@ -23,7 +20,7 @@ namespace AF
             enemy.rigidbody.useGravity = true;
             enemy.rigidbody.isKinematic = false;
             enemy.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-            
+
             enemy.agent.updatePosition = false;
         }
     }

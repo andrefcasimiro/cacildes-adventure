@@ -18,9 +18,10 @@ namespace AF
             EventPage[] eventPages = FindObjectsOfType<EventPage>(true);
             foreach (EventPage evPage in eventPages)
             {
-                if (evPage.IsRunning())
+                if (evPage.isRunning)
                 {
-                    evPage.Stop();
+                    evPage.isRunning = false;
+                    evPage.StopAllCoroutines();
                 }
             }
 

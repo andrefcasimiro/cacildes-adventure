@@ -23,15 +23,6 @@ public class EnemyState_Strafing : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if (Vector3.Distance(enemyManager.transform.position, enemyManager.player.transform.position) > 1)
-        {
-            enemyManager.facePlayer = true;
-        }
-        else
-        {
-            enemyManager.facePlayer = false;
-        }
-
         enemyManager.enemyDodgeController.CheckForDodgeChance();
 
         strafeTime += Time.deltaTime;

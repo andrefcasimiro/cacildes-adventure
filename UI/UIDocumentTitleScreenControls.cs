@@ -1,25 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AF
 {
-
+    [RequireComponent(typeof(UIControlsLocalization))]
     public class UIDocumentTitleScreenControls : MonoBehaviour
     {
         VisualElement root;
-        MenuManager menuManager;
+
+        UIControlsLocalization uIControlsLocalization => GetComponent<UIControlsLocalization>();
+
+        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
+        UIDocumentTitleScreen uIDocumentTitleScreen => FindObjectOfType<UIDocumentTitleScreen>(true);
 
         private void Awake()
         {
-            menuManager = FindObjectOfType<MenuManager>(true);
-            this.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
-            this.root = GetComponent<UIDocument>().rootVisualElement;
+            root = GetComponent<UIDocument>().rootVisualElement;
+
+            uIControlsLocalization.Translate(root);
 
             root.RegisterCallback<NavigationCancelEvent>(ev =>
             {
@@ -41,15 +44,8 @@ namespace AF
 
         void Close()
         {
-            FindObjectOfType<UIDocumentTitleScreen>(true).gameObject.SetActive(true);
-            this.gameObject.SetActive(false);
+            uIDocumentTitleScreen.gameObject.SetActive(true);
+            gameObject.SetActive(false);
         }
-
-        private void Update()
-        {
-            // UnityEngine.Cursor.lockState = CursorLockMode.None;
-        }
-
     }
-
 }

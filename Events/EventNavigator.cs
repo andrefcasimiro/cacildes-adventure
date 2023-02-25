@@ -1,132 +1,40 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace AF
 {
-
     public class EventNavigator : MonoBehaviour
     {
-
-        Ray RayOrigin;
-        RaycastHit HitInfo;
-
-        public LayerMask eventLayer;
-        public LayerMask bookLayer;
-
+        public LayerMask eventNavigatorCapturableLayer;
         public int raycastDistance = 5;
 
-        UIDocumentEventKeyPrompt documentKeyPrompt;
-
-        StarterAssets.StarterAssetsInputs inputs;
-
-        UIDocumentDialogueWindow uIDocumentDialogueWindow;
-
-        void Start()
-        {
-            uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
-            documentKeyPrompt = FindObjectOfType<UIDocumentEventKeyPrompt>(true);
-            inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
-        }
+        UIDocumentKeyPrompt documentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
+        StarterAssets.StarterAssetsInputs inputs => FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
+        RaycastHit HitInfo;
 
         private void Update()
         {
             Transform cameraTransform = Camera.main.transform;
 
-            if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out HitInfo, raycastDistance, eventLayer))
+            if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out HitInfo, raycastDistance, eventNavigatorCapturableLayer))
             {
+                IEventNavigatorCapturable eventNavigatorCapturable = HitInfo.collider.GetComponentInParent<IEventNavigatorCapturable>();
 
-                if (HitInfo.collider.gameObject != null)
-                {
-                    var targetEventPage = HitInfo.collider.GetComponent<EventPage>();
-                    if (targetEventPage == null)
+                if (eventNavigatorCapturable != null)
+                {   
+                    if (inputs.interact)
                     {
-                        targetEventPage = HitInfo.collider.GetComponentInParent<EventPage>();
+                        eventNavigatorCapturable.OnInvoked();
                     }
-
-                    if (targetEventPage != null && targetEventPage.eventTrigger != EventTrigger.NO_TRIGGER)
+                    else
                     {
-                        HandleEvent(targetEventPage);
+                        eventNavigatorCapturable.OnCaptured();
+                        return;
                     }
                 }
             }
-            else if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out HitInfo, raycastDistance, bookLayer))
-            {
-                if (HitInfo.collider.gameObject != null)
-                {
-                    // Try to cast for books
 
-                    var readBook = HitInfo.collider.GetComponent<ReadBook>();
-                    if (readBook != null)
-                    {
-                        HandleBook(readBook);
-                    }
-
-                }
-            } else {
-                documentKeyPrompt.gameObject.SetActive(false);
-            }
-        }
-
-        void HandleEvent(EventPage eventPage)
-        {
-            if (eventPage.IsRunning() || eventPage.eventTrigger != EventTrigger.ON_KEY_PRESS || !eventPage.CanRunEventPage())
-            {
-                return;
-            }
-
-            // If a dialogue is ocurring, ignore event interaction
-            if (uIDocumentDialogueWindow.isActiveAndEnabled)
-            {
-                documentKeyPrompt.gameObject.SetActive(false);
-
-                return;
-            }
-
-            documentKeyPrompt.key = "E";
-            documentKeyPrompt.action = eventPage.notificationText;
-            documentKeyPrompt.eventUuid = eventPage.gameObject.name;
-            documentKeyPrompt.gameObject.SetActive(true);
-
-            if (inputs.interact)
-            {
-                eventPage.BeginEvent();
-                documentKeyPrompt.gameObject.SetActive(false);
-            }
-
-        }
-
-
-        void HandleBook(ReadBook readBook)
-        {
-            if (readBook.IsReading())
-            {
-                return;
-            }
-
-            documentKeyPrompt.key = "E";
-
-            var title = "";
-            if (readBook.IsNote())
-            {
-                title = readBook.noteTitle;
-            }
-            else
-            {
-                title = readBook.book.name;
-            }
-            documentKeyPrompt.action = "Read '" + title + "'";
-
-            documentKeyPrompt.gameObject.SetActive(true);
-
-            if (inputs.interact)
-            {
-                readBook.Read();
-                documentKeyPrompt.gameObject.SetActive(false);
-            }
-
+            // Failed to capture anything, deactivate key prompt
+            documentKeyPrompt.gameObject.SetActive(false);
         }
     }
-
 }

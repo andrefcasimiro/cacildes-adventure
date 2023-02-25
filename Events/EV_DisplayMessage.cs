@@ -1,49 +1,46 @@
 ﻿using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.Burst.CompilerServices;
 
 namespace AF
 {
-
     public class EV_DisplayMessage : EventBase
     {
+        [Header("Actor")]
         public Character character;
         public bool isCompanion = false;
 
-        [TextArea] public string message;
+        [Header("Message")]
+        public LocalizedText message;
 
+        [Header("Choices")]
         public List<DialogueChoice> choices = new List<DialogueChoice>();
 
+        [Header("Settings")]
         public float textDelay = 0.05f;
+        public bool showHint = false;
+        public bool facePlayer = false;
+
+        [Header("Conditions - Switches")]
+        public SwitchEntry switchEntry;
+        public bool switchValue;
+
+        [Header("Conditions - Variables")]
+        public string variableUuid;
+        public bool equalsToVariableValue = true;
+        public float variableValue = -1;
 
         [Header("Animations")]
         public Animator animator;
         public string animationClip;
 
-        public bool showHint = false;
-
-        DialogueManager dialogueManager;
-
-        public bool facePlayer = false;
-
-        [Header("Conditions")]
-        public string switchUuid;
-        public bool switchValue;
-
-        public string variableUuid;
-        public bool equalsToVariableValue = true;
-        public float variableValue = -1;
-
-        // Internal
+        DialogueManager dialogueManager => FindObjectOfType<DialogueManager>(true);
 
         private void Awake()
         {
-            dialogueManager = FindObjectOfType<DialogueManager>(true);
-
             if (isCompanion)
             {
-                this.character = GetComponentInParent<CompanionManager>(true).companion.character;
+                character = GetComponentInParent<CompanionManager>(true).companion.character;
             }
         }
 
@@ -51,10 +48,10 @@ namespace AF
         {
             bool skip = false;
 
-            if (System.String.IsNullOrEmpty(switchUuid) == false)
+            if (switchEntry != null)
             {
                 // If depends on switch, evaluate value:
-                ; if (SwitchManager.instance.GetSwitchValue(switchUuid) == switchValue)
+                ; if (SwitchManager.instance.GetSwitchCurrentValue(switchEntry) == switchValue)
                 {
                     skip = false;
                 }
@@ -64,7 +61,7 @@ namespace AF
                 }
             }
 
-            if (System.String.IsNullOrEmpty(variableUuid) == false)
+            if (string.IsNullOrEmpty(variableUuid) == false)
             {
                 // If depends on variable, evaluate value:
                 var val = VariableManager.instance.GetVariableValue(variableUuid);
@@ -86,7 +83,7 @@ namespace AF
                     FacePlayer();
                 }
 
-                if (!System.String.IsNullOrEmpty(animationClip))
+                if (!string.IsNullOrEmpty(animationClip))
                 {
                     animator.CrossFade(animationClip, 0.2f);
                 }
@@ -95,7 +92,7 @@ namespace AF
                     character, message, choices, textDelay, showHint);
 
 
-                if (!System.String.IsNullOrEmpty(animationClip))
+                if (!string.IsNullOrEmpty(animationClip))
                 {
                     animator.CrossFade("NoGesture", 0.2f);
                 }
@@ -106,11 +103,10 @@ namespace AF
         {
             Transform player = GameObject.FindWithTag("Player").transform;
 
-            var npcLookPos = player.transform.position - this.transform.position;
+            var npcLookPos = player.transform.position - transform.position;
             npcLookPos.y = 0;
 
-            this.transform.rotation = Quaternion.LookRotation(npcLookPos);
+            transform.rotation = Quaternion.LookRotation(npcLookPos);
         }
     }
-
 }

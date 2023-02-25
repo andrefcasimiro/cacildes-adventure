@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
@@ -59,7 +57,10 @@ namespace AF
             currentCompanion = null;
 
             // Refocus on playerManager
-            enemyManager.agent.SetDestination(enemyManager.player.transform.position);
+            if (enemyManager.IsNavMeshAgentActive())
+            {
+                enemyManager.agent.SetDestination(enemyManager.player.transform.position);
+            }
         }
 
     }

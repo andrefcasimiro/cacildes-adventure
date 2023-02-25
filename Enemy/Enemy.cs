@@ -8,7 +8,7 @@ namespace AF
     public class Enemy : ScriptableObject
     {
         [Header("Generic")]
-        public string name;
+        public new string name;
         public bool isMale = true;
 
         [Header("Stats")]
@@ -16,7 +16,7 @@ namespace AF
         public int basePhysicalAttack = 90;
 
         [Header("Poise")]
-        public int maxPoiseHits = 1;
+        public int maxPoiseHits = 1; 
         public float maxTimeBeforeResettingPoise = 15f;
         public float maxCooldownBeforeTakingAnotherHitToPoise = 2f;
 

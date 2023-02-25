@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
@@ -19,11 +17,10 @@ namespace AF
         [System.Serializable]
         public class CreditsSection
         {
-            public string sectionTitle;
+            public LocalizedText sectionTitle;
             public CreditEntry[] creditEntry;
         }
 
         public CreditsSection[] creditsSections;
     }
-
 }

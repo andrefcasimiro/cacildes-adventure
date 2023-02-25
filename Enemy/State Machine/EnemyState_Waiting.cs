@@ -4,7 +4,12 @@ namespace AF
 {
 
     public class EnemyState_Waiting : StateMachineBehaviour
-    {        
+    {
+        public float minimumDecisionTime = 0.25f;
+        public float maximumDecisionTime = 2f;
+        float turnDecisionTime;
+        float waitingCounter = 0;
+
         EnemyManager enemy;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -15,7 +20,7 @@ namespace AF
             {
                 enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
-            
+
             // Activate health hitboxes after dodging for safety
             enemy.enemyHealthController.EnableHealthHitboxes();
 
@@ -57,13 +62,25 @@ namespace AF
                 }
             }
 
-            float turnChance = Random.Range(enemy.enemyCombatController.minimumDecisionTime, enemy.enemyCombatController.maximumDecisionTime);
-            enemy.enemyCombatController.turnDecisionTime = turnChance;
+            turnDecisionTime = Random.Range(minimumDecisionTime, maximumDecisionTime);
+            waitingCounter = 0f;
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            enemy.enemyDodgeController.CheckForDodgeChance();
+            if (enemy.enemyDodgeController != null)
+            {
+                enemy.enemyDodgeController.CheckForDodgeChance();
+            }
+
+            if (waitingCounter < turnDecisionTime)
+            {
+                waitingCounter += Time.deltaTime;
+            }
+            else // We've waited long enough, request new combat decision
+            {
+                animator.Play(enemy.hashCombatting);
+            }
         }
     }
 }

@@ -8,13 +8,11 @@ namespace AF
     {
         public CraftingRecipe recipe;
         public bool showNotificationText = true;
-
         public AudioClip pickUpSfx;
 
         public override IEnumerator Dispatch()
         {
             yield return LearnRecipe();
-            
         }
 
         IEnumerator LearnRecipe()
@@ -26,11 +24,10 @@ namespace AF
                 Soundbank.instance.PlayItemReceived();
 
                 var notf = FindObjectOfType<NotificationManager>(true);
-                notf.ShowNotification("Learned recipe: " + recipe.name, notf.recipeIcon);
+                notf.ShowNotification(LocalizedTerms.LearnedRecipe() + recipe.name, notf.recipeIcon);
             }
 
             yield return null;
         }
     }
-
 }

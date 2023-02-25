@@ -10,19 +10,30 @@ namespace AF
 
         [HideInInspector] public ReadBook readBook;
 
-        StarterAssets.StarterAssetsInputs inputs;
+        [Header("Localization")]
+        public LocalizedText movePagesText;
+        public LocalizedText arrowKeysText;
+        public LocalizedText closeBookText;
+        public LocalizedText tabText;
+
+        StarterAssets.StarterAssetsInputs inputs => FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
 
         private void Awake()
         {
-            inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
             this.gameObject.SetActive(false);
         }
 
         private void Update()
         {
             this.root.Focus();
-            
-            //UnityEngine.Cursor.lockState = CursorLockMode.Locked;
+        }
+
+        void Translate(VisualElement root)
+        {
+            root.Q<Label>("MovePages").text = movePagesText.GetText();
+            root.Q<Label>("ArrowKeys").text = arrowKeysText.GetText();
+            root.Q<Label>("CloseBook").text = closeBookText.GetText();
+            root.Q<Label>("Tab").text = tabText.GetText();
         }
 
         private void OnEnable()
@@ -30,6 +41,8 @@ namespace AF
             this.root = GetComponent<UIDocument>().rootVisualElement;
             this.root.focusable = true;
             this.root.Focus();
+
+            Translate(this.root);
 
             this.root.RegisterCallback<NavigationCancelEvent>(ev =>
             {
@@ -72,8 +85,8 @@ namespace AF
             this.root.Q<VisualElement>("BookBack").style.display = DisplayStyle.None;
             this.root.Q<VisualElement>("NotePage").style.display = DisplayStyle.None;
 
-            this.root.Q<Label>("BookTitle").text = book.bookTitle;
-            this.root.Q<Label>("BookAuthor").text = book.bookAuthor;
+            this.root.Q<Label>("BookTitle").text = book.bookTitle.GetText();
+            this.root.Q<Label>("BookAuthor").text = book.bookAuthor.GetText();
 
             this.root.Q<VisualElement>("BookFront").style.backgroundColor = book.coverColor;
         }
@@ -121,17 +134,17 @@ namespace AF
                 this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = "";
                 this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = "";
 
-                if (System.String.IsNullOrEmpty(page.chapterTitle))
+                if (System.String.IsNullOrEmpty(page.chapterTitle.GetText()))
                 {
                     this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.None;
                 }
                 else
                 {
-                    this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = page.chapterTitle;
+                    this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = page.chapterTitle.GetText();
                     this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = "";
                     this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.Flex;
                 }
-                this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = FormatText(page.pageText);
+                this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = FormatText(page.pageText.GetText());
                 this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = "";
             }
             else
@@ -139,17 +152,17 @@ namespace AF
                 this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = "";
                 this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = "";
 
-                if (System.String.IsNullOrEmpty(page.chapterTitle))
+                if (System.String.IsNullOrEmpty(page.chapterTitle.GetText()))
                 {
                     this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.None;
                 }
                 else
                 {
-                    this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = page.chapterTitle;
+                    this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = page.chapterTitle.GetText();
                     this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = "";
                     this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.Flex;
                 }
-                this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = FormatText(page.pageText);
+                this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = FormatText(page.pageText.GetText());
                 this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = "";
             }
 
@@ -164,28 +177,28 @@ namespace AF
             this.root.Q<VisualElement>("BookBack").style.display = DisplayStyle.None;
             this.root.Q<VisualElement>("NotePage").style.display = DisplayStyle.None;
 
-            if (System.String.IsNullOrEmpty(leftPage.chapterTitle))
+            if (System.String.IsNullOrEmpty(leftPage.chapterTitle.GetText()))
             {
                 this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.None;
             }
             else
             {
-                this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = leftPage.chapterTitle;
+                this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = leftPage.chapterTitle.GetText();
                 this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.Flex;
             }
-            this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = FormatText(leftPage.pageText);
+            this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = FormatText(leftPage.pageText.GetText());
 
 
-            if (System.String.IsNullOrEmpty(rightPage.chapterTitle))
+            if (System.String.IsNullOrEmpty(rightPage.chapterTitle.GetText()))
             {
                 this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.None;
             }
             else
             {
-                this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = rightPage.chapterTitle;
+                this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = rightPage.chapterTitle.GetText();
                 this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.Flex;
             }
-            this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = FormatText(rightPage.pageText);
+            this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = FormatText(rightPage.pageText.GetText());
         }
 
         string FormatText(string text)

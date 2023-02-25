@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AF
 {
-
     public class UIDocumentTitleScreenCredits : MonoBehaviour
     {
         VisualElement root;
@@ -16,15 +13,22 @@ namespace AF
         public VisualTreeAsset sectionTitle;
         public VisualTreeAsset sectionEntry;
 
+        [Header("Localization")]
+        public LocalizedText creditsText;
+        public LocalizedText creditsRequestNoteText;
+
         private void Awake()
         {
             menuManager = FindObjectOfType<MenuManager>(true);
-            this.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
-            this.root = GetComponent<UIDocument>().rootVisualElement;
+            root = GetComponent<UIDocument>().rootVisualElement;
+
+            root.Q<Label>("CreditsTitle").text = creditsText.GetText();
+            root.Q<Label>("RequestCreditsLabel").text = creditsRequestNoteText.GetText();
 
             root.RegisterCallback<NavigationCancelEvent>(ev =>
             {
@@ -45,7 +49,7 @@ namespace AF
             foreach (var creditSection in credits.creditsSections)
             {
                 var sectionTitleClone = sectionTitle.CloneTree();
-                sectionTitleClone.Q<Label>("SectionTitle").text = creditSection.sectionTitle;
+                sectionTitleClone.Q<Label>("SectionTitle").text = creditSection.sectionTitle.GetText();
                 scrollPanel.Add(sectionTitleClone);
 
                 foreach (var creditEntry in creditSection.creditEntry)
@@ -54,7 +58,7 @@ namespace AF
                     var sectionEntryClone = sectionEntry.CloneTree();
 
                     var urlButton = sectionEntryClone.Q<Button>("UrlButton");
-                    if (System.String.IsNullOrEmpty(creditEntry.authorUrl))
+                    if (string.IsNullOrEmpty(creditEntry.authorUrl))
                     {
                         urlButton.style.display = DisplayStyle.None;
                     }
@@ -85,13 +89,8 @@ namespace AF
         void Close()
         {
             FindObjectOfType<UIDocumentTitleScreen>(true).gameObject.SetActive(true);
-            this.gameObject.SetActive(false);
-        }
-
-        private void Update()
-        {
+            gameObject.SetActive(false);
         }
 
     }
-
 }

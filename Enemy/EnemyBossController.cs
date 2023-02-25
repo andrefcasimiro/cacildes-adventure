@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,13 +11,13 @@ namespace AF
         public AudioClip bossMusic;
 
         [Header("Switch")]
-        public string bossSwitchUuid;
+        public SwitchEntry bossSwitchEntry;
         [Tooltip("Update boss switch immediately after boss is killed")]
         public bool updateSwitchOnKill = false;
 
         // UI Components
-        [HideInInspector] public UnityEngine.UIElements.UIDocument bossHud => GetComponent<UIDocument>();
-        [HideInInspector] public UnityEngine.UIElements.IMGUIContainer bossFillBar;
+        [HideInInspector] public UIDocument bossHud => GetComponent<UIDocument>();
+        [HideInInspector] public IMGUIContainer bossFillBar;
 
         private void Start()
         {

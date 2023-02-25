@@ -1,17 +1,20 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AF
 {
-
     public class UIDocumentLoadMenu : MonoBehaviour
     {
-        MenuManager menuManager;
-        
         public VisualTreeAsset loadButtonEntryPrefab;
+
+        MenuManager menuManager;
+
+        [Header("Localization")]
+        public LocalizedText openSavesFolderText;
+        public LocalizedText loadText;
+        public LocalizedText deleteText;
 
         private void Awake()
         {
@@ -29,6 +32,7 @@ namespace AF
 
         public void DrawUI(VisualElement targetRoot, bool showDeleteButton)
         {
+            targetRoot.Q<Button>("ButtonOpenSaveFolder").text = openSavesFolderText.GetText();
 
             List<SaveFileEntry> saveFiles = SaveSystem.instance.GetSaveFiles();
 
@@ -41,7 +45,6 @@ namespace AF
 
                     return bDate.CompareTo(aDate);
                 });
-
             }
 
             targetRoot.Q<ScrollView>().Clear();
@@ -60,7 +63,9 @@ namespace AF
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 
                 var loadBtn = btn.Q<Button>("LoadButton");
+                loadBtn.text = loadText.GetText();
                 var deleteBtn = btn.Q<Button>("DeleteButton");
+                deleteBtn.text = deleteText.GetText();
 
                 deleteBtn.style.display = showDeleteButton ? DisplayStyle.Flex : DisplayStyle.None;
 
@@ -74,8 +79,6 @@ namespace AF
                     SaveSystem.instance.DeleteSaveFile(saveFileEntry.fileFullPath, saveFileEntry.fileFullPath.Replace("json", "jpg"));
                     DrawUI(targetRoot, showDeleteButton);
                 });
-
-                btn.Q<Button>("LoadButton").text = "Load";
 
                 // Gamepad
                 btn.RegisterCallback<FocusInEvent>(ev =>
@@ -99,15 +102,13 @@ namespace AF
 
                 targetRoot.Q<ScrollView>().Add(btn);
             }
-
         }
 
         void ShowLoadInfo(VisualElement root, SaveFileEntry saveFileEntry)
         {
-
             root.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
             root.Q<Label>("Title").text = saveFileEntry.sceneName + " / Level " + saveFileEntry.level;
-            root.Q<Label>("SubTitle").text = "Saved at: " + System.DateTime.Parse(saveFileEntry.creationDate).ToString();
+            root.Q<Label>("SubTitle").text = "Saved at: " + DateTime.Parse(saveFileEntry.creationDate).ToString();
 
             var totalGameTime = System.TimeSpan.FromSeconds(saveFileEntry.gameTime);
             root.Q<Label>("Description").text = "Total Play Time: " + totalGameTime.Hours + "h " + totalGameTime.Minutes + "m " + totalGameTime.Seconds + "s";
@@ -115,7 +116,5 @@ namespace AF
 
             root.Q<VisualElement>("SaveGameItemPreview").style.opacity = 1;
         }
-
     }
-
 }

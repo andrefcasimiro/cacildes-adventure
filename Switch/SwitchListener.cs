@@ -1,15 +1,12 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace AF
 {
     public class SwitchListener : MonoBehaviour
     {
-        public string switchUuid;
+        public SwitchEntry switchEntry;
 
-        [HideInInspector] public Switch _switch;
-
-        public virtual void EvaluateSwitch() { }
+        public virtual void Refresh() { }
 
     }
 }

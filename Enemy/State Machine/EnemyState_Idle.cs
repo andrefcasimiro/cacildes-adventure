@@ -26,7 +26,7 @@ namespace AF
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (enemy.eventPage != null && enemy.eventPage.IsRunning())
+            if (enemy.eventPage != null && enemy.eventPage.isRunning)
             {
                 enemy.agent.isStopped = true;
                 return;

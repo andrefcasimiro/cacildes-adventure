@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
 {
 
-    public class ShowWeaponsOnStateEnter : StateMachineBehaviour
+    public class PlayerShowWeaponsOnStateEnter : StateMachineBehaviour
     {
         EquipmentGraphicsHandler equipmentGraphicsHandler;
 

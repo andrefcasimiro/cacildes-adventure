@@ -8,7 +8,7 @@ namespace AF
     public class VariableCollectorManager : VariableListener, ISaveable
     {
         [Header("Switch Conditions")]
-        public string switchUuid;
+        public SwitchEntry switchEntry;
         public bool switchValue;
 
         [Header("Options")]
@@ -109,8 +109,7 @@ namespace AF
 
         public bool ShouldRun()
         {
-            return SwitchManager.instance.GetSwitchValue(switchUuid) == switchValue;
-
+            return SwitchManager.instance.GetSwitchCurrentValue(switchEntry) == switchValue;
         }
     }
 

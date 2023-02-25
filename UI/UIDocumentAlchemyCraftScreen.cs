@@ -111,8 +111,8 @@ namespace AF
                 var scrollItem = this.recipeItem.CloneTree();
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(recipe.resultingItem.sprite);
-                scrollItem.Q<Label>("ItemName").text = (recipe.resultingItem.name);
-                scrollItem.Q<Label>("ItemDescription").text = (recipe.resultingItem.description);
+                scrollItem.Q<Label>("ItemName").text = recipe.resultingItem.name.GetText();
+                scrollItem.Q<Label>("ItemDescription").text = recipe.resultingItem.description.GetText();
 
                 var craftBtn = scrollItem.Q<Button>("CraftButton");
                 
@@ -190,7 +190,7 @@ namespace AF
             {
                 var ingredientItemEntry = ingredientItem.CloneTree();
                 ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(ingredient.ingredient.sprite);
-                ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name;
+                ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name.GetText();
 
                 var playerOwnedIngredient = Player.instance.ownedItems.Find(x => x.item == ingredient.ingredient);
                 var playerOwnedIngredientAmount = 0;

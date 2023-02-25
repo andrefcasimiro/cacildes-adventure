@@ -1,22 +1,20 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
 {
     public class Bonfire : MonoBehaviour
     {
+        [Header("UI")]
+        public UIDocumentBonfireMenu uiDocumentBonfireMenu;
+        public LocalizedText bonfireName;
+        
+        public GenericTrigger bonfireTrigger;
+        public Transform playerTransformRef;
+
         public GameObject fireFx;
 
         PlayerComponentManager playerComponentManager;
-        
-        public Transform playerTransformRef;
-
-        public UIDocumentBonfireMenu uiDocumentBonfireMenu;
-
-        public string bonfireName = "";
-
-        public GenericTrigger bonfireTrigger;
 
         private void Start()
         {
@@ -25,15 +23,14 @@ namespace AF
 
         public void ActivateBonfire()
         {
-            // Cure player
+            // Cure playerManager
             playerComponentManager.CurePlayer();
 
             // Find all active enemies in scene
             var allEnemiesInScene = FindObjectsOfType<EnemyManager>();
             foreach (var enemy in allEnemiesInScene)
             {
-                // Don't revive bosses
-                if (enemy.enemyBossController != null)
+                if (enemy.GetComponent<EnemyBossController>() != null)
                 {
                     continue;
                 }
@@ -64,7 +61,7 @@ namespace AF
 
             // Save Game
             SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
-            SaveSystem.instance.SaveGameData(bonfireName);
+            SaveSystem.instance.SaveGameData(bonfireName.GetText());
 
             uiDocumentBonfireMenu.gameObject.SetActive(false);
 
@@ -90,7 +87,6 @@ namespace AF
             fireFx.gameObject.SetActive(false);
             bonfireTrigger.gameObject.SetActive(true);
 
-
             yield return new WaitForSeconds(0.25f);
 
             playerComponentManager.EnableCharacterController();
@@ -98,8 +94,5 @@ namespace AF
 
             Utils.HideCursor();
         }
-
-
     }
-
 }

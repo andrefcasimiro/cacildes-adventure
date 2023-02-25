@@ -50,10 +50,7 @@ namespace AF
         [HideInInspector] public IMGUIContainer dayNightIcon;
         [HideInInspector] public Label dayNightText;
 
-        VisualElement playerHudRoot;
-        SceneSettings sceneSettings;
-
-        bool hasUpdatedDaysPassed = false;
+        SceneSettings sceneSettings => FindObjectOfType<SceneSettings>(true);
 
         IEnumerable<IClockListener> iClockListenersInScene;
 
@@ -65,8 +62,6 @@ namespace AF
 
         private void Start()
         {
-            sceneSettings = FindObjectOfType<SceneSettings>(true);
-
             if (Player.instance != null)
             {
                 timeOfDay = Player.instance.timeOfDay;
@@ -245,7 +240,7 @@ namespace AF
 
         public bool TimePassageAllowed()
         {
-            return sceneSettings.isInterior == false;
+            return sceneSettings != null && sceneSettings.isInterior == false;
         }
 
         private void OnValidate()

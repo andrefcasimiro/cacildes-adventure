@@ -2,17 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-using StarterAssets;
 using UnityEngine.InputSystem;
 using System.Linq;
 
 namespace AF
 {
-
     public class UIDocumentDialogueWindow : MonoBehaviour
     {
         public UIDocument uiDocument;
-
         public VisualTreeAsset dialogueChoiceItem;
 
         [Header("SFX")]
@@ -22,33 +19,30 @@ namespace AF
         public string actorName;
         public string dialogueText;
 
-        [HideInInspector] public string actorTitle;
+        [Header("Localization")]
+        public LocalizedText pressKeyToContinueText;
 
+        [HideInInspector] public string actorTitle;
         [HideInInspector] public Sprite actorAvatar;
-        
         [HideInInspector] public List<DialogueChoice> dialogueChoices = new List<DialogueChoice>();
 
         VisualElement root;
         VisualElement dialogueChoicePanel;
-        Label text;
-
+        Label messageText;
 
         [HideInInspector] public bool hasFinishedTypewriter = false;
         [HideInInspector] public float textDelay = 0.5f;
-
         [HideInInspector] public bool showHint = false;
 
-        MenuManager menuManager;
+        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
 
         private void Awake()
         {
-            menuManager = FindObjectOfType<MenuManager>(true);
             this.gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
-
             hasFinishedTypewriter = false;
 
             this.root = uiDocument.rootVisualElement;
@@ -59,16 +53,20 @@ namespace AF
 
             var actorNameLabel = this.root.Q<Label>("ActorName");
             var actorTitleLabel = this.root.Q<Label>("ActorTitle");
-            this.text = this.root.Q<Label>("MessageText");
+            messageText = this.root.Q<Label>("MessageText");
             var actorSprite = this.root.Q<IMGUIContainer>("ActorSprite");
-
-
-            this.root.Q<VisualElement>("HintMessage").style.display = Gamepad.current != null ? DisplayStyle.None : DisplayStyle.Flex;
-            this.root.Q<VisualElement>("HintMessageGamePad").style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
+            #region Hint
+            if (showHint)
+            {
+                this.root.Q<Label>("HintMessageText").text = pressKeyToContinueText.GetText();
+                this.root.Q<VisualElement>("HintMessage").style.display = Gamepad.current != null ? DisplayStyle.None : DisplayStyle.Flex;
+                this.root.Q<VisualElement>("HintMessageGamePad").style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
+            }
 
             this.root.Q<VisualElement>("Hint").style.display = showHint ? DisplayStyle.Flex : DisplayStyle.None;
+            #endregion
 
-            if (System.String.IsNullOrEmpty(actorName) == false)
+            if (string.IsNullOrEmpty(actorName) == false)
             {
                 actorNameLabel.style.display = DisplayStyle.Flex;
                 actorNameLabel.text = actorName;
@@ -108,7 +106,7 @@ namespace AF
             for (int i = 0; i < dialogueText.Length + 1; i++)
             {
                 var letter = dialogueText.Substring(0, i);
-                text.text = letter;
+                messageText.text = letter;
                 yield return new WaitForSeconds(textDelay);
             }
 
@@ -120,7 +118,7 @@ namespace AF
             StopAllCoroutines();
             hasFinishedTypewriter = true;
 
-            this.text.text = dialogueText;
+            messageText.text = dialogueText;
         }
 
         public IEnumerator ShowChoices()
@@ -149,7 +147,7 @@ namespace AF
                 foreach (var dialogueChoice in dialogueChoices)
                 {
                     var newDialogueChoiceItem = dialogueChoiceItem.CloneTree();
-                    newDialogueChoiceItem.Q<Button>().text = EvaluateDialogueChoiceText(dialogueChoice.choiceText);
+                    newDialogueChoiceItem.Q<Button>().text = EvaluateDialogueChoiceText(dialogueChoice.choiceText.GetText());
 
                     menuManager.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
                     {
@@ -202,7 +200,6 @@ namespace AF
             {
                 dialogueChoicePanel.style.display = DisplayStyle.None;
             }
-
         }
 
         public string EvaluateDialogueChoiceText(string text)
@@ -227,5 +224,4 @@ namespace AF
             return text;
         }
     }
-
 }

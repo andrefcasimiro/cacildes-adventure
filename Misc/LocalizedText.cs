@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace AF
 {
@@ -6,7 +8,7 @@ namespace AF
     public class LocalizedTextEntry
     {
         public GamePreferences.GameLanguage gameLanguage;
-        public string text;
+        [TextArea] public string text;
     }
 
     [System.Serializable]
@@ -37,6 +39,27 @@ namespace AF
             }
 
             return localizedTextsDictionary[GamePreferences.instance.gameLanguage];
+        }
+
+        public string GetEnglishText()
+        {
+            CheckForDictionaryInitialization();
+
+            if (GamePreferences.instance == null)
+            {
+                return "";
+            }
+
+            if (localizedTextsDictionary.Count <= 0)
+            {
+                return "";
+            }
+
+            if (localizedTextsDictionary.ContainsKey(GamePreferences.GameLanguage.ENGLISH) == false) {
+                return "";
+            }
+
+            return localizedTextsDictionary[GamePreferences.GameLanguage.ENGLISH];
         }
     }
 }

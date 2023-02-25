@@ -90,7 +90,7 @@ namespace AF
                 return;
             }
 
-            if (!thirdPersonController.Grounded)
+            if (thirdPersonController != null && thirdPersonController.Grounded == false)
             {
                 return;
             }

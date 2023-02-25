@@ -1,136 +1,191 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using UnityEngine;
 
 namespace AF
 {
+    [System.Serializable]
+    public class SwitchEntryInstance
+    {
+        public SwitchEntry switchEntry;
+        public bool currentValue;
+    }
+
     public class SwitchManager : MonoBehaviour, ISaveable
     {
-        public List<Switch> switches = new List<Switch>();
+        public List<SwitchEntryInstance> switchEntryInstances = new List<SwitchEntryInstance>();
+        
+        // Event specific switch updates that are put in a queue on purpose (for when we don't want to update them immediately)
+        [HideInInspector] public List<SwitchEntryInstance> queueSwitchUpdates = new List<SwitchEntryInstance>();
 
         public static SwitchManager instance;
 
         public void Awake()
         {
-
             if (instance != null && instance != this)
             {
-                Destroy(this.gameObject);
+                Destroy(gameObject);
             }
             else
             {
                 instance = this;
             }
 
-            GetSwitches();
+            LoadSwitches();
         }
 
-        public void GetSwitches()
+        public void LoadSwitches()
         {
-            this.switches.Clear();
-            Switch[] switches = this.transform.GetComponentsInChildren<Switch>(true);
+            switchEntryInstances.Clear();
 
-            foreach (var _switch in switches)
+            var switchEntries = Resources.LoadAll<SwitchEntry>("Switches").ToList();
+
+            foreach (var switchEntry in switchEntries)
             {
-                this.switches.Add(_switch);
+                SwitchEntryInstance switchEntryInstance = new SwitchEntryInstance();
+                switchEntryInstance.switchEntry = switchEntry;
+                switchEntryInstance.currentValue = false;
+
+                switchEntryInstances.Add(switchEntryInstance);
             }
         }
 
-        public void UpdateSwitchWithoutRefreshingEvents(string switchId, bool nextValue)
+        #region Update Switch Logic
+        public void UpdateSwitchWithoutRefreshingEvents(SwitchEntry switchEntryToUpdate, bool nextValue)
         {
-            var switchIndex = this.switches.FindIndex(x => x.ID == switchId);
+            var switchIndex = switchEntryInstances.FindIndex(switchEntry => switchEntry.switchEntry == switchEntryToUpdate);
 
-            this.switches[switchIndex].value = nextValue;
+            switchEntryInstances[switchIndex].currentValue = nextValue;
 
-            HandleObjectiveUpdate(switchIndex);
+            if (nextValue == true)
+            {
+                HandleObjectiveUpdate(switchIndex);
+            }
+        }
+        
+        public void UpdateSwitch(SwitchEntry switchEntry, bool nextValue)
+        {
+            var switchIndex = switchEntryInstances.FindIndex(x => x.switchEntry == switchEntry);
+            if (switchIndex == -1)
+            {
+                Debug.LogError("Could not find switch: " + switchEntry.name);
+                return;
+            }
 
+            switchEntryInstances[switchIndex].currentValue = nextValue;
+
+            if (nextValue == true)
+            {
+                HandleObjectiveUpdate(switchIndex);
+            }
+
+            NotifySwitchListeners(switchIndex);
         }
 
-        public void UpdateSwitch(string switchID, bool nextValue)
+        void NotifySwitchListeners(int switchIndex)
         {
-
-            var switchIndex = this.switches.FindIndex(x => x.ID == switchID);
-            this.switches[switchIndex].value = nextValue;
-
-            HandleObjectiveUpdate(switchIndex);
-
+            #region Notify scene listeners in scene
             var sceneSwitchListeners = FindObjectsOfType<SwitchListener>(true);
             foreach (var sceneSwitchListener in sceneSwitchListeners)
             {
-                // if the switch listener starts as a deactivated gameobject, we need to fix the _switch
-                if (sceneSwitchListener._switch == null)
+                // If switch listener is listening for this updated switch, 
+                if (sceneSwitchListener.switchEntry == switchEntryInstances[switchIndex].switchEntry)
                 {
-                    sceneSwitchListener._switch = GetSwitchInstance(sceneSwitchListener.switchUuid);
-                }
-
-                if (sceneSwitchListener._switch.ID == switchID)
-                {
-                    sceneSwitchListener.EvaluateSwitch();
+                    sceneSwitchListener.Refresh();
                 }
             }
 
             var sceneMultipleSwitchListeners = FindObjectsOfType<MultipleSwitchDependent>(true);
             foreach (var multipleSwichListener in sceneMultipleSwitchListeners)
             {
-                multipleSwichListener.EvaluateSwitch();
+                multipleSwichListener.Refresh();
             }
+            #endregion
 
+            #region Notify events that listen to this switch in the scene
             var eventsInScene = FindObjectsOfType<Event>(true);
             foreach (var eventInScene in eventsInScene)
             {
                 eventInScene.RefreshEventPages();
             }
-
+            #endregion
         }
 
         void HandleObjectiveUpdate(int switchIndex)
         {
-            if (this.switches[switchIndex].updateObjective)
+            if (switchEntryInstances[switchIndex].switchEntry.updateObjective)
             {
-                if (System.String.IsNullOrEmpty(this.switches[switchIndex].newObjective) == false)
+                var newObjective = switchEntryInstances[switchIndex].switchEntry.newObjective;
+                if (!string.IsNullOrEmpty(newObjective))
                 {
-                    Player.instance.currentObjective = this.switches[switchIndex].newObjective;
+                    Player.instance.currentObjective = newObjective;
                 }
             }
         }
+        #endregion
 
-        public Switch GetSwitchInstance(string switchUUID)
+        #region Queue Switches Logic
+        public void UpdateQueuedSwitches()
         {
-            return this.switches.Find(x => x.ID == switchUUID);
-        }
-
-        public bool GetSwitchValue(string switchID)
-        {
-            var targetSwitch = this.switches.Find(x => x.ID == switchID);
-
-            if (targetSwitch == null)
-            {
-                return false;
-            }
-
-
-            return targetSwitch.value;
-        }
-
-        public void OnGameLoaded(GameData gameData)
-        {
-            if (gameData.switches.Length <= 0) { return; }
-
-            foreach (SerializableSwitch savedSwitch in gameData.switches)
-            {
-                UpdateSwitch(savedSwitch.uuid, savedSwitch.value);
-            }
-        }
-
-        public new void SendMessage(string switchUuid)
-        {
-            if (System.String.IsNullOrEmpty(switchUuid))
+            if (queueSwitchUpdates.Count <= 0)
             {
                 return;
             }
 
-            UpdateSwitch(switchUuid, true);
-        }
-    }
+            foreach (SwitchEntryInstance queuedSwitch in queueSwitchUpdates)
+            {
+                UpdateSwitch(queuedSwitch.switchEntry, queuedSwitch.currentValue);
+            }
 
+            queueSwitchUpdates.Clear();
+        }
+
+        public void AddQueueSwitch(SwitchEntry switchEntry, bool nextValue)
+        {
+            var existingQueueSwitchIndex = this.queueSwitchUpdates.FindIndex(queueSwitch => queueSwitch.switchEntry == switchEntry);
+            if (existingQueueSwitchIndex != -1)
+            {
+                this.queueSwitchUpdates[existingQueueSwitchIndex].currentValue = nextValue;
+                return;
+            }
+
+            SwitchEntryInstance switchEntryInstance = new SwitchEntryInstance();
+            switchEntryInstance.switchEntry = switchEntry;
+            switchEntryInstance.currentValue = nextValue;
+            this.queueSwitchUpdates.Add(switchEntryInstance);
+        }
+        #endregion
+
+        #region Get Switch Logic
+        public bool GetSwitchCurrentValue(SwitchEntry switchEntry)
+        {
+            var targetSwitch = switchEntryInstances.Find(switchEntryInstance => switchEntryInstance.switchEntry == switchEntry);
+
+            return targetSwitch != null && targetSwitch.currentValue;
+        }
+        #endregion
+
+        #region Serialization
+        public void OnGameLoaded(GameData gameData)
+        {
+            if (gameData.switches.Length <= 0)
+            {
+                return;
+            }
+
+            foreach (SerializableSwitch savedSwitch in gameData.switches)
+            {
+                var switchIndex = switchEntryInstances.FindIndex(x => x.switchEntry.name == savedSwitch.switchName);
+                if (switchIndex == -1)
+                {
+                    Debug.LogError("Could not find switch with name: " + savedSwitch.switchName);
+                    return;
+                }
+
+                UpdateSwitch(switchEntryInstances[switchIndex].switchEntry, savedSwitch.value);
+            }
+        }
+        #endregion
+    }
 }

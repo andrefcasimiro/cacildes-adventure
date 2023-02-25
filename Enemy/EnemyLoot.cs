@@ -105,7 +105,7 @@ namespace AF
                 {
                     UIDocumentReceivedItemPrompt.ItemsReceived itemReceived = new UIDocumentReceivedItemPrompt.ItemsReceived();
 
-                    itemReceived.itemName = item.name;
+                    itemReceived.itemName = item.name.GetText();
                     itemReceived.quantity = 1;
                     itemReceived.sprite = item.sprite;
 
@@ -113,7 +113,7 @@ namespace AF
                 }
                 else
                 {
-                    notificationManager.ShowNotification("Found " + item.name, item.sprite);
+                    notificationManager.ShowNotification(LocalizedTerms.Found() + " " + item.name.GetText(), item.sprite);
                 }
             }
 

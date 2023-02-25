@@ -15,9 +15,9 @@ namespace AF
     [CreateAssetMenu(menuName = "Misc / Status / New Status")]
     public class StatusEffect : ScriptableObject
     {
-        public string name;
+        public new string name;
 
-        public string appliedStatusDisplayName;
+        public string appliedStatusDisplayName; 
  
         public Sprite spriteIndicator;
 

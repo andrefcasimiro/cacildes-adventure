@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -13,17 +10,20 @@ namespace AF
         public VisualTreeAsset loadButtonEntryPrefab;
         MenuManager menuManager;
 
+        UIDocumentLoadMenu uIDocumentLoadMenu => FindObjectOfType<UIDocumentLoadMenu>(true);
+        UIDocumentTitleScreen uIDocumentTitleScreen => FindObjectOfType<UIDocumentTitleScreen>(true);
+
         private void Awake()
         {
             menuManager = FindObjectOfType<MenuManager>(true);
 
-            this.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
-            this.root = GetComponent<UIDocument>().rootVisualElement;
-            
+            root = GetComponent<UIDocument>().rootVisualElement;
+
             root.RegisterCallback<NavigationCancelEvent>(ev =>
             {
                 Close();
@@ -34,16 +34,12 @@ namespace AF
 
         void DrawUI()
         {
+            uIDocumentLoadMenu.DrawUI(root, true);
 
-            FindObjectOfType<UIDocumentLoadMenu>(true).DrawUI(this.root, true);
-
-
-           
             menuManager.SetupButton(root.Q<Button>("CloseBtn"), () =>
             {
                 Close();
             });
-
 
             menuManager.SetupButton(root.Q<Button>("ButtonOpenSaveFolder"), () =>
             {
@@ -51,21 +47,13 @@ namespace AF
                 var itemPath = path.Replace(@"/", @"\");   // explorer doesn't like front slashes
                 System.Diagnostics.Process.Start("explorer.exe", "/select," + itemPath);
             });
-
         }
-
 
         void Close()
         {
-            FindObjectOfType<UIDocumentTitleScreen>(true).gameObject.SetActive(true);
-            this.gameObject.SetActive(false);
-        }
-
-        private void Update()
-        {
-            // UnityEngine.Cursor.lockState = CursorLockMode.None;
+            uIDocumentTitleScreen.gameObject.SetActive(true);
+            gameObject.SetActive(false);
         }
 
     }
-
 }

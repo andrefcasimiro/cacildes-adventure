@@ -3,7 +3,7 @@ using UnityEngine;
 namespace AF
 {
 
-    public class StopAgent : StateMachineBehaviour
+    public class EnemyStopAgentOnStateEnter : StateMachineBehaviour
     {
         EnemyManager enemy;
 
@@ -15,7 +15,10 @@ namespace AF
                 enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
 
-            enemy.agent.isStopped = true;
+            if (enemy.IsNavMeshAgentActive())
+            {
+                enemy.agent.isStopped = true;
+            }
         }
 
     }

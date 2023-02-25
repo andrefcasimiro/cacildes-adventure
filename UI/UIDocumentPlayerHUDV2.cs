@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -100,7 +98,7 @@ namespace AF
             itemIcon.style.backgroundImage = new StyleBackground(Player.instance.favoriteItems[0].sprite);
             itemCounter.text = Player.instance.ownedItems.Find(x => x.item == Player.instance.favoriteItems[0]).amount.ToString();
             itemCounter.style.display = DisplayStyle.Flex;
-            quickItemName.text = Player.instance.favoriteItems[0].name;
+            quickItemName.text = Player.instance.favoriteItems[0].name.GetText();
 
         }
 

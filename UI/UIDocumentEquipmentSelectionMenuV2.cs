@@ -156,7 +156,7 @@ namespace AF
                     });
 
                     weaponButton.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(weapon.sprite);
-                    weaponButton.Q<Label>("Name").text = weapon.name;
+                    weaponButton.Q<Label>("Name").text = weapon.name.GetText();
 
                     var valueLabelElement = weaponButton.Q<Label>("Value");
 
@@ -209,8 +209,8 @@ namespace AF
             var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
             var itemStats = root.Q<VisualElement>("ItemStats");
 
-            itemPreviewElement.Q<Label>("Title").text = weapon.name;
-            itemPreviewElement.Q<Label>("Description").text = weapon.description;
+            itemPreviewElement.Q<Label>("Title").text = weapon.name.GetText();
+            itemPreviewElement.Q<Label>("Description").text = weapon.description.GetText();
             itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(weapon.sprite);
 
             itemStats.Q<Label>("Damage").text = weapon.physicalAttack + " (Base Damage) + "
@@ -317,7 +317,7 @@ namespace AF
                     });
 
                     shieldButton.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(shield.sprite);
-                    shieldButton.Q<Label>("Name").text = shield.name;
+                    shieldButton.Q<Label>("Name").text = shield.name.GetText();
 
                     var valueLabelElement = shieldButton.Q<Label>("Value");
 
@@ -369,8 +369,8 @@ namespace AF
             var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
             var itemStats = root.Q<VisualElement>("ItemStats");
 
-            itemPreviewElement.Q<Label>("Title").text = shield.name;
-            itemPreviewElement.Q<Label>("Description").text = shield.description;
+            itemPreviewElement.Q<Label>("Title").text = shield.name.GetText();
+            itemPreviewElement.Q<Label>("Description").text = shield.description.GetText();
             itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(shield.sprite);
 
             itemStats.Q<Label>("Damage").text = shield.defenseAbsorption + "% (Enemy ATK Absorption) / "
@@ -485,7 +485,7 @@ namespace AF
                     });
 
                     itemButton.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(item.sprite);
-                    itemButton.Q<Label>("Name").text = item.name;
+                    itemButton.Q<Label>("Name").text = item.name.GetText();
 
                     var valueLabelElement = itemButton.Q<Label>("Value");
 
@@ -538,8 +538,8 @@ namespace AF
             var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
             var itemStats = root.Q<VisualElement>("ItemStats");
 
-            itemPreviewElement.Q<Label>("Title").text = armor.name;
-            itemPreviewElement.Q<Label>("Description").text = armor.description;
+            itemPreviewElement.Q<Label>("Title").text = armor.name.GetText();
+            itemPreviewElement.Q<Label>("Description").text = armor.description.GetText();
             itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(armor.sprite);
 
             itemStats.Q<Label>("Damage").text = "Defense + " + armor.physicalDefense;
@@ -647,10 +647,10 @@ namespace AF
                     });
 
                     accessoryButton.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(accessory.sprite);
-                    accessoryButton.Q<Label>("Name").text = accessory.name;
+                    accessoryButton.Q<Label>("Name").text = accessory.name.GetText();
 
                     var valueLabelElement = accessoryButton.Q<Label>("Value");
-                    valueLabelElement.text = accessory.smallEffectDescription;
+                    valueLabelElement.text = accessory.smallEffectDescription.GetText();
                     valueLabelElement.style.fontSize = 11;
                     valueLabelElement.style.paddingRight = 5;
 
@@ -668,8 +668,8 @@ namespace AF
             var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
             var itemStats = root.Q<VisualElement>("ItemStats");
 
-            itemPreviewElement.Q<Label>("Title").text = accessory.name;
-            itemPreviewElement.Q<Label>("Description").text = accessory.description;
+            itemPreviewElement.Q<Label>("Title").text = accessory.name.GetText();
+            itemPreviewElement.Q<Label>("Description").text = accessory.description.GetText();
             itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(accessory.sprite);
 
             itemStats.Q<Label>("Damage").text = " ";

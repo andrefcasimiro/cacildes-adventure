@@ -7,17 +7,16 @@ namespace AF
     [System.Serializable]
     public class BookPage
     {
-        public string chapterTitle = "";
+        public LocalizedText chapterTitle;
 
-        [TextArea]
-        public string pageText = "";
+        public LocalizedText pageText;
     }
 
     [CreateAssetMenu(menuName = "Misc / Books / New Book")]
     public class Book : ScriptableObject
     {
-        public string bookTitle;
-        public string bookAuthor;
+        public LocalizedText bookTitle;
+        public LocalizedText bookAuthor;
 
         public BookPage[] bookPages;
 

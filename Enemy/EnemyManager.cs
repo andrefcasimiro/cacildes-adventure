@@ -68,8 +68,7 @@ namespace AF
         public float maximumChaseDistance = 10f;
         public bool alwaysTrackPlayer = false;
 
-        [Header("Physics")]
-        public float rotationSpeed = 5f;
+        [Header("Gravity")]
         public bool canFall = true;
 
         [Header("Audio Sources")]
@@ -78,6 +77,9 @@ namespace AF
         // Flags
         [HideInInspector] public bool facePlayer = false;
 
+        [Header("Rotation Options")]
+        public bool rotateWithAnimations = true;
+        public float rotationSpeed = 5f;
         [HideInInspector] public GameObject player;
 
         // Components
@@ -107,13 +109,45 @@ namespace AF
         bool usesGravityByDefault;
         bool isKinematicByDefault;
 
+        private void Awake()
+        {
+            player = GameObject.FindWithTag("Player");
+        }
+
         private void Start()
         {
             usesGravityByDefault = rigidbody.useGravity;
             isKinematicByDefault = rigidbody.isKinematic;
 
-            player = GameObject.FindWithTag("Player");
             initialPosition = transform.position;
+        }
+
+        private void Update()
+        {
+            if (facePlayer)
+            {
+                if (enemyTargetController.ignoreCompanions == false && enemyTargetController.currentCompanion != null)
+                {
+                    FaceTarget(enemyTargetController.currentCompanion.transform);
+                }
+                else
+                {
+                    FacePlayer();
+                }
+            }
+        }
+
+        public void FacePlayer()
+        {
+            FaceTarget(player.transform);
+        }
+
+        void FaceTarget(Transform target)
+        {
+            var lookRotation = target.position - this.transform.position;
+            lookRotation.y = 0;
+            var rotation = Quaternion.LookRotation(lookRotation);
+            transform.rotation = Quaternion.Lerp(this.transform.rotation, rotation, Time.deltaTime * rotationSpeed);
         }
 
         public void Revive()
@@ -219,6 +253,11 @@ namespace AF
             return hit.transform != null;
         }
 
+        public bool IsNavMeshAgentActive()
+        {
+            return agent.enabled && agent.isOnNavMesh;
+        }
+
         public void ReenableNavmesh()
         {
             NavMeshHit rightHit;
@@ -236,7 +275,7 @@ namespace AF
 
             if (animator.GetBool(hashIsWaiting) == false)
             {
-                animator.CrossFade(hashWaiting, 0.05f);
+                animator.CrossFade( hashWaiting, 0.05f);
             }
         }
     }

@@ -60,7 +60,7 @@ namespace AF
 
         public void Dodge()
         {
-            if (dodgeLeftOrRight)
+            if (dodgeLeftOrRight && enemyManager.IsNavMeshAgentActive())
             {
                 var playerIsOnTheLeft = enemyManager.PlayerIsOnTheLeft();
 

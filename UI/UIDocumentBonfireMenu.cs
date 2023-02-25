@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,13 +11,18 @@ namespace AF
         public UIDocumentLevelUp uiDocumentLevelUp;
 
         bool isPassingTime = false;
-
         float originalDaySpeed = 0f;
+
+        [Header("Localization")]
+        public LocalizedText bonfireNameLabel;
+        public LocalizedText levelUpText;
+        public LocalizedText passTimeText;
+        public LocalizedText exitBonfireText;
 
         private void Start()
         {
             originalDaySpeed = Player.instance.daySpeed;
-            this.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
 
         private void OnEnable()
@@ -27,22 +31,26 @@ namespace AF
 
             var root = GetComponent<UIDocument>().rootVisualElement;
 
-            root.Q<Label>("BonfireName").text = bonfire.bonfireName;
+            root.Q<Label>("BonfireName").text = bonfire.bonfireName.GetText();
 
-            root.Q<Button>("LeaveButton").RegisterCallback<ClickEvent>(ev =>
-            {
-                Player.instance.daySpeed = originalDaySpeed;
+            root.Q<Label>("BonfireNameLabel").text = bonfireNameLabel.GetText();
 
-                bonfire.ExitBonfire();
-                FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
-            });
-            root.Q<Button>("LevelUpButton").RegisterCallback<ClickEvent>(ev =>
+            #region Bonfire UI Buttons
+            var levelUpButton = root.Q<Button>("LevelUpButton");
+            var passTimeButton = root.Q<Button>("PassTimeButton");
+            var exitBonfireButton = root.Q<Button>("LeaveButton");
+
+            levelUpButton.text = levelUpText.GetText();
+            passTimeButton.text = passTimeText.GetText();
+            exitBonfireButton.text = exitBonfireText.GetText();
+
+            levelUpButton.RegisterCallback<ClickEvent>(ev =>
             {
                 uiDocumentLevelUp.gameObject.SetActive(true);
                 this.gameObject.SetActive(false);
             });
 
-            root.Q<Button>("PassTimeButton").RegisterCallback<ClickEvent>(ev =>
+            passTimeButton.RegisterCallback<ClickEvent>(ev =>
             {
                 if (isPassingTime)
                 {
@@ -51,9 +59,17 @@ namespace AF
 
                 StartCoroutine(MoveTime());
             });
-            
-            Utils.ShowCursor();
 
+            exitBonfireButton.RegisterCallback<ClickEvent>(ev =>
+            {
+                Player.instance.daySpeed = originalDaySpeed;
+
+                bonfire.ExitBonfire();
+                FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
+            });
+            #endregion
+
+            Utils.ShowCursor();
 
             FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
         }
@@ -93,12 +109,6 @@ namespace AF
             }
 
             yield return null;
-        }
-
-
-        private void Update()
-        {
-            // UnityEngine.Cursor.lockState = CursorLockMode.None;
         }
     }
 

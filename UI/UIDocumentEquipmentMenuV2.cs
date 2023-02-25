@@ -64,7 +64,7 @@ namespace AF
 
             // Weapon
             var weaponButtonElement = this.root.Q<VisualElement>("Weapon").Q<VisualElement>("Root").Q<Button>();
-            weaponButtonElement.Q<Label>("Label").text = player.equippedWeapon != null ? player.equippedWeapon.name : "Weapon";
+            weaponButtonElement.Q<Label>("Label").text = player.equippedWeapon != null ? player.equippedWeapon.name.GetText() : "Weapon";
             weaponButtonElement.Q<Label>("Value").text = player.equippedWeapon != null
                 ? "+ " + (attackStatManager.GetWeaponAttack(player.equippedWeapon) - attackStatManager.GetCurrentPhysicalAttack()) + " ATK"
                 : "+ 0 ATK";
@@ -85,7 +85,7 @@ namespace AF
 
             // Shield
             var shieldButtonElement = this.root.Q<VisualElement>("Shield").Q<VisualElement>("Root").Q<Button>();
-            shieldButtonElement.Q<Label>("Label").text = player.equippedShield != null ? player.equippedShield.name : "Shield";
+            shieldButtonElement.Q<Label>("Label").text = player.equippedShield != null ? player.equippedShield.name.GetText() : "Shield";
             shieldButtonElement.Q<Label>("Value").text = player.equippedShield != null
                 ? "" + player.equippedShield.defenseAbsorption + "% DEF Absorption"
                 : "0% DEF Absorption";
@@ -111,9 +111,9 @@ namespace AF
 
             // Accessory
             var accessoryElement = this.root.Q<VisualElement>("Accessory").Q<VisualElement>("Root").Q<Button>();
-            accessoryElement.Q<Label>("Label").text = player.equippedAccessory != null ? player.equippedAccessory.name : "Accessory";
+            accessoryElement.Q<Label>("Label").text = player.equippedAccessory != null ? player.equippedAccessory.name.GetText() : "Accessory";
             accessoryElement.Q<Label>("Value").text = player.equippedAccessory != null
-                ? player.equippedAccessory.smallEffectDescription
+                ? player.equippedAccessory.smallEffectDescription.GetText()
                 : "";
 
             if (player.equippedAccessory != null)
@@ -140,7 +140,7 @@ namespace AF
         {
             var btnElement = root.Q<VisualElement>(name).Q<VisualElement>("Root").Q<Button>();
 
-            btnElement.Q<Label>("Label").text = equippedItem != null ? equippedItem.name : name;
+            btnElement.Q<Label>("Label").text = equippedItem != null ? equippedItem.name.GetText() : name;
             btnElement.Q<Label>("Value").text = equippedItem != null
                 ? "+ " + equippedItem.physicalDefense + " DEF"
                 : "+ 0 DEF";
