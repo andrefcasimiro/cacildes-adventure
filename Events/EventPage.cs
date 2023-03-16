@@ -37,6 +37,8 @@ namespace AF
         public LocalizedTerms.LocalizedAction localizedAction;
 
         [Header("Cancel Event")]
+        [Tooltip("For events with move route, you need to set the transform of the navmesh agent")]
+        public Transform transformReferenceForCancelling;
         public float maxDistanceBeforeStoppingEvent = 5f;
 
         [HideInInspector] public Event eventParent;
@@ -84,9 +86,9 @@ namespace AF
                 parentMoveRoute.StartCycle();
             }
 
-            if (isRunning)
+            if (isRunning && transformReferenceForCancelling != null)
             {
-                if (Vector3.Distance(transform.position, player.transform.position) >= maxDistanceBeforeStoppingEvent)
+                if (Vector3.Distance(transformReferenceForCancelling.position, player.transform.position) >= maxDistanceBeforeStoppingEvent)
                 {
                     StopEvent();
                 }

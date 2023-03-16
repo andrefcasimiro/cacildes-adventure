@@ -32,11 +32,6 @@ namespace AF
             uIDocumentKeyPrompt.key = "E";
             uIDocumentKeyPrompt.action = actionName.GetText();
             uIDocumentKeyPrompt.gameObject.SetActive(true);
-
-            if (inputs.interact)
-            {
-                OnInvoked();
-            }
         }
 
         public void OnInvoked()
@@ -46,23 +41,18 @@ namespace AF
                 return;
             }
 
-            if (inputs.interact)
+            if (triggerOnlyOnce)
             {
-                if (triggerOnlyOnce)
-                {
-                    hasTriggered = true;
-                }
+                hasTriggered = true;
+            }
 
-                inputs.interact = false;
+            uIDocumentKeyPrompt.gameObject.SetActive(false);
 
-                uIDocumentKeyPrompt.gameObject.SetActive(false);
+            onActivate.Invoke();
 
-                onActivate.Invoke();
-
-                if (deactivateTriggerOnInput)
-                {
-                    this.gameObject.SetActive(false);
-                }
+            if (deactivateTriggerOnInput)
+            {
+                this.gameObject.SetActive(false);
             }
         }
 

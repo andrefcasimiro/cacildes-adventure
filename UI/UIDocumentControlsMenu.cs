@@ -23,6 +23,8 @@ namespace AF
 
             menuManager.SetupNavMenu(root);
             menuManager.SetActiveMenu(root, "ButtonControls");
+            menuManager.TranslateNavbar(root);
+
         }
     }
 }

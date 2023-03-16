@@ -205,6 +205,21 @@ namespace AF
             return items;
         }
 
+        public List<Consumable> GetConsumables()
+        {
+            List<Consumable> items = new List<Consumable>();
+
+            foreach (var item in Player.instance.ownedItems)
+            {
+                var possibleItem = item.item as Consumable;
+                if (possibleItem != null)
+                {
+                    items.Add(possibleItem);
+                }
+            }
+
+            return items;
+        }
 
         public bool IsConsumingItem()
         {
@@ -220,7 +235,7 @@ namespace AF
 
             if (playerCombatController.isCombatting)
             {
-                notificationManager.ShowNotification("Can't consume item while attacking", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
@@ -232,31 +247,31 @@ namespace AF
 
             if (playerPoiseController.isStunned)
             {
-                notificationManager.ShowNotification("Can't consume item while stunned", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
             if (playerPoiseController.IsTakingDamage())
             {
-                notificationManager.ShowNotification("Can't consume item while taking damage", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
             if (dodgeController.IsDodging())
             {
-                notificationManager.ShowNotification("Can't consume item while dodging", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
             if (!thirdPersonController.Grounded)
             {
-                notificationManager.ShowNotification("Can't consume item while on air", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
             if (climbController.climbState != ClimbController.ClimbState.NONE)
             {
-                notificationManager.ShowNotification("Can't consume item while climbing", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 

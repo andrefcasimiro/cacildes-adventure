@@ -14,7 +14,7 @@ namespace AF
 
     public class SwitchManager : MonoBehaviour, ISaveable
     {
-        public List<SwitchEntryInstance> switchEntryInstances = new List<SwitchEntryInstance>();
+        public List<SwitchEntryInstance> switchEntryInstances = new();
         
         // Event specific switch updates that are put in a queue on purpose (for when we don't want to update them immediately)
         [HideInInspector] public List<SwitchEntryInstance> queueSwitchUpdates = new List<SwitchEntryInstance>();
@@ -43,9 +43,11 @@ namespace AF
 
             foreach (var switchEntry in switchEntries)
             {
-                SwitchEntryInstance switchEntryInstance = new SwitchEntryInstance();
-                switchEntryInstance.switchEntry = switchEntry;
-                switchEntryInstance.currentValue = false;
+                SwitchEntryInstance switchEntryInstance = new()
+                {
+                    switchEntry = switchEntry,
+                    currentValue = false
+                };
 
                 switchEntryInstances.Add(switchEntryInstance);
             }

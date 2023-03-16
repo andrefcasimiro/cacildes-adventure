@@ -1,10 +1,8 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using StarterAssets;
-using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
-using Mono.Cecil.Cil;
 using UnityEngine.SceneManagement;
 
 namespace AF
@@ -14,7 +12,7 @@ namespace AF
         public GameObject equipmentListMenu;
         public GameObject equipmentSelectionMenu;
         public GameObject inventoryMenu;
-        public GameObject saveMenu;
+        public GameObject optionsMenu;
         public GameObject loadMenu;
         public GameObject controlsMenu;
 
@@ -29,17 +27,21 @@ namespace AF
 
         ClimbController climbController;
 
-        UIDocumentTitleScreen titleScreen;
         TitleScreenManager titleScreenManager;
         UIDocumentBook uIDocumentBook;
         UIDocumentGameOver uIDocumentGameOver;
-        
 
+        [Header("Localization")]
+        public LocalizedText equipmentLabel;
+        public LocalizedText inventoryLabel;
+        public LocalizedText controlsLabel;
+        public LocalizedText optionsLabel;
+        public LocalizedText loadLabel;
+        public LocalizedText quitGameLabel;
+        public LocalizedText returnToTitleScreenLabel;
 
         private void Start()
         {
-
-            titleScreen = FindObjectOfType<UIDocumentTitleScreen>(true);
             titleScreenManager = FindObjectOfType<TitleScreenManager>(true);
             uIDocumentBook = FindObjectOfType<UIDocumentBook>(true);
 
@@ -130,7 +132,7 @@ namespace AF
             equipmentListMenu.SetActive(true);
             equipmentSelectionMenu.SetActive(false);
             inventoryMenu.SetActive(false);
-            saveMenu.SetActive(false);
+            optionsMenu.SetActive(false);
             loadMenu.SetActive(false);
             controlsMenu.SetActive(false);
             
@@ -157,12 +159,11 @@ namespace AF
             equipmentListMenu.SetActive(false);
             equipmentSelectionMenu.SetActive(false);
             inventoryMenu.SetActive(false);
-            saveMenu.SetActive(false);
+            optionsMenu.SetActive(false);
             loadMenu.SetActive(false);
             controlsMenu.SetActive(false);
 
             EventSystem.current.SetSelectedGameObject(null);
-
 
             if (playerComponentManager.GetComponent<PlayerInventory>().IsConsumingItem() == false && playerComponentManager.GetComponent<PlayerPoiseController>().isStunned == false)
             {
@@ -176,7 +177,7 @@ namespace AF
         public bool IsMenuOpen()
         {
             return this.equipmentListMenu.activeSelf || this.equipmentSelectionMenu.activeSelf || this.inventoryMenu.activeSelf
-                || this.saveMenu.activeSelf || this.loadMenu.activeSelf || this.controlsMenu.activeSelf;
+                || this.optionsMenu.activeSelf || this.loadMenu.activeSelf || this.controlsMenu.activeSelf;
         }
 
         public void OpenEquipmentListMenu()
@@ -184,9 +185,9 @@ namespace AF
             this.inventoryMenu.SetActive(false);
             this.equipmentSelectionMenu.SetActive(false);
             this.equipmentListMenu.SetActive(true);
-            this.saveMenu.SetActive(false);
             this.loadMenu.SetActive(false);
             this.controlsMenu.SetActive(false);
+            this.optionsMenu.SetActive(false);
         }
 
         public void OpenEquipmentSelectionScreen(UIDocumentEquipmentSelectionMenuV2.EquipmentType equipmentType)
@@ -195,10 +196,9 @@ namespace AF
             this.equipmentSelectionMenu.SetActive(true);
             this.equipmentListMenu.SetActive(false);
             this.inventoryMenu.SetActive(false);
-            this.saveMenu.SetActive(false);
             this.loadMenu.SetActive(false);
             this.controlsMenu.SetActive(false);
-
+            this.optionsMenu.SetActive(false);
         }
 
         public void OpenInventoryScreen()
@@ -206,21 +206,19 @@ namespace AF
             this.inventoryMenu.SetActive(true);
             this.equipmentSelectionMenu.SetActive(false);
             this.equipmentListMenu.SetActive(false);
-            this.saveMenu.SetActive(false);
             this.loadMenu.SetActive(false);
             this.controlsMenu.SetActive(false);
-
+            this.optionsMenu.SetActive(false);
         }
 
-        public void OpenSaveScreen()
+        public void OpenOptionsScreen()
         {
             this.inventoryMenu.SetActive(false);
             this.equipmentSelectionMenu.SetActive(false);
             this.equipmentListMenu.SetActive(false);
-            this.saveMenu.SetActive(true);
             this.loadMenu.SetActive(false);
             this.controlsMenu.SetActive(false);
-
+            this.optionsMenu.SetActive(true);
         }
 
         public void OpenLoadScreen()
@@ -228,10 +226,9 @@ namespace AF
             this.inventoryMenu.SetActive(false);
             this.equipmentSelectionMenu.SetActive(false);
             this.equipmentListMenu.SetActive(false);
-            this.saveMenu.SetActive(false);
             this.loadMenu.SetActive(true);
             this.controlsMenu.SetActive(false);
-
+            this.optionsMenu.SetActive(false);
         }
 
         public void OpenControlsScreen()
@@ -239,10 +236,9 @@ namespace AF
             this.inventoryMenu.SetActive(false);
             this.equipmentSelectionMenu.SetActive(false);
             this.equipmentListMenu.SetActive(false);
-            this.saveMenu.SetActive(false);
             this.loadMenu.SetActive(false);
             this.controlsMenu.SetActive(true);
-
+            this.optionsMenu.SetActive(false);
         }
 
         public void PlayClick()
@@ -259,7 +255,6 @@ namespace AF
         {
             root.Q<Button>("ButtonEquipment").RemoveFromClassList("active-menu-option");
             root.Q<Button>("ButtonInventory").RemoveFromClassList("active-menu-option");
-            root.Q<Button>("ButtonSave").RemoveFromClassList("active-menu-option");
             root.Q<Button>("ButtonLoad").RemoveFromClassList("active-menu-option");
             root.Q<Button>("ButtonControls").RemoveFromClassList("active-menu-option");
             root.Q<Button>(buttonNameToActivate).AddToClassList("active-menu-option");
@@ -274,12 +269,12 @@ namespace AF
 
             SetupButton(root.Q<Button>("ButtonEquipment"), () => { OpenEquipmentListMenu(); });
             SetupButton(root.Q<Button>("ButtonInventory"), () => { OpenInventoryScreen(); });
-            SetupButton(root.Q<Button>("ButtonSave"), () => { OpenSaveScreen(); });
+            SetupButton(root.Q<Button>("ButtonOptions"), () => { OpenOptionsScreen(); });
             SetupButton(root.Q<Button>("ButtonLoad"), () => { OpenLoadScreen(); });
             SetupButton(root.Q<Button>("ButtonControls"), () => { OpenControlsScreen(); });
 
             bool isTutorialScene = FindObjectOfType<SceneSettings>(true).isSceneTutorial;
-            root.Q<Button>("ButtonExit").text = isTutorialScene ? "Return to Title Screen" : "Quit Game";
+            root.Q<Button>("ButtonExit").text = isTutorialScene ? returnToTitleScreenLabel.GetText() : quitGameLabel.GetText();
 
             SetupButton(root.Q<Button>("ButtonExit"), () => {
                 if (isTutorialScene)
@@ -319,6 +314,16 @@ namespace AF
             button.RegisterCallback<PointerEnterEvent>(ev => {
                 Soundbank.instance.PlayUIHover();
             });
+        }
+
+        public void TranslateNavbar(VisualElement navbarRoot)
+        {
+            navbarRoot.Q<Button>("ButtonEquipment").text = equipmentLabel.GetText();
+            navbarRoot.Q<Button>("ButtonInventory").text = inventoryLabel.GetText();
+            navbarRoot.Q<Button>("ButtonControls").text = controlsLabel.GetText();
+            navbarRoot.Q<Button>("ButtonOptions").text = optionsLabel.GetText();
+            navbarRoot.Q<Button>("ButtonLoad").text = loadLabel.GetText();
+            navbarRoot.Q<Button>("ButtonExit").text = quitGameLabel.GetText();
         }
     }
 }

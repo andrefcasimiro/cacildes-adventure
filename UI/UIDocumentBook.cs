@@ -108,6 +108,7 @@ namespace AF
 
         public void ShowNote(string noteTitle, string noteText)
         {
+            Debug.Log("Show note");
             Soundbank.instance.PlayBookFlip();
 
             this.root.Q<VisualElement>("BookFront").style.display = DisplayStyle.None;

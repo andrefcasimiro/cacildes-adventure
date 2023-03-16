@@ -19,37 +19,43 @@ namespace AF
         public Sprite alchemyBackgroundImage;
         public Sprite cookingBackgroundImage;
 
-        UIDocument uIDocument => GetComponent<UIDocument>();
-        [HideInInspector] public VisualElement root;
-
-        PlayerInventory playerInventory;
-
-        MenuManager menuManager;
-
         public AudioClip sfxOnEnterMenu;
 
-        NotificationManager notificationManager;
+        [Header("Localization")]
+        public LocalizedText ButtonExit;
+        public LocalizedText AlchemyActivityTitle;
+        public LocalizedText CookingActivityTitle;
+        public LocalizedText AvailableRecipes;
+        public LocalizedText CraftButton;
+        public LocalizedText missingIngredientsMessage;
+        public LocalizedText receivedMessage;
+
+        UIDocument uIDocument => GetComponent<UIDocument>();
+        [HideInInspector] public VisualElement root;
+        
+        NotificationManager notificationManager => FindObjectOfType<NotificationManager>(true);
+        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
+        PlayerInventory playerInventory => FindObjectOfType<PlayerInventory>(true);
 
         private void Awake()
         {
-            notificationManager = FindObjectOfType<NotificationManager>(true);
-            menuManager = FindObjectOfType<MenuManager>(true);
             this.gameObject.SetActive(false);
+        }
+
+        void Translate(VisualElement root)
+        {
+            root.Q<Button>("ButtonExit").text = ButtonExit.GetText();
+            root.Q<Label>("AvailableRecipes").text = AvailableRecipes.GetText();
         }
 
         private void OnEnable()
         {
             this.root = uIDocument.rootVisualElement;
 
-            playerInventory = FindObjectOfType<PlayerInventory>(true);
-
-
+            BGMManager.instance.PlaySound(sfxOnEnterMenu, null);
             Utils.ShowCursor();
 
-            BGMManager.instance.PlaySound(sfxOnEnterMenu, null);
-
-
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
+            Translate(root);
 
             DrawUI();
         }
@@ -79,16 +85,14 @@ namespace AF
             {
                 root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(alchemyBackgroundImage);
 
-                buttonExit.text = "Exit Alchemy";
-                craftActivityTitle.text = "Alchemy Table";
+                craftActivityTitle.text = AlchemyActivityTitle.GetText();
                 PopulateScrollView(Player.instance.alchemyRecipes.ToArray());
             }
             else if (craftActivity == CraftActivity.COOKING)
             {
                 root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(cookingBackgroundImage);
 
-                buttonExit.text = "Exit Cooking";
-                craftActivityTitle.text = "Cooking Table";
+                craftActivityTitle.text = CookingActivityTitle.GetText();
                 PopulateScrollView(Player.instance.cookingRecipes.ToArray());
             }
         }
@@ -115,7 +119,8 @@ namespace AF
                 scrollItem.Q<Label>("ItemDescription").text = recipe.resultingItem.description.GetText();
 
                 var craftBtn = scrollItem.Q<Button>("CraftButton");
-                
+                craftBtn.text = CraftButton.GetText();
+
                 if (CanCraftItem(recipe))
                 {
                     craftBtn.style.opacity = 1f;
@@ -130,7 +135,7 @@ namespace AF
                     if (!CanCraftItem(recipe))
                     {
                         Soundbank.instance.PlayCraftError();
-                        notificationManager.ShowNotification("Crafting failed: missing ingredients", notificationManager.alchemyLackOfIngredients);
+                        notificationManager.ShowNotification(missingIngredientsMessage.GetText(), notificationManager.alchemyLackOfIngredients);
                         return;
                     }
 
@@ -138,7 +143,7 @@ namespace AF
 
                     playerInventory.AddItem(recipe.resultingItem, 1);
 
-                    notificationManager.ShowNotification("Received " + recipe.resultingItem.name, recipe.resultingItem.sprite);
+                    notificationManager.ShowNotification(receivedMessage.GetText() + " " + recipe.resultingItem.name.GetText(), recipe.resultingItem.sprite);
 
                     foreach (var ingredient in recipe.ingredients)
                     {

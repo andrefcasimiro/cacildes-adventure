@@ -39,12 +39,12 @@ namespace AF
 
         private void Start()
         {
-            EvaluateVariable();
+            Refresh();
         }
 
-        public override void EvaluateVariable()
+        public override void Refresh()
         {
-            var variableValue = VariableManager.instance.GetVariableValue(variableUuid);
+            var variableValue = VariableManager.instance.GetVariableValue(variableEntry);
 
             // Item not picked up
             if (variableValue == -1)
@@ -56,7 +56,7 @@ namespace AF
             if (HasReplenished())
             {
                 graphic.SetActive(true);
-                VariableManager.instance.UpdateVariable(variableUuid, -1);
+                VariableManager.instance.UpdateVariable(variableEntry, -1);
                 return;
             }
 
@@ -74,7 +74,7 @@ namespace AF
             if (HasReplenished())
             {
                 // If is only one day passed, only enable after passing the hour threshold
-                if ((Player.instance.daysPassed - 1) == VariableManager.instance.GetVariableValue(variableUuid))
+                if ((Player.instance.daysPassed - 1) == VariableManager.instance.GetVariableValue(variableEntry))
                 {
                     if (Player.instance.timeOfDay >= hourToReplenish)
                     {
@@ -90,13 +90,13 @@ namespace AF
 
         void Replenish()
         {
-            VariableManager.instance.UpdateVariable(variableUuid, -1);
+            VariableManager.instance.UpdateVariable(variableEntry, -1);
             graphic.SetActive(true);
         }
 
         bool HasReplenished()
         {
-            if (Player.instance.daysPassed > VariableManager.instance.GetVariableValue(variableUuid) + daysToRespawn)
+            if (Player.instance.daysPassed > VariableManager.instance.GetVariableValue(variableEntry) + daysToRespawn)
             {
                 return true;
             }
@@ -123,8 +123,9 @@ namespace AF
                 return;
             }
 
-            inputs.interact = false;
             uIDocumentKeyPrompt.gameObject.SetActive(false);
+
+            inputs.interact = false;
 
             if (item != null)
             {
@@ -172,7 +173,7 @@ namespace AF
             }
 
             // Record the day that the item was picked
-            VariableManager.instance.UpdateVariable(variableUuid, Player.instance.daysPassed);
+            VariableManager.instance.UpdateVariable(variableEntry, Player.instance.daysPassed);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace AF
 {
@@ -12,6 +13,8 @@ namespace AF
 
         private void OnEnable()
         {
+            GetComponent<UIDocument>().rootVisualElement.Q<Label>("YouDiedText").text = LocalizedTerms.YouDied();
+
             BGMManager.instance.StopMusic();
             Soundbank.instance.PlayGameOver();
 

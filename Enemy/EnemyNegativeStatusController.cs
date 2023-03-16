@@ -124,7 +124,7 @@ namespace AF
                 statusFloatingText.gameObject.SetActive(true);
                 statusFloatingText.GetComponent<TMPro.TextMeshPro>().color = statusEffect.barColor;
 
-                statusFloatingText.ShowText(statusEffect.appliedStatusDisplayName);
+                statusFloatingText.ShowText(statusEffect.appliedStatusDisplayName.GetText());
             }
 
             Instantiate(statusEffect.particleOnDamage, this.transform);

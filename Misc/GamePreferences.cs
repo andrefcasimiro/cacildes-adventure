@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 namespace AF
 {
@@ -11,9 +12,18 @@ namespace AF
             ENGLISH,
         }
 
+        public enum GraphicsQuality
+        {
+            LOW,
+            MEDIUM,
+            GOOD
+        }
+
         public static GamePreferences instance;
 
+
         public GameLanguage gameLanguage;
+        public GraphicsQuality graphicsQuality = GraphicsQuality.GOOD;
 
         private void Awake()
         {
@@ -28,6 +38,17 @@ namespace AF
         }
 
         private void Start()
+        {
+            InitializeGraphicsQuality();
+            InitializeGameLanguage();
+        }
+        
+        void InitializeGraphicsQuality()
+        {
+            SetGraphicsQuality(GraphicsQuality.GOOD);
+        }
+
+        void InitializeGameLanguage()
         {
             if (PlayerPrefs.HasKey("language"))
             {
@@ -49,7 +70,7 @@ namespace AF
         private void Update()
         {
             // For debugging purposes
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            if (Input.GetKeyDown(KeyCode.Alpha9))
             {
                 if (gameLanguage == GameLanguage.ENGLISH)
                 {
@@ -68,6 +89,41 @@ namespace AF
             gameLanguage = language;
         }
 
-    }
+        public void SetGraphicsQuality(GraphicsQuality graphicsQuality)
+        {
+            this.graphicsQuality = graphicsQuality;
 
+            UpdateGraphics();
+        }
+
+        void UpdateGraphics()
+        {
+            var postProcessVolumes = FindObjectsOfType<PostProcessVolume>(true);
+            Camera.main.TryGetComponent<PostProcessLayer>(out var postProcessLayer);
+
+            foreach (var postProcessVolume in postProcessVolumes)
+            {
+                postProcessVolume.profile.GetSetting<Vignette>().active = false;
+                postProcessVolume.profile.GetSetting<Bloom>().active = false;
+                postProcessVolume.profile.GetSetting<AmbientOcclusion>().active = false;
+                postProcessVolume.profile.GetSetting<MotionBlur>().active = false;
+                postProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.None;
+
+                if (graphicsQuality == GraphicsQuality.MEDIUM)
+                {
+                    postProcessVolume.profile.GetSetting<Vignette>().active = true;
+                    postProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.FastApproximateAntialiasing;
+                }
+
+                if (graphicsQuality == GraphicsQuality.GOOD)
+                {
+                    postProcessVolume.profile.GetSetting<Vignette>().active = true;
+                    postProcessVolume.profile.GetSetting<AmbientOcclusion>().active = true;
+                    postProcessVolume.profile.GetSetting<MotionBlur>().active = true;
+                    postProcessVolume.profile.GetSetting<Bloom>().active = true;
+                    postProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.SubpixelMorphologicalAntialiasing;
+                }
+            }
+        }
+    }
 }

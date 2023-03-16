@@ -17,14 +17,11 @@ namespace AF
             public Sprite[] keyboardIcons;
             public Sprite[] gamepadIcons;
 
-            [TextArea]
-            public string keyboardDescription;
-
-            [TextArea] 
-            public string gamepadDescription;
+            public LocalizedText keyboardDescription;
+            public LocalizedText gamepadDescription;
         }
 
-        public string tutorialTitle;
+        public LocalizedText tutorialTitle;
 
         public TutorialEntry[] tutorialEntries;
 
@@ -35,12 +32,11 @@ namespace AF
 
         private void Awake()
         {
-            this.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
-            Utils.ShowCursor();
 
             currentIndex = 0;
 
@@ -86,17 +82,19 @@ namespace AF
                 Utils.HideCursor();
                 this.gameObject.SetActive(false);
             });
-
+            root.Q<Button>("ContinueButton").text = LocalizedTerms.Continue();
 
             DrawUI(root);
 
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
+            Utils.ShowCursor();
         }
 
         void DrawUI(VisualElement root)
         {
             var previousButton = root.Q<Button>("PreviousButton");
+            previousButton.text = LocalizedTerms.Previous();
             var nextButton = root.Q<Button>("NextButton");
+            nextButton.text = LocalizedTerms.Next();
 
             previousButton.style.opacity = 0.1f;
             nextButton.style.opacity = 0.1f;
@@ -125,7 +123,7 @@ namespace AF
 
             var currentPage = this.tutorialEntries[currentIndex];
 
-            root.Q<Label>("Title").text = tutorialTitle;
+            root.Q<Label>("Title").text = tutorialTitle.GetText();
 
             var videoContainer = root.Q<IMGUIContainer>("VideoContainer");
 
@@ -152,7 +150,7 @@ namespace AF
                     keysToShowContainer.Add(asset);
                 }
 
-                root.Q<Label>("Description").text = currentPage.keyboardDescription;
+                root.Q<Label>("Description").text = currentPage.keyboardDescription.GetText();
             }
             else
             {
@@ -164,14 +162,12 @@ namespace AF
                     keysToShowContainer.Add(asset);
                 }
 
-                root.Q<Label>("Description").text = currentPage.gamepadDescription;
+                root.Q<Label>("Description").text = currentPage.gamepadDescription.GetText();
             }
-
         }
 
         private void Update()
         {
-
             var video = tutorialEntries[currentIndex].videoPlayer;
             if (video != null)
             {

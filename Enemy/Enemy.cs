@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +7,7 @@ namespace AF
     public class Enemy : ScriptableObject
     {
         [Header("Generic")]
-        public new string name;
+        public new LocalizedText name;
         public bool isMale = true;
 
         [Header("Stats")]
@@ -49,7 +48,6 @@ namespace AF
         [Header("EXP & Loot")]
         public int baseGold = 500;
 
-        public List<EnemyLoot.DropCurrency> lootTable = new List<EnemyLoot.DropCurrency>();
+        public List<EnemyLoot.DropCurrency> lootTable = new();
     }
-
 }

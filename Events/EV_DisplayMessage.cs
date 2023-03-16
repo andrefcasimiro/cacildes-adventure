@@ -26,9 +26,9 @@ namespace AF
         public bool switchValue;
 
         [Header("Conditions - Variables")]
-        public string variableUuid;
-        public bool equalsToVariableValue = true;
-        public float variableValue = -1;
+        public VariableEntry variableEntry;
+        public bool mustEqualVariableValue = true;
+        public float requiredVariableValue = -1;
 
         [Header("Animations")]
         public Animator animator;
@@ -61,12 +61,14 @@ namespace AF
                 }
             }
 
-            if (string.IsNullOrEmpty(variableUuid) == false)
+            if (variableEntry != null)
             {
                 // If depends on variable, evaluate value:
-                var val = VariableManager.instance.GetVariableValue(variableUuid);
+                var variableValue = VariableManager.instance.GetVariableValue(variableEntry);
                 
-                if (equalsToVariableValue && val == variableValue || equalsToVariableValue == false && val != variableValue)
+                if (
+                    mustEqualVariableValue && variableValue == requiredVariableValue
+                    || mustEqualVariableValue == false && variableValue != requiredVariableValue)
                 {
                     skip = false;
                 }

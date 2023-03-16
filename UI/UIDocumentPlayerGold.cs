@@ -39,7 +39,7 @@ namespace AF
             this.root = uiDocument.rootVisualElement;
 
             root.Q<Label>("GoldReceived").text = "+ " + currentReceivedAmount;
-            root.Q<Label>("ActualGold").text = "" + playerGold + " Gold";
+            root.Q<Label>("ActualGold").text = "" + playerGold + " " + LocalizedTerms.Gold();
 
             StartCoroutine(EnableCounter());
         }
@@ -70,7 +70,7 @@ namespace AF
 
 
                 root.Q<Label>("GoldReceived").text = "+ " + currentReceivedAmount;
-                root.Q<Label>("ActualGold").text = "" + playerGold + " Gold";
+                root.Q<Label>("ActualGold").text = "" + playerGold + " " + LocalizedTerms.Gold();
             }   
             else
             {

@@ -29,8 +29,6 @@ namespace AF
 
         public void OnInvoked()
         {
-            inputs.interact = false;
-
             uIDocumentKeyPrompt.gameObject.SetActive(false);
 
             FindObjectOfType<PlayerComponentManager>(true).DisableComponents();

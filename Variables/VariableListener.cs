@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace AF
 {
     public class VariableListener : MonoBehaviour
     {
-        public string variableUuid;
+        public VariableEntry variableEntry;
 
-        public virtual void EvaluateVariable() { }
+        public virtual void Refresh() { }
 
     }
 }

@@ -1,26 +1,22 @@
 using AF;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public class VariableDependent : VariableListener, ISaveable
 {
-    public int value;
+    public int requiredValue;
 
     private void Start()
     {
-        EvaluateVariable();   
+        Refresh();   
     }
-
 
     public void OnGameLoaded(GameData gameData)
     {
-        EvaluateVariable();
+        Refresh();
     }
 
-    public override void EvaluateVariable()
+    public override void Refresh()
     {
-        if (VariableManager.instance.GetVariableValue(this.variableUuid) == value)
+        if (VariableManager.instance.GetVariableValue(variableEntry) == requiredValue)
         {
             transform.GetChild(0).gameObject.SetActive(true);
         }
@@ -28,7 +24,5 @@ public class VariableDependent : VariableListener, ISaveable
         {
             transform.GetChild(0).gameObject.SetActive(false);
         }
-
     }
-
 }

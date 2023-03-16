@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -19,7 +17,7 @@ namespace AF
 
         [Header("Notifications")]
         public bool showNotification = true;
-        public string notificationText = "collected!";
+        public LocalizedText notificationText;
         public Sprite notificationSprite;
         NotificationManager notificationManager;
         public AudioClip onCollectSfx;
@@ -36,29 +34,28 @@ namespace AF
         public void CollectOne()
         {
             Collect(1);
-
         }
 
         public void Collect(int amount)
         {
-            var currentAmount = VariableManager.instance.GetVariableValue(variableUuid);
+            var currentAmount = VariableManager.instance.GetVariableValue(variableEntry);
             var newAmount = currentAmount + amount;
-            VariableManager.instance.UpdateVariable(variableUuid, newAmount);
+            VariableManager.instance.UpdateVariable(variableEntry, newAmount);
 
             if (onCollectSfx != null)
             {
                 BGMManager.instance.PlaySound(onCollectSfx, null);
             }
+
             if (showNotification)
             {
-                notificationManager.ShowNotification(newAmount + "/" + maxValue + " " + notificationText, notificationSprite);
+                notificationManager.ShowNotification(newAmount + "/" + maxValue + " " + notificationText.GetText(), notificationSprite);
             }
-
         }
 
-        public override void EvaluateVariable()
+        public override void Refresh()
         {
-            var variableValue = VariableManager.instance.GetVariableValue(variableUuid);
+            var variableValue = VariableManager.instance.GetVariableValue(variableEntry);
 
             if (variableValue >= maxValue)
             {
@@ -84,9 +81,9 @@ namespace AF
                 return;
             }
 
-            if (VariableManager.instance.GetVariableValue(variableUuid) != maxValue)
+            if (VariableManager.instance.GetVariableValue(variableEntry) != maxValue)
             {
-                VariableManager.instance.UpdateVariable(variableUuid, 0);
+                VariableManager.instance.UpdateVariable(variableEntry, 0);
 
                 // Activate all children
 
@@ -112,5 +109,4 @@ namespace AF
             return SwitchManager.instance.GetSwitchCurrentValue(switchEntry) == switchValue;
         }
     }
-
 }

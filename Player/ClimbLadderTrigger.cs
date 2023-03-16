@@ -3,7 +3,7 @@ using StarterAssets;
 
 namespace AF
 {
-    public class ClimbLadderTrigger : MonoBehaviour
+    public class ClimbLadderTrigger : MonoBehaviour, IEventNavigatorCapturable
     {
         [TextArea]
         public string comment = "LADDERS DONT WORK WITH NEGATIVE Y";
@@ -22,7 +22,6 @@ namespace AF
         public Transform finishFromBottomRef;
         public Transform finishFromTopRef;
 
-
         ClimbController climbController;
 
         StarterAssetsInputs inputs;
@@ -38,11 +37,16 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag != "Player")
-            {
-                return;
-            }
+            HandleCapture(other.gameObject);
+        }
 
+        public void OnCaptured()
+        {
+            HandleCapture(FindObjectOfType<PlayerCombatController>().gameObject);
+        }
+
+        void HandleCapture(GameObject other)
+        {
             var dodgeController = other.gameObject.GetComponent<DodgeController>();
             if (dodgeController != null && dodgeController.IsDodging())
             {
@@ -67,16 +71,23 @@ namespace AF
             }
 
             uIDocumentKeyPrompt.key = "E";
-            uIDocumentKeyPrompt.action = "Use Ladder";
+            uIDocumentKeyPrompt.action = LocalizedTerms.UseLadder();
             uIDocumentKeyPrompt.gameObject.SetActive(true);
+        }
+
+        public void OnInvoked()
+        {
+            var other = FindObjectOfType<PlayerCombatController>().gameObject;
+            HandleClimbing(other);
         }
 
         private void OnTriggerStay(Collider other)
         {
-            if (other.gameObject.tag != "Player")
-            {
-                return;
-            }
+            HandleClimbing(other.gameObject);
+        }
+
+        void HandleClimbing(GameObject other)
+        {
 
             climbController = other.gameObject.GetComponent<ClimbController>();
             float ladderBottomY;
@@ -117,22 +128,5 @@ namespace AF
                 }
             }
         }
-
-        private void OnTriggerExit(Collider other)
-        {
-
-            if (other.gameObject.tag != "Player")
-            {
-                return;
-            }
-
-            uIDocumentKeyPrompt.gameObject.SetActive(false);
-
-        }
-
     }
-
-
-
-
 }

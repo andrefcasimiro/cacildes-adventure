@@ -62,7 +62,6 @@ namespace AF
         [Header("Enemy")]
         public Enemy enemy;
         public int currentLevel;
-        public int healthOverride = -1;
 
         [Header("Chasing")]
         public float maximumChaseDistance = 10f;

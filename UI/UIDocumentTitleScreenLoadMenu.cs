@@ -8,15 +8,13 @@ namespace AF
     {
         VisualElement root;
         public VisualTreeAsset loadButtonEntryPrefab;
-        MenuManager menuManager;
+        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
 
         UIDocumentLoadMenu uIDocumentLoadMenu => FindObjectOfType<UIDocumentLoadMenu>(true);
         UIDocumentTitleScreen uIDocumentTitleScreen => FindObjectOfType<UIDocumentTitleScreen>(true);
 
         private void Awake()
         {
-            menuManager = FindObjectOfType<MenuManager>(true);
-
             gameObject.SetActive(false);
         }
 

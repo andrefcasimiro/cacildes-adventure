@@ -17,6 +17,10 @@ namespace AF
 
         public ClockDependency clockDependency = ClockDependency.BETWEEN_RANGE;
 
+        [Header("Switch Dependencies")]
+        public SwitchEntry switchDependant;
+        public bool requiredValue;
+
         private void Start()
         {
             OnHourChanged();
@@ -24,6 +28,15 @@ namespace AF
 
         public void OnHourChanged()
         {
+            if (switchDependant != null)
+            {
+                if (SwitchManager.instance.GetSwitchCurrentValue(switchDependant) != requiredValue)
+                {
+                    transform.GetChild(0).gameObject.SetActive(false);
+                    return;
+                }
+            }
+
             bool isActive = false;
 
             // If appear until is after midnight, it may become smaller than appearFrom (i. e. appear from 17 until 4)

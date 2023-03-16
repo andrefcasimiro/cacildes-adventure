@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Linq;
 
 namespace AF
 {
@@ -15,9 +14,9 @@ namespace AF
     [CreateAssetMenu(menuName = "Misc / Status / New Status")]
     public class StatusEffect : ScriptableObject
     {
-        public new string name;
+        public new LocalizedText name;
 
-        public string appliedStatusDisplayName; 
+        public LocalizedText appliedStatusDisplayName; 
  
         public Sprite spriteIndicator;
 
@@ -38,7 +37,5 @@ namespace AF
 
         [Header("FX")]
         public GameObject particleOnDamage;
-
     }
-
 }

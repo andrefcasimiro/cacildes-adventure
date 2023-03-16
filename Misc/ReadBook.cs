@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Windows;
 
 namespace AF
 {
@@ -70,7 +71,6 @@ namespace AF
                 return;
             }
 
-
             if (readForward)
             {
                 page = Mathf.Clamp(page == -1 ? 0 : page + 2, -1, book.bookPages.Length % 2 == 0 ? book.bookPages.Length : book.bookPages.Length + 1);
@@ -80,7 +80,6 @@ namespace AF
                 
                 page = Mathf.Clamp(page - 2, -1, book.bookPages.Length % 2 == 0 ? book.bookPages.Length  : book.bookPages.Length + 1);
             }
-
 
             if (page == -1)
             {
@@ -118,12 +117,12 @@ namespace AF
 
                         if (alchemyRecipe != null)
                         {
-                            notificationManager.ShowNotification(LocalizedTerms.LearnedRecipe() + alchemyRecipe.name, notificationManager.recipeIcon);
+                            notificationManager.ShowNotification(LocalizedTerms.LearnedRecipe() + alchemyRecipe.name.GetText(), notificationManager.recipeIcon);
                             Player.instance.alchemyRecipes.Add(alchemyRecipe);
                         }
                         else if (cookingRecipe != null)
                         {
-                            notificationManager.ShowNotification(LocalizedTerms.LearnedRecipe() + cookingRecipe.name, notificationManager.recipeIcon);
+                            notificationManager.ShowNotification(LocalizedTerms.LearnedRecipe() + cookingRecipe.name.GetText(), notificationManager.recipeIcon);
                             Player.instance.cookingRecipes.Add(cookingRecipe);
                         }
                     }
@@ -192,7 +191,7 @@ namespace AF
             }
             else
             {
-                title = book.name;
+                title = book.bookTitle.GetText();
             }
 
             documentKeyPrompt.action = LocalizedTerms.Read() + " '" + title + "'";
@@ -201,6 +200,11 @@ namespace AF
 
         public void OnInvoked()
         {
+            if (uIDocumentBook.isActiveAndEnabled)
+            {
+                return;
+            }
+
             Read();
             documentKeyPrompt.gameObject.SetActive(false);
         }

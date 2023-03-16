@@ -309,7 +309,8 @@ namespace AF
                     Enum.TryParse(savedConsumable.consumableName, out Consumable.ConsumablePropertyName consumableName);
 
                     consumableEffect.consumablePropertyName = consumableName;
-                    consumableEffect.displayName = savedConsumable.displayName;
+                    Consumable consumableScriptableObject = Resources.Load<Consumable>("Items/Consumables/" + savedConsumable.consumableName);
+                    consumableEffect.displayName.localizedTexts = consumableScriptableObject.consumableEffects.FirstOrDefault(x => x.displayName.GetEnglishText() == savedConsumable.displayName).displayName.localizedTexts;
                     consumableEffect.barColor = new Color(savedConsumable.barColor.r, savedConsumable.barColor.g, savedConsumable.barColor.b, savedConsumable.barColor.a);
                     consumableEffect.value = savedConsumable.value;
                     consumableEffect.effectDuration = savedConsumable.effectDuration;
@@ -443,9 +444,9 @@ namespace AF
             }
 
             // Reset all variables
-            foreach (var _variable in VariableManager.instance.variables)
+            foreach (var _variable in VariableManager.instance.variableEntryInstances)
             {
-                _variable.value = -1;
+                _variable.currentValue = _variable.initialValue;
             }
         }
         #endregion

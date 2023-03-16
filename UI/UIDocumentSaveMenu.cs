@@ -71,7 +71,7 @@ namespace AF
 
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 
-                btn.Q<Label>("Name").text = saveFileEntry.sceneName + " / Lv " + saveFileEntry.level;
+                btn.Q<Label>("Name").text = saveFileEntry.sceneName + " / "+LocalizedTerms.LV()+" " + saveFileEntry.level;
                 btn.Q<Label>("Value").text = System.DateTime.Parse(saveFileEntry.creationDate).ToString();
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 

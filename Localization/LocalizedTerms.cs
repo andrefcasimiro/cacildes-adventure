@@ -27,6 +27,24 @@ namespace AF
             };
         }
 
+        public static string Unequip()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Desequipar",
+                _ => "Unequip",
+            };
+        }
+
+        public static string Back()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Voltar atrás",
+                _ => "Go Back",
+            };
+        }
+
         public static string Talk()
         {
             return GamePreferences.instance.gameLanguage switch
@@ -80,5 +98,553 @@ namespace AF
                 _ => "Use Alchemy Table",
             };
         }
+
+        public static string UseLadder()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Usar escada",
+                _ => "Use Ladder",
+            };
+        }
+
+        public static string Previous()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Anterior",
+                _ => "Previous",
+            };
+        }
+
+        public static string Continue()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Continuar",
+                _ => "Continue",
+            };
+        }
+
+        public static string Next()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Próximo",
+                _ => "Next",
+            };
+        }
+
+        #region Equipment Menu
+
+        public static string ATK()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "ATQ",
+                _ => "ATK",
+            };
+        }
+
+        public static string Weapon()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Arma",
+                _ => "Weapon",
+            };
+        }
+
+        public static string Vitality()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Vitalidade",
+                _ => "Vitality",
+            };
+        }
+
+        public static string Endurance()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Resistência",
+                _ => "Endurance",
+            };
+        }
+
+        public static string Strength()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Força",
+                _ => "Strength",
+            };
+        }
+
+        public static string Dexterity()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Destreza",
+                _ => "Dexterity",
+            };
+        }
+
+        public static string Poise()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Postura",
+                _ => "Poise",
+            };
+        }
+
+        public static string Reputation()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Reputação",
+                _ => "Reputation",
+            };
+        }
+
+        public static string Gold()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Ouro",
+                _ => "Gold",
+            };
+        }
+
+        public static string Shield()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Escudo",
+                _ => "Shield",
+            };
+        }
+
+        public static string Defense()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Defesa Física",
+                _ => "Physical Defense",
+            };
+        }
+
+        public static string FireDefense()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Defesa de Fogo",
+                _ => "Fire Defense",
+            };
+        }
+
+        public static string FrostDefense()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Defesa de Gelo",
+                _ => "Frost Defense",
+            };
+        }
+
+        public static string SpeedPenalty()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Perda de Velocidade",
+                _ => "Speed Penalty",
+            };
+        }
+
+        public static string PoiseBonus()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Bónus Postura",
+                _ => "Poise Bonus",
+            };
+        }
+
+        public static string Resistence()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Resistência",
+                _ => "Resistence",
+            };
+        }
+
+        public static string DEFAbsorption()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Absorção de Dano",
+                _ => "DEF Absorption",
+            };
+        }
+
+        public static string Helmet()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Elmo",
+                _ => "Helmet",
+            };
+        }
+
+        public static string Armor()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Armadura",
+                _ => "Armor",
+            };
+        }
+
+        public static string Gauntlets()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Manoplas",
+                _ => "Gauntlets",
+            };
+        }
+
+        public static string Boots()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Botas",
+                _ => "Boots",
+            };
+        }
+
+        public static string Accessory()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Acessório",
+                _ => "Accessory",
+            };
+        }
+
+        public static string FavoriteItems()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Itens Favoritos",
+                _ => "Favorite Items",
+            };
+        }
+
+        public static string Gear()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Equipamento",
+                _ => "Gear",
+            };
+        }
+
+        #endregion
+
+        #region Equipment Selection Menu
+
+        public static string StaminaCostPerBlock()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Custo de stamina por bloqueio",
+                _ => "Stamina Cost Per Block",
+            };
+        }
+
+        public static string EnemyATKAbsorption()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Absorção de ATQ do Inimigo",
+                _ => "Enemy ATK Absorption",
+            };
+        }
+
+        public static string ATKAbsorption()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Absorção de ATQ",
+                _ => "ATK Absorption",
+            };
+        }
+
+        public static string Destroyed()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "destruído",
+                _ => "destroyed",
+            };
+        }
+
+        public static string WasDestroyedByUnequiping()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "foi destruído ao desequipar",
+                _ => "was destroyed by unequiping it",
+            };
+        }
+
+        public static string SpeedLoss()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Perda de velocidade",
+                _ => "Speed Loss",
+            };
+        }
+
+        public static string Value()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Valor",
+                _ => "Value",
+            };
+        }
+
+        public static string Buildup()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Bónus",
+                _ => "Buildup",
+            };
+        }
+
+        public static string FrostBonus()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Bónus Gelo",
+                _ => "Frost Bonus",
+            };
+        }
+
+        public static string FireBonus()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Bónus Fogo",
+                _ => "Fire Bonus",
+            };
+        }
+
+        public static string BaseDamage()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Dano Base",
+                _ => "Base Damage",
+            };
+        }
+
+        public static string Equiped()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Equipado",
+                _ => "Equiped",
+            };
+        }
+
+        public static string Favorited()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Favoritado",
+                _ => "Favorited",
+            };
+        }
+
+        #endregion
+
+        #region Inventory Menu
+
+        public static string ShowAll()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Mostrar Tudo",
+                _ => "All",
+            };
+        }
+
+        public static string ShowConsumables()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Consumíveis",
+                _ => "Consumables",
+            };
+        }
+
+        public static string ShowAlchemyIngredients()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Ingredientes de Alquimia",
+                _ => "Alchemy Ingredients",
+            };
+        }
+
+        public static string ShowCookingIngredients()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Ingredientes de Cozinha",
+                _ => "Cooking Ingredients",
+            };
+        }
+
+        public static string ShowKeyItems()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Itens importantes",
+                _ => "Key items",
+            };
+        }
+
+        public static string UseItem()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Usar",
+                _ => "Use",
+            };
+        }
+
+        #endregion
+
+
+        #region Load Screen Menu
+
+        public static string Level()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Nível",
+                _ => "Level",
+            };
+        }
+
+        public static string SavedAt()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Guardado a",
+                _ => "Saved at",
+            };
+        }
+        public static string TotalPlayTime()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Tempo total de jogo",
+                _ => "Total play time",
+            };
+        }
+
+
+        public static string LV()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Nv.",
+                _ => "Lv.",
+            };
+        }
+
+        public static string Load()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Carregar",
+                _ => "Load",
+            };
+        }
+
+        public static string Delete()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Apagar",
+                _ => "Delete",
+            };
+        }
+
+        #endregion
+
+
+        public static string Loading()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "A carregar",
+                _ => "Loading",
+            };
+        }
+
+        public static string YouDied()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Cacildes ficou inconsciente",
+                _ => "You Died",
+            };
+        }
+
+        #region Player Actions
+        public static string CantConsumeAtThisTime()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Não podes consumir itens neste momento",
+                _ => "Can't consume item at this time",
+            };
+        }
+        public static string CantShootArrowsAtThisTime()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Não podes disparar o arco neste momento",
+                _ => "Can't shoot arrows at this time",
+            };
+        }
+        public static string BowRequired()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Um arco é necessário para disparar flechas",
+                _ => "Bow required for shooting arrows",
+            };
+        }
+        public static string CacildesLeveledUp()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Cacildes subiu de nível!",
+                _ => "Cacildes leveled up!",
+            };
+        }
+        #endregion
     }
 }

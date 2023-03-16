@@ -59,7 +59,6 @@ namespace AF
                 return;
             }
 
-
             this.sfxAudioSource.PlayOneShot(sfxToPlay);
         }
 

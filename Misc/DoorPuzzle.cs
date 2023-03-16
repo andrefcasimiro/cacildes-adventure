@@ -9,7 +9,7 @@ namespace AF
         public GameObject key;
         public GameObject door;
 
-        NotificationManager notificationManager = FindObjectOfType<NotificationManager>(true);
+        NotificationManager notificationManager => FindObjectOfType<NotificationManager>(true);
 
         [Header("Localization")]
         public LocalizedText doorOpenedText;

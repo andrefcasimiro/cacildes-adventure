@@ -5,15 +5,12 @@ namespace AF
 {
     public class MinecartCollider : MonoBehaviour
     {
-        public SwitchEntry switchEntry;
+        public SwitchEntry switchToActivateUponCollision;
         public DestroyableParticle mineCartColliderExplosion;
         public AudioSource miningCartSoundsource;
  
-        public UnityEvent onActivateCartEvent;
-
         public void ActivateCart()
         {
-            onActivateCartEvent.Invoke();
             miningCartSoundsource.gameObject.SetActive(true);
             GetComponent<Animator>().Play("MinecartSlidingDown");
         }
@@ -21,7 +18,7 @@ namespace AF
         public void Explode()
         {
             Instantiate(mineCartColliderExplosion, transform.position, Quaternion.identity);
-            SwitchManager.instance.UpdateSwitch(switchEntry, true);
+            SwitchManager.instance.UpdateSwitch(switchToActivateUponCollision, true);
         }
     }
 }

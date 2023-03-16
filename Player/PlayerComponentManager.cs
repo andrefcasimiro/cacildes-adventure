@@ -17,7 +17,7 @@ namespace AF
 
         CharacterController characterController => GetComponent<CharacterController>();
 
-        private void Start()
+        private void Awake()
         {
         }
 

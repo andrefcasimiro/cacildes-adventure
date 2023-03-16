@@ -20,6 +20,9 @@ namespace AF
 
         public VisualTreeAsset itemButtonPrefab;
 
+        [Header("Localization")]
+        public LocalizedText searchItemLabel;
+
 
         private void Awake()
         {
@@ -31,14 +34,31 @@ namespace AF
             this.root = GetComponent<UIDocument>().rootVisualElement;
             menuManager.SetupNavMenu(root);
             menuManager.SetActiveMenu(root, "ButtonInventory");
+            menuManager.TranslateNavbar(root);
 
             filterDropdown = root.Q<DropdownField>("FilterDropdown");
             filterDropdown.RegisterValueChangedCallback(ev =>
             {
                 UpdateItemsList();
             });
-            filterDropdown.choices = filters;
-            filterDropdown.value = "All";
+
+            
+            filterDropdown.choices = new List<string>{
+                    LocalizedTerms.ShowAll(),
+                    LocalizedTerms.ShowConsumables(),
+                    LocalizedTerms.Weapon() + "s",
+                    LocalizedTerms.Shield() + "s",
+                    LocalizedTerms.Helmet() + "s",
+                    LocalizedTerms.Armor() + "s",
+                    LocalizedTerms.Gauntlets(),
+                    LocalizedTerms.Boots(),
+                    LocalizedTerms.Accessory() + "s",
+                    LocalizedTerms.ShowAlchemyIngredients() + "s",
+                    LocalizedTerms.ShowCookingIngredients() + "s",
+                    LocalizedTerms.ShowKeyItems(),
+            };
+
+            filterDropdown.value = LocalizedTerms.ShowAll();
 
             textField = root.Q<TextField>("FilterText");
             textField.value = "";
@@ -62,37 +82,12 @@ namespace AF
                 cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.item.sprite);
                 cloneButton.Q<Label>("ItemName").text = item.item.name.GetText() + " ( " + item.amount + " )";
 
-                var itemIsFavorited = Player.instance.favoriteItems.Contains(item.item);
-                cloneButton.Q<VisualElement>("FavoriteIcon").style.display = itemIsFavorited ? DisplayStyle.Flex : DisplayStyle.None;
 
-                var favoriteButton = cloneButton.Q<Button>("FavoriteButton");
 
                 var consumable = item.item as Consumable;
 
-                var isFavoritableConsumable = consumable != null && consumable.canFavorite;
-                favoriteButton.style.display = isFavoritableConsumable ? DisplayStyle.Flex : DisplayStyle.None;
-
-                if (isFavoritableConsumable)
-                {
-                    favoriteButton.Q<Label>().text = itemIsFavorited ? "Unfavorite" : "Favorite";
-
-                    menuManager.SetupButton(favoriteButton, () =>
-                    {
-                        var itemIsFavorited = Player.instance.favoriteItems.Contains(item.item);
-                        if (itemIsFavorited)
-                        {
-                            FindObjectOfType<FavoriteItemsManager>(true).RemoveFavoriteItemFromList(item.item);
-                        }
-                        else
-                        {
-                            FindObjectOfType<FavoriteItemsManager>(true).AddFavoriteItemToList(item.item);
-                        }
-
-                        UpdateItemsList();
-                    });
-                }
-
                 var useButton = cloneButton.Q<Button>("UseButton");
+                useButton.text = LocalizedTerms.UseItem();
                 useButton.style.display = consumable != null ? DisplayStyle.Flex : DisplayStyle.None;
                 if (consumable != null)
                 {
@@ -158,86 +153,89 @@ namespace AF
 
             if (filterDropdown.value.Length > 0)
             {
-                if (filterDropdown.value == "All")
+                if (filterDropdown.value == LocalizedTerms.ShowAll())
                 {
                     foreach (var item in Player.instance.ownedItems)
                     {   
                         list.Add(item);
                     }
                 }
-                else if (filterDropdown.value == "Consumables")
+                else if (filterDropdown.value == LocalizedTerms.ShowConsumables())
                 {
                     foreach (var i in GetUnknownItem<Consumable>())
                     {
                         list.Add(i);
                     }
                 }
-                else if (filterDropdown.value == "Weapons")
+                else if (filterDropdown.value == LocalizedTerms.Weapon() + "s")
                 {
                     foreach (var i in GetUnknownItem<Weapon>())
                     {
                         list.Add(i);
                     }
                 }
-                else if (filterDropdown.value == "Shields")
+                else if (filterDropdown.value == LocalizedTerms.Shield() + "s")
                 {
                     foreach (var i in GetUnknownItem<Shield>())
                     {
                         list.Add(i);
                     }
                 }
-                else if (filterDropdown.value == "Helmets")
+                else if (filterDropdown.value == LocalizedTerms.Helmet() + "s")
                 {
                     foreach (var i in GetUnknownItem<Helmet>())
                     {
                         list.Add(i);
                     }
                 }
-                else if (filterDropdown.value == "Armors")
+                else if (filterDropdown.value == LocalizedTerms.Armor() + "s")
                 {
                     foreach (var i in GetUnknownItem<Armor>())
                     {
                         list.Add(i);
                     }
                 }
-                else if (filterDropdown.value == "Armors")
+                else if (filterDropdown.value == LocalizedTerms.Gauntlets())
                 {
                     foreach (var i in GetUnknownItem<Gauntlet>())
                     {
                         list.Add(i);
                     }
                 }
-                else if (filterDropdown.value == "Legwear")
+                else if (filterDropdown.value == LocalizedTerms.Boots())
                 {
                     foreach (var i in GetUnknownItem<Legwear>())
                     {
                         list.Add(i);
                     }
                 }
-                else if (filterDropdown.value == "Accessories")
+                else if (filterDropdown.value == LocalizedTerms.Accessory() + "s")
                 {
                     foreach (var i in GetUnknownItem<Accessory>())
                     {
                         list.Add(i);
                     }
                 }
-                else if (filterDropdown.value == "Alchemy Ingredients")
+                else if (filterDropdown.value == LocalizedTerms.ShowAlchemyIngredients())
                 {
                     foreach (var i in GetUnknownItem<AlchemyIngredient>())
                     {
                         list.Add(i);
                     }
                 }
-                else if (filterDropdown.value == "Cooking Ingredients")
+                else if (filterDropdown.value == LocalizedTerms.ShowCookingIngredients())
                 {
                     foreach (var i in GetUnknownItem<CookingIngredient>())
                     {
                         list.Add(i);
                     }
                 }
+                else if (filterDropdown.value == LocalizedTerms.ShowKeyItems())
+                {
+                }
             }
 
-            if (textField.value.Length > 0 && textField.value != "Search Item...")
+            if (textField.value.Length > 0 && textField.value != searchItemLabel.GetText())
             {
                 foreach (var item in list)
                 {

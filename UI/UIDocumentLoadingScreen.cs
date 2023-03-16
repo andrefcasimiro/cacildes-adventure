@@ -18,6 +18,7 @@ namespace AF
         public void UpdateLoadingBar(float loadingPercentage)
         {
             root = GetComponent<UIDocument>().rootVisualElement;
+            root.Q<Label>("LoadingText").text = LocalizedTerms.Loading()+"...";
             root.Q<VisualElement>("LoadingFill").style.width = new Length(loadingPercentage, LengthUnit.Percent);
         }
 

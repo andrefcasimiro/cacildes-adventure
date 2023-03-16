@@ -1,12 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AF
 {
+    [System.Serializable]
+    public class VariableEntryInstance
+    {
+        public VariableEntry variableEntry;
+        public int currentValue;
+        public int initialValue;
+    }
+
     public class VariableManager : MonoBehaviour, ISaveable
     {
-        public List<Variable> variables = new List<Variable>();
+        public List<VariableEntryInstance> variableEntryInstances = new();
 
         public static VariableManager instance;
 
@@ -22,50 +30,48 @@ namespace AF
                 instance = this;
             }
 
-            GetVariables();
+            LoadVariables();
         }
 
-        public Variable GetVariableInstance(string uuid)
+        public void LoadVariables()
         {
-            return this.variables.Find(x => x.uuid == uuid);
-        }
+            variableEntryInstances.Clear();
+            var variableEntries = Resources.LoadAll<VariableEntry>("Variables").ToList();
 
-        public void GetVariables()
-        {
-            this.variables.Clear();
-            Variable[] variables = this.transform.GetComponentsInChildren<Variable>(true);
-
-            foreach (var _variable in variables)
+            foreach (var _variable in variableEntries)
             {
-                this.variables.Add(_variable);
+                VariableEntryInstance variableEntryInstance = new()
+                {
+                    variableEntry = _variable,
+                    currentValue = _variable.value,
+                    initialValue = _variable.value
+                };
+
+                variableEntryInstances.Add(variableEntryInstance);
             }
         }
 
-        public void UpdateVariable(string variableId, int nextValue)
+        public void UpdateVariable(VariableEntry variableToUpdate, int nextValue)
         {
-            this.variables.Find(x => x.uuid == variableId).value = nextValue;
+            variableEntryInstances.Find(variableEntryInstance => variableEntryInstance.variableEntry == variableToUpdate).currentValue = nextValue;
 
             var sceneVariableListeners = FindObjectsOfType<VariableListener>(true);
             foreach (var sceneVariableListener in sceneVariableListeners)
             {
-                if (sceneVariableListener.variableUuid == variableId)
+                if (sceneVariableListener.variableEntry == variableToUpdate)
                 {
-                    sceneVariableListener.EvaluateVariable();
+                    sceneVariableListener.Refresh();
                 }
             }
 
         }
 
-        public int GetVariableValue(string variableId)
+        public int GetVariableValue(VariableEntry variableEntry)
         {
-            var targetVariable = this.variables.Find(x => x.uuid == variableId);
+            var targetVariable = variableEntryInstances.Find(
+                variableEntryInstance => variableEntryInstance.variableEntry == variableEntry);
 
-            if (targetVariable == null)
-            {
-                return -1;
-            }
-
-            return targetVariable.value;
+            return targetVariable == null ? -1 : targetVariable.currentValue;
         }
 
         public void OnGameLoaded(GameData gameData)
@@ -74,7 +80,14 @@ namespace AF
 
             foreach (SerializableVariable savedVariable in gameData.variables)
             {
-                UpdateVariable(savedVariable.uuid, savedVariable.value);
+                var variableIndex = variableEntryInstances.FindIndex(variableEntryInstance => variableEntryInstance.variableEntry.name == savedVariable.variableName);
+                if (variableIndex == -1)
+                {
+                    Debug.LogError("Could not find variable with name: " + savedVariable.variableName);
+                    return;
+                }
+
+                UpdateVariable(variableEntryInstances[variableIndex].variableEntry, savedVariable.value);
             }
         }
     }

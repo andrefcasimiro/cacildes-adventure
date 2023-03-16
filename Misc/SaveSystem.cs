@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -9,7 +8,6 @@ using UnityEngine.SceneManagement;
 
 namespace AF
 {
-
     public class SaveSystem : MonoBehaviour
     {
         [HideInInspector] public Texture2D currentScreenshot;
@@ -79,7 +77,7 @@ namespace AF
         {
             if (!File.Exists(filePath))
             {
-                return default(T);
+                return default;
             }
 
             string loadedJsonString = File.ReadAllText(filePath);
@@ -98,18 +96,19 @@ namespace AF
                 return;
             }
 
-            GameData gameData = new GameData();
+            GameData gameData = new()
+            {
+                // Save file stuff
+                isQuickSave = saveGameName.ToLower().Contains("quicksave"),
+                saveFileCreationDate = DateTime.Now.ToString(),
+                gameTime = totalPlayTimeInSeconds + (DateTime.Now - sessionStartDateTime).TotalSeconds,
 
-            // Save file stuff
-            gameData.isQuickSave = saveGameName.ToLower().Contains("quicksave");
-            gameData.saveFileCreationDate = System.DateTime.Now.ToString();
-            gameData.gameTime = totalPlayTimeInSeconds + (System.DateTime.Now - sessionStartDateTime).TotalSeconds;
+                // World
+                timeOfDay = Player.instance.timeOfDay,
+                daysPassed = Player.instance.daysPassed,
 
-            // World
-            gameData.timeOfDay = Player.instance.timeOfDay;
-            gameData.daysPassed = Player.instance.daysPassed;
-
-            gameData.currentObjective = Player.instance.currentObjective;
+                currentObjective = Player.instance.currentObjective
+            };
 
             // Scene Name
             Scene scene = SceneManager.GetActiveScene();
@@ -119,26 +118,27 @@ namespace AF
             // Player
             GameObject player = GameObject.FindWithTag("Player");
 
-            PlayerData playerData = new PlayerData();
+            PlayerData playerData = new()
+            {
+                position = player.transform.position,
+                rotation = player.transform.rotation,
 
-            playerData.position = player.transform.position;
-            playerData.rotation = player.transform.rotation;
+                currentHealth = Player.instance.currentHealth,
+                currentStamina = Player.instance.currentStamina,
+                currentGold = Player.instance.currentGold,
+                currentReputation = Player.instance.currentReputation,
 
-            playerData.currentHealth = Player.instance.currentHealth;
-            playerData.currentStamina = Player.instance.currentStamina;
-            playerData.currentGold = Player.instance.currentGold;
-            playerData.currentReputation = Player.instance.currentReputation;
-
-            playerData.vitality = Player.instance.vitality;
-            playerData.endurance = Player.instance.endurance;
-            playerData.strength = Player.instance.strength;
-            playerData.dexterity = Player.instance.dexterity;
+                vitality = Player.instance.vitality,
+                endurance = Player.instance.endurance,
+                strength = Player.instance.strength,
+                dexterity = Player.instance.dexterity
+            };
 
             gameData.playerData = playerData;
 
             // Player Equipment
             EquipmentGraphicsHandler equipmentManager = FindObjectOfType<EquipmentGraphicsHandler>();
-            PlayerEquipmentData playerEquipmentData = new PlayerEquipmentData();
+            PlayerEquipmentData playerEquipmentData = new();
 
             if (Player.instance.equippedWeapon != null)
             {
@@ -181,9 +181,11 @@ namespace AF
             List<SerializableItem> serializableItems = new List<SerializableItem>();
             foreach (Player.ItemEntry itemEntry in Player.instance.ownedItems)
             {
-                SerializableItem serializableItem = new SerializableItem();
-                serializableItem.itemName = itemEntry.item.name.GetEnglishText();
-                serializableItem.itemCount = itemEntry.amount;
+                SerializableItem serializableItem = new SerializableItem
+                {
+                    itemName = itemEntry.item.name.GetEnglishText(),
+                    itemCount = itemEntry.amount
+                };
                 serializableItems.Add(serializableItem);
             }
             gameData.items = serializableItems.ToArray();
@@ -192,69 +194,75 @@ namespace AF
             gameData.favoriteItems = Player.instance.favoriteItems.Select(i => i.name.GetEnglishText()).ToArray();
 
             // Switches
-            List<SerializableSwitch> switches = new List<SerializableSwitch>();
+            List<SerializableSwitch> switches = new();
             foreach (var _switch in SwitchManager.instance.switchEntryInstances)
             {
-                SerializableSwitch serializableSwitch = new SerializableSwitch();
-                serializableSwitch.uuid = _switch.switchEntry.name;
-                serializableSwitch.switchName = _switch.switchEntry.name;
-                serializableSwitch.value = _switch.currentValue;
+                SerializableSwitch serializableSwitch = new SerializableSwitch
+                {
+                    uuid = _switch.switchEntry.name,
+                    switchName = _switch.switchEntry.name,
+                    value = _switch.currentValue
+                };
                 switches.Add(serializableSwitch);
             }
             gameData.switches = switches.ToArray();
 
             // Variables
-            List<SerializableVariable> variables = new List<SerializableVariable>();
-            foreach (var _variable in VariableManager.instance.variables)
+            List<SerializableVariable> variables = new();
+            foreach (var _variable in VariableManager.instance.variableEntryInstances)
             {
-                SerializableVariable serializableVariable = new SerializableVariable();
-                serializableVariable.uuid = _variable.uuid;
-                serializableVariable.variableName = _variable.name;
-                serializableVariable.value = _variable.value;
+                SerializableVariable serializableVariable = new SerializableVariable
+                {
+                    uuid = _variable.variableEntry.name,
+                    variableName = _variable.variableEntry.name,
+                    value = _variable.variableEntry.value
+                };
                 variables.Add(serializableVariable);
             }
             gameData.variables = variables.ToArray();
 
             // Active Consumables
-            List<SerializableConsumable> activeConsumables = new List<SerializableConsumable>();
+            List<SerializableConsumable> activeConsumables = new();
             foreach (var consumable in Player.instance.appliedConsumables)
             {
-                SerializableConsumable serializableConsumable = new SerializableConsumable();
-
-                serializableConsumable.consumableName = consumable.consumableEffect.consumablePropertyName.ToString();
-                serializableConsumable.displayName = consumable.consumableEffect.displayName;
-                serializableConsumable.barColor = consumable.consumableEffect.barColor;
-                serializableConsumable.value = consumable.consumableEffect.value;
-                serializableConsumable.effectDuration = consumable.consumableEffect.effectDuration;
-                serializableConsumable.currentDuration = consumable.currentDuration;
-                serializableConsumable.spriteFileName = consumable.consumableEffectSprite.name;
+                SerializableConsumable serializableConsumable = new()
+                {
+                    consumableName = consumable.consumableEffect.consumablePropertyName.ToString(),
+                    displayName = consumable.consumableEffect.displayName.GetEnglishText(),
+                    barColor = consumable.consumableEffect.barColor,
+                    value = consumable.consumableEffect.value,
+                    effectDuration = consumable.consumableEffect.effectDuration,
+                    currentDuration = consumable.currentDuration,
+                    spriteFileName = consumable.consumableEffectSprite.name
+                };
 
                 activeConsumables.Add(serializableConsumable);
             }
             gameData.consumables = activeConsumables.ToArray();
 
             // Active Status Effects
-            List<SerializableStatusEffect> activeStatusEffects = new List<SerializableStatusEffect>();
+            List<SerializableStatusEffect> activeStatusEffects = new();
             foreach (var status in Player.instance.appliedStatus)
             {
-                SerializableStatusEffect serializableStatusEffect = new SerializableStatusEffect();
-
-                serializableStatusEffect.statusEffectName = status.statusEffect.name;
-                serializableStatusEffect.currentAmount = status.currentAmount;
-                serializableStatusEffect.hasReachedTotalAmount = status.hasReachedTotalAmount;
+                SerializableStatusEffect serializableStatusEffect = new()
+                {
+                    statusEffectName = status.statusEffect.name.GetEnglishText(),
+                    currentAmount = status.currentAmount,
+                    hasReachedTotalAmount = status.hasReachedTotalAmount
+                };
 
                 activeStatusEffects.Add(serializableStatusEffect);
             }
             gameData.statusEffects = activeStatusEffects.ToArray();
 
-            List<string> alchemyRecipesToSave = new List<string>();
+            List<string> alchemyRecipesToSave = new();
             foreach (var alchemyRecipe in Player.instance.alchemyRecipes)
             {
                 alchemyRecipesToSave.Add(alchemyRecipe.name.GetEnglishText());
             }
             gameData.alchemyRecipes = alchemyRecipesToSave.ToArray();
 
-            List<string> cookingRecipesToSave = new List<string>();
+            List<string> cookingRecipesToSave = new();
             foreach (var recipe in Player.instance.cookingRecipes)
             {
                 cookingRecipesToSave.Add(recipe.name.GetEnglishText());
@@ -262,7 +270,7 @@ namespace AF
             gameData.cookingRecipes = cookingRecipesToSave.ToArray();
 
             // Lost coins
-            LostCoins lostCoins = new LostCoins();
+            LostCoins lostCoins = new();
             var activateLostCoinsPickupInstance = FindObjectOfType<ActivateLostCoinsPickup>(true);
 
             gameData.lostCoins = LostCoinsManager.instance.lostCoins;

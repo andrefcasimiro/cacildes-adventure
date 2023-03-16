@@ -6,14 +6,14 @@ namespace AF
     public class EnemyBossController : MonoBehaviour
     {
         [Header("Boss")]
-        public string bossName = "";
+        public LocalizedText bossName;
         public GameObject fogWall;
         public AudioClip bossMusic;
 
         [Header("Switch")]
         public SwitchEntry bossSwitchEntry;
         [Tooltip("Update boss switch immediately after boss is killed")]
-        public bool updateSwitchOnKill = false;
+        public bool refreshEventsUponSwitchActivation = false;
 
         // UI Components
         [HideInInspector] public UIDocument bossHud => GetComponent<UIDocument>();
@@ -28,7 +28,7 @@ namespace AF
         {
             bossHud.enabled = true;
             bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
-            bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName;
+            bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName.GetText();
 
             HideBossHud();
         }
@@ -43,7 +43,7 @@ namespace AF
             GetComponent<UIDocument>().enabled = true;
 
             bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
-            bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName;
+            bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName.GetText();
 
             GetComponent<EnemyHealthController>().HideHUD();
 

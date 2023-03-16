@@ -26,14 +26,13 @@ namespace AF
             var root = GetComponent<UIDocument>().rootVisualElement;
             menuManager.SetupNavMenu(root);
             menuManager.SetActiveMenu(root, "ButtonLoad");
+            menuManager.TranslateNavbar(root);
 
             DrawUI(root, true);
         }
 
         public void DrawUI(VisualElement targetRoot, bool showDeleteButton)
         {
-            targetRoot.Q<Button>("ButtonOpenSaveFolder").text = openSavesFolderText.GetText();
-
             List<SaveFileEntry> saveFiles = SaveSystem.instance.GetSaveFiles();
 
             if (saveFiles.Count > 0)
@@ -58,7 +57,7 @@ namespace AF
 
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 
-                btn.Q<Label>("Name").text = saveFileEntry.sceneName + " / Level " + saveFileEntry.level + "";
+                btn.Q<Label>("Name").text = saveFileEntry.sceneName + " / " +LocalizedTerms.Level()+ " " + saveFileEntry.level + "";
                 btn.Q<Label>("Value").text = System.DateTime.Parse(saveFileEntry.creationDate).ToString();
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 
@@ -108,10 +107,10 @@ namespace AF
         {
             root.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
             root.Q<Label>("Title").text = saveFileEntry.sceneName + " / Level " + saveFileEntry.level;
-            root.Q<Label>("SubTitle").text = "Saved at: " + DateTime.Parse(saveFileEntry.creationDate).ToString();
+            root.Q<Label>("SubTitle").text = LocalizedTerms.SavedAt() + ": " + DateTime.Parse(saveFileEntry.creationDate).ToString();
 
             var totalGameTime = System.TimeSpan.FromSeconds(saveFileEntry.gameTime);
-            root.Q<Label>("Description").text = "Total Play Time: " + totalGameTime.Hours + "h " + totalGameTime.Minutes + "m " + totalGameTime.Seconds + "s";
+            root.Q<Label>("Description").text = LocalizedTerms.TotalPlayTime() + ": " + totalGameTime.Hours + "h " + totalGameTime.Minutes + "m " + totalGameTime.Seconds + "s";
             root.Q<Label>("CurrentObjectiveText").text = "" + saveFileEntry.currentObjective;
 
             root.Q<VisualElement>("SaveGameItemPreview").style.opacity = 1;

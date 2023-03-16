@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
-using System;
 
 namespace AF
 {
@@ -16,7 +14,8 @@ namespace AF
             Armor,
             Gauntlets,
             Legwear,
-            Accessories
+            Accessories,
+            FavoriteItems
         }
 
         public EquipmentType selectedEquipmentType = EquipmentType.Weapon;
@@ -55,6 +54,7 @@ namespace AF
 
             this.root = GetComponent<UIDocument>().rootVisualElement;
             menuManager.SetupNavMenu(root);
+            menuManager.TranslateNavbar(root);
 
             // Hide Item Preview
             HideItemInfo();
@@ -63,6 +63,8 @@ namespace AF
             {
                 menuManager.OpenEquipmentListMenu();
             });
+
+            this.root.Q<Button>("GoBackButton").text = LocalizedTerms.Back();
 
             // Unequip Logic
             menuManager.SetupButton(this.root.Q<Button>("UnequipButton"), () =>
@@ -73,6 +75,15 @@ namespace AF
 
                 menuManager.OpenEquipmentListMenu();
             });
+
+            if (selectedEquipmentType == EquipmentType.FavoriteItems)
+            {
+                this.root.Q<Button>("UnequipButton").style.display = DisplayStyle.None;
+            }
+            else
+            {
+                this.root.Q<Button>("UnequipButton").text = LocalizedTerms.Unequip();
+            }
 
             this.root.Q<ScrollView>().Clear();
 
@@ -104,15 +115,20 @@ namespace AF
             {
                 DrawAccessoriesList();
             }
+            else if (selectedEquipmentType == EquipmentType.FavoriteItems)
+            {
+                DrawConsumableItemsList();
+            }
         }
 
         #region Weapons
         void DrawWeaponsList()
         {
             var playerWeapons = playerInventory.GetWeapons();
-                    if (playerWeapons.Count > 0)
+            
+            if (playerWeapons.Count > 0)
             {
-                foreach (var weapon in playerInventory.GetWeapons())
+                foreach (var weapon in playerWeapons)
                 {
                     VisualElement weaponButton = equipmentSelectionItem.CloneTree();
 
@@ -167,7 +183,7 @@ namespace AF
 
                     if (isBetterWeapon)
                     {
-                        valueLabelElement.text = "+ " + Mathf.Abs(equippedWeaponAttack - thisWeaponAttack) + " ATK";
+                        valueLabelElement.text = "+ " + Mathf.Abs(equippedWeaponAttack - thisWeaponAttack) + " " + LocalizedTerms.ATK();
                         valueLabelElement.RemoveFromClassList("same-value-equipment");
                         valueLabelElement.RemoveFromClassList("lower-value-equipment");
                         valueLabelElement.AddToClassList("higher-value-equipment");
@@ -178,7 +194,7 @@ namespace AF
 
                         if (isLowerWeapon)
                         {
-                            valueLabelElement.text = "- " + Mathf.Abs(attackStatManager.GetWeaponAttack(weapon) - equippedWeaponAttack) + " ATK";
+                            valueLabelElement.text = "- " + Mathf.Abs(attackStatManager.GetWeaponAttack(weapon) - equippedWeaponAttack) + " " + LocalizedTerms.ATK();
                             valueLabelElement.RemoveFromClassList("same-value-equipment");
                             valueLabelElement.AddToClassList("lower-value-equipment");
                             valueLabelElement.RemoveFromClassList("higher-value-equipment");
@@ -187,11 +203,11 @@ namespace AF
                         {
                             if (weapon == Player.instance.equippedWeapon)
                             {
-                                valueLabelElement.text = "(Equipped)";
+                                valueLabelElement.text = LocalizedTerms.Equiped();
                             }
                             else
                             {
-                                valueLabelElement.text = "+ 0 ATK";
+                                valueLabelElement.text = "+ 0 " + LocalizedTerms.ATK();
                             }
                             valueLabelElement.AddToClassList("same-value-equipment");
                             valueLabelElement.RemoveFromClassList("lower-value-equipment");
@@ -213,9 +229,9 @@ namespace AF
             itemPreviewElement.Q<Label>("Description").text = weapon.description.GetText();
             itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(weapon.sprite);
 
-            itemStats.Q<Label>("Damage").text = weapon.physicalAttack + " (Base Damage) + "
-                    + attackStatManager.GetStrengthBonusFromWeapon(weapon) + " (" + weapon.strengthScaling + " Strength) + "
-                    + attackStatManager.GetDexterityBonusFromWeapon(weapon) + " (" + weapon.dexterityScaling + " Dexterity)";
+            itemStats.Q<Label>("Damage").text = weapon.physicalAttack + " (" + LocalizedTerms.BaseDamage() + ") + "
+                    + attackStatManager.GetStrengthBonusFromWeapon(weapon) + " (" + weapon.strengthScaling + " " + LocalizedTerms.Strength() + ") + "
+                    + attackStatManager.GetDexterityBonusFromWeapon(weapon) + " (" + weapon.dexterityScaling + " " + LocalizedTerms.Dexterity() + ")";
 
             var bonusLabel = itemStats.Q<Label>("Bonus");
             bonusLabel.text = "";
@@ -226,7 +242,7 @@ namespace AF
                     bonusLabel.text += " / ";
                 }
 
-                bonusLabel.text += "Fire Bonus + " + weapon.fireAttack;
+                bonusLabel.text += LocalizedTerms.FireBonus() + " " + weapon.fireAttack;
             }
             if (weapon.frostAttack != 0)
             {
@@ -235,7 +251,7 @@ namespace AF
                     bonusLabel.text += " / ";
                 }
 
-                bonusLabel.text += "Frost Bonus + " + weapon.frostAttack;
+                bonusLabel.text += LocalizedTerms.FrostBonus() + " " + weapon.frostAttack;
             }
 
             if (weapon.statusEffects.Length > 0)
@@ -247,7 +263,7 @@ namespace AF
                         bonusLabel.text += " / ";
                     }
 
-                    bonusLabel.text += weaponStatusEffect.statusEffect.name + " Buildup + " + weaponStatusEffect.amountPerHit;
+                    bonusLabel.text += weaponStatusEffect.statusEffect.name.GetText() + "  " + LocalizedTerms.Buildup() + "+ " + weaponStatusEffect.amountPerHit;
                 }
             }
 
@@ -260,7 +276,7 @@ namespace AF
                 bonusLabel.style.display = DisplayStyle.Flex;
             }
 
-            itemStats.Q<Label>("Value").text = "Value " + weapon.value + " / Speed Loss " + (weapon.speedPenalty != 0 ? "-" + weapon.speedPenalty.ToString().Replace(",", ".") : "0"); 
+            itemStats.Q<Label>("Value").text = LocalizedTerms.Value() + " " + weapon.value + " / " + LocalizedTerms.SpeedLoss() + " " + (weapon.speedPenalty != 0 ? "-" + weapon.speedPenalty.ToString().Replace(",", ".") : "0"); 
 
             itemPreviewElement.style.visibility = Visibility.Visible;
             itemStats.style.visibility = Visibility.Visible;
@@ -327,7 +343,7 @@ namespace AF
 
                     if (isBetterShield)
                     {
-                        valueLabelElement.text = "+ " + Mathf.Abs(equippedShieldAbsorption - shield.defenseAbsorption) + "% ATK Absorption";
+                        valueLabelElement.text = "+ " + Mathf.Abs(equippedShieldAbsorption - shield.defenseAbsorption) + "% " + LocalizedTerms.ATKAbsorption();
                         valueLabelElement.RemoveFromClassList("same-value-equipment");
                         valueLabelElement.RemoveFromClassList("lower-value-equipment");
                         valueLabelElement.AddToClassList("higher-value-equipment");
@@ -338,7 +354,7 @@ namespace AF
 
                         if (isWorseShield)
                         {
-                            valueLabelElement.text = "- " + Mathf.Abs(equippedShieldAbsorption - shield.defenseAbsorption) + "% ATK Absorption";
+                            valueLabelElement.text = "- " + Mathf.Abs(equippedShieldAbsorption - shield.defenseAbsorption) + "% " + LocalizedTerms.ATKAbsorption();
                             valueLabelElement.RemoveFromClassList("same-value-equipment");
                             valueLabelElement.AddToClassList("lower-value-equipment");
                             valueLabelElement.RemoveFromClassList("higher-value-equipment");
@@ -347,11 +363,11 @@ namespace AF
                         {
                             if (shield == Player.instance.equippedShield)
                             {
-                                valueLabelElement.text = "(Equipped)";
+                                valueLabelElement.text = "(" + LocalizedTerms.Equiped() + ")";
                             }
                             else
                             {
-                                valueLabelElement.text = "+ 0% ATK Absorption";
+                                valueLabelElement.text = "+ 0% " + LocalizedTerms.ATKAbsorption();
                             }
                             valueLabelElement.AddToClassList("same-value-equipment");
                             valueLabelElement.RemoveFromClassList("lower-value-equipment");
@@ -373,8 +389,8 @@ namespace AF
             itemPreviewElement.Q<Label>("Description").text = shield.description.GetText();
             itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(shield.sprite);
 
-            itemStats.Q<Label>("Damage").text = shield.defenseAbsorption + "% (Enemy ATK Absorption) / "
-                    + shield.blockStaminaCost + " (Stamina Cost Per Block)";
+            itemStats.Q<Label>("Damage").text = shield.defenseAbsorption + "% (" + LocalizedTerms.EnemyATKAbsorption() + ") / "
+                    + shield.blockStaminaCost + " (" + LocalizedTerms.StaminaCostPerBlock() + ")";
 
             var bonusLabel = itemStats.Q<Label>("Bonus");
             bonusLabel.text = "";
@@ -385,7 +401,7 @@ namespace AF
                     bonusLabel.text += " / ";
                 }
 
-                bonusLabel.text += "Fire DEF Bonus + " + shield.fireDefense;
+                bonusLabel.text += LocalizedTerms.FireBonus() + " +" + shield.fireDefense;
             }
 
             if (shield.frostDefense != 0)
@@ -395,7 +411,7 @@ namespace AF
                     bonusLabel.text += " / ";
                 }
 
-                bonusLabel.text += "Frost DEF Bonus + " + shield.frostDefense;
+                bonusLabel.text += LocalizedTerms.FrostBonus() + " +" + shield.frostDefense;
             }
 
             if (bonusLabel.text.Length <= 0)
@@ -407,7 +423,7 @@ namespace AF
                 bonusLabel.style.display = DisplayStyle.Flex;
             }
 
-            itemStats.Q<Label>("Value").text = "Value " + shield.value;
+            itemStats.Q<Label>("Value").text = LocalizedTerms.Value() + " " + shield.value;
 
             itemPreviewElement.style.visibility = Visibility.Visible;
             itemStats.style.visibility = Visibility.Visible;
@@ -516,7 +532,7 @@ namespace AF
                         {
                             if (item == currentEquippedItem)
                             {
-                                valueLabelElement.text = "(Equipped)";
+                                valueLabelElement.text = "(" + LocalizedTerms.Equiped() + ")";
                             }
                             else
                             {
@@ -542,19 +558,19 @@ namespace AF
             itemPreviewElement.Q<Label>("Description").text = armor.description.GetText();
             itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(armor.sprite);
 
-            itemStats.Q<Label>("Damage").text = "Defense + " + armor.physicalDefense;
+            itemStats.Q<Label>("Damage").text = LocalizedTerms.Defense() + " + " + armor.physicalDefense;
             if (armor.fireDefense != 0)
             {
-                itemStats.Q<Label>("Damage").text += " / Fire Defense + " + armor.fireDefense;
+                itemStats.Q<Label>("Damage").text += " / " + LocalizedTerms.FireDefense() + " + " + armor.fireDefense;
             }
             if (armor.frostDefense != 0)
             {
-                itemStats.Q<Label>("Damage").text += " / Frost Defense + " + armor.frostDefense;
+                itemStats.Q<Label>("Damage").text += " / " + LocalizedTerms.FrostDefense() + " + " + armor.frostDefense;
             }
 
             foreach (var statusEffectResistance in armor.statusEffectResistances)
             {
-                itemStats.Q<Label>("Damage").text += " / " + statusEffectResistance.statusEffect.name + " Resistance + " + statusEffectResistance.resistanceBonus;
+                itemStats.Q<Label>("Damage").text += " / " + statusEffectResistance.statusEffect.name.GetText() + " " + LocalizedTerms.Resistence() + " + " + statusEffectResistance.resistanceBonus;
             }
 
             if (itemStats.Q<Label>("Damage").text.Length <= 0)
@@ -568,15 +584,15 @@ namespace AF
 
             itemStats.Q<Label>("Bonus").text = "";
 
-            itemStats.Q<Label>("Bonus").text += "Value " + armor.value;
+            itemStats.Q<Label>("Bonus").text += LocalizedTerms.Value() + " " + armor.value;
 
             if (armor.poiseBonus != 0)
             {
-                itemStats.Q<Label>("Bonus").text += " / Poise Bonus +" + armor.poiseBonus;
+                itemStats.Q<Label>("Bonus").text += " / " + LocalizedTerms.PoiseBonus() + " +" + armor.poiseBonus;
             }
             if (armor.speedPenalty != 0)
             {
-                itemStats.Q<Label>("Bonus").text += " / Speed Penalty -" + armor.speedPenalty.ToString().Replace(",", ".");
+                itemStats.Q<Label>("Bonus").text += " / " + LocalizedTerms.SpeedPenalty() + " -" + armor.speedPenalty.ToString().Replace(",", ".");
             }
 
             if (itemStats.Q<Label>("Bonus").text.Length <= 0)
@@ -684,7 +700,7 @@ namespace AF
                     bonusLabel.text += " / ";
                 }
 
-                bonusLabel.text += "Fire DEF Bonus + " + accessory.fireDefense;
+                bonusLabel.text += LocalizedTerms.FireDefense() + " + " + accessory.fireDefense;
             }
 
             if (accessory.frostDefense != 0)
@@ -694,7 +710,7 @@ namespace AF
                     bonusLabel.text += " / ";
                 }
 
-                bonusLabel.text += "Frost DEF Bonus + " + accessory.frostDefense;
+                bonusLabel.text += LocalizedTerms.FrostDefense() + " + " + accessory.frostDefense;
             }
 
 
@@ -709,25 +725,25 @@ namespace AF
 
             foreach (var statusEffectResistance in accessory.statusEffectResistances)
             {
-                itemStats.Q<Label>("Damage").text += " / " + statusEffectResistance.statusEffect.name + " Resistance + " + statusEffectResistance.resistanceBonus;
+                itemStats.Q<Label>("Damage").text += " / " + statusEffectResistance.statusEffect.name + " " + LocalizedTerms.Resistence() + " + " + statusEffectResistance.resistanceBonus;
             }
 
             itemStats.Q<Label>("Value").text = "";
 
-            itemStats.Q<Label>("Value").text += "Value " + accessory.value;
+            itemStats.Q<Label>("Value").text += LocalizedTerms.Value() + " " + accessory.value;
 
             if (accessory.poiseBonus != 0)
             {
-                itemStats.Q<Label>("Value").text += " / Poise Bonus +" + accessory.poiseBonus;
+                itemStats.Q<Label>("Value").text += " / " + LocalizedTerms.PoiseBonus() + " +" + accessory.poiseBonus;
             }
 
             if (accessory.speedPenalty < 0)
             {
-                itemStats.Q<Label>("Value").text += " / Speed Penalty +" + Mathf.Abs(accessory.speedPenalty).ToString().Replace(",", ".");
+                itemStats.Q<Label>("Value").text += " / " + LocalizedTerms.SpeedPenalty() + " +" + Mathf.Abs(accessory.speedPenalty).ToString().Replace(",", ".");
             }
             else if (accessory.speedPenalty > 0)
             {
-                itemStats.Q<Label>("Value").text += " / Speed Penalty -" + accessory.speedPenalty.ToString().Replace(",", ".");
+                itemStats.Q<Label>("Value").text += " / " +LocalizedTerms.SpeedPenalty() + " -" + accessory.speedPenalty.ToString().Replace(",", ".");
             }
 
 
@@ -742,14 +758,6 @@ namespace AF
 
             itemPreviewElement.style.visibility = Visibility.Visible;
             itemStats.style.visibility = Visibility.Visible;
-        }
-
-        #endregion
-
-        void HideItemInfo()
-        {
-            root.Q<VisualElement>("ItemPreview").style.visibility = Visibility.Hidden;
-            root.Q<VisualElement>("ItemStats").style.visibility = Visibility.Hidden;
         }
 
         void OnUnequipAccessory()
@@ -770,7 +778,7 @@ namespace AF
                 var notificationManager = FindObjectOfType<NotificationManager>(true);
                 if (notificationManager != null)
                 {
-                    notificationManager.ShowNotification(unequipedAccessory.name + " was destroyed by unequiping it.", notificationManager.systemError);
+                    notificationManager.ShowNotification(unequipedAccessory.name.GetText() + " " + LocalizedTerms.WasDestroyedByUnequiping () + ".", notificationManager.systemError);
 
                     if (unequipedAccessory.onUnequipDestroySoundclip != null)
                     {
@@ -778,8 +786,103 @@ namespace AF
                     }
                 }
 
-                SaveSystem.instance.SaveGameData(unequipedAccessory.name + " destroyed");
+                SaveSystem.instance.SaveGameData(unequipedAccessory.name.GetText() + " destroyed");
             }
+        }
+        #endregion
+
+        #region Favorite Items
+        void DrawFavoriteItem (VisualElement itemButton)
+        {
+            itemButton.Q<Label>("Value").text = "(" + LocalizedTerms.Favorited() + ")";
+            itemButton.Q<Label>("Value").style.display = DisplayStyle.Flex;
+            itemButton.Q<VisualElement>("Item").style.opacity = 0.25f;
+        }
+        void DrawUnfavoriteItem(VisualElement itemButton)
+        {
+            itemButton.Q<Label>("Value").text = "";
+            itemButton.Q<VisualElement>("Item").style.opacity = 1;
+        }
+        void DrawConsumableItemsList()
+        {
+            var playerConsumables = playerInventory.GetConsumables();
+            if (playerConsumables.Count > 0)
+            {
+                foreach (var consumable in playerConsumables)
+                {
+                    VisualElement itemButton = equipmentSelectionItem.CloneTree();
+
+                    if (Player.instance.favoriteItems.Contains(consumable))
+                    {
+                        DrawFavoriteItem(itemButton);
+                    }
+                    else
+                    {
+                        DrawUnfavoriteItem(itemButton);
+                    }
+
+                    Button actionButton = itemButton.Q<Button>();
+                    menuManager.SetupButton(actionButton, () =>
+                    {
+                        if (Player.instance.favoriteItems.Contains(consumable))
+                        {
+                            DrawUnfavoriteItem(itemButton);
+                            FindObjectOfType<FavoriteItemsManager>(true).RemoveFavoriteItemFromList(consumable);
+                        }
+                        else
+                        {
+                            DrawFavoriteItem(itemButton);
+                            FindObjectOfType<FavoriteItemsManager>(true).AddFavoriteItemToList(consumable);
+                        }
+
+                        menuManager.PlayClick();
+                    });
+
+                    actionButton.RegisterCallback<FocusInEvent>(ev =>
+                    {
+                        ShowConsumableItemPreview(consumable);
+                    });
+                    actionButton.RegisterCallback<FocusOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    actionButton.RegisterCallback<MouseOverEvent>(ev =>
+                    {
+                        ShowConsumableItemPreview(consumable);
+                    });
+                    actionButton.RegisterCallback<MouseOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    itemButton.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(consumable.sprite);
+                    itemButton.Q<Label>("Name").text = consumable.name.GetText();
+                    
+
+                    this.root.Q<ScrollView>().Add(itemButton);
+                }
+            }
+        }
+
+        void ShowConsumableItemPreview(Consumable consumable)
+        {
+            var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
+            var itemStats = root.Q<VisualElement>("ItemStats");
+
+            itemPreviewElement.Q<Label>("Title").text = consumable.name.GetText();
+            itemPreviewElement.Q<Label>("Description").text = consumable.description.GetText();
+            itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(consumable.sprite);
+
+            itemPreviewElement.style.visibility = Visibility.Visible;
+            itemStats.style.visibility = Visibility.Hidden;
+        }
+        #endregion
+
+        void HideItemInfo()
+        {
+            root.Q<VisualElement>("ItemPreview").style.visibility = Visibility.Hidden;
+            root.Q<VisualElement>("ItemStats").style.visibility = Visibility.Hidden;
         }
 
     }

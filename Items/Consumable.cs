@@ -24,7 +24,7 @@ namespace AF
         public class ConsumableEffect
         {
             public ConsumablePropertyName consumablePropertyName;
-            public string displayName;
+            public LocalizedText displayName;
             public Sprite sprite;
             public Color barColor;
             public float value;

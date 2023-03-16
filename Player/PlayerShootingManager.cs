@@ -52,7 +52,7 @@ namespace AF
 
             if (Player.instance.ownedItems.FirstOrDefault(x => x.item == bow) == null)
             {
-                notificationManager.ShowNotification("Bow required to use this item", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.BowRequired(), notificationManager.systemError);
                 return;
             }
 
@@ -61,7 +61,6 @@ namespace AF
             playerInventory.RemoveItem(consumableProjectile, 1);
 
             animator.Play("Preparing Arrow");
-
 
             if (lockOnManager.nearestLockOnTarget != null)
             {
@@ -84,24 +83,24 @@ namespace AF
         {
             if (playerCombatController.isCombatting)
             {
-                notificationManager.ShowNotification("Can't shoot while attacking", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantShootArrowsAtThisTime(), notificationManager.systemError);
                 return false;
             }
 
             if (playerParryManager.IsBlocking() || playerParryManager.IsParrying())
             {
-                notificationManager.ShowNotification("Can't shoot while blocking", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantShootArrowsAtThisTime(), notificationManager.systemError);
                 return false;
             }
 
             if (dodgeController.IsDodging())
             {
-                notificationManager.ShowNotification("Can't shoot while dodging", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantShootArrowsAtThisTime(), notificationManager.systemError);
                 return false;
             }
             if (climbController.climbState != ClimbController.ClimbState.NONE)
             {
-                notificationManager.ShowNotification("Can't shoot while climbing", notificationManager.systemError);
+                notificationManager.ShowNotification(LocalizedTerms.CantShootArrowsAtThisTime(), notificationManager.systemError);
                 return false;
             }
 

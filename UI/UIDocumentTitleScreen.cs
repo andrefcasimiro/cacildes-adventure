@@ -10,6 +10,7 @@ namespace AF
         public LocalizedText newGameText;
         public LocalizedText loadGameText;
         public LocalizedText playTutorialText;
+        public LocalizedText optionsText;
         public LocalizedText controlsText;
         public LocalizedText creditsText;
         public LocalizedText exitGameText;
@@ -39,6 +40,7 @@ namespace AF
             root.Q<Button>("NewGameButton").text = newGameText.GetText();
             root.Q<Button>("ContinueButton").text = loadGameText.GetText();
             root.Q<Button>("PlayTutorialButton").text = playTutorialText.GetText();
+            root.Q<Button>("OptionsButton").text = optionsText.GetText();
             root.Q<Button>("ControlsButton").text = controlsText.GetText();
             root.Q<Button>("CreditsButton").text = creditsText.GetText();
             root.Q<Button>("ExitButton").text = exitGameText.GetText();
@@ -83,10 +85,10 @@ namespace AF
                     gameObject.SetActive(false);
                 });
             menuManager.SetupButton(
-                root.Q<Button>("ControlsButton"),
+                root.Q<Button>("OptionsButton"),
                 () =>
                 {
-                    FindObjectOfType<UIDocumentTitleScreenControls>(true).gameObject.SetActive(true);
+                    FindObjectOfType<UIDocumentTitleScreenOptions>(true).gameObject.SetActive(true);
                     gameObject.SetActive(false);
                 });
             menuManager.SetupButton(

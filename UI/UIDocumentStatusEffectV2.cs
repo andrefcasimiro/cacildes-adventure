@@ -1,18 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Linq;
-using static AF.Consumable;
 
 namespace AF
 {
 
     public class UIDocumentStatusEffectV2 : MonoBehaviour
     {
-        UIDocument uiDocument => GetComponent<UIDocument>();
-
-        VisualElement root;
 
         public VisualTreeAsset statusEntryPrefab;
 
@@ -21,10 +15,13 @@ namespace AF
 
         DefenseStatManager defenseStatManager;
 
+        UIDocument uiDocument => GetComponent<UIDocument>();
+        VisualElement root;
+
         // Start is called before the first frame update
         void Awake()
         {
-            this.root = uiDocument.rootVisualElement;
+            root = uiDocument.rootVisualElement;
 
             positiveContainer = root.Q<VisualElement>("Positive");
             negativeContainer = root.Q<VisualElement>("Negative");
@@ -38,7 +35,7 @@ namespace AF
             ClearAllNegativeStatusEntry();
             ClearAllConsumableEntries();
 
-            this.defenseStatManager = FindObjectOfType<DefenseStatManager>(true);
+            defenseStatManager = FindObjectOfType<DefenseStatManager>(true);
             foreach (var negativeStatus in Player.instance.appliedStatus)
             {
                 AddNegativeStatusEntry(negativeStatus.statusEffect, defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(negativeStatus.statusEffect));
@@ -74,13 +71,14 @@ namespace AF
         #region Negative Status Effect
         public void AddNegativeStatusEntry(StatusEffect statusEffect, float maxAmountBeforeDamage)
         {
-            if (negativeContainer.Children().Any(x => x.name == statusEffect.name))
+            if (negativeContainer.Children().Any(x => x.name == statusEffect.name.GetText()))
             {
                 return;
             }
 
             VisualElement clone = statusEntryPrefab.CloneTree();
-            clone.name = statusEffect.name;
+            clone.name = statusEffect.name.GetText();
+            clone.viewDataKey = statusEffect.name.GetEnglishText();
             clone.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(statusEffect.spriteIndicator);
             clone.Q<Label>("AppliedStatusLabel").text = "";
             clone.Q<VisualElement>("Bar").style.width = new Length(maxAmountBeforeDamage, LengthUnit.Pixel);
@@ -91,7 +89,7 @@ namespace AF
 
         void HandleNegativeStatusEffects(VisualElement statusEntry)
         {
-            var appliedStatus = Player.instance.appliedStatus.Find(x => x.statusEffect.name == statusEntry.name);
+            var appliedStatus = Player.instance.appliedStatus.Find(x => x.statusEffect.name.GetEnglishText() == statusEntry.viewDataKey);
 
             float percentage = appliedStatus.currentAmount * 100 / statusEntry.Q<VisualElement>("Bar").style.width.value.value; //100px is the width of the status bar
 
@@ -101,7 +99,7 @@ namespace AF
             statusEntry.Q<VisualElement>("BarFill").style.width = new Length(percentage, LengthUnit.Percent);
 
             var appliedStatusLabel = statusEntry.Q<Label>("AppliedStatusLabel");
-            appliedStatusLabel.text = appliedStatus.hasReachedTotalAmount ? appliedStatus.statusEffect.appliedStatusDisplayName : "";
+            appliedStatusLabel.text = appliedStatus.hasReachedTotalAmount ? appliedStatus.statusEffect.appliedStatusDisplayName.GetText() : "";
 
             if (appliedStatus.currentAmount <= 0)
             {
@@ -110,7 +108,7 @@ namespace AF
         }
         public void RemoveNegativeStatusEntry(StatusEffect statusEffect)
         {
-            VisualElement targetToRemove = negativeContainer.Children().FirstOrDefault(x => x.name == statusEffect.name);
+            VisualElement targetToRemove = negativeContainer.Children().FirstOrDefault(x => x.name == statusEffect.name.GetText());
             if (targetToRemove == null)
             {
                 return;
@@ -135,6 +133,7 @@ namespace AF
 
             VisualElement clone = statusEntryPrefab.CloneTree();
             clone.name = consumableEffect.consumablePropertyName.ToString();
+            clone.viewDataKey = consumableEffect.consumablePropertyName.ToString();
             clone.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(consumableEffect.sprite);
             clone.Q<Label>("AppliedStatusLabel").text = "";
             clone.Q<VisualElement>("BarFill").style.backgroundColor = consumableEffect.barColor;
@@ -144,14 +143,14 @@ namespace AF
 
         void HandleConsumableEffects(VisualElement statusEntry)
         {
-            var appliedConsumable = Player.instance.appliedConsumables.Find(x => x.consumableEffect.consumablePropertyName.ToString() == statusEntry.name);
+            var appliedConsumable = Player.instance.appliedConsumables.Find(x => x.consumableEffect.consumablePropertyName.ToString() == statusEntry.viewDataKey);
 
             statusEntry.Q<VisualElement>("Bar").style.width = appliedConsumable.currentDuration;
 
             statusEntry.Q<VisualElement>("BarFill").style.width = new StyleLength(new Length(100, LengthUnit.Percent));
 
             var appliedStatusLabel = statusEntry.Q<Label>("AppliedStatusLabel");
-            appliedStatusLabel.text = appliedConsumable.consumableEffect.displayName;
+            appliedStatusLabel.text = appliedConsumable.consumableEffect.displayName.GetText();
 
             if (appliedConsumable.currentDuration <= 0)
             {
@@ -176,5 +175,4 @@ namespace AF
         }
         #endregion
     }
-
 }

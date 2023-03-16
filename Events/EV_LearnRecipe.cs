@@ -24,7 +24,7 @@ namespace AF
                 Soundbank.instance.PlayItemReceived();
 
                 var notf = FindObjectOfType<NotificationManager>(true);
-                notf.ShowNotification(LocalizedTerms.LearnedRecipe() + recipe.name, notf.recipeIcon);
+                notf.ShowNotification(LocalizedTerms.LearnedRecipe() + recipe.name.GetText(), notf.recipeIcon);
             }
 
             yield return null;

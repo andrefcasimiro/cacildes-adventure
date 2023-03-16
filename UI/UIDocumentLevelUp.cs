@@ -176,7 +176,7 @@ namespace AF
                 if (oldLevel != newLevel)
                 {
                     BGMManager.instance.PlaySound(levelUpSound, null);
-                    notificationManager.ShowNotification("Cacildes leveled up!", notificationManager.levelUp);
+                    notificationManager.ShowNotification(LocalizedTerms.CacildesLeveledUp(), notificationManager.levelUp);
                 }
 
                 DrawUI(root);

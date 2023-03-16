@@ -13,12 +13,6 @@ namespace AF
         {
             animator.gameObject.TryGetComponent(out enemy);
 
-            var deathCollider = animator.gameObject.GetComponentInChildren<DeathColliderRef>();
-            if (deathCollider != null)
-            {
-                deathCollider.GetComponent<BoxCollider>().enabled = true;
-            }
-
             if (enemy == null)
             {
                 enemy = animator.GetComponentInParent<EnemyManager>(true);
@@ -26,14 +20,22 @@ namespace AF
 
             enemy.GetComponent<Rigidbody>().isKinematic = turnKinematic;
 
-            var capsuleColliders = enemy.GetComponents<CapsuleCollider>();
-            foreach (var capsuleCollider in capsuleColliders)
+            if (disableCapsuleCollider)
             {
-                capsuleCollider.enabled = false;
+                var capsuleColliders = enemy.GetComponents<CapsuleCollider>();
+                foreach (var capsuleCollider in capsuleColliders)
+                {
+                    capsuleCollider.enabled = false;
+                }
+            }
+
+            var deathCollider = animator.gameObject.GetComponentInChildren<DeathColliderRef>();
+            if (deathCollider != null)
+            {
+                deathCollider.GetComponent<BoxCollider>().enabled = true;
             }
 
             enemy.enemyHealthController.DisableHealthHitboxes();
-
             enemy.enemyHealthController.onEnemyDeath.Invoke();
 
             enemy.agent.enabled = false;

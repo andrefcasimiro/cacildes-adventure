@@ -330,11 +330,6 @@ namespace AF
                 }
 
                 enemyBossController.HideBossHud();
-
-                if (enemyBossController.updateSwitchOnKill == false)
-                {
-                    SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(enemyBossController.bossSwitchEntry, true);
-                }
             }
 
 
@@ -396,11 +391,17 @@ namespace AF
 
             yield return DisengageLockOn();
 
-
-            // Update switch with refresh must be at the very last part of all the die flow
-            if (enemyBossController != null && enemyBossController.updateSwitchOnKill == false)
+            // Update switch must be at the very last part of all the die flow
+            if (enemyBossController != null && enemyBossController.bossSwitchEntry != null)
             {
-                SwitchManager.instance.UpdateSwitch(enemyBossController.bossSwitchEntry, true);
+                if (enemyBossController.refreshEventsUponSwitchActivation == false)
+                {
+                    SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(enemyBossController.bossSwitchEntry, true);
+                }
+                else
+                {
+                    SwitchManager.instance.UpdateSwitch(enemyBossController.bossSwitchEntry, true);
+                }
             }
         }
 
