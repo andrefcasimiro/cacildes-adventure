@@ -12,6 +12,7 @@ namespace AF
 
         [Header("Message")]
         public LocalizedText message;
+        public LocalizedText[] randomMessages;
 
         [Header("Choices")]
         public List<DialogueChoice> choices = new List<DialogueChoice>();
@@ -90,8 +91,15 @@ namespace AF
                     animator.CrossFade(animationClip, 0.2f);
                 }
 
+                var displayMessage = message;
+                if (randomMessages.Length > 0)
+                {
+                    var idx = Random.Range(0, randomMessages.Length - 1);
+                    displayMessage = randomMessages[idx];
+                }
+
                 yield return dialogueManager.ShowDialogueWithChoices(
-                    character, message, choices, textDelay, showHint);
+                    character, displayMessage, choices, textDelay, showHint);
 
 
                 if (!string.IsNullOrEmpty(animationClip))

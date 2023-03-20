@@ -24,7 +24,7 @@ namespace AF
             if (dice < 50)
             {
                 // Interrupt combo
-                enemy.animator.CrossFade(enemy.hashWaiting, 0.15f);
+                enemy.animator.Play(enemy.hashWaiting);
             }
         }
 

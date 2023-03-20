@@ -11,7 +11,6 @@ namespace AF
         public readonly int hashEating = Animator.StringToHash("Eating");
         public readonly int hashIsConsumingItem = Animator.StringToHash("IsConsumingItem");
 
-
         FavoriteItemsManager favoriteItemsManager => GetComponent<FavoriteItemsManager>();
 
         public Consumable currentConsumedItem;

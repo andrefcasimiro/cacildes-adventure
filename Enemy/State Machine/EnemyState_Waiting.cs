@@ -28,7 +28,7 @@ namespace AF
 
             if (enemy.canFall)
             {
-                if (enemy.IsGrounded())
+                if (enemy.IsGrounded() != null)
                 {
                     if (enemy.agent.updatePosition == false)
                     {
@@ -51,11 +51,11 @@ namespace AF
                     float randomDir = Random.Range(0, 1);
                     if (randomDir < 0.5)
                     {
-                        animator.CrossFade(enemy.enemyCombatController.circleAroundRightAnimation, 0.1f);
+                        animator.Play(enemy.enemyCombatController.circleAroundRightAnimation);
                     }
                     else
                     {
-                        animator.CrossFade(enemy.enemyCombatController.circleAroundLeftAnimation, 0.1f);
+                        animator.Play(enemy.enemyCombatController.circleAroundLeftAnimation);
                     }
 
                     return;

@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Collections;
-using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
-using System.Runtime.CompilerServices;
-using UnityEditor;
 
 namespace AF
 {

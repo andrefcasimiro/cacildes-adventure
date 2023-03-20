@@ -1123,6 +1123,7 @@ namespace AF
             this.frostDefenseBonus = 0;
             this.lightningDefenseBonus = 0;
 
+            var initialReputation = 0;
             this.reputationBonus = 0;
 
             if (Player.instance.equippedHelmet != null)
@@ -1179,6 +1180,13 @@ namespace AF
                 this.frostDefenseBonus += Player.instance.equippedAccessory.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedAccessory.lightningDefense;
                 this.reputationBonus += Player.instance.equippedAccessory.reputationBonus;
+            }
+
+            // Reputation has changed?
+            if (initialReputation != this.reputationBonus)
+            {
+                // Reevaluate behavior
+                FactionManager.instance.ReevaluateAllEnemiesInScene();
             }
 
         }

@@ -241,15 +241,14 @@ namespace AF
             return false;
         }
 
-        public bool IsGrounded()
+        public Transform IsGrounded()
         {
 
             RaycastHit hit;
             Physics.Raycast(transform.position + new Vector3(0, 0.1f, 0), animator.transform.up * -1f, out hit, 2f);
             // Debug.DrawRay(transform.position + new Vector3(0, 0.1f, 0), animator.transform.up * -1f, Color.red);
 
-
-            return hit.transform != null;
+            return hit.transform;
         }
 
         public bool IsNavMeshAgentActive()

@@ -18,6 +18,33 @@ namespace AF
             };
         }
 
+        public static string ExitShop()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Sair da loja",
+                _ => "Exit Shop",
+            };
+        }
+
+        public static string Buy()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Comprar",
+                _ => "Buy",
+            };
+        }
+
+        public static string Sell()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Vender",
+                _ => "Sell",
+            };
+        }
+
         public static string PickupItem()
         {
             return GamePreferences.instance.gameLanguage switch
@@ -215,6 +242,24 @@ namespace AF
             {
                 GamePreferences.GameLanguage.PORTUGUESE => "Ouro",
                 _ => "Gold",
+            };
+        }
+
+        public static string YourCurrentGold()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Dinheiro Atual",
+                _ => "Your Gold",
+            };
+        }
+
+        public static string Coins()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Moedas",
+                _ => "Coins",
             };
         }
 

@@ -19,11 +19,13 @@ namespace AF
         TitleScreenManager titleScreenManager => GetComponentInParent<TitleScreenManager>();
         MenuManager menuManager;
 
+
         private void Awake()
         {
             Utils.ShowCursor();
 
             menuManager = FindObjectOfType<MenuManager>(true);
+
         }
 
         private void Start()
@@ -34,8 +36,12 @@ namespace AF
             }
         }
 
-        void TranslateText(VisualElement root)
+        private void OnEnable()
         {
+            var root = document.rootVisualElement;
+
+            root.Q<Label>("Version").text = Application.version;
+
             root.Q<Label>("GameTitle").text = gameTitle.GetText();
             root.Q<Button>("NewGameButton").text = newGameText.GetText();
             root.Q<Button>("ContinueButton").text = loadGameText.GetText();
@@ -44,15 +50,6 @@ namespace AF
             root.Q<Button>("ControlsButton").text = controlsText.GetText();
             root.Q<Button>("CreditsButton").text = creditsText.GetText();
             root.Q<Button>("ExitButton").text = exitGameText.GetText();
-        }
-
-        private void OnEnable()
-        {
-            var root = document.rootVisualElement;
-
-            root.Q<Label>("Version").text = Application.version;
-
-            TranslateText(root);
 
             menuManager.SetupButton(
                 root.Q<Button>("NewGameButton"),
@@ -108,7 +105,7 @@ namespace AF
                 root.Q<Button>("btnBlogger"),
                 () =>
                 {
-                    Application.OpenURL("https://cacildesadventure.blogspot.com/");
+                    Application.OpenURL("https://rmvxace.blogspot.com/");
                 });
             menuManager.SetupButton(
                 root.Q<Button>("btnItchio"),
@@ -122,6 +119,7 @@ namespace AF
                 {
                     Application.OpenURL("https://twitter.com/CacildesGame");
                 });
+
         }
     }
 }

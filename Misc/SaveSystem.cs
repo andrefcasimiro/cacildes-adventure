@@ -275,9 +275,39 @@ namespace AF
 
             gameData.lostCoins = LostCoinsManager.instance.lostCoins;
 
-
             // Save companions
             gameData.companions = Player.instance.companions.ToArray();
+
+            // Save factions
+            List<SerializableFaction> factionsToSave = new();
+            foreach (var factionEntry in FactionManager.instance.factionEntriesDictionary)
+            {
+                factionsToSave.Add(new(){  factionName = factionEntry.Key, playerReputationWithinFaction = factionEntry.Value.currentPlayerAffinityWithFaction });
+            }
+            gameData.factions = factionsToSave.ToArray();
+
+
+            // Save shops
+            List<SerializableShops> shopsToSave = new();
+            foreach (var shopEntry in ShopManager.instance.characterShopInstances)
+            {
+                SerializableShopItem[] itemsBoughtFromPlayer = shopEntry.boughtItemsFromPlayer.Select(item => {
+                    return new SerializableShopItem() { itemName = item.item.name.GetEnglishText(), itemCount = item.quantity, priceModifier = item.priceModifier };
+                }).ToArray();
+
+                SerializableShopItem[] stockItems = shopEntry.itemStock.Select(item => {
+                    return new SerializableShopItem() { itemName = item.item.name.GetEnglishText(), itemCount = item.quantity, priceModifier = item.priceModifier };
+                }).ToArray();
+
+                shopsToSave.Add(new()
+                {
+                    shopName = shopEntry.name,
+                    dayThatTradingBegan = shopEntry.dayThatTradingBegan,
+                    itemsBoughtFromPlayer = itemsBoughtFromPlayer,
+                    stockItems = stockItems,
+                });
+            }
+            gameData.shops = shopsToSave.ToArray();
 
             Save(gameData, saveGameName);
         }
@@ -472,6 +502,22 @@ namespace AF
     }
 
     [System.Serializable]
+    public class SerializableFaction
+    {
+        public string factionName;
+        public int playerReputationWithinFaction;
+    }
+
+    [System.Serializable]
+    public class SerializableShops
+    {
+        public string shopName;
+        public int dayThatTradingBegan;
+        public SerializableShopItem[] stockItems;
+        public SerializableShopItem[] itemsBoughtFromPlayer;
+    }
+
+    [System.Serializable]
     public class GameData
     {
         public bool isQuickSave;
@@ -513,6 +559,10 @@ namespace AF
         public string currentObjective;
 
         public SerializedCompanion[] companions;
+
+        public SerializableFaction[] factions;
+
+        public SerializableShops[] shops;
     }
 
     [System.Serializable]
@@ -569,6 +619,14 @@ namespace AF
     {
         public string itemName;
         public int itemCount;
+    }
+
+    [System.Serializable]
+    public class SerializableShopItem
+    {
+        public string itemName;
+        public int itemCount;
+        public int priceModifier;
     }
 
     [System.Serializable]

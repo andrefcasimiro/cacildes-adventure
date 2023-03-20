@@ -27,7 +27,11 @@ namespace AF
             enemy.rigidbody.isKinematic = false;
             enemy.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
 
-            if (enemy.IsGrounded())
+            Transform objectEnemyIsOn = enemy.IsGrounded();
+            if (
+                objectEnemyIsOn != null
+                && !objectEnemyIsOn.CompareTag("Water")
+            )
             {
                 enemy.ReenableNavmesh();
             }

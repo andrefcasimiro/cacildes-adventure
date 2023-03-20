@@ -7,6 +7,10 @@ namespace AF
     {
         EnemyManager enemy;
 
+        public float walkSpeed = -1;
+
+        float originalSpeed;
+
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
 
@@ -30,6 +34,12 @@ namespace AF
             }
 
             enemy.enemyPatrolController.GotoNextPoint();
+
+            if (walkSpeed > 0)
+            {
+                originalSpeed = enemy.agent.speed;
+                enemy.agent.speed = walkSpeed;
+            }
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -56,6 +66,14 @@ namespace AF
             if (!enemy.agent.pathPending && enemy.agent.remainingDistance < enemy.agent.stoppingDistance + 0.5f)
             {
                 animator.SetBool(enemy.hashPatrol, false);
+            }
+        }
+
+        public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        {
+            if (walkSpeed != 0 && originalSpeed != 0)
+            {
+                enemy.agent.speed = originalSpeed;
             }
         }
     }

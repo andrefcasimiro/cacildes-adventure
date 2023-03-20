@@ -72,6 +72,8 @@ namespace AF
             {
                 Utils.HideCursor();
             }
+
+            GamePreferences.instance.UpdateGraphics();
         }
 
         #region Scene Music & Ambience

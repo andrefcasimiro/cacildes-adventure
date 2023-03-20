@@ -82,24 +82,6 @@ namespace AF
                 cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.item.sprite);
                 cloneButton.Q<Label>("ItemName").text = item.item.name.GetText() + " ( " + item.amount + " )";
 
-
-
-                var consumable = item.item as Consumable;
-
-                var useButton = cloneButton.Q<Button>("UseButton");
-                useButton.text = LocalizedTerms.UseItem();
-                useButton.style.display = consumable != null ? DisplayStyle.Flex : DisplayStyle.None;
-                if (consumable != null)
-                {
-                    menuManager.SetupButton(useButton, () =>
-                    {
-
-                        consumable.OnConsume();
-
-                        UpdateItemsList();
-                    });
-                }
-
                 cloneButton.RegisterCallback<PointerOverEvent>(ev =>
                 {
                     root.Q<ScrollView>().ScrollTo(cloneButton);

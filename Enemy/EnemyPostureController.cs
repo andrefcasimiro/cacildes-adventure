@@ -37,6 +37,11 @@ namespace AF
 
         void UpdatePosture()
         {
+            if (enemyManager.enemyHealthController.currentHealth <= 0)
+            {
+                return;
+            }
+
             if (postureBarSlider != null)
             {
                 postureBarSlider.value = currentPostureDamage * 0.01f;
@@ -61,7 +66,7 @@ namespace AF
             }
             else
             {
-                enemyManager.animator.CrossFade(enemyManager.hashPostureHit, 0.05f);
+                enemyManager.animator.Play(enemyManager.hashPostureHit);
             }
         }
 
@@ -70,7 +75,7 @@ namespace AF
             currentPostureDamage = 0f;
 
             stunnedParticle.gameObject.SetActive(true);
-            enemyManager.animator.CrossFade(enemyManager.hashPostureBreak, 0.05f);
+            enemyManager.animator.Play(enemyManager.hashPostureBreak);
         }
 
         public void RecoverPosture()

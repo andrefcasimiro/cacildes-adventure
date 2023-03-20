@@ -11,6 +11,11 @@ namespace AF
         {
             var evs = subEvents.GetComponents<EventBase>();
 
+            if (evs.Length <= 0)
+            {
+                evs = subEvents.GetComponentsInChildren<EventBase>();
+            }
+
             if (evs.Length > 0)
             {
                 foreach (EventBase subEvent in evs)
@@ -18,6 +23,7 @@ namespace AF
                     yield return subEvent.Dispatch();
                 }
             }
+
         }
     }
 }

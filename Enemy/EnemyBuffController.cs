@@ -146,12 +146,12 @@ namespace AF
                 enemyManager.facePlayer = true;
             }
 
-            if (buff.stopMovementWhileCasting)
+            if (buff.stopMovementWhileCasting && enemyManager.agent.isActiveAndEnabled)
             {
                 enemyManager.agent.isStopped = true;
             }
 
-            enemyManager.animator.CrossFade(buff.animationStartName, 0.1f);
+            enemyManager.animator.Play(buff.animationStartName);
 
             buff.onBuffEventStart.Invoke();
 

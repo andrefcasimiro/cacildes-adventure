@@ -18,14 +18,25 @@ namespace AF
         public GameObject areaOfImpactFX;
         public Transform areaOfImpactTransform;
 
+        [Header("Options")]
+        public bool hideWeaponsOnStart = false;
+
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
         // Start is called before the first frame update
         void Start()
         {
-            DisableAllWeaponHitboxes();
 
-            ShowWeapons();
+            if (hideWeaponsOnStart)
+            {
+                HideWeapons();
+            }
+            else
+            {
+                ShowWeapons();
+            }
+
+            DisableAllWeaponHitboxes();
         }
 
         public void ShowWeapons()
@@ -73,6 +84,8 @@ namespace AF
             }
 
             leftHandWeapon.EnableHitbox();
+
+            HandleWeaponBonus(leftHandWeapon, true);
         }
         public void DeactivateLeftHandHitbox()
         {
@@ -82,6 +95,8 @@ namespace AF
             }
 
             leftHandWeapon.DisableHitbox();
+
+            HandleWeaponBonus(leftHandWeapon, false);
         }
 
         public void ActivateRightHandHitbox()
@@ -92,6 +107,8 @@ namespace AF
             }
 
             rightHandWeapon.EnableHitbox();
+
+            HandleWeaponBonus(rightHandWeapon, true);
         }
 
         public void DeactivateRightHandHitbox()
@@ -102,6 +119,8 @@ namespace AF
             }
 
             rightHandWeapon.DisableHitbox();
+
+            HandleWeaponBonus(rightHandWeapon, false);
         }
 
         public void ActivateRightLegHitbox()
@@ -112,6 +131,7 @@ namespace AF
             }
 
             rightLegWeapon.EnableHitbox();
+            HandleWeaponBonus(rightLegWeapon, true);
         }
 
         public void DeactivateRightLegHitbox()
@@ -122,6 +142,7 @@ namespace AF
             }
 
             rightLegWeapon.DisableHitbox();
+            HandleWeaponBonus(rightLegWeapon, false);
         }
 
         public void ActivateLeftLegHitbox()
@@ -132,6 +153,7 @@ namespace AF
             }
 
             leftLegWeapon.EnableHitbox();
+            HandleWeaponBonus(leftLegWeapon, true);
         }
 
         public void DeactivateLeftLegHitbox()
@@ -142,6 +164,7 @@ namespace AF
             }
 
             leftLegWeapon.DisableHitbox();
+            HandleWeaponBonus(leftLegWeapon, false);
         }
 
         public void ActivateHeadHitbox()
@@ -152,6 +175,7 @@ namespace AF
             }
 
             headWeapon.EnableHitbox();
+            HandleWeaponBonus(headWeapon, true);
         }
 
         public void DeactivateHeadHitbox()
@@ -162,6 +186,7 @@ namespace AF
             }
 
             headWeapon.DisableHitbox();
+            HandleWeaponBonus(headWeapon, false);
         }
 
         public void ActivateAreaOfImpactHitbox()
@@ -177,6 +202,7 @@ namespace AF
             }
 
             areaOfImpactWeapon.EnableHitbox();
+            HandleWeaponBonus(areaOfImpactWeapon, true);
         }
 
         public void DeactivateAreaOfImpactHitbox()
@@ -187,8 +213,34 @@ namespace AF
             }
 
             areaOfImpactWeapon.DisableHitbox();
+            HandleWeaponBonus(areaOfImpactWeapon, false);
         }
         #endregion
+
+
+        public void HandleWeaponBonus(EnemyWeaponHitbox weapon, bool isAttacking)
+        {
+            if (weapon.poiseDamage != 0)
+            {
+                enemyManager.enemyCombatController.currentAttackPoiseDamage = isAttacking
+                        ? enemyManager.enemyCombatController.currentAttackPoiseDamage + weapon.poiseDamage
+                        : enemyManager.enemyCombatController.currentAttackPoiseDamage - weapon.poiseDamage;
+            }
+
+            if (weapon.statusEffect != null && weapon.statusEffectAmountPerHit != 0)
+            {
+                enemyManager.enemyCombatController.weaponStatusEffect = isAttacking ? weapon.statusEffect : null;
+                enemyManager.enemyCombatController.statusEffectAmount = isAttacking
+                        ? enemyManager.enemyCombatController.statusEffectAmount + weapon.statusEffectAmountPerHit
+                        : enemyManager.enemyCombatController.statusEffectAmount - weapon.statusEffectAmountPerHit;
+            }
+            if (weapon.blockStaminaCost != 0)
+            {
+                enemyManager.enemyCombatController.bonusBlockStaminaCost = isAttacking
+                        ? enemyManager.enemyCombatController.bonusBlockStaminaCost + weapon.blockStaminaCost
+                        : enemyManager.enemyCombatController.bonusBlockStaminaCost - weapon.blockStaminaCost;
+            }
+        }
 
     }
 }

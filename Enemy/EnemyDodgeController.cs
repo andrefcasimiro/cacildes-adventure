@@ -66,38 +66,23 @@ namespace AF
 
                 if (playerIsOnTheLeft)
                 {
-                    NavMeshPath navMeshPath = new NavMeshPath();
-                    var Target = transform.position + transform.right * dodgeDistanceBasedOnAnimations;
-                    var canReach = enemyManager.agent.CalculatePath(Target, navMeshPath) && navMeshPath.status == NavMeshPathStatus.PathComplete;
-                    if (canReach)
-                    {
-                        // When dodging, disable agent because it will interfer with root motion logic and produce weird dodge movementsF
-                        enemyManager.agent.enabled = false;
-                        LookAtPlayer();
-                        enemyManager.facePlayer = false;
-                        enemyManager.enemyHealthController.DisableHealthHitboxes();
-                        enemyManager.animator.CrossFade(enemyManager.hashDodgeRight, 0.1f);
-                        return;
-                    }
+                    // When dodging, disable agent because it will interfer with root motion logic and produce weird dodge movementsF
+                    enemyManager.agent.enabled = false;
+                    LookAtPlayer();
+                    enemyManager.facePlayer = false;
+                    enemyManager.enemyHealthController.DisableHealthHitboxes();
+                    enemyManager.animator.CrossFade(enemyManager.hashDodgeRight, 0.1f);
                 }
                 else
                 {
-                    NavMeshPath navMeshPath = new NavMeshPath();
-                    var Target = transform.position + transform.right * -dodgeDistanceBasedOnAnimations;
-                    var canReach = enemyManager.agent.CalculatePath(Target, navMeshPath) && navMeshPath.status == NavMeshPathStatus.PathComplete;
+                    // When dodging, disable agent because it will interfer with root motion logic and produce weird dodge movementsF
+                    enemyManager.agent.enabled = false;
 
-                    if (canReach)
-                    {
-                        // When dodging, disable agent because it will interfer with root motion logic and produce weird dodge movementsF
-                        enemyManager.agent.enabled = false;
-
-                        LookAtPlayer();
-                        // Face playerManager first
-                        enemyManager.facePlayer = false;
-                        enemyManager.enemyHealthController.DisableHealthHitboxes();
-                        enemyManager.animator.CrossFade(enemyManager.hashDodgeLeft, 0.1f);
-                        return;
-                    }
+                    LookAtPlayer();
+                    // Face playerManager first
+                    enemyManager.facePlayer = false;
+                    enemyManager.enemyHealthController.DisableHealthHitboxes();
+                    enemyManager.animator.CrossFade(enemyManager.hashDodgeLeft, 0.1f);
                 }
 
                 return;

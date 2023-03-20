@@ -594,6 +594,10 @@ namespace AF
             {
                 itemStats.Q<Label>("Bonus").text += " / " + LocalizedTerms.SpeedPenalty() + " -" + armor.speedPenalty.ToString().Replace(",", ".");
             }
+            if (armor.reputationBonus != 0)
+            {
+                itemStats.Q<Label>("Bonus").text += " / " + LocalizedTerms.Reputation() + " " + (armor.reputationBonus > 0 ? "+" : "") + armor.reputationBonus.ToString();
+            }
 
             if (itemStats.Q<Label>("Bonus").text.Length <= 0)
             {

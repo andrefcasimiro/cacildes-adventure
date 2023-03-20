@@ -4,7 +4,6 @@ namespace AF
 {
     public class EnemyBehaviorController : MonoBehaviour
     {
-
         [Header("Behaviour")]
         public bool isAgressive = true;
         public bool becomeAgressiveOnAttacked = true;
@@ -14,7 +13,7 @@ namespace AF
         public bool switchUuidValueToBecomeAgressive = true;
 
         [Header("Agressive By Faction")]
-        public Faction enemyFaction;
+        public FactionName faction = FactionName.NONE;
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
@@ -23,9 +22,10 @@ namespace AF
             EvaluateIfAgressive();
         }
 
-        void EvaluateIfAgressive()
+        public void EvaluateIfAgressive()
         {
-            if (isAgressive)
+            // If doesn't belong to faction, just use the default value of isAgressive
+            if (faction == FactionName.NONE)
             {
                 return;
             }
@@ -38,21 +38,33 @@ namespace AF
                     TurnAgressive();
                 }
             }
+
+            if (FactionManager.instance.IsFriendlyTowardsPlayer(faction))
+            {
+                TurnFriendly();
+            }
+            else
+            {
+                TurnAgressive();
+            }
+
+        }
+
+        void TurnFriendly()
+        {
+            isAgressive = false;
         }
 
         public void TurnAgressive()
         {
             isAgressive = true;
 
-            enemyManager.enemyHealthController.healthBarSlider.gameObject.SetActive(true);
-
-            /*var eventKeyPrompt = FindObjectOfType<UIDocumentEventKeyPrompt>(true);
-            if (eventKeyPrompt.eventUuid == this.gameObject.name)
+            if (faction != FactionName.NONE && FactionManager.instance.IsFriendlyTowardsPlayer(faction))
             {
-                eventKeyPrompt.gameObject.SetActive(false);
-            }*/
+                FactionManager.instance.SetFactionAffinity(faction, -1);
+            }
+
+            enemyManager.enemyHealthController.healthBarSlider.gameObject.SetActive(true);
         }
-
     }
-
 }

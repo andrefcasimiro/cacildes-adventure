@@ -124,6 +124,11 @@ namespace AF
                 return false;
             }
 
+            if (FindObjectOfType<UIDocumentShopMenu>())
+            {
+                return false;
+            }
+
             return true;
         }
 

@@ -77,7 +77,7 @@ namespace AF
 
         public void PrepareProjectile()
         {
-            enemyManager.animator.CrossFade(enemyManager.hashShooting, 0.15f);
+            enemyManager.animator.Play(enemyManager.hashShooting);
             projectileCooldown = 0f;
         }
 

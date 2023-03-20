@@ -54,7 +54,7 @@ namespace AF
 
         public void IncreasePoiseDamage(int poiseDamage)
         {
-            currentPoiseHitCount += poiseDamage + 1;
+            currentPoiseHitCount += Mathf.Abs(poiseDamage) + 1;
 
             if (climbController.climbState != ClimbController.ClimbState.NONE)
             {

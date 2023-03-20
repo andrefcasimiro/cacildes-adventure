@@ -20,6 +20,7 @@ namespace AF
             SLEPBONE_BOAT = 4,
             BEAR_CAVERN = 5,
             TUTORIAL = 6,
+            MOUNTAINPASS = 7
         }
 
         private void Awake()

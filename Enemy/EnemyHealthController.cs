@@ -57,13 +57,6 @@ namespace AF
             this.currentHealth = GetMaxHealth();
         }
 
-        public void ShowHUD()
-        {
-            healthBarSlider.transform.GetChild(0).gameObject.SetActive(true);
-            healthBarSlider.transform.GetChild(1).gameObject.SetActive(true);
-            healthBarSlider.transform.GetChild(2).gameObject.SetActive(true);
-        }
-
         public void HideHUD()
         {
             healthBarSlider.transform.GetChild(0).gameObject.SetActive(false);
@@ -76,24 +69,22 @@ namespace AF
             if (enemyManager.agent == false && healthBarSlider.isActiveAndEnabled)
             {
                 healthBarSlider.gameObject.SetActive(false);
+                return;
             }
-            else
+
+            if (enemyBossController != null)
             {
-                // Is Regular Enemy
-                if (enemyBossController == null)
-                {
-                    if (healthBarSlider != null)
-                    {
-                        healthBarSlider.enabled = true;
-                        healthBarSlider.maxValue = GetMaxHealth() * 0.01f;
-                        healthBarSlider.value = currentHealth * 0.01f;
-                    }
-                }
-                else // Is Boss
-                {
-                    var percentage = currentHealth * 100 / GetMaxHealth();
-                    enemyBossController.UpdateBossHUDHealthPercentage(percentage);
-                }
+                // Boss
+                var percentage = currentHealth * 100 / GetMaxHealth();
+                enemyBossController.UpdateBossHUDHealthPercentage(percentage);
+                return;
+            }
+
+            if (healthBarSlider != null)
+            {
+                healthBarSlider.enabled = true;
+                healthBarSlider.maxValue = GetMaxHealth() * 0.01f;
+                healthBarSlider.value = currentHealth * 0.01f;
             }
         }
 
@@ -121,7 +112,7 @@ namespace AF
             this.currentHealth = Mathf.Clamp(currentHealth - damage, 0f, GetMaxHealth());
 
 
-            if (damageFloatingText != null && damage != Mathf.Infinity)
+            if (damageFloatingText != null && damage != Mathf.Infinity && damage != 9999999)
             {
                 damageFloatingText.Show(damage);
             }
@@ -378,7 +369,6 @@ namespace AF
                     companion.StopCombat();
                 }
             }
-
 
             foreach (var colliderToDisableOnDeath in collidersToDisableOnDeath)
             {

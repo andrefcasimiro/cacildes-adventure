@@ -37,7 +37,7 @@ public class EnemyState_Strafing : StateMachineBehaviour
             float randomDice = Random.Range(0, 1f);
             if (randomDice > 0.5f)
             {
-                animator.CrossFade(enemyManager.hashCombatting, 0.05f);
+                animator.Play(enemyManager.hashCombatting);
             }
         }
     }

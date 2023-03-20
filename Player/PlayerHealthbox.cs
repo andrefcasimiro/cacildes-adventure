@@ -152,9 +152,12 @@ namespace AF
                 return;
             }
 
-            if (enemy != null && enemy.enemyCombatController.weaponStatusEffect != null)
+            if (enemy != null)
             {
-                playerStatusManager.InflictStatusEffect(enemy.enemyCombatController.weaponStatusEffect, enemy.enemyCombatController.statusEffectAmount, false);
+                if (enemy.enemyCombatController.weaponStatusEffect != null)
+                {
+                    playerStatusManager.InflictStatusEffect(enemy.enemyCombatController.weaponStatusEffect, enemy.enemyCombatController.statusEffectAmount, false);
+                }
             }
 
             healthStatManager.SubtractAmount(damage);

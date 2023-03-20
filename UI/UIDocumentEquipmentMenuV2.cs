@@ -67,7 +67,7 @@ namespace AF
                     "HP " + healthStatManager.GetMaxHealth()
                     + " / Stamina " + staminaStatManager.GetMaxStamina()
                     + " / " + LocalizedTerms.Poise() + " " + playerPoiseController.GetMaxPoise()
-                    + " / " + LocalizedTerms.Reputation() + " " + player.currentReputation
+                    + " / " + LocalizedTerms.Reputation() + " " + player.GetCurrentReputation()
                     + " / " + LocalizedTerms.Gold() + " " + player.currentGold;
 
             // Weapon

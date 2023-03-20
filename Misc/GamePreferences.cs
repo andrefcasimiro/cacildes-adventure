@@ -35,12 +35,14 @@ namespace AF
             {
                 instance = this;
             }
+
+            InitializeGameLanguage();
+
         }
 
         private void Start()
         {
             InitializeGraphicsQuality();
-            InitializeGameLanguage();
         }
         
         void InitializeGraphicsQuality()
@@ -52,19 +54,21 @@ namespace AF
         {
             if (PlayerPrefs.HasKey("language"))
             {
-                Enum.TryParse(PlayerPrefs.GetString("language"), out GameLanguage language);
-                gameLanguage = language;
+                Enum.TryParse(PlayerPrefs.GetString("language"), out GameLanguage playerPrefsLanguage);
+
+                SetGameLanguage(playerPrefsLanguage);
                 return;
             }
 
             if (Application.systemLanguage == SystemLanguage.Portuguese)
             {
-                gameLanguage = GameLanguage.PORTUGUESE;
+                SetGameLanguage(GameLanguage.PORTUGUESE);
                 return;
             }
 
             // Default
-            gameLanguage = GameLanguage.ENGLISH;
+
+            SetGameLanguage(GameLanguage.ENGLISH);
         }
 
         private void Update()
@@ -96,7 +100,7 @@ namespace AF
             UpdateGraphics();
         }
 
-        void UpdateGraphics()
+        public void UpdateGraphics()
         {
             var postProcessVolumes = FindObjectsOfType<PostProcessVolume>(true);
             Camera.main.TryGetComponent<PostProcessLayer>(out var postProcessLayer);

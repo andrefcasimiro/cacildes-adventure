@@ -8,6 +8,12 @@ namespace AF
         public AudioClip weaponSwingSfx;
         public AudioClip weaponImpactSfx;
 
+        [Header("Bonus Stats")]
+        public StatusEffect statusEffect;
+        public int statusEffectAmountPerHit = 0;
+        public int poiseDamage = 0;
+        public int blockStaminaCost = 0;
+
         EnemyManager enemy;
 
         // References
@@ -17,7 +23,7 @@ namespace AF
         HealthStatManager healthStatManager;
         PlayerParryManager playerParryManager;
 
-        TrailRenderer trailRenderer => GetComponent<TrailRenderer>();
+        TrailRenderer trailRenderer;
 
         float maxTimerBeforeAllowingDamageAgain = .5f;
         float damageCooldownTimer = Mathf.Infinity;
@@ -26,6 +32,11 @@ namespace AF
         {
             enemy = GetComponentInParent<EnemyManager>();
 
+            trailRenderer = GetComponent<TrailRenderer>();
+            if (trailRenderer == null)
+            {
+                trailRenderer = GetComponentInChildren<TrailRenderer>();
+            }
         }
 
         // Start is called before the first frame update
@@ -85,6 +96,7 @@ namespace AF
             if (trailRenderer != null)
             {
                 trailRenderer.enabled = true;
+                trailRenderer.emitting = true;
             }
 
         }
@@ -98,7 +110,8 @@ namespace AF
 
             if (trailRenderer != null)
             {
-                trailRenderer.enabled = false;
+                trailRenderer.emitting = false;
+                //trailRenderer.enabled = false;
             }
         }
 
