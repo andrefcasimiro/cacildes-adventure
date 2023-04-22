@@ -13,6 +13,7 @@ namespace AF
         public float rotationDurationAfterFiringProjectile = 1f;
         [Range(0, 100)] public int shootingWeight = 50;
         public float minimumDistanceToFire = 4f;
+        public float maximumDistanceToFire = 999f;
         public float maxProjectileCooldown = 10f;
         public GameObject bowGraphic;
         public bool isReadyToShoot = false;
@@ -83,7 +84,7 @@ namespace AF
 
         public bool CanShoot()
         {
-            return projectilePrefab != null && projectileCooldown >= maxProjectileCooldown;
+            return projectilePrefab != null && projectileCooldown >= maxProjectileCooldown && Vector3.Distance(transform.position, playerClimbController.transform.position) <= maximumDistanceToFire;
         }
 
         public bool IsShooting()
@@ -99,6 +100,13 @@ namespace AF
             GameObject projectileInstance = Instantiate(projectilePrefab, projectileSpawnPointRef.transform.position, Quaternion.identity);
 
             Projectile projectile = projectileInstance.GetComponent<Projectile>();
+
+            if (projectile.forceTrajectoryTowardsPlayer)
+            {
+                float dist = Vector3.Distance(playerClimbController.transform.position, transform.position);
+                projectile.forwardVelocity *= dist > 1 ? dist : 1f;
+            }
+
             projectile.Shoot(playerClimbController.playerHeadRef.transform);
         }
 

@@ -21,6 +21,10 @@ namespace AF
                 enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
 
+            enemy.rigidbody.useGravity = false;
+            enemy.rigidbody.isKinematic = true;
+
+
             // Activate health hitboxes after dodging for safety
             enemy.enemyHealthController.EnableHealthHitboxes();
 
@@ -79,7 +83,7 @@ namespace AF
             }
             else // We've waited long enough, request new combat decision
             {
-                animator.Play(enemy.hashCombatting);
+                animator.SetBool(enemy.hashIsWaiting, false);
             }
         }
     }

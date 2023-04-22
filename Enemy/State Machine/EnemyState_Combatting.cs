@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Mono.Cecil.Cil;
 
 namespace AF
 {
@@ -10,9 +9,12 @@ namespace AF
         EnemyManager enemy;
         Animator animator;
 
-        [Header("Animation Names")]
+        [Header("Legacy Animation Names")]
+        [Tooltip("Use this for most animators, skip for the generic humanoid which will get its animations from the EnemyCombatController")]
         public string[] meleeLightAttacks;
+        [Tooltip("Use this for most animators, skip for the generic humanoid which will get its animations from the EnemyCombatController")]
         public string[] meleeHeavyAttacks;
+
         public string[] meleeRangeAttacks;
         public string[] blockActions;
         public string[] shootActions;
@@ -43,6 +45,11 @@ namespace AF
                 enemy.enemyBehaviorController.TurnAgressive();
             }
 
+            if (enemy.enemyHealthController != null)
+            {
+                enemy.enemyHealthController.ShowHUD();
+            }
+
             // Notify active player companions
             CompanionManager[] companionManagers = FindObjectsOfType<CompanionManager>();
             foreach (var companion in companionManagers)
@@ -71,7 +78,7 @@ namespace AF
                 }
             }
 
-            if (enemy.enemyCombatController.IsPlayerFarAway())
+            if (enemy.enemyCombatController.IsPlayerFarAway() && enemy.canChase)
             {
                 animator.SetBool(enemy.hashCombatting, false);
                 animator.SetBool(enemy.hashChasing, true);
@@ -176,12 +183,13 @@ namespace AF
 
         bool LightAttackDice()
         {
+            var attacks = enemy.enemyCombatController.meleeLightAttacks.Length > 0 ? enemy.enemyCombatController.meleeLightAttacks : meleeLightAttacks;
             int attackDice = Random.Range(0, 100);
-            int attackClip = 0;
-            if (attackDice < enemy.enemyCombatController.lightAttackWeight && this.meleeLightAttacks.Length > 0)
+
+            if (attackDice < enemy.enemyCombatController.lightAttackWeight && attacks.Length > 0)
             {
-                attackClip = Random.Range(0, this.meleeLightAttacks.Length);
-                animator.Play(this.meleeLightAttacks[attackClip]);
+                int attackClip = Random.Range(0, attacks.Length);
+                animator.Play(attacks[attackClip]);
                 return true;
             }
 
@@ -190,12 +198,13 @@ namespace AF
 
         bool HeavyAttackDice()
         {
+            var attacks = enemy.enemyCombatController.meleeHeavyAttacks.Length > 0 ? enemy.enemyCombatController.meleeHeavyAttacks : meleeHeavyAttacks;
             int attackDice = Random.Range(0, 100);
-            int attackClip = 0;
-            if (attackDice < enemy.enemyCombatController.heavyAttackWeight && this.meleeHeavyAttacks.Length > 0)
+
+            if (attackDice < enemy.enemyCombatController.lightAttackWeight && attacks.Length > 0)
             {
-                attackClip = Random.Range(0, this.meleeHeavyAttacks.Length);
-                animator.Play(this.meleeHeavyAttacks[attackClip]);
+                int attackClip = Random.Range(0, attacks.Length);
+                animator.Play(attacks[attackClip]);
                 return true;
             }
 

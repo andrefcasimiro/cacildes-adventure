@@ -1,7 +1,6 @@
+using StarterAssets;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace AF
 {
@@ -20,7 +19,8 @@ namespace AF
             SLEPBONE_BOAT = 4,
             BEAR_CAVERN = 5,
             TUTORIAL = 6,
-            MOUNTAINPASS = 7
+            MOUNTAINPASS = 7,
+            SNAILCLIFF = 8,
         }
 
         private void Awake()
@@ -37,7 +37,7 @@ namespace AF
 
         public void Teleport(SceneName sceneName, string spawnGameObjectNameRef)
         {
-            if (System.String.IsNullOrEmpty(this.spawnGameObjectNameRef))
+            if (string.IsNullOrEmpty(this.spawnGameObjectNameRef))
             {
                 SetSpawnGameObjectNameRef(spawnGameObjectNameRef);
 
@@ -52,7 +52,7 @@ namespace AF
 
         public void SpawnPlayer(GameObject player)
         {
-            if (System.String.IsNullOrEmpty(spawnGameObjectNameRef))
+            if (string.IsNullOrEmpty(spawnGameObjectNameRef))
             {
                 return;
             }
@@ -61,26 +61,40 @@ namespace AF
 
             if (spawnGameObject != null)
             {
-
-
                 var playerNewPos = spawnGameObject.transform.position;
                 var playerNewRot = spawnGameObject.transform.rotation;
 
-                if (spawnGameObject.gameObject.transform.childCount > 0)
+                if (spawnGameObject.transform.childCount > 0)
                 {
                     var reference = spawnGameObject.gameObject.transform.GetChild(0).transform.position;
 
-                    var rot = reference - player.transform.position;
+                    var rot = reference - spawnGameObject.transform.position;
                     rot.y = 0;
                     var lookRot = Quaternion.LookRotation(rot);
                     playerNewRot = lookRot;
                 }
 
-                FindObjectOfType<PlayerComponentManager>(true).UpdatePosition(playerNewPos, playerNewRot);
+                var playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
+                playerComponentManager.UpdatePosition(playerNewPos, playerNewRot);
+
+                var activeCamera = FindObjectOfType<Cinemachine.CinemachineVirtualCamera>();
+                if (activeCamera != null)
+                {
+                    var tps = FindObjectOfType<ThirdPersonController>(true);
+                    tps.enabled = false;
+                    activeCamera.enabled = false;
+                    activeCamera.ForceCameraPosition(playerComponentManager.transform.position, playerComponentManager.transform.rotation);
+                    activeCamera.PreviousStateIsValid = true;
+                    activeCamera.enabled = true;
+                    tps._cinemachineTargetYaw = activeCamera.transform.eulerAngles.y;
+                    tps.enabled = true;
+                }
+
             }
 
             this.spawnGameObjectNameRef = null;
         }
+
     }
 
 }

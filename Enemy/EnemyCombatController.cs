@@ -27,9 +27,17 @@ namespace AF
         [Range(0, 100)] public float circleAroundWeight = 75;
         public string circleAroundRightAnimation = "Strafe Right";
         public string circleAroundLeftAnimation = "Strafe Left";
-        
+
+        [Header("Override Animator Combat Attacks")]
+        public string[] meleeLightAttacks;
+        public string[] meleeHeavyAttacks;
+
+        [Header("Distance To Player")]
+        public float minimumAttackDistanceToPlayer = 0;
+
         // Stats affected by animations
         [HideInInspector] public int weaponDamage = 100;
+        [HideInInspector] public int weaponDamageBonus = 0;
         [HideInInspector] public StatusEffect weaponStatusEffect = null;
         [HideInInspector] public float statusEffectAmount = 0f;
         [HideInInspector] public float bonusBlockStaminaCost = 0f;
@@ -49,7 +57,7 @@ namespace AF
 
         public int GetCurrentAttack()
         {
-            return Player.instance.CalculateAIAttack(enemyManager.enemy.basePhysicalAttack, enemyManager.currentLevel);
+            return Player.instance.CalculateAIAttack(enemyManager.enemy.basePhysicalAttack, enemyManager.currentLevel) + weaponDamageBonus;
         }
 
         public bool IsInCombat()
@@ -59,7 +67,7 @@ namespace AF
 
         public bool IsPlayerFarAway()
         {
-            return Vector3.Distance(enemyManager.agent.transform.position, enemyManager.player.transform.position) > enemyManager.agent.stoppingDistance + 0.5f;
+            return Vector3.Distance(enemyManager.agent.transform.position, enemyManager.player.transform.position) > enemyManager.agent.stoppingDistance + 0.5f + enemyManager.enemyCombatController.minimumAttackDistanceToPlayer;
         }
 
     }

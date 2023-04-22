@@ -26,7 +26,7 @@ namespace AF
 
         public void Unlock()
         {
-            SwitchManager.instance.UpdateSwitch(switchEntry, true);
+            SwitchManager.instance.UpdateSwitch(switchEntry, true, null);
 
             Soundbank.instance.PlayLeverActivated();
 

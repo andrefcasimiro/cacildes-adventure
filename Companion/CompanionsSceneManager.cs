@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace AF
 {
-    public class CompanionsSceneManager : MonoBehaviour
+    public class CompanionsSceneManager : MonoBehaviour, ISaveable
     {
         NotificationManager notificationManager;
 
@@ -17,33 +17,7 @@ namespace AF
 
         private void Start()
         {
-            var companionsInParty = Player.instance.companions;
-
-            var allCompanions = FindObjectsOfType<CompanionManager>(true);
-
-            foreach (var companion in allCompanions)
-            {
-                var companionInstance = companionsInParty.FirstOrDefault(c => c.companionId == companion.companion.companionId);
-
-                if (companionInstance != null)
-                {
-                    if (companionInstance.isWaitingForPlayer)
-                    {
-                        if (companionInstance.waitingForPlayerSceneIndex == SceneManager.GetActiveScene().buildIndex)
-                        {
-                            companion.waitingForPlayer = true;
-                            companion.transform.position = companionInstance.waitingForPlayerPosition;
-                            companion.gameObject.SetActive(true);
-                        }
-                    }
-                    else
-                    {
-                        companion.gameObject.SetActive(true);
-                    }
-                }
-
-
-            }
+            EvaluateCompanionsInScene();
         }
 
         public void AddCompanionToParty(Companion companion)
@@ -62,7 +36,7 @@ namespace AF
             allCompanionsInScene.FirstOrDefault(x => x.companion == companion).inParty = true;
 
             Soundbank.instance.PlayCompanionJoinParty();
-            notificationManager.ShowNotification(companion.character.name + " has joined the party!", companion.character.avatar);
+            notificationManager.ShowNotification(companion.character.name + " " + LocalizedTerms.HasJoinedTheParty(), companion.character.avatar);
 
             // Revaluate any objects in scene that depend on party elements
             var partyDependantObjects = FindObjectsOfType<PartyDependant>(true);
@@ -86,7 +60,7 @@ namespace AF
             Player.instance.companions.Remove(companionInstance);
 
             Soundbank.instance.PlayCompanionLeaveParty();
-            notificationManager.ShowNotification(companion.character.name + " has left the party!", companion.character.avatar);
+            notificationManager.ShowNotification(companion.character.name + " " + LocalizedTerms.HasLeftTheParty(), companion.character.avatar);
 
             // Revaluate any objects in scene that depend on party elements
             var partyDependantObjects= FindObjectsOfType<PartyDependant>(true);
@@ -130,6 +104,58 @@ namespace AF
             Player.instance.companions[companionInstance].isWaitingForPlayer = false;
         }
 
+        public void OnGameLoaded(GameData gameData)
+        {
+            EvaluateCompanionsInScene();
+        }
+
+        void EvaluateCompanionsInScene()
+        {
+            var allCompanions = FindObjectsOfType<CompanionManager>(true);
+
+            foreach (var companion in allCompanions)
+            {
+                companion.gameObject.SetActive(false);
+
+                var companionInstance = Player.instance.companions.FirstOrDefault(c => c.companionId == companion.companion.companionId);
+                bool companionIsInParty = companionInstance != null;
+
+                if (companionIsInParty)
+                {
+                    companion.inParty = true;
+
+                    if (companionInstance.isWaitingForPlayer)
+                    {
+                        companion.waitingForPlayer = true;
+
+                        if (companionInstance.waitingForPlayerSceneIndex == SceneManager.GetActiveScene().buildIndex)
+                        {
+                            companion.transform.position = companionInstance.waitingForPlayerPosition;
+                            companion.gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            // Dont show companion, he is on another scene
+                            companion.gameObject.SetActive(false);
+                        }
+                    }
+                    else
+                    {
+                        companion.gameObject.SetActive(true);
+                        companion.SpawnNearPlayer();
+                    }
+                }
+                else
+                {
+                    companion.inParty = false;
+
+                    // Companion is not on the party, only show him in map if scene is his home
+                    companion.gameObject.SetActive(companion.sceneIsHome);
+                }
+
+
+            }
+        }
     }
 
 }

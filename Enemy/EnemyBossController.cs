@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -14,10 +15,14 @@ namespace AF
         public SwitchEntry bossSwitchEntry;
         [Tooltip("Update boss switch immediately after boss is killed")]
         public bool refreshEventsUponSwitchActivation = false;
+        public SwitchListener ignoredSwitchListener;
 
         // UI Components
         [HideInInspector] public UIDocument bossHud => GetComponent<UIDocument>();
         [HideInInspector] public IMGUIContainer bossFillBar;
+
+        public UnityEvent onBossBattleBeginEvent;
+        bool hasRunBossBattleBeginEvent = false;
 
         private void Start()
         {
@@ -58,11 +63,16 @@ namespace AF
 
         public void BeginBossBattle()
         {
+            if (hasRunBossBattleBeginEvent == false && onBossBattleBeginEvent != null)
+            {
+                onBossBattleBeginEvent.Invoke();
+            }
+
             ShowBossHud();
 
             if (fogWall != null)
             {
-                fogWall.gameObject.SetActive(true);
+                fogWall.SetActive(true);
             }
 
             if (bossMusic != null)

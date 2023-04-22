@@ -20,7 +20,7 @@ namespace AF
             }
             else if (shouldRefreshEvents)
             {
-                SwitchManager.instance.UpdateSwitch(targetSwitch, newValue);
+                SwitchManager.instance.UpdateSwitch(targetSwitch, newValue, null);
             }
             else
             {

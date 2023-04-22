@@ -6,6 +6,7 @@ namespace AF
     {
 
         PlayerInventory playerInventory;
+        DodgeController dodgeController;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
@@ -17,6 +18,15 @@ namespace AF
             if (playerInventory.currentConsumedItem != null)
             {
                 playerInventory.FinishItemConsumption();
+            }
+
+            if (dodgeController == null)
+            {
+                animator.GetComponent<DodgeController>();
+            }
+            else
+            {
+                dodgeController.hasIframes = false;
             }
         }
     }

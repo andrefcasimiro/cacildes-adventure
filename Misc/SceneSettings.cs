@@ -29,13 +29,6 @@ namespace AF
 
         PlayerComponentManager playerComponentManager => FindObjectOfType<PlayerComponentManager>(true);
  
-        [Header("Elemental Damage")]
-        public GameObject elementalFireDamageFx;
-        public Color elementalFireTextColor;
-        public GameObject elementalFrostDamageFx;
-        public Color elementalFrostTextColor;
-
-
         void Awake()
         {
             StartCoroutine(SpawnPlayer());

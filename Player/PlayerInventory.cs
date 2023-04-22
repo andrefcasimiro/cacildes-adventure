@@ -44,7 +44,7 @@ namespace AF
             itemEntry.item = item;
             itemEntry.amount = quantity;
 
-            var idx = Player.instance.ownedItems.FindIndex(x => x.item == item);
+            var idx = Player.instance.ownedItems.FindIndex(x => x.item.name.GetEnglishText() == item.name.GetEnglishText());
             if (idx != -1)
             {
                 Player.instance.ownedItems[idx].amount += itemEntry.amount;
@@ -59,7 +59,7 @@ namespace AF
 
         public void RemoveItem(Item item, int amount)
         {
-            int itemEntryIndex = Player.instance.ownedItems.FindIndex(_itemEntry => _itemEntry.item == item);
+            int itemEntryIndex = Player.instance.ownedItems.FindIndex(_itemEntry => _itemEntry.item.name.GetEnglishText() == item.name.GetEnglishText());
 
             if (itemEntryIndex == -1)
             {

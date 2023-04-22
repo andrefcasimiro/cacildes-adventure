@@ -22,8 +22,6 @@ namespace AF
 
                 companionManager.agent.stoppingDistance = companionManager.defaultStoppingDistance;
             }
-
-            companionManager.EnableGenericTrigger();
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

@@ -9,6 +9,7 @@ namespace AF
     public class PlayerParryManager : MonoBehaviour
     {
         public readonly int hashIsBlocking = Animator.StringToHash("IsBlocking");
+        public readonly int hashIsTakingBlockHit = Animator.StringToHash("IsTakingBlockHit");
 
         Animator animator => GetComponent<Animator>();
 
@@ -110,8 +111,14 @@ namespace AF
             return true;
         }
 
-        public bool IsBlocking() {
+        public bool IsBlocking()
+        {
             return animator.GetBool(hashIsBlocking);
+        }
+
+        public bool IsTakingBlockHit()
+        {
+            return animator.GetBool(hashIsTakingBlockHit);
         }
 
         public bool IsParrying()
@@ -153,6 +160,8 @@ namespace AF
             }
 
             Instantiate(parryFx, tf.transform.position, Quaternion.identity);
+
+            animator.Play("Parry Block Hit");
         }
 
     }

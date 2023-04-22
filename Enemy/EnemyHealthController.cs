@@ -1,28 +1,41 @@
 using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UIElements;
 
 namespace AF
 {
+    [System.Serializable]
+    public class WeaponTypeBonusTable
+    {
+        public WeaponAttackType weaponAttackType;
+        [Range(1, 2.5f)] public float damageBonusMultiplier = 1;
+    }
+    [System.Serializable]
+    public class NegativeWeaponTypeBonusTable
+    {
+        public WeaponAttackType weaponAttackType;
+        [Range(0.1f, 1f)] public float negativeDamageBonusMultiplier = 1;
+    }
+
     public class EnemyHealthController : MonoBehaviour
     {
-
         [Header("Health")]
         public float currentHealth;
         public int maxHealthOverride = -1;
+        public UnityEvent onTakingDamage;
+
+        [Header("Weapon Type Damage")]
+        public WeaponTypeBonusTable[] weaponTypeBonusTable;
+        public NegativeWeaponTypeBonusTable[] negativeWeaponTypeBonusTable;
 
         [Header("UI Components")]
         public UnityEngine.UI.Slider healthBarSlider;
-        public FloatingText damageFloatingText;
         
         [Header("On Killing Events")]
         public UnityEvent onEnemyDeath;
+        public UnityEvent onEnemyDeathAfter1Second;
         public Collider[] collidersToDisableOnDeath;
-
-        [Header("Elemental Damage")]
-        public FloatingText elementalDamageFloatingText;
 
         [HideInInspector] public EnemyHealthHitbox[] enemyHealthHitboxes => GetComponentsInChildren<EnemyHealthHitbox>(true);
 
@@ -32,6 +45,15 @@ namespace AF
         EnemyLoot enemyLoot => GetComponent<EnemyLoot>();
         EnemyBossController enemyBossController => GetComponent<EnemyBossController>();
         SceneSettings sceneSettings => FindObjectOfType<SceneSettings>(true);
+        CombatNotificationsController combatNotificationsController => GetComponent<CombatNotificationsController>();
+
+        int amountToRestore = 0;
+
+        public float scoreIncreaseRate = 10f;
+        float ScoreIncrement = 0;
+        bool onTakingDamageEventHasRun = false;
+
+        public bool canTakeDamage = true;
 
         private void Start()
         {
@@ -49,12 +71,24 @@ namespace AF
         private void Update()
         {
             UpdateHealthSlider();
+
+            UpdateAmountToRestore();
         }
 
 
         void RestoreHealth()
         {
             this.currentHealth = GetMaxHealth();
+        }
+
+        public void ShowHUD()
+        {
+            if (enemyBossController == null)
+            {
+                healthBarSlider.transform.GetChild(0).gameObject.SetActive(true);
+                healthBarSlider.transform.GetChild(1).gameObject.SetActive(true);
+                healthBarSlider.transform.GetChild(2).gameObject.SetActive(true);
+            }
         }
 
         public void HideHUD()
@@ -95,15 +129,30 @@ namespace AF
 
         public void InitializeEnemyHUD()
         {
-            if (healthBarSlider != null && enemyBossController == null)
+            if (healthBarSlider != null)
             {
                 healthBarSlider.gameObject.SetActive(true);
+
+                if (enemyBossController != null)
+                {
+                    healthBarSlider.enabled = false;
+                    HideHUD();
+                    return;
+                }
+
+                healthBarSlider.enabled = true;
                 healthBarSlider.maxValue = GetMaxHealth() * 0.01f;
                 healthBarSlider.value = currentHealth * 0.01f;
             }
         }
+
         public void TakeEnvironmentalDamage(float damage)
         {
+            if (!canTakeDamage)
+            {
+                return;
+            }
+
             if (this.currentHealth <= 0)
             {
                 return;
@@ -112,9 +161,9 @@ namespace AF
             this.currentHealth = Mathf.Clamp(currentHealth - damage, 0f, GetMaxHealth());
 
 
-            if (damageFloatingText != null && damage != Mathf.Infinity && damage != 9999999)
+            if (damage != Mathf.Infinity && damage != 9999999)
             {
-                damageFloatingText.Show(damage);
+                combatNotificationsController.ShowDamage(damage);
             }
 
             if (enemyManager.enemy.damagedParticle != null)
@@ -128,15 +177,62 @@ namespace AF
             }
         }
 
-        public void TakeDamage(AttackStatManager playerAttackStatManager, Weapon weapon, Transform attackerTransform, AudioClip weaponHitSfx, float hitboxDamageBonus)
+        public void RestoreHealthPercentage(int percentage)
         {
+            float amount = GetMaxHealth() * percentage / 100;
+
+            this.amountToRestore = (int)amount;
+        }
+
+        void UpdateAmountToRestore()
+        {
+            if (amountToRestore > 0)
+            {
+                if (this.currentHealth <= 0)
+                {
+                    amountToRestore = 0;
+                    return;
+                }
+
+                ScoreIncrement += Time.deltaTime * scoreIncreaseRate;
+
+                amountToRestore -= (int)ScoreIncrement;
+                if (amountToRestore < 0) { amountToRestore = 0; }
+
+                this.currentHealth += (int)ScoreIncrement;
+
+                if (currentHealth > GetMaxHealth()) { currentHealth = GetMaxHealth(); }
+            }
+        }
+
+        public void TakeDamage(AttackStatManager playerAttackStatManager, Weapon weapon, Vector3 collisionPoint, AudioClip weaponHitSfx, float hitboxDamageBonus)
+        {
+            if (!canTakeDamage)
+            {
+                return;
+            }
+
             if (this.currentHealth <= 0)
             {
                 return;
             }
 
+            if (onTakingDamage != null && onTakingDamageEventHasRun == false)
+            {
+                onTakingDamage.Invoke();
+                onTakingDamageEventHasRun = true;
+            }
+
+            if (enemyManager.enemyBlockController != null && Random.Range(0, 100) < enemyManager.enemyBlockController.parryWeight)
+            {
+                enemyManager.enemyBlockController.ActivateParry();
+                return;
+            }
+
             if (enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.IsBlocking())
             {
+                enemyManager.enemyBlockController.HandleBlock(collisionPoint, weapon.blockHitAmount + (playerAttackStatManager.IsHeavyAttacking() ? 1 : 0));
+
                 return;
             }
 
@@ -168,53 +264,75 @@ namespace AF
             // Disable stunned stars on hit
             enemyManager.enemyPostureController.stunnedParticle.SetActive(false);
 
+            // Raw damage to display without elemental and status bonuses
+            var displayedDamage = appliedDamage;
+
             // Elemental Damage Bonus
             if (weapon != null)
             {
                 if (weapon.fireAttack > 0)
                 {
-                    var elementalBonus = Mathf.Clamp(weapon.fireAttack + enemyManager.enemy.fireDamageBonus, 0, Mathf.Infinity);
+                    var elementalBonus = Mathf.Clamp((int)(weapon.GetWeaponFireAttack() * enemyManager.enemy.fireDamageBonus), 0, Mathf.Infinity);
                     appliedDamage += elementalBonus;
 
-                    OnFireDamage(elementalBonus);
+                    combatNotificationsController.ShowFireDamage(elementalBonus);
+
+                    Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
                 }
                 if (weapon.frostAttack > 0)
                 {
-                    var elementalBonus = Mathf.Clamp(weapon.frostAttack + enemyManager.enemy.frostDamageBonus, 0, Mathf.Infinity);
+                    var elementalBonus = Mathf.Clamp(weapon.GetWeaponFrostAttack() * enemyManager.enemy.frostDamageBonus, 0, Mathf.Infinity);
                     appliedDamage += elementalBonus;
 
-                    OnFrostDamage(elementalBonus);
+                    combatNotificationsController.ShowFrostDamage(elementalBonus);
+
+                    Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
                 }
+
+                if (weaponTypeBonusTable.Length > 0)
+                {
+                    var weaponTypeBonus = weaponTypeBonusTable.FirstOrDefault(entry => entry.weaponAttackType == weapon.weaponAttackType);
+                    if (weaponTypeBonus != null)
+                    {
+                        appliedDamage = (int)(appliedDamage * weaponTypeBonus.damageBonusMultiplier);
+                    }
+                }
+                if (negativeWeaponTypeBonusTable.Length > 0)
+                {
+                    var weaponTypeBonus = negativeWeaponTypeBonusTable.FirstOrDefault(entry => entry.weaponAttackType == weapon.weaponAttackType);
+                    if (weaponTypeBonus != null)
+                    {
+                        appliedDamage = (int)(appliedDamage * weaponTypeBonus.negativeDamageBonusMultiplier);
+                    }
+                }
+
             }
 
             this.currentHealth = Mathf.Clamp(currentHealth - appliedDamage, 0f, GetMaxHealth());
 
             if (enemyManager.enemy.damagedParticle != null)
             {
-                Instantiate(enemyManager.enemy.damagedParticle, transform.position, Quaternion.identity);
+                Instantiate(enemyManager.enemy.damagedParticle, collisionPoint, Quaternion.identity);
             }
 
             // Status Effects
-            var bonusDamageToShow = 0f;
             if (weapon != null && weapon.statusEffects != null && weapon.statusEffects.Length > 0)
             {
                 foreach (var weaponStatusEffectPerHit in weapon.statusEffects)
                 {
-                    var storedResult = enemyNegativeStatusController.InflictStatusEffect(
+                    enemyNegativeStatusController.InflictStatusEffect(
                         weaponStatusEffectPerHit.statusEffect, weaponStatusEffectPerHit.amountPerHit);
-
-                    if (storedResult > 0)
-                    {
-                        bonusDamageToShow += storedResult;
-                    }
                 }
             }
 
-            if (damageFloatingText != null)
+            if (enemyManager.enemyPostureController.IsStunned())
             {
-                damageFloatingText.Show(appliedDamage + bonusDamageToShow);
+                combatNotificationsController.ShowCritical(displayedDamage);
             }
-
+            else
+            {
+                combatNotificationsController.ShowDamage(displayedDamage);
+            }
 
             if (this.currentHealth <= 0)
             {
@@ -230,8 +348,9 @@ namespace AF
         {
             Destroy(projectile.gameObject);
 
-            if (enemyManager.enemyBlockController.IsBlocking())
+            if (enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.IsBlocking())
             {
+                enemyManager.enemyBlockController.HandleBlock(Vector3.zero, 1);
                 return;
             }
 
@@ -240,39 +359,48 @@ namespace AF
                 return;
             }
 
-            if (enemyManager.enemySleepController.isSleeping)
+            if (enemyManager.enemySleepController != null && enemyManager.enemySleepController.isSleeping)
             {
                 enemyManager.enemySleepController.WakeUp();
             }
 
-            enemyManager.enemyWeaponController.DisableAllWeaponHitboxes();
+            if (enemyManager.enemyWeaponController != null)
+            {
+                enemyManager.enemyWeaponController.DisableAllWeaponHitboxes();
+            }
 
             float physicalDamage = damage;
 
-            if (enemyManager.enemyPostureController.IsStunned())
+            if (enemyManager.enemyPostureController != null)
             {
-                damage *= enemyManager.enemy.brokenPostureDamageMultiplier;
+                if (enemyManager.enemyPostureController.IsStunned())
+                {
+                    physicalDamage *= enemyManager.enemy.brokenPostureDamageMultiplier;
+                }
+                // Disable stunned stars on hit
+                enemyManager.enemyPostureController.stunnedParticle.SetActive(false);
             }
 
-            // Disable stunned stars on hit
-            enemyManager.enemyPostureController.stunnedParticle.SetActive(false);
+            // Elemental Damage Bonus
+            if (projectile != null)
+            {
+                if (projectile.projectileAttackElementType == WeaponElementType.Fire)
+                {
+                    var elementalBonus = Mathf.Clamp((int)(projectile.projectileDamage * enemyManager.enemy.fireDamageBonus), 0, Mathf.Infinity);
+                    physicalDamage = elementalBonus;
+                }
 
+            }
 
-            this.currentHealth = Mathf.Clamp(currentHealth - damage, 0f, GetMaxHealth());
+            this.currentHealth = Mathf.Clamp(currentHealth - physicalDamage, 0f, GetMaxHealth());
 
             if (enemyManager.enemy.damagedParticle != null)
             {
                 Instantiate(enemyManager.enemy.damagedParticle, transform.position, Quaternion.identity);
             }
 
-            // Status Effects
-            var bonusDamageToShow = 0f;
-
-            if (damageFloatingText != null)
-            {
-                damageFloatingText.Show(physicalDamage + bonusDamageToShow);
-            }
-
+            // Status Effects for bows
+            combatNotificationsController.ShowDamage(physicalDamage);
 
             if (this.currentHealth <= 0)
             {
@@ -312,6 +440,10 @@ namespace AF
             }
 
             yield return PlayDeathSfx();
+
+            yield return new WaitForSeconds(0.4f);
+    
+            yield return DisengageLockOn();
 
             if (enemyBossController != null)
             {
@@ -379,8 +511,6 @@ namespace AF
 
             enemyNegativeStatusController.ClearAllNegativeStatus();
 
-            yield return DisengageLockOn();
-
             // Update switch must be at the very last part of all the die flow
             if (enemyBossController != null && enemyBossController.bossSwitchEntry != null)
             {
@@ -390,7 +520,7 @@ namespace AF
                 }
                 else
                 {
-                    SwitchManager.instance.UpdateSwitch(enemyBossController.bossSwitchEntry, true);
+                    SwitchManager.instance.UpdateSwitch(enemyBossController.bossSwitchEntry, true, enemyBossController.ignoredSwitchListener);
                 }
             }
         }
@@ -417,8 +547,6 @@ namespace AF
 
         IEnumerator DisengageLockOn()
         {
-            yield return new WaitForSeconds(1f);
-
             var lockOnManager = FindObjectOfType<LockOnManager>(true);
 
             var lockOnRef = GetComponentInChildren<LockOnRef>(true);
@@ -443,24 +571,13 @@ namespace AF
                     lockOnManager.DisableLockOn();
                 }
             }
-        }
 
-        public void OnFireDamage(float appliedAmount)
-        {
-            elementalDamageFloatingText.gameObject.SetActive(true);
-            elementalDamageFloatingText.GetComponent<TMPro.TextMeshPro>().color = sceneSettings.elementalFireTextColor;
-            elementalDamageFloatingText.Show(appliedAmount);
+            yield return new WaitForSeconds(1f);
 
-            Instantiate(sceneSettings.elementalFireDamageFx, this.transform.position, Quaternion.identity);
-        }
-
-        public void OnFrostDamage(float appliedAmount)
-        {
-            elementalDamageFloatingText.gameObject.SetActive(true);
-            elementalDamageFloatingText.GetComponent<TMPro.TextMeshPro>().color = sceneSettings.elementalFrostTextColor;
-            elementalDamageFloatingText.Show(appliedAmount);
-
-            Instantiate(sceneSettings.elementalFrostDamageFx, this.transform.position, Quaternion.identity);
+            if (onEnemyDeathAfter1Second != null)
+            {
+                onEnemyDeathAfter1Second.Invoke();
+            }
         }
 
         public void EnableHealthHitboxes()
@@ -476,6 +593,15 @@ namespace AF
             {
                 enemyHealthHitbox.gameObject.SetActive(false);
             }
+        }
+
+        public void AllowTakingDamage()
+        {
+            canTakeDamage = true;
+        }
+        public void DisableTakingDamage()
+        {
+            canTakeDamage = false;
         }
 
     }

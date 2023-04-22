@@ -12,6 +12,7 @@ namespace AF
         [Header("Regeneration Settings")]
         public float STAMINA_REGENERATION_RATE = 20f;
         public float staminaRegenerationBonus = 0f;
+        public float negativeStaminaRegenerationBonus = 0f;
         public const float EMPTY_STAMINA_REGENERATION_DELAY = 0.5f;
         public bool shouldRegenerateStamina = false;
 
@@ -70,7 +71,7 @@ namespace AF
 
         void HandleStaminaRegen()
         {
-            var finalRegenerationRate = STAMINA_REGENERATION_RATE + staminaRegenerationBonus;
+            var finalRegenerationRate = STAMINA_REGENERATION_RATE + staminaRegenerationBonus - negativeStaminaRegenerationBonus;
 
             if (playerParryManager.IsBlocking())
             {

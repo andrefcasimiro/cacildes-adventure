@@ -19,6 +19,11 @@ public class EnemyState_Strafing : StateMachineBehaviour
         {
             enemyManager = animator.GetComponentInParent<EnemyManager>();
         }
+
+        if (enemyManager.enemyBlockController != null)
+        {
+            animator.SetBool(enemyManager.hashIsBlocking, enemyManager.enemyBlockController.blockWhileStrafing);
+        }
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

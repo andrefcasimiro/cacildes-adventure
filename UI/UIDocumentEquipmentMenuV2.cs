@@ -72,7 +72,7 @@ namespace AF
 
             // Weapon
             var weaponButtonElement = this.root.Q<VisualElement>("Weapon").Q<VisualElement>("Root").Q<Button>();
-            weaponButtonElement.Q<Label>("Label").text = player.equippedWeapon != null ? player.equippedWeapon.name.GetText() : LocalizedTerms.Weapon();
+            weaponButtonElement.Q<Label>("Label").text = player.equippedWeapon != null ? player.equippedWeapon.GetWeaponDisplayName() : LocalizedTerms.Weapon();
             weaponButtonElement.Q<Label>("Value").text = player.equippedWeapon != null
                 ? "+ " + (attackStatManager.GetWeaponAttack(player.equippedWeapon) - attackStatManager.GetCurrentPhysicalAttack()) + " " + LocalizedTerms.ATK()
                 : "+ 0 " + LocalizedTerms.ATK();

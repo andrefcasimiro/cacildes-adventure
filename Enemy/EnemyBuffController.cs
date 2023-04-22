@@ -13,10 +13,9 @@ namespace AF
         [System.Serializable]
         public class Buff
         {
-            [Header("Animation That Starts")]
+            public string animationTag;
+
             public string animationStartName;
-            public string animationLoopName;
-            public string animationEndName;
 
             public UnityEvent onBuffEventStart;
             public UnityEvent onBuffEventCast;
@@ -62,6 +61,31 @@ namespace AF
         public void PlayEnemyBuffSfx()
         {
             BGMManager.instance.PlaySound(enemyBuffSfx, enemyManager.combatAudioSource);
+        }
+
+        public void PickRandomBuff()
+        {
+            if (buffs.Length > 0)
+            {
+                var shuffledBuffs = Randomize(buffs.ToArray());
+
+                var possibleBuff = shuffledBuffs.FirstOrDefault(x => x.minimumDistanceToUseBuff + enemyManager.agent.stoppingDistance >= enemyManager.agent.stoppingDistance);
+                float distanceBetweenEnemyAndTarget = Vector3.Distance(enemyManager.agent.transform.position,enemyManager.player.transform.position);
+
+                if (possibleBuff != null)
+                {
+                    if (CanUseBuff(possibleBuff))
+                    {
+                        PrepareBuff(possibleBuff);
+                    }
+                }
+            }
+        }
+
+        IEnumerable<EnemyBuffController.Buff> Randomize(EnemyBuffController.Buff[] source)
+        {
+            System.Random rnd = new System.Random();
+            return source.OrderBy((item) => rnd.Next());
         }
 
         void UpdateBuffs()
@@ -110,7 +134,7 @@ namespace AF
             var distanceToPlayer = Vector3.Distance(transform.position, enemyManager.player.transform.position);
             if (
                 distanceToPlayer > buff.maximumDistanceToUseBuff
-                || distanceToPlayer < buff.minimumDistanceToUseBuff + GetComponent<NavMeshAgent>().stoppingDistance)
+                || distanceToPlayer < buff.minimumDistanceToUseBuff)
             {
                 return false;
             }
@@ -176,10 +200,8 @@ namespace AF
                 return;
             }
 
-            var targetBuff = buffs.FirstOrDefault(x =>
-                enemyManager.animator.GetCurrentAnimatorStateInfo(0).IsName(x.animationStartName)
-                || enemyManager.animator.GetCurrentAnimatorStateInfo(0).IsName(x.animationLoopName)
-                || enemyManager.animator.GetCurrentAnimatorStateInfo(0).IsName(x.animationEndName));
+            var currentAnimation = enemyManager.animator.GetCurrentAnimatorStateInfo(0);
+            var targetBuff = buffs.FirstOrDefault(buff => currentAnimation.IsTag(buff.animationTag));
 
             if (targetBuff == null)
             {
@@ -196,10 +218,8 @@ namespace AF
                 return;
             }
 
-            var targetBuff = buffs.FirstOrDefault(x =>
-                enemyManager.animator.GetCurrentAnimatorStateInfo(0).IsName(x.animationStartName)
-                || enemyManager.animator.GetCurrentAnimatorStateInfo(0).IsName(x.animationLoopName)
-                || enemyManager.animator.GetCurrentAnimatorStateInfo(0).IsName(x.animationEndName));
+            var currentAnimation = enemyManager.animator.GetCurrentAnimatorStateInfo(0);
+            var targetBuff = buffs.FirstOrDefault(buff => currentAnimation.IsTag(buff.animationTag));
 
             if (targetBuff == null)
             {
@@ -221,5 +241,4 @@ namespace AF
             return source.OrderBy((item) => rnd.Next());
         }
     }
-
 }

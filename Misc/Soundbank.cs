@@ -15,6 +15,7 @@ namespace AF
         public AudioClip uiItemReceived;
         public AudioClip insufficientStamina;
         public AudioClip quickItemSwitch;
+        public AudioClip enemyGuardBreak;
 
         [Header("Movement")]
         public AudioClip cloth;
@@ -32,6 +33,7 @@ namespace AF
         public AudioClip openHeavyDoor;
         public AudioClip companionJoin;
         public AudioClip companionLeave;
+        public AudioClip illusionaryWallSound;
 
         public static Soundbank instance;
 
@@ -80,6 +82,11 @@ namespace AF
             selectCooldownTimer = 0;
         }
         #endregion
+
+        public void PlayEnemyGuardBreak()
+        {
+            BGMManager.instance.PlaySound(enemyGuardBreak, null);
+        }
 
         #region Movement
         public void PlayCloth(AudioSource audioSource)
@@ -156,6 +163,11 @@ namespace AF
         public void PlayCompanionLeaveParty()
         {
             BGMManager.instance.PlaySound(companionLeave, null);
+        }
+
+        public void PlayIllusionaryWall()
+        {
+            BGMManager.instance.PlaySound(illusionaryWallSound, null);
         }
 
     }

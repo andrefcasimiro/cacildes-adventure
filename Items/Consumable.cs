@@ -18,17 +18,19 @@ namespace AF
             STAMINA_REGENERATION_RATE,
             JUMP_HEIGHT,
             PHYSICAL_ATTACK_BONUS,
+            SLOWER_STAMINA_REGENERATION_RATE,
         }
 
         [System.Serializable]
         public class ConsumableEffect
         {
             public ConsumablePropertyName consumablePropertyName;
-            public LocalizedText displayName;
             public Sprite sprite;
             public Color barColor;
             public float value;
             public float effectDuration;
+            public bool isPositive = true;
+            public LocalizedText unit;
         }
 
         [Header("FX")]
@@ -121,5 +123,4 @@ namespace AF
             }
         }
     }
-
 }

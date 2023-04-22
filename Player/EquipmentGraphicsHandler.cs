@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Collections;
+using static AF.Player;
 
 namespace AF
 {
@@ -53,6 +54,7 @@ namespace AF
         public float fireDefenseBonus = 0;
         public float frostDefenseBonus = 0;
         public float lightningDefenseBonus = 0;
+        public float magicDefenseBonus = 0;
 
         public float additionalCoinPercentage = 0;
 
@@ -180,24 +182,47 @@ namespace AF
 
                 if (weaponToEquip.useBackRef)
                 {
-                    leftWeaponGraphicBack = Instantiate(weaponToEquip.graphic, backRef);
+                    if (weaponToEquip.isDualWielded)
+                    {
+                        var dualWieldBackPivot = weaponToEquip.graphic.GetComponentInChildren<CustomBackWeaponPivot>(true).gameObject;
 
-                    WeaponPivotHandler weaponPivotHandler = leftWeaponGraphicBack.GetComponentInChildren<WeaponPivotHandler>();
-                    if (weaponPivotHandler != null && weaponPivotHandler.useCustomBackRefTransform) {
-                        weaponPivotHandler.transform.localPosition = weaponPivotHandler.backPosition;
-                        weaponPivotHandler.transform.localRotation = Quaternion.Euler(new Vector3(weaponPivotHandler.backRotationX, weaponPivotHandler.backRotationY, weaponPivotHandler.backRotationZ));
+                        if (dualWieldBackPivot != null)
+                        {
+                            leftWeaponGraphicBack = Instantiate(dualWieldBackPivot, backRef);
+                            leftWeaponGraphicBack.SetActive(false);
+                        }
+                    }
+                    else // Use Normal Back Ref
+                    {
+                        leftWeaponGraphicBack = Instantiate(weaponToEquip.graphic, backRef);
+
+                        WeaponPivotHandler weaponPivotHandler = leftWeaponGraphicBack.GetComponentInChildren<WeaponPivotHandler>();
+                        if (weaponPivotHandler != null && weaponPivotHandler.useCustomBackRefTransform)
+                        {
+                            weaponPivotHandler.transform.localPosition = weaponPivotHandler.backPosition;
+                            weaponPivotHandler.transform.localRotation = Quaternion.Euler(new Vector3(weaponPivotHandler.backRotationX, weaponPivotHandler.backRotationY, weaponPivotHandler.backRotationZ));
+                        }
+
+                        leftWeaponGraphicBack.SetActive(false);
                     }
 
-                    leftWeaponGraphicBack.SetActive(false);
                 }
                 else if (weaponToEquip.useHolsterRef)
                 {
-                    leftWeaponGraphicHolster = Instantiate(weaponToEquip.graphic, leftHolsterRef);
+                    GameObject leftWeaponPivotPrefab = weaponToEquip.graphic.GetComponentInChildren<LeftWeaponPivot>(true)?.gameObject;
+
+                    if (leftWeaponPivotPrefab == null)
+                    {
+                        leftWeaponPivotPrefab = weaponToEquip.graphic;
+                    }
+
+                    leftWeaponGraphicHolster = Instantiate(leftWeaponPivotPrefab, leftHolsterRef);
                     leftWeaponGraphicHolster.SetActive(false);
 
-                    if (weaponToEquip.isDualWielded)
+                    if (weaponToEquip.isDualWielded && leftWeaponGraphicHolster != null)
                     {
-                        rightWeaponGraphicHolster = Instantiate(weaponToEquip.graphic, rightHolsterRef);
+                        rightWeaponGraphicHolster = Instantiate(weaponToEquip.graphic.GetComponentInChildren<RightWeaponPivot>(true).gameObject, rightHolsterRef);
+                        rightWeaponGraphicHolster.transform.rotation = leftWeaponGraphicHolster.transform.rotation;
                         rightWeaponGraphicHolster.SetActive(false);
                     }
                 }
@@ -231,6 +256,11 @@ namespace AF
             if (lockOnManager.isLockedOn)
             {
                 GetComponent<Animator>().SetBool(lockOnManager.hashIsLockedOn, true);
+            }
+
+            if (weaponToEquip.hideShield)
+            {
+                HideShield();
             }
 
             AssignWeaponHandlerRefs();
@@ -286,9 +316,12 @@ namespace AF
 
             Player.instance.equippedShield = shieldToEquip;
 
-            shieldGraphic = Instantiate(shieldToEquip.graphic, leftHand);
-            shieldGraphic.SetActive(false);
-
+            shieldGraphic = Instantiate(shieldToEquip.graphic, rightHand);
+            
+            if (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.hideShield)
+            {
+                shieldGraphic.SetActive(false);
+            }
 
             RecalculateEquipmentBonus();
         }
@@ -688,6 +721,21 @@ namespace AF
             DeactivateAllHitboxes();
         }
 
+        public void ActivateWeaponSpecial()
+        {
+            if (Player.instance.equippedWeapon?.weaponSpecial == null)
+            {
+                return;
+            }
+
+            var instance = Instantiate(Player.instance.equippedWeapon.weaponSpecial, transform.position + transform.up, Quaternion.identity);
+
+            if (Player.instance.equippedWeapon.parentWeaponSpecialToPlayer)
+            {
+                instance.transform.parent = this.transform;
+            }
+        }
+
         public void ActivateLeftWeaponHitbox()
         {
             thirdPersonController.DisableCharacterRotation();
@@ -800,10 +848,27 @@ namespace AF
 
         public void HideShield()
         {
-            if (this.shieldGraphic != null)
+            if (this.shieldGraphic == null)
             {
-                this.shieldGraphic.gameObject.SetActive(false);
+                return;
             }
+
+            if (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.hideShield == false)
+            {
+                return;
+            }
+
+
+            this.shieldGraphic.gameObject.SetActive(false);
+        }
+        public void ForceHideShield()
+        {
+            if (this.shieldGraphic == null)
+            {
+                return;
+            }
+
+            this.shieldGraphic.gameObject.SetActive(false);
         }
 
         public void HideWeapons()
@@ -873,8 +938,33 @@ namespace AF
 
             if (!String.IsNullOrEmpty(playerEquipmentData.weaponName))
             {
-                var weapon = Resources.Load<Weapon>("Items/Weapons/" + playerEquipmentData.weaponName);
-                EquipWeapon(weapon);
+                var weaponFileName = playerEquipmentData.weaponName;
+
+                var idx = playerEquipmentData.weaponName.IndexOf(" +");
+                if (idx != -1)
+                {
+                    weaponFileName = weaponFileName.Substring(0, idx);
+                }
+
+                var weapon = Resources.Load<Weapon>("Items/Weapons/" + weaponFileName);
+
+                var equippedWeapon = Instantiate(weapon);
+                if (equippedWeapon != null)
+                {
+                    if (idx != -1)
+                    {
+                        var weaponLevel = playerEquipmentData.weaponName.Substring(playerEquipmentData.weaponName.IndexOf("+"));
+
+                        int.TryParse(weaponLevel.Replace("+", "").Trim(), out int result);
+
+                        if (result > 0)
+                        {
+                            equippedWeapon.level = result;
+                        }
+                    }
+                }
+
+                EquipWeapon(equippedWeapon);
             }
             else
             {
@@ -1122,6 +1212,7 @@ namespace AF
             this.fireDefenseBonus = 0;
             this.frostDefenseBonus = 0;
             this.lightningDefenseBonus = 0;
+            this.magicDefenseBonus = 0;
 
             var initialReputation = 0;
             this.reputationBonus = 0;
@@ -1135,6 +1226,7 @@ namespace AF
                 this.fireDefenseBonus += Player.instance.equippedHelmet.fireDefense;
                 this.frostDefenseBonus += Player.instance.equippedHelmet.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedHelmet.lightningDefense;
+                this.magicDefenseBonus += Player.instance.equippedHelmet.magicDefense;
                 this.reputationBonus += Player.instance.equippedHelmet.reputationBonus;
             }
             if (Player.instance.equippedArmor != null)
@@ -1146,6 +1238,7 @@ namespace AF
                 this.fireDefenseBonus += Player.instance.equippedArmor.fireDefense;
                 this.frostDefenseBonus += Player.instance.equippedArmor.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedArmor.lightningDefense;
+                this.magicDefenseBonus += Player.instance.equippedArmor.magicDefense;
                 this.reputationBonus += Player.instance.equippedArmor.reputationBonus;
             }
             if (Player.instance.equippedGauntlets != null)
@@ -1157,6 +1250,7 @@ namespace AF
                 this.fireDefenseBonus += Player.instance.equippedGauntlets.fireDefense;
                 this.frostDefenseBonus += Player.instance.equippedGauntlets.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedGauntlets.lightningDefense;
+                this.magicDefenseBonus += Player.instance.equippedGauntlets.magicDefense;
                 this.reputationBonus += Player.instance.equippedGauntlets.reputationBonus;
             }
             if (Player.instance.equippedLegwear != null)
@@ -1168,6 +1262,7 @@ namespace AF
                 this.fireDefenseBonus += Player.instance.equippedLegwear.fireDefense;
                 this.frostDefenseBonus += Player.instance.equippedLegwear.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedLegwear.lightningDefense;
+                this.magicDefenseBonus += Player.instance.equippedLegwear.magicDefense;
                 this.reputationBonus += Player.instance.equippedLegwear.reputationBonus;
             }
             if (Player.instance.equippedAccessory != null)
@@ -1179,6 +1274,7 @@ namespace AF
                 this.fireDefenseBonus += Player.instance.equippedAccessory.fireDefense;
                 this.frostDefenseBonus += Player.instance.equippedAccessory.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedAccessory.lightningDefense;
+                this.magicDefenseBonus += Player.instance.equippedAccessory.magicDefense;
                 this.reputationBonus += Player.instance.equippedAccessory.reputationBonus;
             }
 

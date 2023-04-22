@@ -27,6 +27,8 @@ namespace AF
         public bool useFog = true;
         public Gradient FogColor;
 
+        public float fogDensity = 0.03f;
+
         [Header("Values")]
         [Range(0, 24)]
         public float timeOfDay; // This is used only in editor. In game, we use the Player.instance.timeOfDay;
@@ -54,6 +56,8 @@ namespace AF
 
         IEnumerable<IClockListener> iClockListenersInScene;
 
+        public bool canUpdateLighting = true;
+
         private void Awake()
         {
             this.iClockListenersInScene = FindObjectsOfType<MonoBehaviour>(true).OfType<IClockListener>();
@@ -66,8 +70,9 @@ namespace AF
             {
                 timeOfDay = Player.instance.timeOfDay;
             }
-        }
 
+            RenderSettings.fogDensity = fogDensity;
+        }
 
 
         public void SetTimeOfDay(int hours, int minutes)
@@ -130,12 +135,13 @@ namespace AF
 
                     _SetInternalTimeOfDay(newTimeOfDayValue);
 
-                    UpdateLighting(timeOfDay / 24f);
                 }
-                else
-                {
-                    UpdateLighting(timeOfDay / 24f);
-                }
+
+
+            if (canUpdateLighting)
+            {
+                UpdateLighting(timeOfDay / 24f);
+            }
 
             ShowClockText();
             ShowClockIcon();

@@ -64,7 +64,12 @@ namespace AF
                 FactionManager.instance.SetFactionAffinity(faction, -1);
             }
 
-            enemyManager.enemyHealthController.healthBarSlider.gameObject.SetActive(true);
+            enemyManager.enemyHealthController.ShowHUD();
+        }
+
+        public void ChasePlayer()
+        {
+            enemyManager.animator.SetBool(enemyManager.hashChasing, true);
         }
     }
 }

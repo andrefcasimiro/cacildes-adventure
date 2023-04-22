@@ -26,6 +26,7 @@ namespace AF
         public float fireDefense;
         public float frostDefense;
         public float lightningDefense;
+        public float magicDefense = 0;
 
         [Header("Negative Status Resistances")]
         public StatusEffectResistance[] statusEffectResistances;

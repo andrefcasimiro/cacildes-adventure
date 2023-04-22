@@ -18,8 +18,6 @@ namespace AF
 
             companionManager.agent.speed = companionManager.runSpeed;
 
-            companionManager.HideGenericTrigger();
-
             companionManager.agent.isStopped = false;
         }
 

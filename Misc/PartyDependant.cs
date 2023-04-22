@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace AF
 {
-    public class PartyDependant : MonoBehaviour
+    public class PartyDependant : MonoBehaviour, ISaveable
     {
         public Companion companion;
         public bool requireInParty;
@@ -32,6 +32,10 @@ namespace AF
             this.gameObject.transform.GetChild(0).gameObject.SetActive(false);
         }
 
+        public void OnGameLoaded(GameData gameData)
+        {
+            Reevaluate();
+        }
     }
 
 }

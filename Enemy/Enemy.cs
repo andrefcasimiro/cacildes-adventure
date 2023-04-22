@@ -27,11 +27,11 @@ namespace AF
         public AudioClip dodgeSfx;
 
         [Header("Elemental Damage")]
-        public int fireDamageBonus = 0;
-        public int frostDamageBonus = 0;
-        public int lightningDamageBonus = 0;
-        public int magicDamageBonus = 0;
-        public int darknessDamageBonus = 0;
+        [Range(1, 5f)] public float fireDamageBonus = 1;
+        [Range(1, 5f)] public float frostDamageBonus = 1;
+        [Range(1, 5f)] public float lightningDamageBonus = 1;
+        [Range(1, 5f)] public float magicDamageBonus = 1;
+        [Range(1, 5f)] public float darknessDamageBonus = 1;
 
         [Header("Negative Status Resistance")]
         public NegativeStatusResistance[] negativeStatusResistances;

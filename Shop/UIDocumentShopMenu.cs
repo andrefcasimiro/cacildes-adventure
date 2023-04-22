@@ -37,6 +37,9 @@ namespace AF
         {
             Utils.ShowCursor();
 
+            FindObjectOfType<PlayerComponentManager>(true).DisableComponents();
+            FindObjectOfType<EventNavigator>(true).enabled = false;
+
             if (HasReplenished())
             {
                 Replenish();
@@ -54,6 +57,10 @@ namespace AF
 
         void ExitShop()
         {
+            FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
+            FindObjectOfType<EventNavigator>(true).enabled = true;
+
+            Utils.HideCursor();
             this.gameObject.SetActive(false);
         }
 
@@ -73,6 +80,9 @@ namespace AF
             {
                 DrawSellMenu();
             }
+
+            Utils.ShowCursor();
+
         }
 
         void DrawBuyMenu()
@@ -160,6 +170,10 @@ namespace AF
                 }
 
                 ShopManager.instance.BuyFromShop(shopEntry.name, item);
+
+                Soundbank.instance.PlayItemReceived();
+                FindObjectOfType<NotificationManager>(true).ShowNotification(LocalizedTerms.Bought() + " x" + 1 + " " + item.item.name.GetText() + "", item.item.sprite);
+
                 DrawBuyMenu();
             }
         }

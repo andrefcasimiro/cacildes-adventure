@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 using StarterAssets;
 
@@ -36,6 +35,10 @@ namespace AF
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
         StarterAssetsInputs _input;
 
+        PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
+
+        public ClimbLadderTriggerV2 currentLadder;
+
         private void Start()
         {
             _input = GetComponent<StarterAssetsInputs>();
@@ -45,7 +48,7 @@ namespace AF
         {
             equipmentGraphicsHandler.HideWeapons();
             climbState = ClimbState.ENTERING;
-            
+
             GetComponent<CharacterController>().enabled = false;
             this.transform.position = transformRef.position + new Vector3(0, 0.05f, 0f); // Offset
             this.transform.rotation = transformRef.rotation;
@@ -53,6 +56,21 @@ namespace AF
             animator.Play(hashStartFromBottom);
         }
 
+        public void StartFromBottomV2(Vector3 transformPosition)
+        {
+            equipmentGraphicsHandler.HideWeapons();
+            climbState = ClimbState.ENTERING;
+
+            GetComponent<CharacterController>().enabled = false;
+
+            transform.position = new Vector3(transformPosition.x, transformPosition.y, transformPosition.z);
+
+            var targetRot = currentLadder.forwardRef.transform.position - transform.position;
+            targetRot.y = 0;
+            transform.rotation = Quaternion.LookRotation(targetRot);
+
+            animator.Play(hashStartFromBottom);
+        }
 
         public void StartFromTop(Transform transformRef)
         {
@@ -67,6 +85,25 @@ namespace AF
             animator.Play(hashStartFromTop);
             animator.applyRootMotion = true;
         }
+
+
+        public void StartFromTopV2(Vector3 transformPosition)
+        {
+            equipmentGraphicsHandler.HideWeapons();
+            climbState = ClimbState.ENTERING;
+
+            GetComponent<CharacterController>().enabled = false;
+
+            transform.position = new Vector3(transformPosition.x, transformPosition.y, transformPosition.z);
+
+            var targetRot = transform.position - currentLadder.forwardRef.transform.position;
+            targetRot.y = 0;
+            transform.rotation = Quaternion.LookRotation(targetRot);
+
+            animator.Play(hashStartFromTop);
+            animator.applyRootMotion = true;
+        }
+
 
         private void Update()
         {
@@ -95,15 +132,16 @@ namespace AF
 
         public void ExitToTop()
         {
-
             climbState = ClimbState.EXITING;
             animator.CrossFade(hashExitToTop, 0.25f);
+            currentLadder = null;
         }
 
         public void ExitToBottom()
         {
             climbState = ClimbState.EXITING;
             animator.CrossFade(hashExitToBottom, 0.25f);
+            currentLadder = null;
         }
 
         /// <summary>
@@ -113,7 +151,7 @@ namespace AF
         {
             Physics.gravity = new Vector3(0, 0, 0);
             animator.applyRootMotion = true;
-            GetComponent<CharacterController>().enabled = true;
+            GetComponent<CharacterController>().enabled = false;
             climbState = ClimbState.CLIMBING;
         }
 

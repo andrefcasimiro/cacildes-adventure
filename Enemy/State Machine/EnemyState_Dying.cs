@@ -38,7 +38,6 @@ namespace AF
             enemy.enemyHealthController.DisableHealthHitboxes();
             enemy.enemyHealthController.onEnemyDeath.Invoke();
 
-            enemy.agent.enabled = false;
             enemy.enabled = false;
         }
     }

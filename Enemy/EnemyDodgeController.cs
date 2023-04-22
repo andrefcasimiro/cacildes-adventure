@@ -15,7 +15,6 @@ namespace AF
         [HideInInspector] public float dodgeCooldown = Mathf.Infinity; // Used by the EnemyState_Waiting to control the dodge frequency
         public bool dodgeLeftOrRight = false;
         public string[] customDodgeClips;
-        public float dodgeDistanceBasedOnAnimations = 3f;
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
         PlayerCombatController playerCombatController => FindObjectOfType<PlayerCombatController>(true);

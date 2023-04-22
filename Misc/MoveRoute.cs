@@ -62,7 +62,15 @@ namespace AF
 
         public void ResumeCycle()
         {
-            navMeshAgent.isStopped = false;
+            if (navMeshAgent.isActiveAndEnabled)
+            {
+                navMeshAgent.isStopped = false;
+            }
+
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
 
             StartCoroutine(ResumeFromLastEvent());
         }

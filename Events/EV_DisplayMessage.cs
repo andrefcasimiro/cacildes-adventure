@@ -94,7 +94,7 @@ namespace AF
                 var displayMessage = message;
                 if (randomMessages.Length > 0)
                 {
-                    var idx = Random.Range(0, randomMessages.Length - 1);
+                    var idx = Random.Range(0, randomMessages.Length);
                     displayMessage = randomMessages[idx];
                 }
 

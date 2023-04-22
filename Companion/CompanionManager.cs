@@ -5,9 +5,12 @@ using UnityEngine.AI;
 
 namespace AF
 {
-    public class CompanionManager : MonoBehaviour, ISaveable
+    public class CompanionManager : MonoBehaviour
     {
         public Companion companion;
+
+        [TextArea]
+        public string comment = "Companions must be isKinematic for EventNavigatorCapturable to work smoothly";
         
         #region Animation Hashes
         public readonly int hashIdle = Animator.StringToHash("Idle");
@@ -70,8 +73,6 @@ namespace AF
         // Internal references
         public EnemyManager currentEnemy;
 
-        GenericTrigger genericTrigger;
-
         [HideInInspector] public float defaultStoppingDistance;
 
         [Header("Scene Settings")]
@@ -83,36 +84,18 @@ namespace AF
         public Vector3 previousPosition;
         public float maxTimeStuck = 10f;
         float timeInSamePosition = 0f;
+        public int maxDistanceToPlayerBeforeRespawning = 15;
 
         private void Awake()
         {
+            player = GameObject.FindWithTag("Player");
+
+            defaultStoppingDistance = agent.stoppingDistance;
         }
 
         void Start()
         {
-            player = GameObject.FindWithTag("Player");
 
-            // If not in party, mark as not in party
-            if (Player.instance.companions.FirstOrDefault(x => x.companionId == companion.companionId) == null)
-            {
-                inParty = false;
-
-                // If companion does not live in this scene, dont spawn him
-                if (sceneIsHome == false)
-                {
-                    this.gameObject.SetActive(false);
-                }
-            }
-            else
-            {
-                inParty = true;
-
-                SpawnNearPlayer();
-            }
-
-            genericTrigger = GetComponentInChildren<GenericTrigger>();
-
-            defaultStoppingDistance = agent.stoppingDistance;
             playerLevelManager = player.GetComponent<PlayerLevelManager>();
 
             InitializeHealth();
@@ -128,52 +111,13 @@ namespace AF
             CheckIfPlayerIsUnreachable();
         }
 
-        void SpawnNearPlayer()
+        public void SpawnNearPlayer()
         {
             // Teleport near player
             NavMeshHit rightHit;
             NavMesh.SamplePosition(player.transform.position, out rightHit, 10f, NavMesh.AllAreas);
             transform.position = rightHit.position;
         }
-
-        #region Dialogue
-
-        public void TalkWith()
-        {
-            CompanionDialogue companionDialogue = GetComponentInChildren<CompanionDialogue>();
-            if (companionDialogue == null)
-            {
-                return;
-            }
-
-            StartCoroutine(DispatchDialogue(companionDialogue.GetComponents<EventBase>()));
-        }
-        
-        IEnumerator DispatchDialogue(EventBase[] events)
-        {
-            foreach (EventBase ev in events)
-            {
-                if (ev != null)
-                {
-                    yield return StartCoroutine(ev.Dispatch());
-                }
-            }
-
-            EnableGenericTrigger();
-        }
-
-        public void EnableGenericTrigger()
-        {
-            genericTrigger.enabled = true;
-            genericTrigger.gameObject.SetActive(true);
-        }
-
-        public void HideGenericTrigger()
-        {
-            genericTrigger.enabled = false; 
-        }
-
-        #endregion
 
         #region Combat
         void UpdateAttackCooldown()
@@ -204,7 +148,7 @@ namespace AF
         public void ResetAttackCooldown()
         {
             // add some unpredictability
-            var startPoint = Random.RandomRange(0, 1);
+            var startPoint = Random.Range(0, 1);
 
             cooldownBetweenAttacks = startPoint;
         }
@@ -216,7 +160,7 @@ namespace AF
                 return false;
             }
 
-            var dice = Random.RandomRange(0, 100);
+            var dice = Random.Range(0, 100);
 
             if (dice > attackWeight)
             {
@@ -349,7 +293,13 @@ namespace AF
                 return;
             }
 
-            if (previousPosition == transform.position)
+            if (Vector3.Distance(player.transform.position, transform.position) >= maxDistanceToPlayerBeforeRespawning)
+            {
+                RespawnNearPlayer();
+                timeInSamePosition = 0f;
+            }
+            else if (Mathf.Round(previousPosition.x) == Mathf.Round(transform.position.x) && Mathf.Round(previousPosition.y) == Mathf.Round(transform.position.y) &&
+                    Mathf.Round(previousPosition.z) == Mathf.Round(transform.position.z))
             {
                 timeInSamePosition += Time.deltaTime;
 
@@ -465,23 +415,6 @@ namespace AF
 
         #endregion
 
-
-        #region Serialization
-        public void OnGameLoaded(GameData gameData)
-        {
-            // If not in party, mark as not in party
-            if (Player.instance.companions.FirstOrDefault(x => x.companionId == companion.companionId) == null)
-            {
-                inParty = false;
-            }
-            else
-            {
-                inParty = true;
-
-                SpawnNearPlayer();
-            }
-        }
-        #endregion
     }
 
 }

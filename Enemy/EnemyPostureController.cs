@@ -14,6 +14,8 @@ namespace AF
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
+        public bool isParriable = false;
+
         private void Start()
         {
             InitializePostureHUD();
@@ -92,6 +94,16 @@ namespace AF
         {
             return Player.instance.CalculateAIPosture(enemyManager.enemy.maxPostureDamage, enemyManager.currentLevel);
         }
+
+        public void ShowHUD()
+        {
+            postureBarSlider.gameObject.SetActive(true);
+        }
+        public void HideHUD()
+        {
+            postureBarSlider.gameObject.SetActive(false);
+        }
+
     }
 
 }

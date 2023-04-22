@@ -33,6 +33,8 @@ namespace AF
         float maxStartupDelay = 0.25f;
         float startupDelay = Mathf.Infinity;
 
+        public bool hasIframes = false;
+
         private void Awake()
         {
             lockOnManager = FindObjectOfType<LockOnManager>(true);
@@ -121,24 +123,16 @@ namespace AF
             return animator.GetBool(hashIsDodging);
         }
 
+        /// <summary>
+        /// Animation Event
+        /// </summary>
+        public void StopIframes()
+        {
+            hasIframes = false;
+        }
+
         void HandleDodge()
         {
-            if (lockOnManager.isLockedOn)
-            {
-                /*if (_input.move.x > 0)
-                {
-                    animator.CrossFade(hashDodgeRight, 0.05f);
-
-
-                    return;
-                }
-                else if (_input.move.x < 0)
-                {
-                    animator.CrossFade(hashDodgeLeft, 0.05f);
-                    return;
-                }*/
-            }
-
 
             if (_input.move == Vector2.zero)
             {
@@ -146,7 +140,7 @@ namespace AF
                 return;
             }
 
-
+            hasIframes = true;
             animator.CrossFade(hashRoll, 0.05f);
         }
 

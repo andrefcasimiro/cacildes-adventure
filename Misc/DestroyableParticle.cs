@@ -3,10 +3,10 @@ using UnityEngine;
 
 namespace AF
 {
-
     public class DestroyableParticle : MonoBehaviour
     {
         public float destroyAfter = 5f;
+
 
         // Use this for initialization
         void Start()

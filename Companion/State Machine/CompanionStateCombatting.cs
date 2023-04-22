@@ -20,8 +20,6 @@ namespace AF
 
             companionManager.FaceEnemy();
 
-            companionManager.HideGenericTrigger();
-
             companionManager.agent.isStopped = true;
 
             if (companionManager.currentEnemy == null || companionManager.currentEnemy.enemyHealthController.currentHealth <= 0)

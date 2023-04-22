@@ -127,7 +127,7 @@ namespace AF
                         }
                     }
 
-                    SwitchManager.instance.UpdateSwitch(switchEntry, true);
+                    SwitchManager.instance.UpdateSwitch(switchEntry, true, null);
                 }
             }
 

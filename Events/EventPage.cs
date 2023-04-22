@@ -145,7 +145,7 @@ namespace AF
             StopEvent();
         }
 
-        void StopEvent()
+        public void StopEvent()
         {
             if (dayNightManager.TimePassageAllowed())
             {

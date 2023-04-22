@@ -1,3 +1,4 @@
+using StarterAssets;
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -41,9 +42,16 @@ namespace AF
         public float mouseSize = 25;
         public float padding = 0.5f;
 
+        StarterAssetsInputs inputs => FindObjectOfType<StarterAssetsInputs>(true);
 
         private void OnEnable()
         {
+            if (virtualMouse != null)
+            {
+                InputSystem.RemoveDevice(virtualMouse);
+                InputSystem.onAfterUpdate -= UpdateMotion;
+            }
+
             EventSystem.current.SetSelectedGameObject(null);
 
             if (Gamepad.current == null)
@@ -138,14 +146,15 @@ namespace AF
 
             previousPosition = newPosition;
 
-
             bool buttonSouthIsPressed = Gamepad.current.buttonSouth.IsPressed();
+            
             if (previousMouseState != buttonSouthIsPressed)
             {
-                virtualMouse.CopyState<MouseState>(out var mouseState);
+                virtualMouse.CopyState<MouseState>(out var  mouseState);
 
                 mouseState.WithButton(MouseButton.Left, Gamepad.current.buttonSouth.IsPressed());
-
+                InputState.Change(virtualMouse, mouseState);
+                Debug.Log("hey");
                 previousMouseState = buttonSouthIsPressed;
             }
 

@@ -18,7 +18,16 @@ namespace AF
             {
                 animator.gameObject.TryGetComponent<EnemyManager>(out enemy);
 
-                enemy = animator.GetComponentInParent<EnemyManager>(true);
+                if (enemy == null)
+                {
+                    enemy = animator.GetComponentInParent<EnemyManager>(true);
+                }
+            }
+
+
+            if (enemy.enemyHealthController != null)
+            {
+                enemy.enemyHealthController.HideHUD();
             }
 
             enemy.agent.SetDestination(enemy.transform.position);

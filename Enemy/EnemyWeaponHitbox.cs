@@ -8,6 +8,8 @@ namespace AF
         public AudioClip weaponSwingSfx;
         public AudioClip weaponImpactSfx;
 
+        public WeaponElementType weaponElementType = WeaponElementType.None;
+
         [Header("Bonus Stats")]
         public StatusEffect statusEffect;
         public int statusEffectAmountPerHit = 0;
@@ -117,36 +119,41 @@ namespace AF
 
         public void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag == "PlayerCompanionHealthHitbox")
+            if (other.gameObject.CompareTag("PlayerCompanionHealthHitbox"))
             {
                 other.GetComponentInParent<CompanionManager>().TakeDamage(enemy.enemyCombatController.GetCurrentAttack(), enemy);
 
                 return;
             }
 
-            if (other.gameObject.tag != "Player")
+            if (!other.gameObject.CompareTag("Player"))
             {
                 return;
             }
 
             GetPlayerComponents();
 
-            float damageToReceive = Mathf.Clamp(
-                enemy.enemyCombatController.GetCurrentAttack() - defenseStatManager.GetDefenseAbsorption(),
-                UnityEngine.Random.Range(1, 10),
-                healthStatManager.GetMaxHealth()
-            );
-
             if (damageCooldownTimer <= maxTimerBeforeAllowingDamageAgain)
             {
                 return;
             }
 
-            if (playerParryManager.IsParrying() && enemy.enemyPostureController != null)
+            if (playerParryManager.IsParrying() && enemy.enemyPostureController != null && enemy.enemyPostureController.isParriable)
             {
                 playerParryManager.InstantiateParryFx();
                 enemy.enemyPostureController.TakePostureDamage();
                 return;
+            }
+
+            float damageToReceive = Mathf.Clamp(
+                enemy.enemyCombatController.GetCurrentAttack() - defenseStatManager.GetDefenseAbsorption(),
+                Random.Range(1, 10),
+                healthStatManager.GetMaxHealth()
+            );
+
+            if (weaponElementType == WeaponElementType.Magic)
+            {
+                damageToReceive -= (int)defenseStatManager.GetMagicDefense();
             }
 
             playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.enemyCombatController.currentAttackPoiseDamage);

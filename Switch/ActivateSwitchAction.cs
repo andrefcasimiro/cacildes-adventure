@@ -8,7 +8,7 @@ namespace AF
 
         public void ActivateSwitch()
         {
-            SwitchManager.instance.UpdateSwitch(switchEntry, true);
+            SwitchManager.instance.UpdateSwitch(switchEntry, true, null);
         }
     }
 }

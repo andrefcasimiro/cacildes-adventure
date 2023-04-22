@@ -150,7 +150,9 @@ namespace AF
             statusEntry.Q<VisualElement>("BarFill").style.width = new StyleLength(new Length(100, LengthUnit.Percent));
 
             var appliedStatusLabel = statusEntry.Q<Label>("AppliedStatusLabel");
-            appliedStatusLabel.text = appliedConsumable.consumableEffect.displayName.GetText();
+            appliedStatusLabel.text = LocalizedTerms.GetConsumableDisplayNameEffect(appliedConsumable.consumableEffect.consumablePropertyName)
+                    + " (" + (appliedConsumable.consumableEffect.isPositive ? "+" : "-") +  appliedConsumable.consumableEffect.value + ""
+                    + (appliedConsumable.consumableEffect.unit.localizedTexts.Length > 0 ? " " + appliedConsumable.consumableEffect.unit.GetText() : "") + ")";
 
             if (appliedConsumable.currentDuration <= 0)
             {

@@ -209,15 +209,15 @@ namespace AF
                 var str = text.Split('=');
                 var companionId = str[1];
                 var companions = FindObjectsOfType<CompanionManager>(true);
-                var companion = companions.FirstOrDefault(x => x.companion.companionId == companionId);
+                var companion = companions.FirstOrDefault(x => x.companion.companionId.StartsWith(companionId));
 
                 if (companion.waitingForPlayer)
                 {
-                    return "Follow me";
+                    return LocalizedTerms.FollowMe();
                 }
                 else
                 {
-                    return "Wait here";
+                    return LocalizedTerms.WaitHere();
                 }
             }
 

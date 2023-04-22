@@ -48,7 +48,7 @@ namespace AF
             }
 
 
-            if (dodgeController.IsDodging() && ignoreDodging == false)
+            if (dodgeController.hasIframes && ignoreDodging == false)
             {
                 return;
             }
@@ -138,7 +138,7 @@ namespace AF
                 if (playerCanBlock)
                 {
                     damage = damage - ((int)(damage * defenseAbsorption / 100));
-                    playerCombatController.GetComponent<Animator>().Play("Blocking Hit");
+                    playerCombatController.GetComponent<Animator>().Play("Block Hit");
                 }
                 else
                 {
@@ -147,7 +147,7 @@ namespace AF
                 }
             }
 
-            if (dodgeController.IsDodging())
+            if (dodgeController.hasIframes)
             {
                 return;
             }

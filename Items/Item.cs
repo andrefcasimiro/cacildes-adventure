@@ -6,6 +6,8 @@ namespace AF
     [CreateAssetMenu(menuName = "Items / Item / New Item")]
     public class Item : ScriptableObject
     {
+        [TextArea] [SerializeField] private string comment = "The english item name and file name must match";
+
         public Sprite sprite;
 
         public new LocalizedText name;

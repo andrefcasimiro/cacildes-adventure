@@ -16,6 +16,7 @@ namespace AF
 
         LockOnManager lockOnManager;
         public Transform projectileSpawnPointRef;
+        public Transform throwSpawnPointRef;
 
         public Item bow;
 
@@ -50,7 +51,7 @@ namespace AF
                 return;
             }
 
-            if (Player.instance.ownedItems.FirstOrDefault(x => x.item == bow) == null)
+            if (Player.instance.ownedItems.FirstOrDefault(x => x.item.name.GetEnglishText() == bow.name.GetEnglishText()) == null)
             {
                 notificationManager.ShowNotification(LocalizedTerms.BowRequired(), notificationManager.systemError);
                 return;
@@ -61,6 +62,41 @@ namespace AF
             playerInventory.RemoveItem(consumableProjectile, 1);
 
             animator.Play("Preparing Arrow");
+
+            if (lockOnManager.nearestLockOnTarget != null)
+            {
+                var rotation = lockOnManager.nearestLockOnTarget.transform.position - transform.position;
+                rotation.y = 0;
+
+                playerComponentManager.DisableCharacterController();
+                this.transform.rotation = Quaternion.LookRotation(rotation);
+                playerComponentManager.EnableCharacterController();
+            }
+
+        }
+
+        public void ThrowConsumable(ConsumableProjectile consumableProjectile)
+        {
+            if (CanShoot() == false)
+            {
+                return;
+            }
+
+            if (playerInventory.IsConsumingItem())
+            {
+                return;
+            }
+
+            this.currentProjectile = consumableProjectile.projectile;
+
+            playerInventory.RemoveItem(consumableProjectile, 1);
+
+            animator.Play("Throwing");
+
+            if (currentProjectile.throwSfx != null)
+            {
+                playerCombatController.combatAudioSource.PlayOneShot(currentProjectile.throwSfx);
+            }
 
             if (lockOnManager.nearestLockOnTarget != null)
             {
@@ -131,6 +167,22 @@ namespace AF
 
             Projectile projectile = projectileInstance.GetComponent<Projectile>();
             projectile.isFromPlayer = true;
+            projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
+        }
+
+        public void OnThrow()
+        {
+            GameObject projectileInstance = Instantiate(currentProjectile.gameObject, throwSpawnPointRef.position, transform.rotation);
+
+            Projectile projectile = projectileInstance.GetComponent<Projectile>();
+            projectile.isFromPlayer = true;
+
+            if (lockOnManager.nearestLockOnTarget != null)
+            {
+                float dist = Vector3.Distance(lockOnManager.nearestLockOnTarget.transform.position, transform.position);
+                projectile.forwardVelocity *= dist > 1 ? dist : 1f;
+            }
+
             projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
         }
         #endregion

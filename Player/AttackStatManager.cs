@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
+using StarterAssets;
 
 namespace AF
 {
@@ -33,6 +34,9 @@ namespace AF
         public int basePhysicalAttack = 100;
         public float levelMultiplier = 3.25f;
 
+        public float jumpAttackMultiplier = 1.5f;
+
+        ThirdPersonController thirdPersonController => FindObjectOfType<ThirdPersonController>(true);
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
@@ -44,6 +48,11 @@ namespace AF
             this.scalingDictionary.Add("B", B);
             this.scalingDictionary.Add("A", A);
             this.scalingDictionary.Add("S", S);
+        }
+
+        public bool IsHeavyAttacking()
+        {
+            return playerCombatController.isHeavyAttacking;
         }
 
         public int GetCurrentPhysicalAttack()
@@ -83,7 +92,7 @@ namespace AF
         {
             var value = (int)(
                 GetCurrentPhysicalAttack()
-                + weapon.physicalAttack
+                + weapon.GetWeaponAttack()
                 + GetStrengthBonusFromWeapon(weapon)
                 + GetDexterityBonusFromWeapon(weapon)
             );
@@ -93,6 +102,11 @@ namespace AF
             {
                 int heavyAttackBonus = weapon.heavyAttackBonus;
                 value += heavyAttackBonus;
+            }
+
+            if (!thirdPersonController.Grounded)
+            {
+                value = (int)(value * jumpAttackMultiplier);
             }
 
             if (weapon.halveDamage)
@@ -120,8 +134,6 @@ namespace AF
 
         public float GetArrowDamageBonus()
         {
-            Debug.Log((Player.instance.dexterity * this.levelMultiplier));
-            Debug.Log(equipmentGraphicsHandler.dexterityBonus * this.levelMultiplier);
             return Mathf.Ceil(Player.instance.dexterity * this.levelMultiplier + equipmentGraphicsHandler.dexterityBonus * this.levelMultiplier);
         }
 

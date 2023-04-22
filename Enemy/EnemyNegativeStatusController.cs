@@ -25,11 +25,11 @@ namespace AF
         [SerializeField] List<EnemyAppliedStatus> appliedStatus = new List<EnemyAppliedStatus>();
         public EnemyStatusEffectIndicator uiStatusPrefab;
         public GameObject statusEffectContainer;
-        public FloatingText statusFloatingText;
 
         // Components
         EnemyManager enemyManager => GetComponent<EnemyManager>();
         EnemyHealthController enemyHealthController => GetComponent<EnemyHealthController>();
+        CombatNotificationsController combatNotificationsController => GetComponent<CombatNotificationsController>();
 
         private void Update()
         {
@@ -42,6 +42,15 @@ namespace AF
             {
                 HandleStatusEffects();
             }
+        }
+
+        public void ShowHUD()
+        {
+            statusEffectContainer.SetActive(true);
+        }
+        public void HideHUD()
+        {
+            statusEffectContainer.SetActive(false);
         }
 
         public float InflictStatusEffect(StatusEffect statusEffect, float amount)
@@ -61,19 +70,27 @@ namespace AF
 
                 if (this.appliedStatus[idx].appliedStatus.currentAmount >= this.appliedStatus[idx].maxAmountBeforeDamage)
                 {
-                    ShowTextAndParticleOnReachingFullAmount(this.appliedStatus[idx].appliedStatus.statusEffect);
+                    Instantiate(statusEffect.particleOnDamage, this.transform);
 
                     this.appliedStatus[idx].appliedStatus.hasReachedTotalAmount = true;
 
 
-                    if (statusEffect.damagePercentualValue > 0)
+                    if (statusEffect.usePercentuagelDamage && statusEffect.damagePercentualValue > 0)
                     {
                         var percentageOfHealthToTake = statusEffect.damagePercentualValue * enemyHealthController.GetMaxHealth() / 100;
                         valueToReturn = percentageOfHealthToTake;
+
+                        combatNotificationsController.ShowStatusEffectAmount(statusEffect.name.GetText(), valueToReturn, statusEffect.barColor);
+                    }
+                    else
+                    {
+                        combatNotificationsController.ShowStatusFullAmountEffect(statusEffect.appliedStatusDisplayName.GetText(), statusEffect.barColor);
                     }
 
                     return valueToReturn;
                 }
+
+                combatNotificationsController.ShowStatusEffectAmount(statusEffect.name.GetText(), valueToReturn, statusEffect.barColor);
 
                 return valueToReturn;
             }
@@ -92,12 +109,15 @@ namespace AF
 
             if (appliedStatus.hasReachedTotalAmount)
             {
-                ShowTextAndParticleOnReachingFullAmount(appliedStatus.statusEffect);
+
+                combatNotificationsController.ShowStatusFullAmountEffect(statusEffect.appliedStatusDisplayName.GetText(), statusEffect.barColor);
+                Instantiate(statusEffect.particleOnDamage, this.transform);
 
                 if (appliedStatus.statusEffect.damagePercentualValue > 0)
                 {
                     var percentageOfHealthToTake = appliedStatus.statusEffect.damagePercentualValue * enemyHealthController.GetMaxHealth() / 100;
                     valueToReturn = percentageOfHealthToTake;
+                    combatNotificationsController.ShowStatusEffectAmount(statusEffect.name.GetText(), valueToReturn, statusEffect.barColor);
                 }
             }
 
@@ -115,19 +135,6 @@ namespace AF
             this.appliedStatus.Add(enemyAppliedStatus);
 
             return valueToReturn;
-        }
-
-        void ShowTextAndParticleOnReachingFullAmount(StatusEffect statusEffect)
-        {
-            if (statusFloatingText != null)
-            {
-                statusFloatingText.gameObject.SetActive(true);
-                statusFloatingText.GetComponent<TMPro.TextMeshPro>().color = statusEffect.barColor;
-
-                statusFloatingText.ShowText(statusEffect.appliedStatusDisplayName.GetText());
-            }
-
-            Instantiate(statusEffect.particleOnDamage, this.transform);
         }
 
         private void HandleStatusEffects()

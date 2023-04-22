@@ -10,6 +10,7 @@ namespace AF
         public enum ProjectileType
         {
             BOW,
+            THROWABLE,
         }
 
         public string animationToPlay = "Preparing Arrow";
@@ -30,6 +31,10 @@ namespace AF
             if (projectileType == ProjectileType.BOW)
             {
                 playerShootingManager.ShootBow(this);
+            }
+            else if (projectileType == ProjectileType.THROWABLE)
+            {
+                playerShootingManager.ThrowConsumable(this);
             }
         }
 

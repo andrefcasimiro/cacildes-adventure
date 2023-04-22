@@ -4,6 +4,7 @@ using StarterAssets;
 using UnityEngine.UIElements;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 namespace AF
 {

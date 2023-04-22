@@ -10,6 +10,7 @@ namespace AF
         StarterAssetsInputs inputs => FindObjectOfType<StarterAssetsInputs>(true);
         UIDocumentKeyPrompt uIDocumentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
         UIDocumentAlchemyCraftScreen alchemyCraftScreen => FindObjectOfType<UIDocumentAlchemyCraftScreen>(true);
+        UIDocumentBlacksmithScreen blacksmithScreen => FindObjectOfType<UIDocumentBlacksmithScreen>(true);
 
         public void OnCaptured()
         {
@@ -23,6 +24,10 @@ namespace AF
             {
                 uIDocumentKeyPrompt.action = LocalizedTerms.Cook();
             }
+            else if (craftActivity == UIDocumentAlchemyCraftScreen.CraftActivity.BLACKSMITH)
+            {
+                uIDocumentKeyPrompt.action = LocalizedTerms.UseBlacksmithAnvil();
+            }
 
             uIDocumentKeyPrompt.gameObject.SetActive(true);
         }
@@ -33,6 +38,12 @@ namespace AF
 
             FindObjectOfType<PlayerComponentManager>(true).DisableComponents();
             FindObjectOfType<PlayerComponentManager>(true).DisableCharacterController();
+
+            if (craftActivity == UIDocumentAlchemyCraftScreen.CraftActivity.BLACKSMITH)
+            {
+                blacksmithScreen.gameObject.SetActive(true);
+                return;
+            }
 
             alchemyCraftScreen.craftActivity = craftActivity;
             alchemyCraftScreen.gameObject.SetActive(true);

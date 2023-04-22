@@ -18,7 +18,7 @@ namespace AF
         public void Explode()
         {
             Instantiate(mineCartColliderExplosion, transform.position, Quaternion.identity);
-            SwitchManager.instance.UpdateSwitch(switchToActivateUponCollision, true);
+            SwitchManager.instance.UpdateSwitch(switchToActivateUponCollision, true, null);
         }
     }
 }

@@ -87,6 +87,10 @@ namespace AF
         public float enemiesAttackMultiplierPerLevel = 0.15f;
         public float enemiesPostureMultiplierPerLevel = 0.15f;
 
+        [Header("Unlocked Bonfires")]
+        public List<string> unlockedBonfires = new();
+        public bool unlockAllBonfires = false;
+
         public string currentObjective = "";
 
         public List<SerializedCompanion> companions = new List<SerializedCompanion>();
@@ -105,6 +109,17 @@ namespace AF
 
         private void Start()
         {
+            var copiedOwnedItems = ownedItems.ToArray();
+            ownedItems.Clear();
+            foreach (var ownedItem in copiedOwnedItems)
+            {
+                ownedItems.Add(new ItemEntry()
+                {
+                    item = Instantiate(ownedItem.item),
+                    amount = ownedItem.amount,
+                });
+            }
+
             defaultArmor = equippedArmor;
             defaultLegwear = equippedLegwear;
 
@@ -117,7 +132,7 @@ namespace AF
             if (equippedWeapon != null)
             {
                 ItemEntry i = new ItemEntry();
-                i.item = equippedWeapon;
+                i.item = Instantiate(equippedWeapon);
                 i.amount = 1;
                 ownedItems.Add(i);
             }
@@ -175,11 +190,29 @@ namespace AF
             {
                 FindObjectOfType<DayNightManager>(true).SetTimeOfDay(Mathf.RoundToInt(Player.instance.timeOfDay) + 1, 0);
             }
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                unlockAllBonfires = !unlockAllBonfires;
+            }
+        }
+
+        public void UnlockBonfire(string bonfireName)
+        {
+            if (this.unlockedBonfires.Contains(bonfireName))
+            {
+                return;
+            }
+
+            this.unlockedBonfires.Add(bonfireName);
         }
 
         public void OnGameLoaded(GameData gameData)
         {
             PlayerData playerData = gameData.playerData;
+
+            // Bonfires
+            unlockedBonfires.Clear();
+            unlockedBonfires = gameData.unlockedBonfires.ToList();
 
             // Companions
             //var companions = Resources.LoadAll<Companion>("Companions");
@@ -189,6 +222,7 @@ namespace AF
             // Items
             ownedItems.Clear();
             favoriteItems.Clear();
+
             if (gameData.items.Length > 0)
             {
                 var accessories = Resources.LoadAll<Accessory>("Items/Accessories");
@@ -202,6 +236,7 @@ namespace AF
                 var shields = Resources.LoadAll<Shield>("Items/Shields");
                 var weapons = Resources.LoadAll<Weapon>("Items/Weapons");
                 var keyItems = Resources.LoadAll<Item>("Items/Key Items");
+                var upgradeMaterials = Resources.LoadAll<UpgradeMaterial>("Items/Upgrade Materials");
 
                 foreach (var serializedItem in gameData.items)
                 {
@@ -244,11 +279,44 @@ namespace AF
                     }
                     if (itemInstance == null)
                     {
-                        itemInstance = weapons.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
+                        var originalItemInstance = weapons.FirstOrDefault(i => serializedItem.itemName.StartsWith(i.name.GetEnglishText()));
+
+                        if (originalItemInstance != null)
+                        {
+                            itemInstance = Instantiate(originalItemInstance);
+                            var idx = serializedItem.itemName.IndexOf("+");
+                            var weaponLevel = idx != -1 ? serializedItem.itemName.Substring(idx) : null;
+                            if (!string.IsNullOrEmpty(weaponLevel))
+                            {
+                                if (itemInstance != null)
+                                {
+                                    var itemEntry = new ItemEntry();
+
+                                    var weapon = (Weapon)itemInstance;
+                                    int.TryParse(weaponLevel.Replace("+", "").Trim(), out int result);
+
+                                    if (result > 0)
+                                    {
+                                        weapon.level = result;
+                                    }
+
+                                    itemEntry.item = weapon;
+                                    itemEntry.amount = serializedItem.itemCount;
+                                    this.ownedItems.Add(itemEntry);
+
+                                    continue;
+                                }
+                            }
+
+                        }
                     }
                     if (itemInstance == null)
                     {
                         itemInstance = keyItems.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
+                        itemInstance = upgradeMaterials.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
                     }
 
                     if (itemInstance != null)
@@ -307,11 +375,9 @@ namespace AF
 
                     consumableEffect.consumablePropertyName = consumableName;
                     Consumable consumableScriptableObject = Resources.Load<Consumable>("Items/Consumables/" + savedConsumable.consumableName);
-                    consumableEffect.displayName.localizedTexts = consumableScriptableObject.consumableEffects.FirstOrDefault(x => x.displayName.GetEnglishText() == savedConsumable.displayName).displayName.localizedTexts;
                     consumableEffect.barColor = new Color(savedConsumable.barColor.r, savedConsumable.barColor.g, savedConsumable.barColor.b, savedConsumable.barColor.a);
                     consumableEffect.value = savedConsumable.value;
                     consumableEffect.effectDuration = savedConsumable.effectDuration;
-
 
                     appliedConsumable.currentDuration = savedConsumable.currentDuration;
 

@@ -12,6 +12,8 @@ namespace AF
 
         public StarterAssets.StarterAssetsInputs inputs;
 
+        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
+
         // Start is called before the first frame update
         void Start()
         {
@@ -21,14 +23,27 @@ namespace AF
         // Update is called once per frame
         void Update()
         {
+            // Dont allow consuming items when menu is opened, we might be searching in the textbox using the 'R' or 'Q' key
+
             if (inputs.consumeFavoriteItem)
             {
                 inputs.consumeFavoriteItem = false;
+
+                if (menuManager.IsMenuOpen())
+                {
+                    return;
+                }
+
                 ConsumeFavoriteItem();
             }
             else if (inputs.switchFavoriteItem)
             {
                 inputs.switchFavoriteItem = false;
+
+                if (menuManager.IsMenuOpen())
+                {
+                    return;
+                }
 
                 SwitchFavoriteItemsOrder();
 
@@ -42,7 +57,7 @@ namespace AF
             {
                 Item currentItem = Player.instance.favoriteItems[0];
 
-                Player.ItemEntry itemEntry = Player.instance.ownedItems.Find(item => item.item == currentItem);
+                Player.ItemEntry itemEntry = Player.instance.ownedItems.Find(item => item.item.name.GetEnglishText() == currentItem.name.GetEnglishText());
 
                 if (itemEntry.amount <= 1)
                 {

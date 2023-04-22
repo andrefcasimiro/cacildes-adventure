@@ -8,7 +8,7 @@ namespace AF
         private void OnAnimatorMove()
         {
             if (animator.applyRootMotion == false) { return; }
-            bool agentIsEnabled = enemy.agent.enabled;
+            bool agentIsEnabled = enemy.agent.isActiveAndEnabled;
 
             if (agentIsEnabled)
             {

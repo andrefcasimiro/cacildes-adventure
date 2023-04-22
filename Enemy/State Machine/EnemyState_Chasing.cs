@@ -10,6 +10,10 @@ namespace AF
         EnemyManager enemy;
         PlayerComponentManager playerComponentManager;
 
+        public float chaseSpeedOverride = -1f;
+
+        float agentSpeed = -1f;
+
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             animator.gameObject.TryGetComponent<EnemyManager>(out enemy);
@@ -24,6 +28,15 @@ namespace AF
                 playerComponentManager = enemy.player.GetComponent<PlayerComponentManager>();
             }
 
+            if (agentSpeed == -1)
+            {
+                agentSpeed = enemy.agent.speed;
+            }
+
+            if (enemy.enemyHealthController != null)
+            {
+                enemy.enemyHealthController.ShowHUD();
+            }
 
             if (enemy.enemyBossController != null)
             {
@@ -40,6 +53,16 @@ namespace AF
             else if (enemy.shouldPlayBattleMusic)
             {
                 BGMManager.instance.PlayBattleMusic();
+            }
+
+            if (chaseSpeedOverride != -1)
+            {
+                enemy.agent.speed = chaseSpeedOverride;
+            }
+
+            if (enemy.chaseVelocityOverride != -1)
+            {
+                enemy.agent.speed = enemy.chaseVelocityOverride;
             }
         }
 
@@ -133,6 +156,15 @@ namespace AF
             System.Random rnd = new System.Random();
             return source.OrderBy((item) => rnd.Next());
         }
+
+        public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        {
+            if (chaseSpeedOverride != -1)
+            {
+                enemy.agent.speed = agentSpeed;
+            }
+        }
     }
+
 
 }

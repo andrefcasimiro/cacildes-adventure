@@ -9,6 +9,7 @@ namespace AF
         public Bonfire bonfire;
 
         public UIDocumentLevelUp uiDocumentLevelUp;
+        public UIDocumentBonfireTravel uiDocumentTravel;
 
         bool isPassingTime = false;
         float originalDaySpeed = 0f;
@@ -17,6 +18,7 @@ namespace AF
         public LocalizedText bonfireNameLabel;
         public LocalizedText levelUpText;
         public LocalizedText passTimeText;
+        public LocalizedText travelText;
         public LocalizedText exitBonfireText;
 
         private void Start()
@@ -39,9 +41,11 @@ namespace AF
             var levelUpButton = root.Q<Button>("LevelUpButton");
             var passTimeButton = root.Q<Button>("PassTimeButton");
             var exitBonfireButton = root.Q<Button>("LeaveButton");
+            var travelButton = root.Q<Button>("TravelButton");
 
             levelUpButton.text = levelUpText.GetText();
             passTimeButton.text = passTimeText.GetText();
+            travelButton.text = travelText.GetText();
             exitBonfireButton.text = exitBonfireText.GetText();
 
             levelUpButton.RegisterCallback<ClickEvent>(ev =>
@@ -58,6 +62,12 @@ namespace AF
                 }
 
                 StartCoroutine(MoveTime());
+            });
+
+            travelButton.RegisterCallback<ClickEvent>(ev =>
+            {
+                uiDocumentTravel.gameObject.SetActive(true);
+                this.gameObject.SetActive(false);
             });
 
             exitBonfireButton.RegisterCallback<ClickEvent>(ev =>

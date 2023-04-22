@@ -14,6 +14,8 @@ namespace AF {
 
         private EnemyManager enemy;
 
+        public bool isParriable = true;
+
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             animator.gameObject.TryGetComponent(out enemy);
@@ -31,6 +33,11 @@ namespace AF {
 
             // Enable tracking
             enemy.facePlayer = true;
+
+            if (enemy.enemyPostureController != null)
+            {
+                enemy.enemyPostureController.isParriable = isParriable;
+            }
         }
 
         public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

@@ -10,11 +10,25 @@ namespace AF
 
         public string animationName;
 
+        [Header("Drink Gesture")]
+        public bool canDrink = false;
+        public string drinkAnimation = "";
+        public float drinkInterval = 5f;
+        public bool hideDrinkOnIdle = true;
+        public float drinkDuration = 1f;
+        public GameObject drinkGraphic;
+        float drinkCooldown = Mathf.Infinity;
+
         private void Start()
         {
             if (animator != null)
             {
                 animator.Play(animationName);
+            }
+
+            if (hideDrinkOnIdle && drinkGraphic != null)
+            {
+                drinkGraphic.gameObject.SetActive(false);
             }
         }
 
@@ -25,6 +39,61 @@ namespace AF
                 animator.Play(animationName);
             }
         }
+
+        private void Update()
+        {
+            if (canDrink)
+            {
+                HandleDrink();
+            }
+        }
+
+        void HandleDrink()
+        {
+            if (drinkCooldown >= drinkInterval)
+            {
+                DecideIfWillDrink();
+            }
+            else
+            {
+                drinkCooldown += Time.deltaTime;
+            }
+        }
+
+        void DecideIfWillDrink()
+        {
+            drinkCooldown = 0f;
+            int randomChance = Random.Range(0, 100);
+            if (randomChance > 50)
+            {
+                Drink();
+            }
+        }
+
+        void Drink()
+        {
+            if (drinkGraphic != null)
+            {
+                drinkGraphic.gameObject.SetActive(true);
+            }
+
+            animator.CrossFade(drinkAnimation, 0.1f);
+
+            StartCoroutine(HideDrink());
+        }
+
+        IEnumerator HideDrink()
+        {
+            yield return new WaitForSeconds(drinkDuration);
+
+            if (hideDrinkOnIdle)
+            {
+                drinkGraphic.gameObject.SetActive(false);
+            }
+
+            animator.CrossFade(animationName, 0.1f);
+        }
+
     }
 
 }

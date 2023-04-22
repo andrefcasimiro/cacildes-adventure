@@ -8,6 +8,102 @@ namespace AF
             TALK,
         }
 
+        #region Consumable Descriptions
+        // TODO: Move this to a specific class manager that contains all other data (bar color, sprites) so we dont save it on the save file
+        public static string GetConsumableDisplayNameEffect(Consumable.ConsumablePropertyName consumablePropertyName)
+        {
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.HEALTH_REGENERATION)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Regeneração de vida";
+                }
+
+                return "Health regeneration over time";
+            }
+
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.JUMP_HEIGHT)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Aumento de altura de salto";
+                }
+
+                return "Increased jump height";
+            }
+
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.PHYSICAL_ATTACK_BONUS)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Aumento do poder de ataque";
+                }
+
+                return "Increased physical attack";
+            }
+
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.STAMINA_REGENERATION_RATE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Regeneração de stamina mais rápida";
+                }
+
+                return "Faster stamina regeneration";
+            }
+
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Regeneração de stamina mais lenta";
+                }
+
+                return "Slower stamina regeneration";
+            }
+
+            return "";
+        }
+
+        #endregion
+
+        #region Companions
+
+        public static string HasJoinedTheParty()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "juntou-se à equipa!",
+                _ => "has joined the party!",
+            };
+        }
+        public static string HasLeftTheParty()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "abandonou a equipa!",
+                _ => "has left the party!",
+            };
+        }
+        public static string WaitHere()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Espera aqui",
+                _ => "Wait here",
+            };
+        }
+        public static string FollowMe()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Segue-me",
+                _ => "Follow me",
+            };
+        }
+
+        #endregion
+
         public static string GetActionText(LocalizedAction action)
         {
             return action switch
@@ -24,6 +120,14 @@ namespace AF
             {
                 GamePreferences.GameLanguage.PORTUGUESE => "Sair da loja",
                 _ => "Exit Shop",
+            };
+        }
+        public static string Bought()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Cacildes comprou",
+                _ => "Bought",
             };
         }
 
@@ -90,6 +194,15 @@ namespace AF
             };
         }
 
+        public static string Used()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Cacildes usou",
+                _ => "Used",
+            };
+        }
+
         public static string Read()
         {
             return GamePreferences.instance.gameLanguage switch
@@ -123,6 +236,24 @@ namespace AF
             {
                 GamePreferences.GameLanguage.PORTUGUESE => "Usar mesa de alquimia",
                 _ => "Use Alchemy Table",
+            };
+        }
+
+        public static string AnvilTable()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Bigorna",
+                _ => "Blacksmith Anvil",
+            };
+        }
+
+        public static string UseBlacksmithAnvil()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Usar bigorna",
+                _ => "Use Blacksmith Anvil",
             };
         }
 
@@ -269,6 +400,15 @@ namespace AF
             {
                 GamePreferences.GameLanguage.PORTUGUESE => "Escudo",
                 _ => "Shield",
+            };
+        }
+
+        public static string MagicDefense()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Defesa Mágica",
+                _ => "Magic Defense",
             };
         }
 
@@ -483,6 +623,24 @@ namespace AF
             };
         }
 
+        public static string LightningBonus()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Bónus Relâmpago",
+                _ => "Lightning Bonus",
+            };
+        }
+
+        public static string MagicBonus()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Bónus de Magia",
+                _ => "Magic Bonus",
+            };
+        }
+
         public static string FireBonus()
         {
             return GamePreferences.instance.gameLanguage switch
@@ -498,6 +656,15 @@ namespace AF
             {
                 GamePreferences.GameLanguage.PORTUGUESE => "Dano Base",
                 _ => "Base Damage",
+            };
+        }
+
+        public static string PhysicalDamage()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Dano Físico",
+                _ => "Physical Damage",
             };
         }
 
@@ -556,6 +723,15 @@ namespace AF
             {
                 GamePreferences.GameLanguage.PORTUGUESE => "Ingredientes de Cozinha",
                 _ => "Cooking Ingredients",
+            };
+        }
+
+        public static string ShowUpgradeMaterials()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Materiais de Ferreiro",
+                _ => "Upgrade Materials",
             };
         }
 
@@ -690,6 +866,46 @@ namespace AF
                 _ => "Cacildes leveled up!",
             };
         }
+        #endregion
+
+        #region Combat
+
+        public static string From()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "De",
+                _ => "From",
+            };
+        }
+
+        public static string Poisoned()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Envenenado",
+                _ => "Poisoned",
+            };
+        }
+
+        public static string Bleeding()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Sangrando",
+                _ => "Bleeding",
+            };
+        }
+
+        public static string CriticalAttack()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Ataque Crítico",
+                _ => "Critical Attack",
+            };
+        }
+
         #endregion
     }
 }

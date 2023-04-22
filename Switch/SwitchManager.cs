@@ -66,7 +66,7 @@ namespace AF
             }
         }
         
-        public void UpdateSwitch(SwitchEntry switchEntry, bool nextValue)
+        public void UpdateSwitch(SwitchEntry switchEntry, bool nextValue, SwitchListener switchListenerToIgnore)
         {
             var switchIndex = switchEntryInstances.FindIndex(x => x.switchEntry == switchEntry);
             if (switchIndex == -1)
@@ -82,15 +82,20 @@ namespace AF
                 HandleObjectiveUpdate(switchIndex);
             }
 
-            NotifySwitchListeners(switchIndex);
+            NotifySwitchListeners(switchIndex, switchListenerToIgnore);
         }
 
-        void NotifySwitchListeners(int switchIndex)
+        void NotifySwitchListeners(int switchIndex, SwitchListener switchListenerToIgnore)
         {
             #region Notify scene listeners in scene
             var sceneSwitchListeners = FindObjectsOfType<SwitchListener>(true);
             foreach (var sceneSwitchListener in sceneSwitchListeners)
             {
+                if (switchListenerToIgnore != null && sceneSwitchListener == switchListenerToIgnore)
+                {
+                    continue;
+                }
+
                 // If switch listener is listening for this updated switch, 
                 if (sceneSwitchListener.switchEntry == switchEntryInstances[switchIndex].switchEntry)
                 {
@@ -137,7 +142,7 @@ namespace AF
 
             foreach (SwitchEntryInstance queuedSwitch in queueSwitchUpdates)
             {
-                UpdateSwitch(queuedSwitch.switchEntry, queuedSwitch.currentValue);
+                UpdateSwitch(queuedSwitch.switchEntry, queuedSwitch.currentValue, null);
             }
 
             queueSwitchUpdates.Clear();
@@ -185,7 +190,7 @@ namespace AF
                     return;
                 }
 
-                UpdateSwitch(switchEntryInstances[switchIndex].switchEntry, savedSwitch.value);
+                UpdateSwitch(switchEntryInstances[switchIndex].switchEntry, savedSwitch.value, null);
             }
         }
         #endregion

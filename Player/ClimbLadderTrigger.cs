@@ -47,7 +47,7 @@ namespace AF
 
         void HandleCapture(GameObject other)
         {
-            var dodgeController = other.gameObject.GetComponent<DodgeController>();
+            var dodgeController = other.GetComponent<DodgeController>();
             if (dodgeController != null && dodgeController.IsDodging())
             {
                 return;
@@ -60,7 +60,7 @@ namespace AF
             }
 
             climbController = other.gameObject.GetComponent<ClimbController>();
-            if (climbController.climbState != ClimbController.ClimbState.NONE)
+            if (climbController!= null && climbController.climbState != ClimbController.ClimbState.NONE)
             {
                 return;
             }
@@ -89,11 +89,11 @@ namespace AF
         void HandleClimbing(GameObject other)
         {
 
-            climbController = other.gameObject.GetComponent<ClimbController>();
+            climbController = other.GetComponent<ClimbController>();
             float ladderBottomY;
             float ladderTopY;
 
-            if (climbController.climbState == ClimbController.ClimbState.NONE)
+            if (climbController != null && climbController.climbState == ClimbController.ClimbState.NONE)
             {
                 if (inputs.interact)
                 {
@@ -113,7 +113,7 @@ namespace AF
                     }
                 }
             }
-            else if (climbController.climbState == ClimbController.ClimbState.CLIMBING)
+            else if (climbController != null && climbController.climbState == ClimbController.ClimbState.CLIMBING)
             {
                 float playerHeadY = climbController.playerHeadRef.transform.position.y;
                 float playerFeetY = climbController.playerFeetRef.transform.position.y;

@@ -12,14 +12,12 @@ namespace AF
 
         private void Update()
         {
-            if (cooldown < maxCooldown)
-            {
-                cooldown += Time.deltaTime;
-            }
+
         }
 
         private void OnTriggerEnter(Collider other)
         {
+            /*
             if (other.gameObject.tag == "PlayerWeapon" && enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.IsBlocking())
             {
                 if (cooldown < maxCooldown)
@@ -29,7 +27,7 @@ namespace AF
 
                 cooldown = 0f;
                 Instantiate(enemyManager.enemyBlockController.blockParticleEffect, this.transform.position, Quaternion.identity);
-            }
+            }*/
         }
     }
 }

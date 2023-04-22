@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -9,6 +10,7 @@ namespace AF
         {
             ALCHEMY,
             COOKING,
+            BLACKSMITH,
         }
 
         public CraftActivity craftActivity;
@@ -60,9 +62,26 @@ namespace AF
             DrawUI();
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Tab) || Gamepad.current != null && Gamepad.current.buttonEast.IsPressed())
+            {
+                Close();
+            }
+        }
+
         private void OnDisable()
         {
             FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
+        }
+
+        void Close()
+        {
+
+            FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
+            FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();
+            this.gameObject.SetActive(false);
+            Utils.HideCursor();
         }
 
         void DrawUI()
@@ -73,10 +92,7 @@ namespace AF
             var buttonExit = root.Q<Button>("ButtonExit");
             menuManager.SetupButton(buttonExit, () =>
             {
-                FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
-                FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();
-                this.gameObject.SetActive(false);
-                Utils.HideCursor();
+                Close();
             });
 
             var craftActivityTitle = root.Q<Label>("CraftActivityTitle");
@@ -197,7 +213,7 @@ namespace AF
                 ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(ingredient.ingredient.sprite);
                 ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name.GetText();
 
-                var playerOwnedIngredient = Player.instance.ownedItems.Find(x => x.item == ingredient.ingredient);
+                var playerOwnedIngredient = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == ingredient.ingredient.name.GetEnglishText());
                 var playerOwnedIngredientAmount = 0;
                 if (playerOwnedIngredient != null)
                 {
@@ -218,7 +234,7 @@ namespace AF
 
             foreach (var ingredient in recipe.ingredients)
             {
-                var itemEntry = Player.instance.ownedItems.Find(x => x.item == ingredient.ingredient);
+                var itemEntry = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == ingredient.ingredient.name.GetEnglishText());
 
                 if (itemEntry == null)
                 {

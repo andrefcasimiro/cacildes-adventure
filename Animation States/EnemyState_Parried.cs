@@ -23,6 +23,17 @@ namespace AF
 
             enemy.agent.updatePosition = false;
         }
+
+        public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        {
+            if (enemy.canFall)
+            {
+                if (enemy.IsGrounded() == null)
+                {
+                    animator.Play(enemy.hashFalling);
+                }
+            }
+        }
     }
 
 }

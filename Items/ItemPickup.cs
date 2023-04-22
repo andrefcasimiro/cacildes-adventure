@@ -1,6 +1,7 @@
 using UnityEngine;
 using StarterAssets;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -14,6 +15,8 @@ namespace AF
 
         public int quantity = 1;
         public int gold = -1;
+
+        public UnityEvent onPickupEvent;
 
         StarterAssetsInputs inputs => FindObjectOfType<StarterAssetsInputs>(true);
         UIDocumentKeyPrompt uIDocumentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
@@ -48,6 +51,11 @@ namespace AF
             inputs.interact = false;
 
             uIDocumentKeyPrompt.gameObject.SetActive(false);
+
+            if (onPickupEvent != null)
+            {
+                onPickupEvent.Invoke();
+            }
 
             if (gold != -1)
             {
@@ -138,7 +146,7 @@ namespace AF
                 return;
             }
 
-            SwitchManager.instance.UpdateSwitch(switchEntry, true);
+            SwitchManager.instance.UpdateSwitch(switchEntry, true, null);
 
             if (gold != -1)
             {

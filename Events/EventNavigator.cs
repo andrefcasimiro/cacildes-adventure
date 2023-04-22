@@ -17,7 +17,11 @@ namespace AF
 
             if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out HitInfo, raycastDistance, eventNavigatorCapturableLayer))
             {
-                IEventNavigatorCapturable eventNavigatorCapturable = HitInfo.collider.GetComponentInParent<IEventNavigatorCapturable>();
+                IEventNavigatorCapturable eventNavigatorCapturable = HitInfo.collider.GetComponent<IEventNavigatorCapturable>();
+
+                eventNavigatorCapturable ??= HitInfo.collider.GetComponentInParent<IEventNavigatorCapturable>();
+
+                eventNavigatorCapturable ??= HitInfo.collider.GetComponentInChildren<IEventNavigatorCapturable>();
 
                 if (eventNavigatorCapturable != null)
                 {   

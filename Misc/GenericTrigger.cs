@@ -16,6 +16,7 @@ namespace AF
         public UnityEvent onActivate;
 
         public bool deactivateTriggerOnInput = false;
+        public bool deactivatePromptOnInput = false;
 
         [Tooltip("When we don't want to deactivate the trigger on input, but we also dont want it to register more inputs")]
         public bool triggerOnlyOnce = false;
@@ -29,6 +30,11 @@ namespace AF
 
         public void OnCaptured()
         {
+            if (!this.enabled)
+            {
+                return;
+            }
+
             uIDocumentKeyPrompt.key = "E";
             uIDocumentKeyPrompt.action = actionName.GetText();
             uIDocumentKeyPrompt.gameObject.SetActive(true);
@@ -36,6 +42,8 @@ namespace AF
 
         public void OnInvoked()
         {
+            inputs.interact = false;
+
             if (triggerOnlyOnce && hasTriggered)
             {
                 return;
@@ -53,6 +61,11 @@ namespace AF
             if (deactivateTriggerOnInput)
             {
                 this.gameObject.SetActive(false);
+            }
+
+            if (deactivatePromptOnInput)
+            {
+                this.enabled = false;
             }
         }
 

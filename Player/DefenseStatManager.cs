@@ -72,5 +72,10 @@ namespace AF
             return target.resistance + bonusFromEquipment + (Player.instance.endurance * levelMultiplier);
         }
 
+        public float GetMagicDefense()
+        {
+            return equipmentGraphicsHandler.magicDefenseBonus;
+        }
+
     }
 }

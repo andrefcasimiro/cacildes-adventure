@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static AF.Player;
 
 namespace AF
 {
@@ -142,7 +143,7 @@ namespace AF
 
             if (Player.instance.equippedWeapon != null)
             {
-                playerEquipmentData.weaponName = Player.instance.equippedWeapon.name.GetEnglishText();
+                playerEquipmentData.weaponName = Player.instance.equippedWeapon.name.GetEnglishText() + (Player.instance.equippedWeapon.level > 1 ? " +" + Player.instance.equippedWeapon.level : "");
             }
 
             if (Player.instance.equippedShield != null)
@@ -183,7 +184,7 @@ namespace AF
             {
                 SerializableItem serializableItem = new SerializableItem
                 {
-                    itemName = itemEntry.item.name.GetEnglishText(),
+                    itemName = GetSerializableItemName(itemEntry),
                     itemCount = itemEntry.amount
                 };
                 serializableItems.Add(serializableItem);
@@ -228,7 +229,6 @@ namespace AF
                 SerializableConsumable serializableConsumable = new()
                 {
                     consumableName = consumable.consumableEffect.consumablePropertyName.ToString(),
-                    displayName = consumable.consumableEffect.displayName.GetEnglishText(),
                     barColor = consumable.consumableEffect.barColor,
                     value = consumable.consumableEffect.value,
                     effectDuration = consumable.consumableEffect.effectDuration,
@@ -309,9 +309,24 @@ namespace AF
             }
             gameData.shops = shopsToSave.ToArray();
 
+            // Bonfires
+            gameData.unlockedBonfires = Player.instance.unlockedBonfires.ToArray();
+
             Save(gameData, saveGameName);
         }
         #endregion
+
+        string GetSerializableItemName(ItemEntry itemEntry)
+        {
+            Weapon wp = itemEntry.item as Weapon;
+            if (wp != null)
+            {
+                return wp.name.GetEnglishText() + (wp.level > 1 ? " +" + wp.level : "");
+            }
+
+            return itemEntry.item.name.GetEnglishText();
+
+        }
 
         #region Load
         public void LoadGameData(string filePath)
@@ -563,6 +578,8 @@ namespace AF
         public SerializableFaction[] factions;
 
         public SerializableShops[] shops;
+
+        public string[] unlockedBonfires;
     }
 
     [System.Serializable]

@@ -22,6 +22,9 @@ namespace AF
         public AudioSource combatAudioSource;
         public AudioClip blockingSfx;
 
+        public AudioClip unarmedSwingSfx;
+        public AudioClip unarmedHitImpactSfx;
+
         [Header("Attack Combo Index")]
         public float maxIdleCombo = 2f;
         [SerializeField] int lightAttackComboIndex = 0;
@@ -143,22 +146,29 @@ namespace AF
 
             equipmentGraphicsHandler.ShowWeapons();
 
-            if (lightAttackComboIndex > 2)
+            if (thirdPersonController.Grounded)
             {
-                lightAttackComboIndex = 0;
-            }
+                if (lightAttackComboIndex > 2)
+                {
+                    lightAttackComboIndex = 0;
+                }
 
-            if (lightAttackComboIndex == 0)
-            {
-                animator.CrossFade(hashLightAttack1, 0.05f);
-            }
-            else if (lightAttackComboIndex == 1)
-            {
-                animator.CrossFade(hashLightAttack2, 0.05f);
+                if (lightAttackComboIndex == 0)
+                {
+                    animator.CrossFade(hashLightAttack1, 0.05f);
+                }
+                else if (lightAttackComboIndex == 1)
+                {
+                    animator.CrossFade(hashLightAttack2, 0.05f);
+                }
+                else
+                {
+                    animator.CrossFade(hashLightAttack3, 0.05f);
+                }
             }
             else
             {
-                animator.CrossFade(hashLightAttack3, 0.05f);
+                animator.Play(hashJumpAttack);
             }
 
             animator.SetBool(hashCombatting, true);
@@ -171,7 +181,7 @@ namespace AF
 
         public void HandleHeavyAttack()
         {
-            if (isCombatting)
+            if (isCombatting || thirdPersonController.Grounded == false)
             {
                 return;
             }
@@ -264,10 +274,10 @@ namespace AF
                 return false;
             }
 
-            if (thirdPersonController.Grounded == false)
+            /*if (thirdPersonController.Grounded == false)
             {
                 return false;
-            }
+            }*/
 
             // If in dialogue
             if (uIDocumentDialogueWindow.isActiveAndEnabled)

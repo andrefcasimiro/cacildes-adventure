@@ -31,6 +31,7 @@ namespace AF
             {
                 navMeshAgent.enabled = true;
                 navMeshAgent.isStopped = false;
+                navMeshAgent.updatePosition = true;
             }
         }
     }

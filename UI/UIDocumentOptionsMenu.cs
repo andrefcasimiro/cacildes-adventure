@@ -37,6 +37,8 @@ namespace AF
 
                 TranslateUI(root);
 
+                FindObjectOfType<UIDocumentPlayerHUDV2>(true).UpdateFavoriteItems();
+
                 if (onLanguageChanged != null)
                 {
                     onLanguageChanged.Invoke();

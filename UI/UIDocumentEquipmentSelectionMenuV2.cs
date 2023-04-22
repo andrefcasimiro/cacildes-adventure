@@ -132,7 +132,7 @@ namespace AF
                 {
                     VisualElement weaponButton = equipmentSelectionItem.CloneTree();
 
-                    if (weapon == Player.instance.equippedWeapon)
+                    if (Player.instance.equippedWeapon != null && weapon.GetWeaponEnglishName() == Player.instance.equippedWeapon.GetWeaponEnglishName())
                     {
                         weaponButton.Q<VisualElement>("Item").style.opacity = 0.25f;
                     }
@@ -172,7 +172,7 @@ namespace AF
                     });
 
                     weaponButton.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(weapon.sprite);
-                    weaponButton.Q<Label>("Name").text = weapon.name.GetText();
+                    weaponButton.Q<Label>("Name").text = weapon.GetWeaponDisplayName();
 
                     var valueLabelElement = weaponButton.Q<Label>("Value");
 
@@ -201,7 +201,7 @@ namespace AF
                         }
                         else
                         {
-                            if (weapon == Player.instance.equippedWeapon)
+                            if (weapon.GetWeaponEnglishName() == Player.instance.equippedWeapon.GetWeaponEnglishName())
                             {
                                 valueLabelElement.text = LocalizedTerms.Equiped();
                             }
@@ -225,11 +225,11 @@ namespace AF
             var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
             var itemStats = root.Q<VisualElement>("ItemStats");
 
-            itemPreviewElement.Q<Label>("Title").text = weapon.name.GetText();
+            itemPreviewElement.Q<Label>("Title").text = weapon.GetWeaponDisplayName();
             itemPreviewElement.Q<Label>("Description").text = weapon.description.GetText();
             itemPreviewElement.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(weapon.sprite);
 
-            itemStats.Q<Label>("Damage").text = weapon.physicalAttack + " (" + LocalizedTerms.BaseDamage() + ") + "
+            itemStats.Q<Label>("Damage").text = weapon.GetWeaponAttack() + " (" + LocalizedTerms.BaseDamage() + ") + "
                     + attackStatManager.GetStrengthBonusFromWeapon(weapon) + " (" + weapon.strengthScaling + " " + LocalizedTerms.Strength() + ") + "
                     + attackStatManager.GetDexterityBonusFromWeapon(weapon) + " (" + weapon.dexterityScaling + " " + LocalizedTerms.Dexterity() + ")";
 
@@ -242,7 +242,7 @@ namespace AF
                     bonusLabel.text += " / ";
                 }
 
-                bonusLabel.text += LocalizedTerms.FireBonus() + " " + weapon.fireAttack;
+                bonusLabel.text += LocalizedTerms.FireBonus() + " " + weapon.GetWeaponFireAttack();
             }
             if (weapon.frostAttack != 0)
             {
@@ -251,7 +251,7 @@ namespace AF
                     bonusLabel.text += " / ";
                 }
 
-                bonusLabel.text += LocalizedTerms.FrostBonus() + " " + weapon.frostAttack;
+                bonusLabel.text += LocalizedTerms.FrostBonus() + " " + weapon.GetWeaponFrostAttack();
             }
 
             if (weapon.statusEffects.Length > 0)
@@ -459,7 +459,7 @@ namespace AF
                 {
                     VisualElement itemButton = equipmentSelectionItem.CloneTree();
 
-                    if (item == currentEquippedItem)
+                    if (item.name.GetEnglishText() == currentEquippedItem.name.GetEnglishText())
                     {
                         itemButton.Q<VisualElement>("Item").style.opacity = 0.25f;
                     }
@@ -530,7 +530,7 @@ namespace AF
                         }
                         else
                         {
-                            if (item == currentEquippedItem)
+                            if (item.name.GetEnglishText() == currentEquippedItem.name.GetEnglishText())
                             {
                                 valueLabelElement.text = "(" + LocalizedTerms.Equiped() + ")";
                             }
@@ -566,6 +566,10 @@ namespace AF
             if (armor.frostDefense != 0)
             {
                 itemStats.Q<Label>("Damage").text += " / " + LocalizedTerms.FrostDefense() + " + " + armor.frostDefense;
+            }
+            if (armor.magicDefense != 0)
+            {
+                itemStats.Q<Label>("Damage").text += " / " + LocalizedTerms.MagicDefense() + " + " + armor.magicDefense;
             }
 
             foreach (var statusEffectResistance in armor.statusEffectResistances)
@@ -715,6 +719,15 @@ namespace AF
                 }
 
                 bonusLabel.text += LocalizedTerms.FrostDefense() + " + " + accessory.frostDefense;
+            }
+            if (accessory.magicDefense != 0)
+            {
+                if (bonusLabel.text.Length > 0)
+                {
+                    bonusLabel.text += " / ";
+                }
+
+                bonusLabel.text += LocalizedTerms.MagicDefense() + " + " + accessory.magicDefense;
             }
 
 

@@ -2,6 +2,7 @@
 using UnityEngine.AI;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using Quaternion = UnityEngine.Quaternion;
 
 namespace AF
 {
@@ -53,6 +54,7 @@ namespace AF
 
         [Header("Components")]
         public Animator animator;
+        public AnimatorOverrideController animatorOverrideController;
         public NavMeshAgent agent;
         public new Rigidbody rigidbody => GetComponent<Rigidbody>();
 
@@ -62,13 +64,17 @@ namespace AF
         [Header("Enemy")]
         public Enemy enemy;
         public int currentLevel;
+        public float animatorSpeed = 1f;
 
         [Header("Chasing")]
         public float maximumChaseDistance = 10f;
         public bool alwaysTrackPlayer = false;
+        public bool canChase = true;
+        public float chaseVelocityOverride = -1f;
 
         [Header("Gravity")]
         public bool canFall = true;
+        public float distToGround = 0.1f;
 
         [Header("Audio Sources")]
         public AudioSource combatAudioSource;
@@ -80,6 +86,10 @@ namespace AF
         public bool rotateWithAnimations = true;
         public float rotationSpeed = 5f;
         [HideInInspector] public GameObject player;
+
+        [Header("Revive Options")]
+        public UnityEvent onRevive;
+        public string customReviveDefaultAnimation;
 
         // Components
         [HideInInspector] public EnemyPatrolController enemyPatrolController => GetComponent<EnemyPatrolController>();
@@ -100,17 +110,27 @@ namespace AF
         [HideInInspector] public EnemyTargetController enemyTargetController => GetComponent<EnemyTargetController>();
         [HideInInspector] public EnemyBehaviorController enemyBehaviorController => GetComponent<EnemyBehaviorController>();
         [HideInInspector] public EnemyNegativeStatusController enemyNegativeStatusController => GetComponent<EnemyNegativeStatusController>();
+        [HideInInspector] public EnemyTeleportManager enemyTeleportManager => GetComponent<EnemyTeleportManager>();
 
         [HideInInspector] public EventPage eventPage => GetComponent<EventPage>();
 
         Vector3 initialPosition; // For bonfire respawns
+        Quaternion initialRotation; // For bonfire respawns
 
         bool usesGravityByDefault;
         bool isKinematicByDefault;
+        public bool forceKinematicOnRevive = false;
 
         private void Awake()
         {
             player = GameObject.FindWithTag("Player");
+
+            if (animatorOverrideController != null)
+            {
+                animator.runtimeAnimatorController = animatorOverrideController;
+            }
+
+            animator.speed = animatorSpeed;
         }
 
         private void Start()
@@ -119,10 +139,14 @@ namespace AF
             isKinematicByDefault = rigidbody.isKinematic;
 
             initialPosition = transform.position;
+            initialRotation = transform.rotation;
+
         }
 
         private void Update()
         {
+            Debug.DrawRay(transform.position + new Vector3(0, 0.1f, 0), transform.up * -1f, Color.red);
+
             if (facePlayer)
             {
                 if (enemyTargetController.ignoreCompanions == false && enemyTargetController.currentCompanion != null)
@@ -159,6 +183,7 @@ namespace AF
 
             agent.SetDestination(initialPosition);
             this.transform.position = initialPosition;
+            this.transform.rotation = initialRotation;
             agent.nextPosition = initialPosition;
 
             var deathCollider = GetComponentInChildren<DeathColliderRef>(true);
@@ -173,11 +198,17 @@ namespace AF
             }
 
             rigidbody.isKinematic = isKinematicByDefault;
+
+            if (forceKinematicOnRevive)
+            {
+                rigidbody.isKinematic = true;
+            }
+
             GetComponent<CapsuleCollider>().enabled = true;
 
             agent.enabled = true;
 
-            animator.Play(hashIdle);
+            animator.Play(string.IsNullOrEmpty(customReviveDefaultAnimation) ? hashIdle : Animator.StringToHash(customReviveDefaultAnimation));
 
             // Remove all negative status
             enemyNegativeStatusController.ClearAllNegativeStatus();
@@ -195,6 +226,8 @@ namespace AF
                 damageText.gameObject.SetActive(true);
                 damageText.Reset();
             }
+
+            onRevive.Invoke();
         }
 
         public bool PlayerIsBehind()
@@ -244,9 +277,7 @@ namespace AF
         public Transform IsGrounded()
         {
 
-            RaycastHit hit;
-            Physics.Raycast(transform.position + new Vector3(0, 0.1f, 0), animator.transform.up * -1f, out hit, 2f);
-            // Debug.DrawRay(transform.position + new Vector3(0, 0.1f, 0), animator.transform.up * -1f, Color.red);
+            Physics.Raycast(transform.position + new Vector3(0, distToGround, 0), transform.up * -1f, out RaycastHit hit, 1f);
 
             return hit.transform;
         }
@@ -269,12 +300,16 @@ namespace AF
 
             rigidbody.useGravity = usesGravityByDefault;
             rigidbody.isKinematic = isKinematicByDefault;
+
+            if (forceKinematicOnRevive)
+            {
+                rigidbody.isKinematic = true;
+            }
+
             rigidbody.constraints = RigidbodyConstraints.FreezeAll;
 
-            if (animator.GetBool(hashIsWaiting) == false)
-            {
-                animator.CrossFade( hashWaiting, 0.05f);
-            }
+            animator.Play(hashWaiting);
+
         }
     }
 }

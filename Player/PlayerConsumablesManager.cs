@@ -89,6 +89,11 @@ namespace AF
             {
                 attackStatManager.physicalAttackBonus = 0f;
             }
+
+            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
+            {
+                staminaStatManager.negativeStaminaRegenerationBonus = consumableToDelete.consumableEffect.value;
+            }
         }
 
         void EvaluateEffect(AppliedConsumable entry)
@@ -113,6 +118,12 @@ namespace AF
             {
                 attackStatManager.physicalAttackBonus = entry.consumableEffect.value;
             }
+
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
+            {
+                staminaStatManager.negativeStaminaRegenerationBonus = entry.consumableEffect.value;
+            }
+
         }
     }
 }

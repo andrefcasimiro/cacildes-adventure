@@ -16,6 +16,8 @@ namespace AF
 
         PlayerComponentManager playerComponentManager;
 
+        public bool canBeTravelledTo = true;
+
         private void Start()
         {
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
@@ -25,6 +27,11 @@ namespace AF
         {
             // Cure playerManager
             playerComponentManager.CurePlayer();
+
+            if (canBeTravelledTo)
+            {
+                Player.instance.UnlockBonfire(bonfireName.GetEnglishText());
+            }
 
             // Find all active enemies in scene
             var allEnemiesInScene = FindObjectsOfType<EnemyManager>();

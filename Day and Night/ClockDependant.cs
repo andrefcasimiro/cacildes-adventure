@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AF
 {
-    public class ClockDependant : MonoBehaviour, IClockListener
+    public class ClockDependant : MonoBehaviour, IClockListener, ISaveable
     {
         public enum ClockDependency
         {
@@ -21,6 +22,9 @@ namespace AF
         public SwitchEntry switchDependant;
         public bool requiredValue;
 
+        [Header("Dont run this if Companion is in party")]
+        public Companion companion;
+
         private void Start()
         {
             OnHourChanged();
@@ -35,6 +39,13 @@ namespace AF
                     transform.GetChild(0).gameObject.SetActive(false);
                     return;
                 }
+            }
+
+            // If companion in party is set, we dont want to run the logic of day / night
+            if (CompanionInParty())
+            {
+                transform.GetChild(0).gameObject.SetActive(true);
+                return;
             }
 
             bool isActive = false;
@@ -61,6 +72,15 @@ namespace AF
 
         }
 
+        public void OnGameLoaded(GameData gameData)
+        {
+            OnHourChanged();
+        }
+
+        bool CompanionInParty()
+        {
+            return companion != null && Player.instance.companions.Exists(c => c.companionId == companion.companionId);
+        }
     }
 
 }

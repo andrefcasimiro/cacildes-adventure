@@ -91,14 +91,14 @@ namespace AF
             {
                 return false;
             }
-            var itemInStock = shop.itemStock.FirstOrDefault(x => x.item == shopItem.item);
+            var itemInStock = shop.itemStock.FirstOrDefault(x => x.item.name.GetEnglishText() == shopItem.item.name.GetEnglishText());
 
             if (itemInStock != null && itemInStock.quantity > 0)
             {
                 return true;
             }
 
-            var itemInBoughItems = shop.boughtItemsFromPlayer.FirstOrDefault(x => x.item == shopItem.item);
+            var itemInBoughItems = shop.boughtItemsFromPlayer.FirstOrDefault(x => x.item.name.GetEnglishText() == shopItem.item.name.GetEnglishText());
             if (itemInBoughItems != null && itemInBoughItems.quantity > 0)
             {
                 return true;
@@ -150,7 +150,7 @@ namespace AF
             var idx = characterShopInstances.FindIndex(characterShopInstance => characterShopInstance.name == shopEntryName);
 
             // Update merchant inventory
-            var idxOfItemBoughtFromPlayer = this.characterShopInstances[idx].boughtItemsFromPlayer.FindIndex(shopItem => shopItem.item == itemToSell);
+            var idxOfItemBoughtFromPlayer = this.characterShopInstances[idx].boughtItemsFromPlayer.FindIndex(shopItem => shopItem.item.name.GetEnglishText() == itemToSell.name.GetEnglishText());
             if (idxOfItemBoughtFromPlayer != -1)
             {
                 this.characterShopInstances[idx].boughtItemsFromPlayer[idxOfItemBoughtFromPlayer].quantity++;
@@ -200,6 +200,12 @@ namespace AF
             foreach (var item in Resources.LoadAll<Item>("Items"))
             {
                 itemsTable.Add(item.name.GetEnglishText(), item);
+            }
+
+            // For v0.5 compatibility
+            if (gameData.GetType().GetProperty("shopData") == null)
+            {
+                return;
             }
 
             foreach (var savedShop in gameData.shops)

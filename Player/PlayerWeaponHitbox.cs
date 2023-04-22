@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using StarterAssets;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,13 +12,10 @@ namespace AF
         // References
         BoxCollider boxCollider => GetComponent<BoxCollider>();
 
-        TrailRenderer trailRenderer => GetComponent<TrailRenderer>();
+        public TrailRenderer trailRenderer;
 
         PlayerCombatController playerCombatController;
         AttackStatManager attackStatManager;
-
-        public AudioClip swingSfx;
-        public AudioClip hitImpactSfx;
 
         float maxTimerBeforeHittingObjects = 0.5f;
         float timer = Mathf.Infinity;
@@ -31,6 +29,11 @@ namespace AF
         {
             attackStatManager = GetComponentInParent<AttackStatManager>();
             playerCombatController = GetComponentInParent<PlayerCombatController>();
+
+            if (trailRenderer == null)
+            {
+                trailRenderer = GetComponent<TrailRenderer>();
+            }
         }
 
         // Start is called before the first frame update
@@ -67,9 +70,9 @@ namespace AF
             {
                 BGMManager.instance.PlaySound(weapon.swingSfx, playerCombatController.combatAudioSource);
             }
-            else if (swingSfx != null)
+            else if (playerCombatController.unarmedSwingSfx != null)
             {
-                BGMManager.instance.PlaySound(swingSfx, playerCombatController.combatAudioSource);
+                BGMManager.instance.PlaySound(playerCombatController.unarmedSwingSfx, playerCombatController.combatAudioSource);
             }
 
             if (trailRenderer != null)
@@ -93,42 +96,39 @@ namespace AF
         public void OnTriggerEnter(Collider other)
         {
             var weapon = Player.instance.equippedWeapon;
-            EnemyHealthHitbox enemyHealthHitbox = other.GetComponent<EnemyHealthHitbox>();
-            if (enemyHealthHitbox == null)
+            if (!other.TryGetComponent<EnemyHealthHitbox>(out var enemyHealthHitbox))
             {
-                if (timer > maxTimerBeforeHittingObjects)
+                if (other.gameObject.CompareTag("IllusionaryWall"))
                 {
-                    timer = 0f;
-
-                    if (weapon != null)
-                    {
-                        if (other.gameObject.tag == "Metal" && weapon.metalImpactFx != null)
-                        {
-                            Instantiate(weapon.metalImpactFx, transform.position, Quaternion.identity);
-                        }
-
-                        if (other.gameObject.tag == "Water" && weapon.waterImpactFx != null)
-                        {
-                            Instantiate(weapon.waterImpactFx, transform.position, Quaternion.identity);
-                        }
-
-                        if (other.gameObject.tag == "Wood" && weapon.woodImpactFx != null)
-                        {
-                            Instantiate(weapon.woodImpactFx, transform.position, Quaternion.identity);
-                        }
-
-                    }
-
-                    if (other.gameObject.tag == "Wood")
-                    {
-                        var destroyable = other.GetComponent<Destroyable>();
-                        if (destroyable != null)
-                        {
-                            destroyable.DestroyObject(other.ClosestPointOnBounds(destroyable.transform.position));
-                        }
-                    }
-
+                    other.GetComponent<IllusionaryWall>().hasBeenHit = true;
                 }
+
+
+                if (other.gameObject.CompareTag("Wood"))
+                {
+                    if (other.TryGetComponent<Destroyable>(out var destroyable))
+                    {
+                        destroyable.DestroyObject(other.ClosestPointOnBounds(destroyable.transform.position));
+                    }
+                    else if (weapon != null && weapon.woodImpactFx != null)
+                    {
+                        Instantiate(weapon.woodImpactFx, transform.position, Quaternion.identity);
+                    }
+                }
+
+                if (weapon != null)
+                {
+                    if (other.gameObject.CompareTag("Metal") && weapon.metalImpactFx != null)
+                    {
+                        Instantiate(weapon.metalImpactFx, transform.position, Quaternion.identity);
+                    }
+
+                    if (other.gameObject.CompareTag("Water") && weapon.waterImpactFx != null)
+                    {
+                        Instantiate(weapon.waterImpactFx, transform.position, Quaternion.identity);
+                    }
+                }
+
                 return;
             }
 
@@ -142,8 +142,8 @@ namespace AF
                 enemyHealthHitbox.enemyManager.enemyHealthController.TakeDamage(
                     attackStatManager,
                     weapon,
-                    this.transform,
-                    (weapon != null && weapon.impactFleshSfx != null) ? weapon.impactFleshSfx : hitImpactSfx,
+                    other.ClosestPointOnBounds(this.transform.position),
+                    (weapon != null && weapon.impactFleshSfx != null) ? weapon.impactFleshSfx : playerCombatController.unarmedHitImpactSfx,
                     enemyHealthHitbox.damageBonus);
 
                 if (enemyHealthHitbox.enemyManager.enemyTargetController != null)

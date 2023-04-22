@@ -6,6 +6,7 @@ namespace AF
     {
         public AudioClip weaponSwingSfx;
         public AudioClip weaponImpactSfx;
+        public int poiseDamage = 1;
 
         CompanionManager companionManager;
 
@@ -78,7 +79,8 @@ namespace AF
             }
 
             enemy.enemyManager.enemyHealthController.TakeEnvironmentalDamage(companionManager.GetCompanionAttack());
-            
+            enemy.enemyManager.enemyPoiseController.IncreasePoiseDamage(poiseDamage);
+
             if (enemy.enemyManager.enemyTargetController != null)
             {
                 enemy.enemyManager.enemyTargetController.FocusOnCompanion(this.companionManager);

@@ -37,7 +37,7 @@ namespace AF
             }
 
             // To prevent enemy from being stuck
-            enemy.rigidbody.AddForce(enemy.transform.forward * -1f * 5f * Time.deltaTime, ForceMode.Acceleration);
+            enemy.transform.position += enemy.transform.forward * -1f * 5f * Time.deltaTime;
         }
 
 
