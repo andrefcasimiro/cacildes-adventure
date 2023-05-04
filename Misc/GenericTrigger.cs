@@ -22,14 +22,6 @@ namespace AF
         public bool triggerOnlyOnce = false;
         bool hasTriggered = false;
         
-        [Header("Event Navigator Options")]
-        public float distanceToTriggerBonus = 1f;
-
-        public float GetDistanceToTrigger()
-        {
-            return distanceToTriggerBonus;
-        }
-
         private void Awake()
         {
             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);

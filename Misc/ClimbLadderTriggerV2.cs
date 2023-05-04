@@ -23,14 +23,6 @@ namespace AF
         [Tooltip("How far away from the ladder the player is when climbing from top")]
         public float playerTopOffsetFromStairs = 2.65f;
 
-        [Header("Event Navigator Options")]
-        public float distanceToTriggerBonus = 2f;
-
-        public float GetDistanceToTrigger()
-        {
-            return distanceToTriggerBonus;
-        }
-
         private void Awake()
         {
             player = FindObjectOfType<ClimbController>(true);

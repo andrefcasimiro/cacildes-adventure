@@ -63,16 +63,7 @@ namespace AF
         [Header("Audio")]
         public AudioClip greetingSfx;
 
-        [Header("Event Navigator Options")]
-        public float distanceToTriggerBonus = 0f;
-
         [HideInInspector] public List<EventBase> overrideEvents;
-
-
-        public float GetDistanceToTrigger()
-        {
-            return distanceToTriggerBonus;
-        }
 
         private void Awake()
         {
