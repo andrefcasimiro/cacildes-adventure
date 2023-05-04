@@ -181,10 +181,12 @@ namespace AF
             enemyHealthController.EnableHealthHitboxes();
             enemyHealthController.InitializeEnemyHUD();
 
+            agent.updatePosition = false;
             agent.SetDestination(initialPosition);
             this.transform.position = initialPosition;
             this.transform.rotation = initialRotation;
             agent.nextPosition = initialPosition;
+            agent.updatePosition = true;
 
             var deathCollider = GetComponentInChildren<DeathColliderRef>(true);
             if (deathCollider != null)

@@ -22,7 +22,12 @@ namespace AF
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
-        ClimbController playerClimbController => FindObjectOfType<ClimbController>(true);
+        ClimbController playerClimbController;
+
+        private void Awake()
+        {
+            playerClimbController = FindObjectOfType<ClimbController>(true);
+        }
 
         void Start()
         {

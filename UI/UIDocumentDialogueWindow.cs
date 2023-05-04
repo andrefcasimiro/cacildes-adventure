@@ -34,10 +34,12 @@ namespace AF
         [HideInInspector] public float textDelay = 0.5f;
         [HideInInspector] public bool showHint = false;
 
-        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
+        MenuManager menuManager;
 
         private void Awake()
         {
+             menuManager = FindObjectOfType<MenuManager>(true);
+
             this.gameObject.SetActive(false);
         }
 

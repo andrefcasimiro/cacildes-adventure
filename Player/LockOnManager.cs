@@ -37,11 +37,15 @@ namespace AF
         public float mouseSensitivityForNearbyTargets = 1.25f;
 
         int LayerEnvironment;
+        int LayerDefault;
 
         float maxTargetSwitchingCooldown = 1f;
         float targetSwitchingCooldown = Mathf.Infinity;
 
         public List<LockOnRef> availableTargets = new List<LockOnRef>();
+
+        public float timeBeforeDisengaging = 0.5f;
+        bool evaluatingIfShouldDisengage = false;
 
         private void Awake()
         {
@@ -50,6 +54,7 @@ namespace AF
             inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
 
             LayerEnvironment = LayerMask.NameToLayer("Environment");
+            LayerDefault = LayerMask.NameToLayer("Default");
         }
 
         private void Start()
@@ -90,13 +95,17 @@ namespace AF
                 playerAnimator.SetFloat(hashStrafeHorizontal, inputs.move.x);
                 playerAnimator.SetFloat(hashStrafeVertical, inputs.move.y);
 
-                RaycastHit hit;
-                if (Physics.Linecast(playerHeadRef.transform.position, nearestLockOnTarget.transform.position, out hit))
+                if (!evaluatingIfShouldDisengage)
                 {
-                    if (hit.transform.gameObject.layer == LayerEnvironment)
+                    RaycastHit hit;
+                    if (Physics.Linecast(playerHeadRef.transform.position, nearestLockOnTarget.transform.position, out hit))
                     {
-                        DisableLockOn();
-                        return;
+                        if (hit.transform.gameObject.layer == LayerEnvironment || hit.transform.gameObject.layer == LayerDefault)
+                        {
+                            evaluatingIfShouldDisengage = true;
+
+                            StartCoroutine(CheckIfShouldDisengage());
+                        }
                     }
                 }
 
@@ -115,6 +124,22 @@ namespace AF
             {
                 HandleTargetSwitching();
             }
+        }
+
+        IEnumerator CheckIfShouldDisengage()
+        {
+            yield return new WaitForSeconds(timeBeforeDisengaging);
+
+            RaycastHit hit;
+            if (Physics.Linecast(playerHeadRef.transform.position, nearestLockOnTarget.transform.position, out hit))
+            {
+                if (hit.transform.gameObject.layer == LayerEnvironment || hit.transform.gameObject.layer == LayerDefault)
+                {
+                    DisableLockOn();
+                }
+            }
+
+            evaluatingIfShouldDisengage = false;
         }
 
         public void SwitchToLeftTarget()
@@ -170,6 +195,7 @@ namespace AF
         }
 
         public void HandleLockOnClick() {
+            nearestLockOnTarget = null;
             availableTargets.Clear();
 
             float shortestDistance = Mathf.Infinity;
@@ -203,7 +229,15 @@ namespace AF
                     shortestDistance = distanceFromTarget;
                     if (availableTargets[i].CanLockOn())
                     {
-                        nearestLockOnTarget = availableTargets[i];
+
+                        RaycastHit hit;
+                        if (Physics.Linecast(playerHeadRef.transform.position, availableTargets[i].transform.position, out hit))
+                        {
+                            if (hit.transform.gameObject.layer != LayerEnvironment && hit.transform.gameObject.layer != LayerDefault)
+                            {
+                                nearestLockOnTarget = availableTargets[i];
+                            }
+                        }
                     }
                 }
             }
@@ -249,6 +283,10 @@ namespace AF
 
         public void HandleTargetSwitching()
         {
+            if (nearestLockOnTarget == null)
+            {
+                return;
+            }
 
             if (inputs.look.x == 0f || Gamepad.current != null && Gamepad.current.rightStick.IsActuated())
             {
@@ -316,7 +354,7 @@ namespace AF
                     }
                 }
 
-                if (leftLockTarget != null &&  (inputs.look.x < mouseSensitivityForNearbyTargets || Gamepad.current != null && Gamepad.current.rightStick.left.isPressed))
+                if (leftLockTarget != null &&  (Mathf.Round(inputs.look.x) < 0 || Gamepad.current != null && Gamepad.current.rightStick.left.isPressed))
                 {
                     if (targetSwitchingCooldown < maxTargetSwitchingCooldown)
                     {
@@ -327,7 +365,7 @@ namespace AF
                     targetSwitchingCooldown = 0f;
                     return;
                 }
-                else if (rightLockTarget != null && (inputs.look.x > mouseSensitivityForNearbyTargets || Gamepad.current != null && Gamepad.current.rightStick.right.isPressed))
+                else if (rightLockTarget != null && (Mathf.Round(inputs.look.x) > 0 || Gamepad.current != null && Gamepad.current.rightStick.right.isPressed))
                 {
                     if (targetSwitchingCooldown < maxTargetSwitchingCooldown)
                     {

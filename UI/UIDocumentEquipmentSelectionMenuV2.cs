@@ -459,7 +459,7 @@ namespace AF
                 {
                     VisualElement itemButton = equipmentSelectionItem.CloneTree();
 
-                    if (item.name.GetEnglishText() == currentEquippedItem.name.GetEnglishText())
+                    if (currentEquippedItem != null && item.name.GetEnglishText() == currentEquippedItem.name.GetEnglishText())
                     {
                         itemButton.Q<VisualElement>("Item").style.opacity = 0.25f;
                     }

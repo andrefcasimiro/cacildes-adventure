@@ -130,6 +130,11 @@ namespace AF
                 return false;
             }
 
+            if (FindObjectOfType<UIDocumentBlacksmithScreen>())
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -329,7 +334,9 @@ namespace AF
             navbarRoot.Q<Button>("ButtonControls").text = controlsLabel.GetText();
             navbarRoot.Q<Button>("ButtonOptions").text = optionsLabel.GetText();
             navbarRoot.Q<Button>("ButtonLoad").text = loadLabel.GetText();
-            navbarRoot.Q<Button>("ButtonExit").text = quitGameLabel.GetText();
+            bool isTutorialScene = FindObjectOfType<SceneSettings>(true).isSceneTutorial;
+            navbarRoot.Q<Button>("ButtonExit").text = isTutorialScene ? returnToTitleScreenLabel.GetText() : quitGameLabel.GetText();
+
         }
     }
 }

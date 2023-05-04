@@ -36,9 +36,14 @@ namespace AF
 
         public float jumpAttackMultiplier = 1.5f;
 
-        ThirdPersonController thirdPersonController => FindObjectOfType<ThirdPersonController>(true);
+        ThirdPersonController thirdPersonController;
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+
+        private void Awake()
+        {
+             thirdPersonController = FindObjectOfType<ThirdPersonController>(true);
+        }
 
         private void Start()
         {

@@ -12,7 +12,12 @@ namespace AF
 
         public StarterAssets.StarterAssetsInputs inputs;
 
-        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
+        MenuManager menuManager;
+
+        private void Awake()
+        {
+             menuManager = FindObjectOfType<MenuManager>(true);
+        }
 
         // Start is called before the first frame update
         void Start()
@@ -85,6 +90,29 @@ namespace AF
             Item firstItem = Player.instance.favoriteItems.First();
             Player.instance.favoriteItems.Remove(firstItem);
             Player.instance.favoriteItems.Add(firstItem);
+
+            uIDocumentPlayerHUDV2.UpdateFavoriteItems();
+        }
+
+        public void SwitchToFavoriteItem(string itemName)
+        {
+            if (Player.instance.favoriteItems.Count <= 0)
+            {
+                return;
+            }
+
+            int i = Player.instance.favoriteItems.FindIndex(x => x.name.GetText() == itemName);
+            if (i == -1)
+            {
+                return;
+            }
+
+            var thisItemInstance = Player.instance.favoriteItems.ElementAt(i);
+            Player.instance.favoriteItems.RemoveAt(i);
+
+            Item itemAtFirstIndex = Player.instance.favoriteItems.ElementAt(0);
+            Player.instance.favoriteItems[0] = thisItemInstance;
+            Player.instance.favoriteItems.Add(itemAtFirstIndex);
 
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }

@@ -118,6 +118,7 @@ namespace AF
                 appliedConsumables.consumableEffect = consumableEffect;
                 appliedConsumables.currentDuration = consumableEffect.effectDuration;
                 appliedConsumables.consumableEffectSprite = consumableEffect.sprite;
+                appliedConsumables.consumableItemName = this.name.GetEnglishText();
 
                 playerConsumablesManager.AddConsumableEffect(appliedConsumables);
             }

@@ -41,6 +41,7 @@ namespace AF
             [Header("Pistol Or Bow")]
             public GameObject weaponToShow;
             public float showWeaponAfter;
+            public bool disengageLockOn = false;
 
             [Header("Frequency")]
             [Tooltip("Higher means more often")][Range(0, 100)] public float weight = 30f;
@@ -178,6 +179,11 @@ namespace AF
             enemyManager.animator.Play(buff.animationStartName);
 
             buff.onBuffEventStart.Invoke();
+
+            if (buff.disengageLockOn)
+            {
+                FindObjectOfType<LockOnManager>(true).DisableLockOn();
+            }
 
             if (buff.weaponToShow != null)
             {

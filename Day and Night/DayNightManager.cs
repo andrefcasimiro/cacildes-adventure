@@ -52,7 +52,7 @@ namespace AF
         [HideInInspector] public IMGUIContainer dayNightIcon;
         [HideInInspector] public Label dayNightText;
 
-        SceneSettings sceneSettings => FindObjectOfType<SceneSettings>(true);
+        SceneSettings sceneSettings;
 
         IEnumerable<IClockListener> iClockListenersInScene;
 
@@ -60,6 +60,8 @@ namespace AF
 
         private void Awake()
         {
+            sceneSettings = FindObjectOfType<SceneSettings>(true);
+
             this.iClockListenersInScene = FindObjectsOfType<MonoBehaviour>(true).OfType<IClockListener>();
             uIDocumentPlayerHUDV2 = FindObjectOfType<UIDocumentPlayerHUDV2>(true);
         }

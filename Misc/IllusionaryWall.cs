@@ -14,7 +14,11 @@ namespace AF
         public float fadeTimer = 2.5f;
         bool hasDeactivatedColliders = false;
 
+
         public UnityEvent onHit;
+
+        bool hasSentAnalyticsMessage = false;
+        public string analyticsMessage;
 
         private void Start()
         {
@@ -31,6 +35,12 @@ namespace AF
 
         public void FadeIllusionaryWall()
         {
+            if (!hasSentAnalyticsMessage && string.IsNullOrEmpty(analyticsMessage) == false)
+            {
+                FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
+                hasSentAnalyticsMessage = true;
+            }
+
             GetComponent<MeshRenderer>().material = this.material;
 
             alpha = material.color.a;

@@ -5,13 +5,19 @@ namespace AF
     public class ParticleSpawnManager : MonoBehaviour
     {
         public GameObject particleToSpawn;
-        ClimbController player => FindObjectOfType<ClimbController>(true);
+        ClimbController player;
         public Transform originTransform;
+
+        private void Awake()
+        {
+             player = FindObjectOfType<ClimbController>(true);
+        }
 
         public void SpawnIntoPlayer()
         {
             Instantiate(particleToSpawn, player.playerFeetRef.transform.position, Quaternion.identity);
         }
+
         public void SpawnTowardsPlayer()
         {
             Vector3 pos = new Vector3(originTransform.position.x, player.playerFeetRef.transform.position.y, originTransform.position.z);

@@ -21,6 +21,7 @@ namespace AF
             TUTORIAL = 6,
             MOUNTAINPASS = 7,
             SNAILCLIFF = 8,
+            CECILY_TOWN = 9,
         }
 
         private void Awake()

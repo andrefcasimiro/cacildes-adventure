@@ -7,10 +7,12 @@ namespace AF
     {
         public UIDocumentOptionsMenu uIDocumentOptionsMenu;
         VisualElement root => GetComponent<UIDocument>().rootVisualElement;
-        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
+        MenuManager menuManager;
 
         private void Awake()
         {
+             menuManager = FindObjectOfType<MenuManager>(true);
+
             gameObject.SetActive(false);
         }
 

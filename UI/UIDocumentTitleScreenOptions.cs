@@ -7,14 +7,17 @@ namespace AF
     {
         public UIDocumentOptionsMenu uIDocumentOptionsMenu;
         VisualElement root => GetComponent<UIDocument>().rootVisualElement;
-        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
-        UIDocumentTitleScreen uIDocumentTitleScreen => FindObjectOfType<UIDocumentTitleScreen>(true);
+        MenuManager menuManager;
+        UIDocumentTitleScreen uIDocumentTitleScreen;
 
         [Header("Localization")]
         public LocalizedText optionsLabel;
 
         private void Awake()
         {
+            menuManager = FindObjectOfType<MenuManager>(true);
+            uIDocumentTitleScreen = FindObjectOfType<UIDocumentTitleScreen>(true);
+
             gameObject.SetActive(false);
         }
 

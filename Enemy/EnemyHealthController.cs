@@ -44,8 +44,8 @@ namespace AF
         EnemyNegativeStatusController enemyNegativeStatusController => GetComponent<EnemyNegativeStatusController>();
         EnemyLoot enemyLoot => GetComponent<EnemyLoot>();
         EnemyBossController enemyBossController => GetComponent<EnemyBossController>();
-        SceneSettings sceneSettings => FindObjectOfType<SceneSettings>(true);
         CombatNotificationsController combatNotificationsController => GetComponent<CombatNotificationsController>();
+        SceneSettings sceneSettings;
 
         int amountToRestore = 0;
 
@@ -54,6 +54,16 @@ namespace AF
         bool onTakingDamageEventHasRun = false;
 
         public bool canTakeDamage = true;
+
+        public string analyticsMessage;
+
+        PlayerParryManager playerParryManager;
+
+        private void Awake()
+        {
+             sceneSettings = FindObjectOfType<SceneSettings>(true);
+             playerParryManager = FindObjectOfType<PlayerParryManager>(true);
+        }
 
         private void Start()
         {
@@ -264,6 +274,11 @@ namespace AF
             // Disable stunned stars on hit
             enemyManager.enemyPostureController.stunnedParticle.SetActive(false);
 
+            if (playerParryManager.IsWithinCounterAttackWindow())
+            {
+                appliedDamage *= playerParryManager.counterAttackMultiplier; // More attack power from counter attack
+            }
+
             // Raw damage to display without elemental and status bonuses
             var displayedDamage = appliedDamage;
 
@@ -421,6 +436,11 @@ namespace AF
 
         public void Die()
         {
+            if (string.IsNullOrEmpty(analyticsMessage) == false)
+            {
+                FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
+            }
+
             StartCoroutine(DieFlow());
         }
 

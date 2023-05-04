@@ -4,6 +4,7 @@ using UnityEngine;
 using StarterAssets;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using System.Linq;
 
 namespace AF
 {
@@ -63,14 +64,33 @@ namespace AF
 
                 var clone = receivedItemPrefab.CloneTree();
 
-
-
                 clone.Q<VisualElement>("ActionButtons").Q<Label>("ItemName").text = itemUIEntry.itemName;
                 clone.Q<Label>("ItemQuantity").text = itemUIEntry.quantity.ToString();
                 clone.Q<IMGUIContainer>("ItemSprite").style.backgroundImage = new StyleBackground(itemUIEntry.sprite);
 
-
                 rootPanel.Add(clone);
+
+            }
+
+            root.Q<VisualElement>("AddToFavoriteItems").style.display = DisplayStyle.None;
+
+            if (itemsUI.Count == 1)
+            {
+                var idx = Player.instance.favoriteItems.FindIndex(favItem => favItem.name.GetText() == itemsUI.ElementAt(0).itemName);
+                if (idx == -1)
+                {
+                    var itemInstance = Player.instance.ownedItems.FirstOrDefault(x => x.item.name.GetText() == itemsUI[0].itemName);
+
+                    if (itemInstance != null)
+                    {
+                        var consumable = itemInstance.item as Consumable;
+                        if (consumable != null)
+                        {
+                            root.Q<VisualElement>("AddToFavoriteItems").style.display = DisplayStyle.Flex;
+                        }
+                    }
+
+                }
 
             }
 
@@ -79,12 +99,47 @@ namespace AF
 
         private void Update()
         {
-            if (inputs.interact && this.gameObject.activeSelf)
+            if (!this.gameObject.activeSelf)
+            {
+                return;
+            }
+
+            if (inputs.interact)
             {
                 inputs.interact = false;
 
                 BGMManager.instance.PlaySound(onConfirmSfx, null);
                 this.gameObject.SetActive(false);
+            }
+
+            if (inputs.dodge || Input.GetKeyDown(KeyCode.F))
+            {
+                inputs.dodge = false;
+
+                if (itemsUI.Count == 1)
+                {
+                    var idx = Player.instance.favoriteItems.FindIndex(favItem => favItem.name.GetText() == itemsUI.ElementAt(0).itemName);
+                    if (idx == -1)
+                    {
+                        var itemInstance = Player.instance.ownedItems.FirstOrDefault(x => x.item.name.GetText() == itemsUI[0].itemName);
+
+                        
+                        if (itemInstance != null)
+                        {
+                            var consumable = itemInstance.item as Consumable;
+                        
+                            if (consumable != null)
+                            {
+                                FindObjectOfType<FavoriteItemsManager>(true).AddFavoriteItemToList(itemInstance.item);
+                                FindObjectOfType<FavoriteItemsManager>(true).SwitchToFavoriteItem(itemInstance.item.name.GetText());
+                            }
+                        }
+
+                        BGMManager.instance.PlaySound(onConfirmSfx, null);
+                        this.gameObject.SetActive(false);
+                    }
+
+                }
             }
         }
 

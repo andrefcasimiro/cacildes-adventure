@@ -142,6 +142,10 @@ namespace AF
             {
                 Destroy(this.gameObject);
             }
+            else
+            {
+                this.enabled = false;
+            }
         }
 
         private void OnTriggerEnter(Collider other)

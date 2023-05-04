@@ -711,6 +711,10 @@ namespace AF
             {
                 ActivateRightWeaponHitbox();
             }
+            else
+            {
+                rightUnarmedHitbox.EnableHitbox();
+            }
         }
 
         /// <summary>
@@ -836,6 +840,15 @@ namespace AF
             DeactivateRightWeaponHitbox();
             DeactivateLeftFootHitbox();
             DeactivateRightFootHitbox();
+
+            if (this.leftUnarmedHitbox != null)
+            {
+                this.leftUnarmedHitbox.DisableHitbox();
+            }
+            if (this.rightUnarmedHitbox != null)
+            {
+                this.rightUnarmedHitbox.DisableHitbox();
+            }
         }
 
         public void ShowShield()

@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 namespace AF
 {
@@ -19,14 +17,20 @@ namespace AF
         public string blockHitAnimationName = "";
         public bool blockWhileStrafing = false;
 
-        PlayerPoiseController playerPoiseController => FindObjectOfType<PlayerPoiseController>(true);
-        PlayerParryManager playerParryManager => FindObjectOfType<PlayerParryManager>(true);
+        PlayerPoiseController playerPoiseController;
+        PlayerParryManager playerParryManager;
 
         [Header("Block Defense")]
         public int maxHitsBeforeGuardBreak = 2;
         public float maxHitsCooldownBeforeResetGuardBreak = 15f;
         int currentBlockHits = 0;
         float cooldownBeforeResettingGuardBreak;
+
+        private void Awake()
+        {
+             playerPoiseController = FindObjectOfType<PlayerPoiseController>(true);
+             playerParryManager = FindObjectOfType<PlayerParryManager>(true);
+        }
 
         // Start is called before the first frame update
         void Start()

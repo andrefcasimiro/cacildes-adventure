@@ -26,10 +26,15 @@ namespace AF
         public int statusEffectAmount = 0;
         public bool takeArmorInConsideration = false;
 
-        DefenseStatManager defenseStatManager => FindObjectOfType<DefenseStatManager>(true);
+        DefenseStatManager defenseStatManager;
 
         [Header("Damage Enemies Instead?")]
         public bool damageEnemiesInstead = false;
+
+        private void Awake()
+        {
+             defenseStatManager = FindObjectOfType<DefenseStatManager>(true);
+        }
 
         private void Start()
         {

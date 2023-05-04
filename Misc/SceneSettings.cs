@@ -27,10 +27,12 @@ namespace AF
         public bool isSceneTutorial = false;
         public DestroyableParticle respawnFx;
 
-        PlayerComponentManager playerComponentManager => FindObjectOfType<PlayerComponentManager>(true);
+        PlayerComponentManager playerComponentManager;
  
         void Awake()
         {
+            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
+
             StartCoroutine(SpawnPlayer());
         }
 

@@ -26,12 +26,16 @@ namespace AF
         UIDocument uIDocument => GetComponent<UIDocument>();
         [HideInInspector] public VisualElement root;
 
-        NotificationManager notificationManager => FindObjectOfType<NotificationManager>(true);
-        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
-        PlayerInventory playerInventory => FindObjectOfType<PlayerInventory>(true);
+        NotificationManager notificationManager;
+        MenuManager menuManager;
+        PlayerInventory playerInventory;
 
         private void Awake()
         {
+             notificationManager = FindObjectOfType<NotificationManager>(true);
+             menuManager = FindObjectOfType<MenuManager>(true);
+             playerInventory = FindObjectOfType<PlayerInventory>(true);
+
             this.gameObject.SetActive(false);
         }
 
@@ -88,6 +92,15 @@ namespace AF
             var craftActivityTitle = root.Q<Label>("CraftActivityTitle");
             craftActivityTitle.text = LocalizedTerms.AnvilTable();
             root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(backgroundImage);
+
+
+            // Clear Weapon preview
+            root.Q<Label>("WeaponLevelPreview").text = "";
+            root.Q<Label>("PhysicalAttack").style.display = DisplayStyle.None;
+            root.Q<Label>("FireAttack").style.display = DisplayStyle.None;
+            root.Q<Label>("FrostAttack").style.display = DisplayStyle.None;
+            root.Q<Label>("LightningAttack").style.display = DisplayStyle.None;
+            root.Q<Label>("MagicAttack").style.display = DisplayStyle.None;
 
             PopulateScrollView();
 

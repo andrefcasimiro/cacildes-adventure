@@ -1,11 +1,8 @@
 using StarterAssets;
-using System;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.Users;
 using UnityEngine.UIElements;
 using MouseButton = UnityEngine.InputSystem.LowLevel.MouseButton;
@@ -42,7 +39,12 @@ namespace AF
         public float mouseSize = 25;
         public float padding = 0.5f;
 
-        StarterAssetsInputs inputs => FindObjectOfType<StarterAssetsInputs>(true);
+        StarterAssetsInputs inputs;
+
+        private void Awake()
+        {
+             inputs = FindObjectOfType<StarterAssetsInputs>(true);
+        }
 
         private void OnEnable()
         {

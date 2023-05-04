@@ -21,6 +21,14 @@ namespace AF
         [Tooltip("When we don't want to deactivate the trigger on input, but we also dont want it to register more inputs")]
         public bool triggerOnlyOnce = false;
         bool hasTriggered = false;
+        
+        [Header("Event Navigator Options")]
+        public float distanceToTriggerBonus = 1f;
+
+        public float GetDistanceToTrigger()
+        {
+            return distanceToTriggerBonus;
+        }
 
         private void Awake()
         {

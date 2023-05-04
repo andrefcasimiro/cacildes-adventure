@@ -12,7 +12,7 @@ namespace AF
         public GameObject teleportFinishFX;
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
-        BossTeleportableTransform[] teleportableTransform => FindObjectsOfType<BossTeleportableTransform>(true);
+        BossTeleportableTransform[] teleportableTransform;
         SkinnedMeshRenderer[] enemyMeshRenderers => GetComponentsInChildren<SkinnedMeshRenderer>(true);
 
         public bool teleportNearPlayer = false;
@@ -29,6 +29,11 @@ namespace AF
         public UnityEvent onTeleport;
         public UnityEvent onReappear;
         public UnityEvent onReappearAfterHalfSecond;
+
+        private void Awake()
+        {
+            teleportableTransform = FindObjectsOfType<BossTeleportableTransform>(true);
+        }
 
         private void Start()
         {

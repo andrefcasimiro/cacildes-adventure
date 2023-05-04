@@ -32,10 +32,19 @@ namespace AF
         public UnityEvent onItemPickup;
 
         private GameObject graphic => transform.GetChild(0).gameObject;
-        StarterAssetsInputs inputs => FindObjectOfType<StarterAssetsInputs>(true);
-        UIDocumentKeyPrompt uIDocumentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
-        UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt => FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
-        PlayerInventory playerInventory => FindObjectOfType<PlayerInventory>(true);
+
+        StarterAssetsInputs inputs;
+        UIDocumentKeyPrompt uIDocumentKeyPrompt;
+        UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
+        PlayerInventory playerInventory;
+
+        private void Awake()
+        {
+             inputs = FindObjectOfType<StarterAssetsInputs>(true);
+             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+             uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
+             playerInventory = FindObjectOfType<PlayerInventory>(true);
+        }
 
         private void Start()
         {

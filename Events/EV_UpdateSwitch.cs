@@ -12,6 +12,8 @@ namespace AF
         [Tooltip("If true, will only update switch when the event has stopped running")] public bool queueSwitch = false;
         public bool shouldRefreshEvents = true;
 
+        public string analyticsMessage;
+
         public override IEnumerator Dispatch()
         {
             if (queueSwitch)
@@ -25,6 +27,11 @@ namespace AF
             else
             {
                 SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(targetSwitch, newValue);
+            }
+
+            if (!string.IsNullOrEmpty(analyticsMessage))
+            {
+                FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
             }
 
             yield return null;

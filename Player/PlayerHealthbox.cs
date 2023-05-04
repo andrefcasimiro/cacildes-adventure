@@ -21,7 +21,7 @@ namespace AF
         PlayerParryManager playerParryManager => GetComponentInParent<PlayerParryManager>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponentInParent<EquipmentGraphicsHandler>();
 
-        SceneSettings sceneSettings => FindObjectOfType<SceneSettings>(true);
+        SceneSettings sceneSettings;
 
         public GameObject shieldWoodImpactFx;
         public FloatingText damageFloatingText;
@@ -32,6 +32,11 @@ namespace AF
         Animator animator => GetComponentInParent<Animator>();
 
         PlayerPoiseController playerPoiseController => GetComponentInParent<PlayerPoiseController>();
+
+        private void Awake()
+        {
+             sceneSettings = FindObjectOfType<SceneSettings>(true);
+        }
 
         public void TakeEnvironmentalDamage(float damage, int poiseDamage, bool ignoreDodging)
         {

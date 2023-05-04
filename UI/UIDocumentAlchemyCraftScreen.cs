@@ -35,12 +35,16 @@ namespace AF
         UIDocument uIDocument => GetComponent<UIDocument>();
         [HideInInspector] public VisualElement root;
         
-        NotificationManager notificationManager => FindObjectOfType<NotificationManager>(true);
-        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
-        PlayerInventory playerInventory => FindObjectOfType<PlayerInventory>(true);
+        NotificationManager notificationManager;
+        MenuManager menuManager;
+        PlayerInventory playerInventory;
 
         private void Awake()
         {
+             notificationManager = FindObjectOfType<NotificationManager>(true);
+             menuManager = FindObjectOfType<MenuManager>(true);
+             playerInventory = FindObjectOfType<PlayerInventory>(true);
+
             this.gameObject.SetActive(false);
         }
 

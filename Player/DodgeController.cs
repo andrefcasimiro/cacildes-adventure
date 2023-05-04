@@ -109,11 +109,18 @@ namespace AF
                 return false;
             }
 
+            if (!thirdPersonController.canMove)
+            {
+                return false;
+            }
+
             if (!staminaStatManager.HasEnoughStaminaForAction(dodgeCost))
             {
                 //BGMManager.instance.PlayInsufficientStamina();
                 return false;
             }
+
+
 
             return true;
         }

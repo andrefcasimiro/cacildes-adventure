@@ -726,6 +726,15 @@ namespace AF
             };
         }
 
+        public static string ShowCraftingMaterials()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Minérios",
+                _ => "Ores",
+            };
+        }
+
         public static string ShowUpgradeMaterials()
         {
             return GamePreferences.instance.gameLanguage switch

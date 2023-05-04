@@ -18,16 +18,24 @@ namespace AF
 
         public UnityEvent onPickupEvent;
 
-        StarterAssetsInputs inputs => FindObjectOfType<StarterAssetsInputs>(true);
-        UIDocumentKeyPrompt uIDocumentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
-        UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt => FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
-        PlayerInventory playerInventory => FindObjectOfType<PlayerInventory>(true);
+        StarterAssetsInputs inputs;
+        UIDocumentKeyPrompt uIDocumentKeyPrompt;
+        UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
+        PlayerInventory playerInventory;
 
         [Header("Notification")]
         public LocalizedTerms.LocalizedAction actionName = LocalizedTerms.LocalizedAction.PICKUP_ITEM;
 
         [Header("Analytics")]
-        public bool trackPickup = false;
+        public string analyticsMessage;
+
+        private void Awake()
+        {
+             inputs = FindObjectOfType<StarterAssetsInputs>(true);
+             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+             uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
+             playerInventory = FindObjectOfType<PlayerInventory>(true);
+        }
 
         private void Start()
         {
@@ -62,16 +70,6 @@ namespace AF
                 FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGold(gold);
                 Player.instance.currentGold += gold;
 
-                if (trackPickup)
-                {
-                    /*AnalyticsService.Instance.CustomData("gold_found",
-                            new Dictionary<string, object>()
-                            {
-                                { "amount", gold },
-                                { "scene", SceneManager.GetActiveScene() }
-                            }
-                        );*/
-                }
             }
 
             // Is Alchemy Recipe?
@@ -81,6 +79,8 @@ namespace AF
             }
             else if (item != null) // Normal Item
             {
+                playerInventory.AddItem(item, quantity);
+
                 UIDocumentReceivedItemPrompt.ItemsReceived itemReceived = new UIDocumentReceivedItemPrompt.ItemsReceived();
 
                 itemReceived.itemName = item.name.GetText();
@@ -90,20 +90,8 @@ namespace AF
                 uIDocumentReceivedItemPrompt.itemsUI.Clear();
                 uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
 
-                uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
-                playerInventory.AddItem(item, quantity);
 
-                if (trackPickup)
-                {
-                    /*AnalyticsService.Instance.CustomData("item_found",
-                            new Dictionary<string, object>()
-                            {
-                                { "item_name", item.name },
-                                { "quantity", quantity },
-                                { "scene", SceneManager.GetActiveScene().name }
-                            }
-                        );*/
-                }
+                uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
 
                 Soundbank.instance.PlayItemReceived();
             }
@@ -123,17 +111,7 @@ namespace AF
 
                     playerInventory.AddItem(item, 1);
 
-                    if (trackPickup)
-                    {
-                        /*AnalyticsService.Instance.CustomData("item_found",
-                                new Dictionary<string, object>()
-                                {
-                                { "item_name", item.name },
-                                { "quantity", 1 },
-                                { "scene", SceneManager.GetActiveScene().name }
-                                }
-                            );*/
-                    }
+
                 }
 
                 uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
@@ -154,6 +132,13 @@ namespace AF
                 SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
                 SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
             }
+
+
+            if (!string.IsNullOrEmpty(analyticsMessage))
+            {
+                FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
+            }
+
         }
     }
 }

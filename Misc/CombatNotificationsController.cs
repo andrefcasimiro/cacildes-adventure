@@ -9,9 +9,14 @@ namespace AF
     {
         public Transform notificationRootTransform;
         public List<CombatNotificationEntry> combatNotificationEntries = new();
-        CombatNotificationManager combatNotificationManager => FindObjectOfType<CombatNotificationManager>(true);
+        CombatNotificationManager combatNotificationManager;
 
         public float yOffset = .25f;
+
+        private void Awake()
+        {
+             combatNotificationManager = FindObjectOfType<CombatNotificationManager>(true);
+        }
 
         public void AddNotification(string text, Color color)
         {

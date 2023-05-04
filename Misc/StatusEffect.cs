@@ -37,5 +37,9 @@ namespace AF
 
         [Header("FX")]
         public GameObject particleOnDamage;
+
+        [Header("Other")]
+        public bool disablePlayerMovement = false;
+
     }
 }

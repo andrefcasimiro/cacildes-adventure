@@ -1,3 +1,4 @@
+using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -36,6 +37,14 @@ namespace AF
                 {
                     Player.instance.appliedStatus[idx].currentAmount = maxAmountBeforeSuffering;
                     Player.instance.appliedStatus[idx].hasReachedTotalAmount = true;
+
+
+
+                    if (statusEffect.particleOnDamage != null)
+                    {
+                        Instantiate(statusEffect.particleOnDamage, transform.position, Quaternion.identity);
+                    }
+
                     return;
                 }
 
@@ -74,6 +83,7 @@ namespace AF
                 if (entry.hasReachedTotalAmount)
                 {
                     EvaluateEffect(entry, statusToDelete);
+
                 }
 
                 if (entry.currentAmount <= 0 || entry.hasReachedTotalAmount && entry.statusEffect.effectIsImmediate)
@@ -93,6 +103,11 @@ namespace AF
         {
             Player.instance.appliedStatus.Remove(appliedStatus);
             FindObjectOfType<UIDocumentStatusEffectV2>(true).RemoveNegativeStatusEntry(appliedStatus.statusEffect);
+
+            if (appliedStatus.statusEffect.disablePlayerMovement)
+            {
+                FindObjectOfType<ThirdPersonController>(true).canMove = true;
+            }
         }
 
         public void RemoveAllStatus()
@@ -101,9 +116,7 @@ namespace AF
 
             foreach (var playerNegativeStat in playerNegativeStatus)
             {
-
-                Player.instance.appliedStatus.Remove(playerNegativeStat);
-                FindObjectOfType<UIDocumentStatusEffectV2>(true).RemoveNegativeStatusEntry(playerNegativeStat.statusEffect);
+                RemoveAppliedStatus(playerNegativeStat);
             }
 
         }
@@ -150,6 +163,11 @@ namespace AF
             {
                 staminaStatManager.DecreaseStamina(entry.statusEffect.damagePerSecond * Time.deltaTime);
                 return;
+            }
+
+            if (entry.statusEffect.disablePlayerMovement)
+            {
+                FindObjectOfType<ThirdPersonController>(true).canMove = false;
             }
         }
     }

@@ -7,6 +7,7 @@ namespace AF
         EnemyManager enemy;
 
         public bool turnKinematic = true;
+        public bool useGravity = false;
         public bool disableCapsuleCollider = true;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -19,6 +20,11 @@ namespace AF
             }
 
             enemy.GetComponent<Rigidbody>().isKinematic = turnKinematic;
+
+            if (useGravity)
+            {
+                enemy.GetComponent<Rigidbody>().useGravity = true;
+            }
 
             if (disableCapsuleCollider)
             {

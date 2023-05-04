@@ -55,6 +55,7 @@ namespace AF
                     LocalizedTerms.Accessory() + "s",
                     LocalizedTerms.ShowAlchemyIngredients() + "s",
                     LocalizedTerms.ShowCookingIngredients() + "s",
+                    LocalizedTerms.ShowCraftingMaterials(),
                     LocalizedTerms.ShowKeyItems(),
             };
 
@@ -208,6 +209,13 @@ namespace AF
                 else if (filterDropdown.value == LocalizedTerms.ShowCookingIngredients())
                 {
                     foreach (var i in GetUnknownItem<CookingIngredient>())
+                    {
+                        list.Add(i);
+                    }
+                }
+                else if (filterDropdown.value == LocalizedTerms.ShowCraftingMaterials())
+                {
+                    foreach (var i in GetUnknownItem<CraftingMaterial>())
                     {
                         list.Add(i);
                     }

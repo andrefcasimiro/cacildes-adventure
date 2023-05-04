@@ -21,9 +21,15 @@ namespace AF
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
-        PlayerInventory playerInventory => FindObjectOfType<PlayerInventory>(true);
-        NotificationManager notificationManager => FindObjectOfType<NotificationManager>(true);
+        PlayerInventory playerInventory;
+        NotificationManager notificationManager;
         EnemyBossController enemyBossController => GetComponent<EnemyBossController>();
+
+        private void Awake()
+        {
+             playerInventory = FindObjectOfType<PlayerInventory>(true);
+             notificationManager = FindObjectOfType<NotificationManager>(true);
+        }
 
         public IEnumerator GiveLoot()
         {

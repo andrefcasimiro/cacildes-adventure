@@ -10,7 +10,7 @@ namespace AF
         public float ladderBottom;
         public float ladderTop;
 
-        ClimbController player => FindObjectOfType<ClimbController>(true);
+        ClimbController player;
 
         StarterAssetsInputs inputs;
         UIDocumentKeyPrompt uIDocumentKeyPrompt;
@@ -20,8 +20,20 @@ namespace AF
 
         public float playerOffsetFromStairs = 2.65f;
 
+        [Tooltip("How far away from the ladder the player is when climbing from top")]
+        public float playerTopOffsetFromStairs = 2.65f;
+
+        [Header("Event Navigator Options")]
+        public float distanceToTriggerBonus = 2f;
+
+        public float GetDistanceToTrigger()
+        {
+            return distanceToTriggerBonus;
+        }
+
         private void Awake()
         {
+            player = FindObjectOfType<ClimbController>(true);
         }
 
         private void Start()
@@ -100,7 +112,7 @@ namespace AF
             else if (playerHeadY >= ladderTop)
             {
                 player.currentLadder = this;
-                var topTransformPosition = transform.position - (transform.forward / playerOffsetFromStairs);
+                var topTransformPosition = transform.position - (transform.forward / playerTopOffsetFromStairs);
                 topTransformPosition.y = ladderTop;
                 player.StartFromTopV2(topTransformPosition);
             }
@@ -108,12 +120,17 @@ namespace AF
 
         private void Update()
         {
-            if (player == null || player.climbState != ClimbController.ClimbState.CLIMBING)
+            if (player == null)
             {
                 return;
             }
 
             if (player.currentLadder != this)
+            {
+                return;
+            }
+
+            if (player.climbState != ClimbController.ClimbState.CLIMBING)
             {
                 return;
             }

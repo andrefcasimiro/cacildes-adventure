@@ -96,7 +96,14 @@ namespace AF
             if (Player.instance == null || Player.instance.favoriteItems == null || Player.instance.favoriteItems.Count <= 0) { return; }
 
             itemIcon.style.backgroundImage = new StyleBackground(Player.instance.favoriteItems[0].sprite);
-            itemCounter.text = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == Player.instance.favoriteItems[0].name.GetEnglishText()).amount.ToString();
+
+            var favItem = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == Player.instance.favoriteItems[0].name.GetEnglishText());
+
+            if (favItem != null)
+            {
+                itemCounter.text = favItem.amount.ToString();
+            }
+
             itemCounter.style.display = DisplayStyle.Flex;
             quickItemName.text = Player.instance.favoriteItems[0].name.GetText();
 

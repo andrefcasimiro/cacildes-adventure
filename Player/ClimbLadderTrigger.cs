@@ -28,6 +28,14 @@ namespace AF
         UIDocumentKeyPrompt uIDocumentKeyPrompt;
         PlayerShootingManager playerShootingManager;
 
+        [Header("Event Navigator Options")]
+        public float distanceToTriggerBonus = 0f;
+
+        public float GetDistanceToTrigger()
+        {
+            return distanceToTriggerBonus;
+        }
+
         private void Start()
         {
             inputs = FindObjectOfType<StarterAssetsInputs>(true);

@@ -10,8 +10,8 @@ namespace AF
         public AudioClip cavernMusic;
         public AudioClip cavernAmbience;
 
-        SceneSettings sceneSettings => FindObjectOfType<SceneSettings>(true);
-        DayNightManager dayNightManager => FindObjectOfType<DayNightManager>(true);
+        SceneSettings sceneSettings;
+        DayNightManager dayNightManager;
 
         AudioClip dayMusic;
         AudioClip nightMusic;
@@ -28,6 +28,12 @@ namespace AF
 
         public UnityEvent onCavernEnterEvent;
         public UnityEvent onCavernExitEvent;
+
+        private void Awake()
+        {
+             sceneSettings = FindObjectOfType<SceneSettings>(true);
+             dayNightManager = FindObjectOfType<DayNightManager>(true);
+        }
 
         private void Start()
         {

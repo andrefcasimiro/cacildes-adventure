@@ -228,7 +228,8 @@ namespace AF
             {
                 SerializableConsumable serializableConsumable = new()
                 {
-                    consumableName = consumable.consumableEffect.consumablePropertyName.ToString(),
+                    consumableItemName = consumable.consumableItemName,
+                    displayName = consumable.consumableEffect.consumablePropertyName.ToString(),
                     barColor = consumable.consumableEffect.barColor,
                     value = consumable.consumableEffect.value,
                     effectDuration = consumable.consumableEffect.effectDuration,
@@ -649,7 +650,7 @@ namespace AF
     [System.Serializable]
     public class SerializableConsumable
     {
-        public string consumableName;
+        public string consumableItemName;
 
         public string displayName;
 

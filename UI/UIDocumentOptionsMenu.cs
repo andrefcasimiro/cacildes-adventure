@@ -16,6 +16,14 @@ namespace AF
         public LocalizedText mediumLabel;
         public LocalizedText goodLabel;
 
+        public LocalizedText musicVolumeLabel;
+        public LocalizedText ambienceVolumeLabel;
+        public LocalizedText sfxVolumeLabel;
+        public LocalizedText playParryTimeScaleLabel;
+        public LocalizedText systemOptionsLabel;
+        public LocalizedText audioOptionsLabel;
+        public LocalizedText combatOptionsLabel;
+
         public UnityAction onLanguageChanged;
 
         public void Activate(VisualElement root)
@@ -76,6 +84,41 @@ namespace AF
                 }
             });
 
+            var musicVolumeSlider = root.Q<Slider>("MusicVolume");
+            musicVolumeSlider.value = PlayerPrefs.HasKey("musicVolume") ? PlayerPrefs.GetFloat("musicVolume") : BGMManager.instance.bgmAudioSource.volume;
+            musicVolumeSlider.RegisterValueChangedCallback(ev =>
+            {
+                PlayerPrefs.SetFloat("musicVolume", ev.newValue);
+
+                GamePreferences.instance.UpdateAudio();
+            });
+
+            var ambienceSlider = root.Q<Slider>("AmbienceVolume");
+            ambienceSlider.value = PlayerPrefs.HasKey("ambienceVolume") ? PlayerPrefs.GetFloat("ambienceVolume") : BGMManager.instance.ambienceAudioSource.volume;
+            ambienceSlider.RegisterValueChangedCallback(ev =>
+            {
+                PlayerPrefs.SetFloat("ambienceVolume", ev.newValue);
+
+                GamePreferences.instance.UpdateAudio();
+            });
+
+            var sfxSlider = root.Q<Slider>("SFXVolume");
+            sfxSlider.value = PlayerPrefs.HasKey("sfxVolume") ? PlayerPrefs.GetFloat("sfxVolume") : BGMManager.instance.sfxAudioSource.volume;
+            sfxSlider.RegisterValueChangedCallback(ev =>
+            {
+                PlayerPrefs.SetFloat("sfxVolume", ev.newValue);
+
+                GamePreferences.instance.UpdateAudio();
+            });
+
+            var slowDownTimeWhenParrying = root.Q<Toggle>("PlayParryTimescale");
+            slowDownTimeWhenParrying.value = PlayerPrefs.HasKey("slowDownTimeWhenParrying") ? PlayerPrefs.GetInt("slowDownTimeWhenParrying") == 1 : false;
+            slowDownTimeWhenParrying.RegisterValueChangedCallback(ev =>
+            {
+                PlayerPrefs.SetInt("slowDownTimeWhenParrying", ev.newValue ? 1 : 0);
+
+            });
+
 
             TranslateUI(root);
         }
@@ -89,7 +132,22 @@ namespace AF
             var graphicsOptions = root.Q<RadioButtonGroup>("GraphicsOptions");
             graphicsOptions.Q<Label>().text = graphicsQualityLabel.GetText();
             graphicsOptions.choices = new[] { lowLabel.GetText(), mediumLabel.GetText(), goodLabel.GetText() };
+
+            root.Q<Slider>("MusicVolume").label = musicVolumeLabel.GetText();
+            root.Q<Slider>("AmbienceVolume").label = ambienceVolumeLabel.GetText();
+            root.Q<Slider>("SFXVolume").label = sfxVolumeLabel.GetText();
+
+            root.Q<Toggle>("PlayParryTimescale").label = playParryTimeScaleLabel.GetText();
+
+            root.Q<Label>("SystemOptions").text = systemOptionsLabel.GetText();
+            root.Q<Label>("AudioOptions").text = audioOptionsLabel.GetText();
+            root.Q<Label>("CombatOptions").text = combatOptionsLabel.GetText();
+
         }
+
+
     }
+
+
 
 }

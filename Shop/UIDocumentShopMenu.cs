@@ -23,10 +23,14 @@ namespace AF
         UIDocument uiDocument => GetComponent<UIDocument>();
         VisualElement root;
 
-
         public VisualTreeAsset buySellButton;
 
-        StarterAssetsInputs inputs => FindObjectOfType<StarterAssetsInputs>(true);
+        StarterAssetsInputs inputs;
+
+        private void Awake()
+        {
+             inputs = FindObjectOfType<StarterAssetsInputs>(true);
+        }
 
         private void Start()
         {

@@ -14,7 +14,7 @@ namespace AF
 
         [HideInInspector] public EventPage[] eventPages;
 
-        EventPage currentTarget;
+        [HideInInspector] public EventPage currentTarget;
 
         private void Awake()
         {
@@ -111,7 +111,6 @@ namespace AF
             {
                 return;
             }
-
 
             if (currentTarget.useTimeOfDay == false)
             {

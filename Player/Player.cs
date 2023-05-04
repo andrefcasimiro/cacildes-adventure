@@ -24,6 +24,8 @@ namespace AF
 
         public Sprite consumableEffectSprite;
 
+        public string consumableItemName;
+
         public float currentDuration;
     }
 
@@ -371,23 +373,22 @@ namespace AF
                 {
                     AppliedConsumable appliedConsumable = new AppliedConsumable();
                     Consumable.ConsumableEffect consumableEffect = new Consumable.ConsumableEffect();
-                    Enum.TryParse(savedConsumable.consumableName, out Consumable.ConsumablePropertyName consumableName);
+                    Enum.TryParse(savedConsumable.displayName, out Consumable.ConsumablePropertyName consumableName);
 
                     consumableEffect.consumablePropertyName = consumableName;
-                    Consumable consumableScriptableObject = Resources.Load<Consumable>("Items/Consumables/" + savedConsumable.consumableName);
-                    consumableEffect.barColor = new Color(savedConsumable.barColor.r, savedConsumable.barColor.g, savedConsumable.barColor.b, savedConsumable.barColor.a);
-                    consumableEffect.value = savedConsumable.value;
-                    consumableEffect.effectDuration = savedConsumable.effectDuration;
+                    Consumable consumableScriptableObject = Instantiate(Resources.Load<Consumable>("Items/Consumables/" + savedConsumable.consumableItemName));
 
+                    var targetConsumableEffect = consumableScriptableObject.consumableEffects.FirstOrDefault(x => x.consumablePropertyName == consumableName);
+
+                    targetConsumableEffect.barColor = new Color(savedConsumable.barColor.r, savedConsumable.barColor.g, savedConsumable.barColor.b, savedConsumable.barColor.a);
+                    targetConsumableEffect.value = savedConsumable.value;
+                    targetConsumableEffect.effectDuration = savedConsumable.effectDuration;
                     appliedConsumable.currentDuration = savedConsumable.currentDuration;
 
-                    var sprite = Resources.Load<Sprite>("Items/Consumables/" + savedConsumable.spriteFileName);
+                    appliedConsumable.consumableEffect = targetConsumableEffect;
 
-                    consumableEffect.sprite = sprite;
-
-                    appliedConsumable.consumableEffect = consumableEffect;
-                    appliedConsumable.consumableEffectSprite = sprite;
-
+                    appliedConsumable.consumableEffectSprite = targetConsumableEffect.sprite;
+                    appliedConsumable.consumableItemName = savedConsumable.consumableItemName;
                     playerConsumableManager.AddConsumableEffect(appliedConsumable);
                 }
             }

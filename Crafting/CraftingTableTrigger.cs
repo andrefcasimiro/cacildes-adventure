@@ -7,10 +7,20 @@ namespace AF
     {
         public UIDocumentAlchemyCraftScreen.CraftActivity craftActivity;
 
-        StarterAssetsInputs inputs => FindObjectOfType<StarterAssetsInputs>(true);
-        UIDocumentKeyPrompt uIDocumentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
-        UIDocumentAlchemyCraftScreen alchemyCraftScreen => FindObjectOfType<UIDocumentAlchemyCraftScreen>(true);
-        UIDocumentBlacksmithScreen blacksmithScreen => FindObjectOfType<UIDocumentBlacksmithScreen>(true);
+        StarterAssetsInputs inputs;
+        UIDocumentKeyPrompt uIDocumentKeyPrompt;
+        UIDocumentAlchemyCraftScreen alchemyCraftScreen;
+        UIDocumentBlacksmithScreen blacksmithScreen;
+
+        private void Awake()
+        {
+
+             inputs = FindObjectOfType<StarterAssetsInputs>(true);
+             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+             alchemyCraftScreen = FindObjectOfType<UIDocumentAlchemyCraftScreen>(true);
+             blacksmithScreen = FindObjectOfType<UIDocumentBlacksmithScreen>(true);
+
+        }
 
         public void OnCaptured()
         {

@@ -17,7 +17,12 @@ namespace AF
         public string[] customDodgeClips;
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
-        PlayerCombatController playerCombatController => FindObjectOfType<PlayerCombatController>(true);
+        PlayerCombatController playerCombatController;
+
+        private void Awake()
+        {
+            playerCombatController = FindObjectOfType<PlayerCombatController>(true);
+        }
 
         void Update()
         {

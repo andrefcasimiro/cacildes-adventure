@@ -10,11 +10,14 @@ namespace AF
 
         UIControlsLocalization uIControlsLocalization => GetComponent<UIControlsLocalization>();
 
-        MenuManager menuManager => FindObjectOfType<MenuManager>(true);
-        UIDocumentTitleScreen uIDocumentTitleScreen => FindObjectOfType<UIDocumentTitleScreen>(true);
+        MenuManager menuManager;
+        UIDocumentTitleScreen uIDocumentTitleScreen;
 
         private void Awake()
         {
+             menuManager = FindObjectOfType<MenuManager>(true);
+             uIDocumentTitleScreen = FindObjectOfType<UIDocumentTitleScreen>(true);
+
             gameObject.SetActive(false);
         }
 

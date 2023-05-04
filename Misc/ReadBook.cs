@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Windows;
 
 namespace AF
 {
@@ -30,9 +29,16 @@ namespace AF
         float maxNavigateCoolDown = 0.1f;
         float currentNavigateCooldown = Mathf.Infinity;
 
-        UIDocumentKeyPrompt documentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
-        UIDocumentBook uIDocumentBook => FindObjectOfType<UIDocumentBook>(true);
-        PlayerComponentManager playerComponentManager => FindObjectOfType<PlayerComponentManager>(true);
+        UIDocumentKeyPrompt documentKeyPrompt;
+        UIDocumentBook uIDocumentBook;
+        PlayerComponentManager playerComponentManager;
+
+        private void Awake()
+        {
+             documentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+             uIDocumentBook = FindObjectOfType<UIDocumentBook>(true);
+             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
+        }
 
         private void Update()
         {

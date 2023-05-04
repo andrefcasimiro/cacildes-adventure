@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using StarterAssets;
 using JetBrains.Annotations;
+using UnityEditor.Rendering;
 
 namespace AF
 {
@@ -33,6 +34,16 @@ namespace AF
 
         public int unarmedDefenseAbsorption = 20;
 
+        [Tooltip("The amount that multiplier the current attack power if we attack immediately after a parry")]
+        public float counterAttackMultiplier = 1.5f;
+        public float maxCounterAttackWindowAfterParry = 0.85f;
+        float currentCounterAttackWindow = Mathf.Infinity;
+
+        public bool IsWithinCounterAttackWindow()
+        {
+            return currentCounterAttackWindow < maxCounterAttackWindowAfterParry;
+        }
+
         void Update()
         {
             HandleBlock();
@@ -51,6 +62,11 @@ namespace AF
             if (IsBlocking())
             {
                 animator.SetBool("HasShield", Player.instance.equippedShield != null);
+            }
+
+            if (currentCounterAttackWindow < maxCounterAttackWindowAfterParry)
+            {
+                currentCounterAttackWindow += Time.deltaTime;
             }
         }
 
@@ -159,9 +175,28 @@ namespace AF
                 tf = equipmentGraphicsHandler.leftUnarmedHitbox.transform;
             }
 
+            bool slowDown = GamePreferences.instance.ShouldSlowDownTimeWhenParrying();
+            if (slowDown)
+            {
+                Time.timeScale = 0.65f;
+            }
+
             Instantiate(parryFx, tf.transform.position, Quaternion.identity);
 
             animator.Play("Parry Block Hit");
+
+            currentCounterAttackWindow = 0f;
+
+            if (slowDown)
+            {
+                StartCoroutine(ResetTimeScale());
+            }
+        }
+
+        IEnumerator ResetTimeScale()
+        {
+            yield return new WaitForSeconds(1f);
+            Time.timeScale = 1f;
         }
 
     }

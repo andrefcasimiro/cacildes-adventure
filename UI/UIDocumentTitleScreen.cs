@@ -1,4 +1,7 @@
+using System;
+using Unity.Services.Analytics;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -19,6 +22,7 @@ namespace AF
         TitleScreenManager titleScreenManager => GetComponentInParent<TitleScreenManager>();
         MenuManager menuManager;
 
+        bool hasClosedGdpr = false;
 
         private void Awake()
         {
@@ -36,6 +40,7 @@ namespace AF
             }
         }
 
+
         private void OnEnable()
         {
             var root = document.rootVisualElement;
@@ -50,6 +55,25 @@ namespace AF
             root.Q<Button>("ControlsButton").text = controlsText.GetText();
             root.Q<Button>("CreditsButton").text = creditsText.GetText();
             root.Q<Button>("ExitButton").text = exitGameText.GetText();
+            
+            root.Q<Button>("OptOut").RegisterCallback<ClickEvent>(ev =>
+            {
+                hasClosedGdpr = true;
+
+                root.Q<VisualElement>("GDPR").style.display = DisplayStyle.None;
+
+                PlayerPrefs.SetInt("dontAllowAds", 1);
+
+                FindObjectOfType<Analytics>(true).OptOut();
+
+                Application.OpenURL(AnalyticsService.Instance.PrivacyUrl);
+            });
+
+            if (hasClosedGdpr)
+            {
+                root.Q<VisualElement>("GDPR").style.display = DisplayStyle.None;
+            }
+
 
             menuManager.SetupButton(
                 root.Q<Button>("NewGameButton"),

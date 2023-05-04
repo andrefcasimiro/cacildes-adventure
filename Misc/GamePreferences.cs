@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Rendering.PostProcessing;
 
 namespace AF
@@ -20,7 +21,6 @@ namespace AF
         }
 
         public static GamePreferences instance;
-
 
         public GameLanguage gameLanguage;
         public GraphicsQuality graphicsQuality = GraphicsQuality.GOOD;
@@ -43,6 +43,8 @@ namespace AF
         private void Start()
         {
             InitializeGraphicsQuality();
+
+            UpdateAudio();
         }
         
         void InitializeGraphicsQuality()
@@ -105,6 +107,19 @@ namespace AF
             var postProcessVolumes = FindObjectsOfType<PostProcessVolume>(true);
             Camera.main.TryGetComponent<PostProcessLayer>(out var postProcessLayer);
 
+            if (graphicsQuality == GraphicsQuality.LOW)
+            {
+                QualitySettings.SetQualityLevel(0);
+            }
+            if (graphicsQuality == GraphicsQuality.MEDIUM)
+            {
+                QualitySettings.SetQualityLevel(2);
+            }
+            if (graphicsQuality == GraphicsQuality.GOOD)
+            {
+                QualitySettings.SetQualityLevel(5);
+            }
+
             foreach (var postProcessVolume in postProcessVolumes)
             {
                 postProcessVolume.profile.GetSetting<Vignette>().active = false;
@@ -129,5 +144,27 @@ namespace AF
                 }
             }
         }
+
+        public void UpdateAudio()
+        {
+            if (PlayerPrefs.HasKey("musicVolume"))
+            {
+                BGMManager.instance.bgmAudioSource.volume = PlayerPrefs.GetFloat("musicVolume");
+            }
+            if (PlayerPrefs.HasKey("ambienceVolume"))
+            {
+                BGMManager.instance.ambienceAudioSource.volume = PlayerPrefs.GetFloat("ambienceVolume");
+            }
+            if (PlayerPrefs.HasKey("sfxVolume"))
+            {
+                BGMManager.instance.sfxAudioSource.volume = PlayerPrefs.GetFloat("sfxVolume");
+            }
+        }
+
+        public bool ShouldSlowDownTimeWhenParrying()
+        {
+            return PlayerPrefs.HasKey("slowDownTimeWhenParrying") ? PlayerPrefs.GetInt("slowDownTimeWhenParrying") == 1 : false;
+        }
+
     }
 }

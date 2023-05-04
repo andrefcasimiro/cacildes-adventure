@@ -21,6 +21,7 @@ namespace AF
         public float textDelay = 0.05f;
         public bool showHint = false;
         public bool facePlayer = false;
+        public Transform characterTransform;
 
         [Header("Conditions - Switches")]
         public SwitchEntry switchEntry;
@@ -35,10 +36,12 @@ namespace AF
         public Animator animator;
         public string animationClip;
 
-        DialogueManager dialogueManager => FindObjectOfType<DialogueManager>(true);
+        DialogueManager dialogueManager;
 
         private void Awake()
         {
+             dialogueManager = FindObjectOfType<DialogueManager>(true);
+
             if (isCompanion)
             {
                 character = GetComponentInParent<CompanionManager>(true).companion.character;
@@ -111,12 +114,17 @@ namespace AF
 
         void FacePlayer()
         {
+            if (characterTransform == null)
+            {
+                characterTransform = this.transform;
+            }
+
             Transform player = GameObject.FindWithTag("Player").transform;
 
-            var npcLookPos = player.transform.position - transform.position;
+            var npcLookPos = player.transform.position - characterTransform.transform.position;
             npcLookPos.y = 0;
-
-            transform.rotation = Quaternion.LookRotation(npcLookPos);
+                
+            characterTransform.transform.rotation = Quaternion.LookRotation(npcLookPos);
         }
     }
 }

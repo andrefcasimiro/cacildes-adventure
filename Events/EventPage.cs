@@ -46,6 +46,7 @@ namespace AF
         [HideInInspector] public List<EventBase> pageEvents = new List<EventBase>();
         [HideInInspector] public bool isRunning = false;
         MoveRoute parentMoveRoute;
+        [HideInInspector] public NPCMoveRoute npcMoveRoute => GetComponent<NPCMoveRoute>();
 
         [Header("Settings")]
         public bool allowTimePassage = false;
@@ -53,13 +54,33 @@ namespace AF
         // Event Page transform child that controls movement
         private GameObject player;
 
-        DayNightManager dayNightManager => FindObjectOfType<DayNightManager>(true);
         EnemyManager enemyManager => GetComponent<EnemyManager>();
-        UIDocumentDialogueWindow uIDocumentDialogueWindow => FindObjectOfType<UIDocumentDialogueWindow>(true);
-        UIDocumentKeyPrompt documentKeyPrompt => FindObjectOfType<UIDocumentKeyPrompt>(true);
+
+        DayNightManager dayNightManager;
+        UIDocumentDialogueWindow uIDocumentDialogueWindow;
+        UIDocumentKeyPrompt documentKeyPrompt;
+
+        [Header("Audio")]
+        public AudioClip greetingSfx;
+
+        [Header("Event Navigator Options")]
+        public float distanceToTriggerBonus = 0f;
+
+        [HideInInspector] public List<EventBase> overrideEvents;
+
+
+        public float GetDistanceToTrigger()
+        {
+            return distanceToTriggerBonus;
+        }
 
         private void Awake()
         {
+             dayNightManager = FindObjectOfType<DayNightManager>(true);
+             uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
+             documentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+
+
             useTimeOfDay = appearFrom != 00.00f || appearUntil != 24.00f;
 
             eventParent = transform.GetComponentInParent<Event>();
@@ -85,6 +106,11 @@ namespace AF
             if (parentMoveRoute != null && parentMoveRoute.IsRunning() == false)
             {
                 parentMoveRoute.StartCycle();
+            }
+
+            if (npcMoveRoute != null && npcMoveRoute.IsRunning() == false)
+            {
+                npcMoveRoute.StartCycle();
             }
 
             if (isRunning && transformReferenceForCancelling != null)
@@ -122,6 +148,11 @@ namespace AF
                 dayNightManager.tick = false;
             }
 
+            if (greetingSfx != null)
+            {
+                player.GetComponent<PlayerCombatController>().combatAudioSource.PlayOneShot(greetingSfx);
+            }
+
             StartCoroutine(DispatchEvents());
         }
 
@@ -132,15 +163,37 @@ namespace AF
                 parentMoveRoute.Interrupt();
             }
 
+            if (npcMoveRoute != null)
+            {
+                npcMoveRoute.Interrupt();
+            }
+
             isRunning = true;
 
-            foreach (EventBase ev in pageEvents)
+            // The event parent has more important events?
+            if (overrideEvents.Count > 0)
             {
-                if (ev != null)
+
+                foreach (EventBase ev in overrideEvents)
                 {
-                    yield return StartCoroutine(ev.Dispatch());
+                    if (ev != null)
+                    {
+                        yield return StartCoroutine(ev.Dispatch());
+                    }
                 }
             }
+            else // Run this page events
+            {
+                foreach (EventBase ev in pageEvents)
+                {
+                    if (ev != null)
+                    {
+                        yield return StartCoroutine(ev.Dispatch());
+                    }
+                }
+
+            }
+
 
             StopEvent();
         }
@@ -162,6 +215,10 @@ namespace AF
             if (parentMoveRoute != null)
             {
                 parentMoveRoute.ResumeCycle();
+            }
+            if (npcMoveRoute != null)
+            {
+                npcMoveRoute.ResumeCycle();
             }
 
             SwitchManager.instance.UpdateQueuedSwitches();

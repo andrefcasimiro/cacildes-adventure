@@ -8,6 +8,10 @@ namespace AF
         [HideInInspector] public Animator animator => GetComponent<Animator>();
         [HideInInspector] public FootstepListener footstepListener => GetComponentInParent<FootstepListener>();
 
+
+        AudioSource customAudioSource => GetComponent<AudioSource>();
+        public AudioClip customSfx;
+
         private void Start()
         {
             enemy = GetComponentInParent<EnemyManager>();
@@ -292,6 +296,17 @@ namespace AF
             }
 
             enemy.enemyPostureController.isParriable = false;
+        }
+
+        public void OnGenericSfx()
+        {
+            if (customAudioSource != null)
+            {
+                if (customSfx != null)
+                {
+                    customAudioSource.PlayOneShot(customSfx);
+                }
+            }
         }
     }
 }

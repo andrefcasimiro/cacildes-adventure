@@ -16,10 +16,12 @@ namespace AF
         public LocalizedText closeBookText;
         public LocalizedText tabText;
 
-        StarterAssets.StarterAssetsInputs inputs => FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
+        StarterAssets.StarterAssetsInputs inputs;
 
         private void Awake()
         {
+            inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
+
             this.gameObject.SetActive(false);
         }
 

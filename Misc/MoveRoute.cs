@@ -7,8 +7,8 @@ namespace AF
 {
     public class MoveRoute : MonoBehaviour
     {
-        [HideInInspector] public Animator animator;
-        [HideInInspector] public NavMeshAgent navMeshAgent;
+        public Animator animator;
+        public NavMeshAgent navMeshAgent;
 
         [HideInInspector]
         public List<Waypoint> waypoints = new List<Waypoint>();
