@@ -153,9 +153,11 @@ namespace AF
             }
 
             int dice = Random.Range(0, 100);
-            if (dice < enemy.enemyProjectileController.shootingWeight && enemy.enemyProjectileController.CanShoot() && this.shootActions.Length > 0)
+            if (dice < enemy.enemyProjectileController.shootingWeight && enemy.enemyProjectileController.CanShoot())
             {
-                int clip = Random.Range(0, this.shootActions.Length);
+                var thisShootActions = enemy.enemyProjectileController.shootActions.Length > 0 ? enemy.enemyProjectileController.shootActions : this.shootActions;
+
+                int clip = Random.Range(0, thisShootActions.Length);
                 animator.Play(this.shootActions[clip]);
 
                 return true;

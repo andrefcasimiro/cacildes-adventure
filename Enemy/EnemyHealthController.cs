@@ -1,7 +1,9 @@
+using Mono.Cecil.Cil;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using static AF.GamePreferences;
 
 namespace AF
 {
@@ -239,6 +241,8 @@ namespace AF
                 return;
             }
 
+            enemyManager.PushEnemy(weapon != null ? (int)weapon.pushForce : 1f);;
+
             if (enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.IsBlocking())
             {
                 enemyManager.enemyBlockController.HandleBlock(collisionPoint, weapon.blockHitAmount + (playerAttackStatManager.IsHeavyAttacking() ? 1 : 0));
@@ -262,6 +266,11 @@ namespace AF
                 );
 
             enemyManager.enemyWeaponController.DisableAllWeaponHitboxes();
+
+            if (enemyLoot != null && weapon != null && weapon.amountOfGoldReceivedPerHit != 0)
+            {
+                enemyLoot.bonusGold += weapon.amountOfGoldReceivedPerHit;
+            }
 
             float appliedDamage = weapon != null ? playerAttackStatManager.GetWeaponAttack(weapon) : playerAttackStatManager.GetCurrentPhysicalAttack();
             appliedDamage += hitboxDamageBonus;
@@ -302,6 +311,24 @@ namespace AF
                     combatNotificationsController.ShowFrostDamage(elementalBonus);
 
                     Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
+                }
+                if (weapon.lightningAttack > 0)
+                {
+                    var elementalBonus = Mathf.Clamp(weapon.GetWeaponLightningAttack() * enemyManager.enemy.lightningDamageBonus, 0, Mathf.Infinity);
+                    appliedDamage += elementalBonus;
+
+                    combatNotificationsController.ShowLightningDamage(elementalBonus);
+
+                    //Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
+                }
+                if (weapon.magicAttack > 0)
+                {
+                    var elementalBonus = Mathf.Clamp(weapon.GetWeaponMagicAttack() * enemyManager.enemy.magicDamageBonus, 0, Mathf.Infinity);
+                    appliedDamage += elementalBonus;
+
+                    combatNotificationsController.ShowMagicDamage(elementalBonus);
+
+                    //Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
                 }
 
                 if (weaponTypeBonusTable.Length > 0)
@@ -456,7 +483,17 @@ namespace AF
 
             if (enemyLoot != null)
             {
-                StartCoroutine(enemyLoot.GiveLoot());
+                if (enemyBossController != null)
+                {
+                    if (enemyBossController.AllBossesAreDead())
+                    {
+                        StartCoroutine(enemyLoot.GiveLoot());
+                    }
+                }
+                else
+                {
+                    StartCoroutine(enemyLoot.GiveLoot());
+                }
             }
 
             yield return PlayDeathSfx();
@@ -465,7 +502,7 @@ namespace AF
     
             yield return DisengageLockOn();
 
-            if (enemyBossController != null)
+            if (enemyBossController != null && enemyBossController.AllBossesAreDead())
             {
                 if (enemyBossController.fogWall != null)
                 {
@@ -473,6 +510,16 @@ namespace AF
                 }
 
                 enemyBossController.HideBossHud();
+
+                if (enemyBossController.partner != null)
+                {
+                    if (enemyBossController.partner.fogWall != null)
+                    {
+                        enemyBossController.partner.fogWall.gameObject.SetActive(false);
+                    }
+
+                    enemyBossController.partner.HideBossHud();
+                }
             }
 
 
@@ -532,15 +579,22 @@ namespace AF
             enemyNegativeStatusController.ClearAllNegativeStatus();
 
             // Update switch must be at the very last part of all the die flow
-            if (enemyBossController != null && enemyBossController.bossSwitchEntry != null)
+            if (enemyBossController != null && enemyBossController.bossSwitchEntry != null && enemyBossController.AllBossesAreDead())
             {
-                if (enemyBossController.refreshEventsUponSwitchActivation == false)
+                var targetBoss = enemyBossController.order == 1 ? enemyBossController : enemyBossController.partner;
+
+                if (targetBoss != null)
                 {
-                    SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(enemyBossController.bossSwitchEntry, true);
-                }
-                else
-                {
-                    SwitchManager.instance.UpdateSwitch(enemyBossController.bossSwitchEntry, true, enemyBossController.ignoredSwitchListener);
+                    if (targetBoss.refreshEventsUponSwitchActivation == false)
+                    {
+                        SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(targetBoss.bossSwitchEntry, true);
+                    }
+                    else
+                    {
+                        SwitchManager.instance.UpdateSwitch(targetBoss.bossSwitchEntry, true, targetBoss.ignoredSwitchListener);
+                    }
+
+                    targetBoss.onBossBattleEnd.Invoke();
                 }
             }
         }
@@ -596,7 +650,18 @@ namespace AF
 
             if (onEnemyDeathAfter1Second != null)
             {
-                onEnemyDeathAfter1Second.Invoke();
+                if (enemyBossController != null)
+                {
+
+                    if (enemyBossController.AllBossesAreDead())
+                    {
+                        onEnemyDeathAfter1Second.Invoke();
+                    }
+                }
+                else
+                {
+                    onEnemyDeathAfter1Second.Invoke();
+                }
             }
         }
 

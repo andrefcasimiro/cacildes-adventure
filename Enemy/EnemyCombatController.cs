@@ -28,6 +28,10 @@ namespace AF
         public string circleAroundRightAnimation = "Strafe Right";
         public string circleAroundLeftAnimation = "Strafe Left";
 
+        [Header("Passivity")]
+        public float minimumDecisionTimeOverride = -1f;
+        public float maximumDecisionTimeOverride = -1f;
+
         [Header("Override Animator Combat Attacks")]
         public string[] meleeLightAttacks;
         public string[] meleeHeavyAttacks;
@@ -63,6 +67,11 @@ namespace AF
         public bool IsInCombat()
         {
             return enemyManager.animator.GetBool(enemyManager.hashIsInCombat);
+        }
+
+        public bool IsWaiting()
+        {
+            return enemyManager.animator.GetBool(enemyManager.hashIsWaiting);
         }
 
         public bool IsPlayerFarAway()

@@ -13,6 +13,7 @@ namespace AF
         PlayerHealthbox playerHealthbox => GetComponent<PlayerHealthbox>();
         AttackStatManager attackStatManager => GetComponent<AttackStatManager>();
         StarterAssets.ThirdPersonController thirdPersonController => GetComponent<StarterAssets.ThirdPersonController>();
+        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
         private void Update()
         {
@@ -33,6 +34,13 @@ namespace AF
             }
 
             Player.instance.appliedConsumables.Add(consumableEffect);
+            
+            // If we only wish to evaluate the effect once, evaluate on add
+            if (consumableEffect.consumableEffect.tick == false)
+            {
+                EvaluateEffect(Player.instance.appliedConsumables.Last());
+            }
+
             FindObjectOfType<UIDocumentStatusEffectV2>(true).AddConsumableEntry(consumableEffect.consumableEffect);
         }
 
@@ -44,7 +52,10 @@ namespace AF
             {
                 entry.currentDuration -= Time.deltaTime;
 
-                EvaluateEffect(entry);
+                if (entry.consumableEffect.tick)
+                {
+                    EvaluateEffect(entry);
+                }
 
                 if (entry.currentDuration <= 0)
                 {
@@ -92,7 +103,31 @@ namespace AF
 
             if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
             {
-                staminaStatManager.negativeStaminaRegenerationBonus = consumableToDelete.consumableEffect.value;
+                staminaStatManager.negativeStaminaRegenerationBonus = 0f;
+            }
+
+            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
+            {
+                equipmentGraphicsHandler.vitalityBonus -= (int)consumableToDelete.consumableEffect.value;
+                equipmentGraphicsHandler.enduranceBonus -= (int)consumableToDelete.consumableEffect.value;
+                equipmentGraphicsHandler.dexterityBonus -= (int)consumableToDelete.consumableEffect.value;
+                equipmentGraphicsHandler.strengthBonus -= (int)consumableToDelete.consumableEffect.value;
+            }
+            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.VITALITY_INCREASE)
+            {
+                equipmentGraphicsHandler.vitalityBonus -= (int)consumableToDelete.consumableEffect.value;
+            }
+            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ENDURANCE_INCREASE)
+            {
+                equipmentGraphicsHandler.enduranceBonus -= (int)consumableToDelete.consumableEffect.value;
+            }
+            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
+            {
+                equipmentGraphicsHandler.strengthBonus -= (int)consumableToDelete.consumableEffect.value;
+            }
+            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
+            {
+                equipmentGraphicsHandler.dexterityBonus -= (int)consumableToDelete.consumableEffect.value;
             }
         }
 
@@ -124,6 +159,30 @@ namespace AF
                 staminaStatManager.negativeStaminaRegenerationBonus = entry.consumableEffect.value;
             }
 
+
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
+            {
+                equipmentGraphicsHandler.vitalityBonus += (int)entry.consumableEffect.value;
+                equipmentGraphicsHandler.enduranceBonus += (int)entry.consumableEffect.value;
+                equipmentGraphicsHandler.dexterityBonus += (int)entry.consumableEffect.value;
+                equipmentGraphicsHandler.strengthBonus += (int)entry.consumableEffect.value;
+            }
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.VITALITY_INCREASE)
+            {
+                equipmentGraphicsHandler.vitalityBonus += (int)entry.consumableEffect.value;
+            }
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ENDURANCE_INCREASE)
+            {
+                equipmentGraphicsHandler.enduranceBonus += (int)entry.consumableEffect.value;
+            }
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
+            {
+                equipmentGraphicsHandler.strengthBonus += (int)entry.consumableEffect.value;
+            }
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
+            {
+                equipmentGraphicsHandler.dexterityBonus += (int)entry.consumableEffect.value;
+            }
         }
     }
 }

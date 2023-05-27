@@ -51,6 +51,14 @@ namespace AF
         {
             AddNotification("- " + amount, combatNotificationManager.frostDamage);
         }
+        public void ShowLightningDamage(float amount)
+        {
+            AddNotification("- " + amount, combatNotificationManager.lightningDamage);
+        }
+        public void ShowMagicDamage(float amount)
+        {
+            AddNotification("- " + amount, combatNotificationManager.magicDamage);
+        }
         public void ShowStatusFullAmountEffect(string displayedStatusEffectName, Color statusEffectColor)
         {
             AddNotification(displayedStatusEffectName.ToLower(), statusEffectColor);

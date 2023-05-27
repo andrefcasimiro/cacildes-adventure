@@ -66,6 +66,15 @@ namespace AF
                 }
             }
 
+            if (enemy.enemyCombatController.minimumDecisionTimeOverride != -1)
+            {
+                minimumDecisionTime = enemy.enemyCombatController.minimumDecisionTimeOverride;
+            }
+            if (enemy.enemyCombatController.maximumDecisionTimeOverride != -1)
+            {
+                minimumDecisionTime = enemy.enemyCombatController.maximumDecisionTimeOverride;
+            }
+
             turnDecisionTime = Random.Range(minimumDecisionTime, maximumDecisionTime);
             waitingCounter = 0f;
         }

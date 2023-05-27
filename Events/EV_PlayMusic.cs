@@ -19,9 +19,13 @@ namespace AF
                 SceneSettings sceneSettings = FindObjectOfType<SceneSettings>(true);
                 sceneSettings.HandleSceneSound();
             }
-            else
+            else if (bgm != null)
             {
                 BGMManager.instance.PlayMusic(bgm);
+            }
+            else
+            {
+                BGMManager.instance.StopMusic();
             }
         }
     }

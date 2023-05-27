@@ -19,6 +19,15 @@ namespace AF
             JUMP_HEIGHT,
             PHYSICAL_ATTACK_BONUS,
             SLOWER_STAMINA_REGENERATION_RATE,
+
+            VITALITY_INCREASE,
+            ENDURANCE_INCREASE,
+            STRENGTH_INCREASE,
+            DEXTERITY_INCREASE,
+
+            ALL_STATS_INCREASE,
+
+            REPUTATION_INCREASE,
         }
 
         [System.Serializable]
@@ -31,6 +40,9 @@ namespace AF
             public float effectDuration;
             public bool isPositive = true;
             public LocalizedText unit;
+
+            [Tooltip("If true, effect will be evaluated every frame")] public bool tick = true;
+
         }
 
         [Header("FX")]
@@ -54,6 +66,10 @@ namespace AF
         [Header("Remove Negative Status")]
         public bool removeNegativeStatus = false;
         public StatusEffect statusToRemove;
+
+        [Header("Apply Negative Status")]
+        public bool applyNegativeStatus = false;
+        public StatusEffect statusToApply;
 
         public ConsumableEffect[] consumableEffects;
 
@@ -111,6 +127,13 @@ namespace AF
                 FindObjectOfType<PlayerStatusManager>(true).RemoveAppliedStatus(Player.instance.appliedStatus.Find(x => x.statusEffect == statusToRemove));
             }
 
+            if (applyNegativeStatus)
+            {
+                float maxAmountBeforeSuffering = FindObjectOfType<DefenseStatManager>(true).GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusToApply);
+
+                FindObjectOfType<PlayerStatusManager>(true).InflictStatusEffect(statusToApply, maxAmountBeforeSuffering, true);
+            }
+
             var playerConsumablesManager = FindObjectOfType<PlayerConsumablesManager>(true);
             foreach (var consumableEffect in consumableEffects)
             {
@@ -119,6 +142,15 @@ namespace AF
                 appliedConsumables.currentDuration = consumableEffect.effectDuration;
                 appliedConsumables.consumableEffectSprite = consumableEffect.sprite;
                 appliedConsumables.consumableItemName = this.name.GetEnglishText();
+
+
+                // Remove any applied consumable that contains one the consumable effects of this consumable
+                var idx = Player.instance.appliedConsumables.FindIndex(appliedConsumable => appliedConsumable.consumableEffect.consumablePropertyName == consumableEffect.consumablePropertyName);
+
+                if (idx != -1)
+                {
+                    playerConsumablesManager.RemoveConsumable(Player.instance.appliedConsumables[idx]);
+                }
 
                 playerConsumablesManager.AddConsumableEffect(appliedConsumables);
             }

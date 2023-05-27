@@ -177,6 +177,23 @@ namespace AF
 
                 yield return new WaitUntil(() => selectedChoice != null || (Gamepad.current != null && Gamepad.current.buttonWest.isPressed && focusedSelectedChoice != null));
 
+                if (selectedChoice.reputationAmountToIncrease != 0 || selectedChoice.reputationAmountToDecrease != 0)
+                {
+
+                    if (SwitchManager.instance.GetSwitchCurrentValue(selectedChoice.reputationSwitchEntry) == false)
+                    {
+                        if (selectedChoice.reputationAmountToIncrease != 0)
+                        {
+                            FindObjectOfType<NotificationManager>(true).IncreaseReputation(selectedChoice.reputationAmountToIncrease);
+                        }
+                        else if (selectedChoice.reputationAmountToDecrease != 0)
+                        {
+                            FindObjectOfType<NotificationManager>(true).DecreaseReputation(selectedChoice.reputationAmountToIncrease);
+                        }
+                        SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(selectedChoice.reputationSwitchEntry, true);
+                    }
+                }
+
                 Utils.HideCursor();
 
                 FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();

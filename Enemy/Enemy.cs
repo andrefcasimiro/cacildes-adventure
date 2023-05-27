@@ -3,12 +3,21 @@ using UnityEngine;
 
 namespace AF
 {
+    public enum EnemySize
+    {
+        Small = 1,
+        Medium = 3,
+        Large = 6,
+        Collossal = 8
+    }
+
     [CreateAssetMenu(menuName = "NPCs / Enemy / New Enemy")]
     public class Enemy : ScriptableObject
     {
         [Header("Generic")]
         public new LocalizedText name;
         public bool isMale = true;
+        public EnemySize weight = EnemySize.Small;
 
         [Header("Stats")]
         public int baseHealth = 1100;

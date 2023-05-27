@@ -27,6 +27,7 @@ namespace AF
         public string consumableItemName;
 
         public float currentDuration;
+
     }
 
     public class Player : MonoBehaviour, ISaveable

@@ -14,7 +14,6 @@ namespace AF
         public float fadeTimer = 2.5f;
         bool hasDeactivatedColliders = false;
 
-
         public UnityEvent onHit;
 
         bool hasSentAnalyticsMessage = false;

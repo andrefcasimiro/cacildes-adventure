@@ -40,9 +40,9 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag == "Player")
+            if (other.gameObject.CompareTag("Player"))
             {
-                FindObjectOfType<PlayerHealthbox>(true).TakeDamage(damageInflicted, this.transform, null, 5);
+                FindObjectOfType<PlayerHealthbox>(true).TakeDamage(damageInflicted, this.transform, null, 5, WeaponElementType.None);
                 Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);
                 ResetStalacites();
             }

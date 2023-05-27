@@ -15,6 +15,11 @@ namespace AF
         [Header("Depends on Switch?")]
         public SwitchEntry switchEntry;
         public bool switchValue = false;
+
+        [Header("Reputation")]
+        public int reputationAmountToIncrease = 0;
+        public int reputationAmountToDecrease = 0;
+        public SwitchEntry reputationSwitchEntry;
     }
 
     public class DialogueManager : MonoBehaviour

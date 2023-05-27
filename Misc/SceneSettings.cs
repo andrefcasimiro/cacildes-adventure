@@ -34,6 +34,8 @@ namespace AF
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
 
             StartCoroutine(SpawnPlayer());
+
+            HandleSceneSound();
         }
 
         IEnumerator SpawnPlayer()
@@ -45,7 +47,6 @@ namespace AF
 
         public void Start()
         {
-            HandleSceneSound();
 
             if (enemiesIgnorePlayer)
             {

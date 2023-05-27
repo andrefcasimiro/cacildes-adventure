@@ -50,6 +50,7 @@ namespace AF
 
         [Header("Settings")]
         public bool allowTimePassage = false;
+        public bool faceOriginalTransformAfterEventIsFinished = false;
 
         // Event Page transform child that controls movement
         private GameObject player;
@@ -65,8 +66,13 @@ namespace AF
 
         [HideInInspector] public List<EventBase> overrideEvents;
 
+        Transform originalTransform;
+
+
+
         private void Awake()
         {
+
              dayNightManager = FindObjectOfType<DayNightManager>(true);
              uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
              documentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
@@ -90,6 +96,11 @@ namespace AF
             }
 
             player = GameObject.FindWithTag("Player");
+        }
+
+        private void Start()
+        {
+            originalTransform = this.transform;
         }
 
         private void Update()
@@ -144,7 +155,10 @@ namespace AF
                 player.GetComponent<PlayerCombatController>().combatAudioSource.PlayOneShot(greetingSfx);
             }
 
-            StartCoroutine(DispatchEvents());
+            if (this.isActiveAndEnabled)
+            {
+                StartCoroutine(DispatchEvents());
+            }
         }
 
         public IEnumerator DispatchEvents()
@@ -213,6 +227,11 @@ namespace AF
             }
 
             SwitchManager.instance.UpdateQueuedSwitches();
+
+            if (faceOriginalTransformAfterEventIsFinished)
+            {
+                transform.rotation = originalTransform.rotation;
+            }
         }
 
         public bool CanRunEventPage()

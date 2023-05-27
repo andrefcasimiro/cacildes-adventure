@@ -35,6 +35,16 @@ namespace AF
         public float amountPerHit;
     }
 
+    public enum PushForce
+    {
+        None = 1,
+        Light = 3,
+        Medium = 4,
+        Large = 5,
+        VeryLarge = 6,
+        Colossal = 7,
+    }
+
     [CreateAssetMenu(menuName = "Items / Weapon / New Weapon")]
     public class Weapon : Item
     {
@@ -44,6 +54,7 @@ namespace AF
         public int heavyAttackBonus;
 
         [Header("Level & Upgrades")]
+        public bool canBeUpgraded = true;
         public int level = 1;
         public float attackMultiplierPerLevel = 5f;
         public int baseGoldLevelToUpgradeWeapon = 100;
@@ -51,6 +62,7 @@ namespace AF
         public UpgradeMaterial upgradeMaterial;
         public float requiredOresPerLevelMultiplier = 2.25f;
 
+        [Header("Elemental Damages")]
         public float fireAttack;
         public float frostAttack;
         public float lightningAttack;
@@ -59,6 +71,8 @@ namespace AF
         [Header("Poise Damage")]
         public int poiseDamageBonus = 0;
         [Tooltip("How much block hit this weapon does on an enemy shield. Heavier weapons should do at least 2 or 3 hits.")] public int blockHitAmount = 1;
+
+        public PushForce pushForce = PushForce.Light;
 
         [Header("Block Absorption")]
         public bool hideShield = true;
@@ -106,6 +120,9 @@ namespace AF
         [Header("Weapon Special Attack")]
         public GameObject weaponSpecial;
         public bool parentWeaponSpecialToPlayer = true;
+
+        [Header("Weapon Bonus")]
+        public int amountOfGoldReceivedPerHit = 0;
 
         public string GetWeaponDisplayName()
         {

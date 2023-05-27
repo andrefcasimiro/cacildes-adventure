@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AF
 {
@@ -13,6 +14,7 @@ namespace AF
         [Header("Message")]
         public LocalizedText message;
         public LocalizedText[] randomMessages;
+        public LocalizedText[] negativeReputationMessages;
 
         [Header("Choices")]
         public List<DialogueChoice> choices = new List<DialogueChoice>();
@@ -99,6 +101,12 @@ namespace AF
                 {
                     var idx = Random.Range(0, randomMessages.Length);
                     displayMessage = randomMessages[idx];
+                }
+
+                if (negativeReputationMessages!= null && negativeReputationMessages.Length > 0)
+                {
+                    var idx = Random.Range(0, negativeReputationMessages.Length);
+                    displayMessage = negativeReputationMessages[idx];
                 }
 
                 yield return dialogueManager.ShowDialogueWithChoices(

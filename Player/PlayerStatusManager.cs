@@ -11,6 +11,8 @@ namespace AF
         HealthStatManager healthStatManager => GetComponent<HealthStatManager>();
         StaminaStatManager staminaStatManager => GetComponent<StaminaStatManager>();
         PlayerHealthbox playerHealthbox => GetComponentInChildren<PlayerHealthbox>();
+        PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
+        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
 
         private void Update()
         {
@@ -106,7 +108,7 @@ namespace AF
 
             if (appliedStatus.statusEffect.disablePlayerMovement)
             {
-                FindObjectOfType<ThirdPersonController>(true).canMove = true;
+                HandlePlayerComponents(true);
             }
         }
 
@@ -167,7 +169,26 @@ namespace AF
 
             if (entry.statusEffect.disablePlayerMovement)
             {
-                FindObjectOfType<ThirdPersonController>(true).canMove = false;
+                HandlePlayerComponents(false);
+            }
+        }
+
+        public void HandlePlayerComponents(bool canUse) 
+        {
+            if (canUse)
+            {
+                playerComponentManager.EnableComponents();
+                thirdPersonController.canMove = true;
+
+                GetComponent<Animator>().SetBool("IsCrouched", false);
+            }
+            else
+            {
+                playerComponentManager.DisableComponents();
+                thirdPersonController.enabled = true;
+                thirdPersonController.canMove = false;
+
+                GetComponent<Animator>().SetBool("IsCrouched", true);
             }
         }
     }

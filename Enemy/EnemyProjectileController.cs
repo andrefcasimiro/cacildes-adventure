@@ -24,6 +24,9 @@ namespace AF
 
         ClimbController playerClimbController;
 
+        [Header("Animations")]
+        public string[] shootActions;
+
         private void Awake()
         {
             playerClimbController = FindObjectOfType<ClimbController>(true);
@@ -83,7 +86,7 @@ namespace AF
 
         public void PrepareProjectile()
         {
-            enemyManager.animator.Play(enemyManager.hashShooting);
+            enemyManager.animator.Play(this.shootActions.Length > 0 ? Animator.StringToHash(this.shootActions[0]) : enemyManager.hashShooting);
             projectileCooldown = 0f;
         }
 

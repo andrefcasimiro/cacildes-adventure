@@ -93,8 +93,11 @@ namespace AF
 
             float percentage = appliedStatus.currentAmount * 100 / statusEntry.Q<VisualElement>("Bar").style.width.value.value; //100px is the width of the status bar
 
-            statusEntry.Q<VisualElement>("Bar").style.width = new Length(defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(appliedStatus.statusEffect), LengthUnit.Pixel);
-
+            // Dont change the recorded length when status effect reached full amount
+            if (appliedStatus.hasReachedTotalAmount == false)
+            {
+                statusEntry.Q<VisualElement>("Bar").style.width = new Length(defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(appliedStatus.statusEffect), LengthUnit.Pixel);
+            }
 
             statusEntry.Q<VisualElement>("BarFill").style.width = new Length(percentage, LengthUnit.Percent);
 

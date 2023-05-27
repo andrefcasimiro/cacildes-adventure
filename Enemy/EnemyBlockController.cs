@@ -79,8 +79,8 @@ namespace AF
             {
                 enemyManager.animator.Play("Guard Break");
                 Soundbank.instance.PlayEnemyGuardBreak();
-                Time.timeScale = 0.75f;
-                StartCoroutine(ResetTimeScale());
+                //Time.timeScale = 0.75f;
+                //StartCoroutine(ResetTimeScale());
                 currentBlockHits = 0;
                 return;
             }

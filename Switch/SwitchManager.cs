@@ -21,6 +21,11 @@ namespace AF
 
         public static SwitchManager instance;
 
+
+        [Header("Story Beats")]
+        public bool enableStoryBeats = false;
+        public List<SwitchEntryInstance> switchStoryBeats = new();
+
         public void Awake()
         {
             if (instance != null && instance != this)
@@ -50,6 +55,19 @@ namespace AF
                 };
 
                 switchEntryInstances.Add(switchEntryInstance);
+            }
+
+            // ALTER GAME STATE FOR DEVELOPMENT PURPOSES
+            if (enableStoryBeats)
+            {
+                foreach (var storyBeat in switchStoryBeats)
+                {
+                    var idx = this.switchEntryInstances.FindIndex(x => x.switchEntry == storyBeat.switchEntry);
+                    if (idx != -1)
+                    {
+                        this.switchEntryInstances[idx].currentValue = storyBeat.currentValue;
+                    }
+                }
             }
         }
 

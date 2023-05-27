@@ -19,6 +19,9 @@ namespace AF
         public Sprite door;
         public Sprite levelUp;
 
+        public Sprite reputationIncreaseSprite;
+        public Sprite reputationDecreaseSprite;
+
         public UIDocument uiDocumentNotificationUI;
 
         public VisualTreeAsset notificationItemPrefab;
@@ -79,6 +82,22 @@ namespace AF
 
             this.notificationsPanel.Add(notificationInstance);
             timePassed = 0f;
+        }
+
+        public void IncreaseReputation(int value)
+        {
+            Player.instance.currentReputation += value;
+
+            Soundbank.instance.PlayReputationIncreased();
+            ShowNotification(LocalizedTerms.ReputationIncreased(value), reputationIncreaseSprite);
+        }
+
+        public void DecreaseReputation(int value)
+        {
+            Player.instance.currentReputation -= value;
+
+            Soundbank.instance.PlayReputationDecreased();
+            ShowNotification(LocalizedTerms.ReputationDecreased(value), reputationDecreaseSprite);
         }
 
         public void OnGameLoaded(GameData gameData)

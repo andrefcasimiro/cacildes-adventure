@@ -62,6 +62,16 @@ namespace AF
                 return "Slower stamina regeneration";
             }
 
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Aumento de Atributos";
+                }
+
+                return "Increased Stats";
+            }
+
             return "";
         }
 
@@ -355,6 +365,25 @@ namespace AF
             {
                 GamePreferences.GameLanguage.PORTUGUESE => "Postura",
                 _ => "Poise",
+            };
+        }
+
+
+        public static string ReputationIncreased(int amount)
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputação subiu +" + amount + " pontos! Reputação atual: " + Player.instance.GetCurrentReputation(),
+                _ => "Your reputation increased +" + amount + " points! Current reputation: " + Player.instance.GetCurrentReputation(),
+            };
+        }
+
+        public static string ReputationDecreased(int amount)
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputação desceu -" + amount + " pontos! Reputação atual: " + Player.instance.GetCurrentReputation(),
+                _ => "Your reputation decreased -" + amount + " points! Current reputation: " + Player.instance.GetCurrentReputation(),
             };
         }
 

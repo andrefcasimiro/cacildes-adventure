@@ -3,6 +3,7 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using Quaternion = UnityEngine.Quaternion;
+using System.Collections;
 
 namespace AF
 {
@@ -75,6 +76,9 @@ namespace AF
         [Header("Gravity")]
         public bool canFall = true;
         public float distToGround = 0.1f;
+        float lastGroundedPositionY;
+        float minimumFallHeightToTakeDamage = 2f;
+        float damageMultiplierPerMeter = 45f;
 
         [Header("Audio Sources")]
         public AudioSource combatAudioSource;
@@ -120,6 +124,7 @@ namespace AF
         bool usesGravityByDefault;
         bool isKinematicByDefault;
         public bool forceKinematicOnRevive = false;
+
 
         private void Awake()
         {
@@ -171,6 +176,64 @@ namespace AF
             lookRotation.y = 0;
             var rotation = Quaternion.LookRotation(lookRotation);
             transform.rotation = Quaternion.Lerp(this.transform.rotation, rotation, Time.deltaTime * rotationSpeed);
+        }
+
+        public void PushEnemy(float pushForce)
+        {
+
+            rigidbody.useGravity = true;
+            rigidbody.isKinematic = false;
+            rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
+
+            if (canFall)
+            {
+                agent.updatePosition = false;
+            }
+
+            var slamDirection = (transform.position - player.transform.position).normalized;
+
+            var pushForceValue = pushForce - (int)enemy.weight;
+            var finalPushForce = pushForceValue > 0 ? pushForceValue : 0;
+            rigidbody.AddForce(slamDirection * finalPushForce * 100, ForceMode.Impulse);
+
+            StartCoroutine(RestoreNavmeshIfGrounded(.5f));
+        }
+
+        IEnumerator RestoreNavmeshIfGrounded(float duration)
+        {
+            yield return new WaitForSeconds(duration);
+
+            if (canFall && IsGrounded() == null)
+            {
+                BeginFall();
+            }
+            else
+            {
+                ReenableNavmesh();
+            }
+        }
+
+        public void BeginFall()
+        {
+            animator.Play(hashFalling);
+
+            lastGroundedPositionY = transform.position.y;
+        }
+
+        public void StopFall()
+        {
+            var currentFallHeight = Mathf.Abs(lastGroundedPositionY - transform.position.y);
+
+            // Takes fall damage?
+            if (currentFallHeight > minimumFallHeightToTakeDamage && canFall
+                // Just to have something that ensures this only triggers once
+                && agent.enabled == false)
+            {
+                enemyHealthController.TakeEnvironmentalDamage(
+                    Mathf.RoundToInt(currentFallHeight * damageMultiplierPerMeter));
+            }
+
+            ReenableNavmesh();
         }
 
         public void Revive()
@@ -229,7 +292,13 @@ namespace AF
                 damageText.Reset();
             }
 
+            if (enemyLoot != null)
+            {
+                enemyLoot.bonusGold = 0;
+            }
+
             onRevive.Invoke();
+
         }
 
         public bool PlayerIsBehind()
@@ -309,8 +378,6 @@ namespace AF
             }
 
             rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-
-            animator.Play(hashWaiting);
 
         }
     }

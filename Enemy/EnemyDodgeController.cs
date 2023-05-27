@@ -49,7 +49,7 @@ namespace AF
                     // Roll dodge dice
                     float chance = Random.Range(0, 100);
 
-                    if (chance <= dodgeWeight)
+                    if (chance <= dodgeWeight && dodgeWeight != 0)
                     {
                         Dodge();
                     }

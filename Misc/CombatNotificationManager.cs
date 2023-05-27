@@ -10,6 +10,8 @@ namespace AF
         public Color criticalDamage;
         public Color fireDamage;
         public Color frostDamage;
+        public Color lightningDamage;
+        public Color magicDamage;
 
         [SerializeField] private CombatNotificationEntry combatNotificationPrefab;
         private IObjectPool<CombatNotificationEntry> combatNotificationEntryPool;

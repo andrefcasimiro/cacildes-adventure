@@ -67,6 +67,13 @@ namespace AF
             }
         }
 
+        public void ActivateMaxPoiseDamage()
+        {
+            currentPoiseHitCount = 999;
+
+            ActivatePoiseDamage();
+        }
+
         public void ActivatePoiseDamage()
         {
             if (damageParticlePrefab != null)

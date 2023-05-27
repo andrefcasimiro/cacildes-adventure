@@ -28,7 +28,10 @@ public class EnemyState_Strafing : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        enemyManager.enemyDodgeController.CheckForDodgeChance();
+        if (enemyManager.enemyDodgeController != null)
+        {
+            enemyManager.enemyDodgeController.CheckForDodgeChance();
+        }
 
         strafeTime += Time.deltaTime;
 

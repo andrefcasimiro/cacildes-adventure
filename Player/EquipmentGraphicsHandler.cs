@@ -1204,14 +1204,20 @@ namespace AF
 
         void HandleStatusEffectEntry(ArmorBase.StatusEffectResistance statusEffectResistance)
         {
-            var idx = this.statusEffectResistances.FindIndex(x => x.statusEffect == statusEffectResistance.statusEffect);
+            var clone = new ArmorBase.StatusEffectResistance()
+            {
+                resistanceBonus = statusEffectResistance.resistanceBonus,
+                statusEffect = statusEffectResistance.statusEffect,
+            };
+
+            var idx = this.statusEffectResistances.FindIndex(x => x.statusEffect == clone.statusEffect);
             if (idx != -1)
             {
-                this.statusEffectResistances[idx].resistanceBonus += statusEffectResistance.resistanceBonus;
+                this.statusEffectResistances[idx].resistanceBonus += clone.resistanceBonus;
             }
             else
             {
-                this.statusEffectResistances.Add(statusEffectResistance);
+                this.statusEffectResistances.Add(clone);
             }
         }
 

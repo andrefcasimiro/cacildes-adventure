@@ -15,6 +15,8 @@ namespace AF
         public AudioClip onLandSfx;
         public AudioClip landingSfx;
 
+        public AudioClip footstepOverrideSfx;
+
         ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
         LockOnManager lockOnManager;
 
@@ -55,7 +57,6 @@ namespace AF
             BGMManager.instance.PlaySound(onJumpSfx, thirdPersonController.jumpAndDodgeAudiosource);
         }
 
-
         /// <summary>
         /// Animation Event
         /// </summary>
@@ -76,6 +77,13 @@ namespace AF
                         bypassWeight = true;
                     }
                 }
+            }
+
+            if (footstepOverrideSfx != null)
+            {
+                BGMManager.instance.PlaySound(footstepOverrideSfx, footstepAudioSource);
+                cooldown = 0f;
+                return;
             }
 
             // Avoid blends so we don't play double sounds if running and walking with blend at the same time

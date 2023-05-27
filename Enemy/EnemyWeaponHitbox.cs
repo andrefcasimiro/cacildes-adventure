@@ -30,6 +30,9 @@ namespace AF
         float maxTimerBeforeAllowingDamageAgain = .5f;
         float damageCooldownTimer = Mathf.Infinity;
 
+        [Header("Hitbox Special FX")]
+        public DestroyableParticle hitboxSpecialFx;
+
         private void Awake()
         {
             enemy = GetComponentInParent<EnemyManager>();
@@ -59,6 +62,16 @@ namespace AF
             {
                 damageCooldownTimer += Time.deltaTime;
             }
+        }
+
+        public void ActivateHitboxSpecial()
+        {
+            if (hitboxSpecialFx == null)
+            {
+                return;
+            }
+
+            Instantiate(hitboxSpecialFx,this.transform.position, Quaternion.identity);
         }
 
         void GetPlayerComponents()
@@ -117,6 +130,11 @@ namespace AF
             }
         }
 
+        public bool IsActive()
+        {
+            return boxCollider.enabled;
+        }
+
         public void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.CompareTag("PlayerCompanionHealthHitbox"))
@@ -138,7 +156,7 @@ namespace AF
                 return;
             }
 
-            if (playerParryManager.IsParrying() && enemy.enemyPostureController != null && enemy.enemyPostureController.isParriable)
+            if (playerParryManager.IsParrying() && enemy.enemyPostureController != null)
             {
                 playerParryManager.InstantiateParryFx();
                 enemy.enemyPostureController.TakePostureDamage();
@@ -151,12 +169,24 @@ namespace AF
                 healthStatManager.GetMaxHealth()
             );
 
+            if (weaponElementType == WeaponElementType.Fire)
+            {
+                damageToReceive -= (int)defenseStatManager.GetFireDefense();
+            }
+            if (weaponElementType == WeaponElementType.Frost)
+            {
+                damageToReceive -= (int)defenseStatManager.GetFrostDefense();
+            }
+            if (weaponElementType == WeaponElementType.Lightning)
+            {
+                damageToReceive -= (int)defenseStatManager.GetLightningDefense();
+            }
             if (weaponElementType == WeaponElementType.Magic)
             {
                 damageToReceive -= (int)defenseStatManager.GetMagicDefense();
             }
 
-            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.enemyCombatController.currentAttackPoiseDamage);
+            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.enemyCombatController.currentAttackPoiseDamage, weaponElementType);
 
             DisableHitbox();
 

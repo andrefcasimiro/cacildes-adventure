@@ -63,9 +63,11 @@ namespace AF
             }
             int numCollisionEvents = part.GetCollisionEvents(other, collisionEvents);
 
-            int i = 0;
-            while (i < numCollisionEvents)
+            if (numCollisionEvents <= 0)
             {
+                return;
+            }
+
                 // Damage Player Case
                 if (!damageEnemiesInstead && (other.CompareTag("Player") || other.CompareTag("PlayerHealthbox")))
                 {
@@ -82,7 +84,12 @@ namespace AF
                             copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetMagicDefense()), 0, 999);
                         }
 
-                        playerHealthbox.TakeEnvironmentalDamage(copiedDamage, poiseDamage, ignoreDodging);
+                        if (weaponElementType == WeaponElementType.Magic)
+                        {
+                            copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetFireDefense()), 0, 999);
+                        }
+
+                        playerHealthbox.TakeEnvironmentalDamage(copiedDamage, poiseDamage, ignoreDodging, weaponElementType);
                     }
 
                     if (statusEffect != null)
@@ -91,11 +98,6 @@ namespace AF
                     }
 
                     cooldown = 0f;
-
-                    if (deactivateOnCollision)
-                    {
-                        break;
-                    }
                 }
 
                 if (damageEnemiesInstead)
@@ -123,16 +125,8 @@ namespace AF
                         }
 
                         cooldown = 0f;
-
-                        if (deactivateOnCollision)
-                        {
-                            break;
-                        }
                     }
                 }
-
-                i++;
-            }
         }
 
     }

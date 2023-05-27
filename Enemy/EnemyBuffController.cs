@@ -13,9 +13,13 @@ namespace AF
         [System.Serializable]
         public class Buff
         {
+            public string buffName;
+
             public string animationTag;
 
             public string animationStartName;
+
+            public bool isActive = true;
 
             public UnityEvent onBuffEventStart;
             public UnityEvent onBuffEventCast;
@@ -54,9 +58,27 @@ namespace AF
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
+        LockOnManager lockOnManager;
+
+        public float timeBeforeAbleToUseBuffs = 5f;
+        float startCooldown = 0f;
+
+        private void Awake()
+        {
+            lockOnManager = FindObjectOfType<LockOnManager>(true);
+        }
+
         private void Update()
         {
-            UpdateBuffs();
+            if (enemyManager.enemyCombatController.IsInCombat() || enemyManager.enemyCombatController.IsWaiting())
+            {
+                if (startCooldown < timeBeforeAbleToUseBuffs)
+                {
+                    startCooldown += Time.deltaTime;
+                }
+
+                UpdateBuffs();
+            }
         }
 
         public void PlayEnemyBuffSfx()
@@ -78,6 +100,7 @@ namespace AF
                     if (CanUseBuff(possibleBuff))
                     {
                         PrepareBuff(possibleBuff);
+
                     }
                 }
             }
@@ -110,6 +133,16 @@ namespace AF
 
         public bool CanUseBuff(Buff buff)
         {
+            if (!   buff.isActive)
+            {
+                return false;
+            }
+
+            if (startCooldown < timeBeforeAbleToUseBuffs)
+            {
+                return false;
+            }
+
             if (IsUsingBuff())
             {
                 return false;
@@ -163,6 +196,7 @@ namespace AF
 
         public void PrepareBuff(Buff buff)
         {
+
             buff.currentBuffCooldown = 0;
             this.usedBuffs.Add(buff);
 
@@ -182,7 +216,7 @@ namespace AF
 
             if (buff.disengageLockOn)
             {
-                FindObjectOfType<LockOnManager>(true).DisableLockOn();
+                lockOnManager.DisableLockOn();
             }
 
             if (buff.weaponToShow != null)

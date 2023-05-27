@@ -77,5 +77,19 @@ namespace AF
             return equipmentGraphicsHandler.magicDefenseBonus;
         }
 
+        public float GetFireDefense()
+        {
+            return equipmentGraphicsHandler.fireDefenseBonus;
+        }
+
+        public float GetFrostDefense()
+        {
+            return equipmentGraphicsHandler.frostDefenseBonus;
+        }
+
+        public float GetLightningDefense()
+        {
+            return equipmentGraphicsHandler.lightningDefenseBonus;
+        }
     }
 }

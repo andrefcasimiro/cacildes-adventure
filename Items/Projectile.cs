@@ -46,6 +46,8 @@ namespace AF
 
         public bool useV2Collision = false;
 
+        public float projectilePushForce = 2f;
+
         private void Start()
         {
             hasCollidedAlready = false;
@@ -116,8 +118,6 @@ namespace AF
                 return;
             }
 
-            hasCollidedAlready = true;
-
             // We have a player to hit. Begin.
 
             // Show Impact FX
@@ -125,6 +125,8 @@ namespace AF
             {
                 Instantiate(particleOnHitFx, other.ClosestPointOnBounds(transform.position), Quaternion.identity);
             }
+
+            hasCollidedAlready = true;
 
             // Check if player is blocking
             var playerParrymanager = FindObjectOfType<PlayerParryManager>(true);
@@ -135,7 +137,7 @@ namespace AF
             }
 
             // Take damage
-            playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage);
+            playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage, projectileAttackElementType);
 
             // Check if projectile should be destroyed
             if (destroyOnCollision)
@@ -211,6 +213,8 @@ namespace AF
                 {
                     enemyHealthHitbox.enemyManager.enemyHealthController
                         .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
+
+                    enemyHealthHitbox.enemyManager.PushEnemy(projectilePushForce * -1f);
                 }
 
                 hasCollidedAlready = true;
@@ -250,7 +254,7 @@ namespace AF
                     return;
                 }
 
-                playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage);
+                playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage, projectileAttackElementType);
             }
 
             if (destroyOnCollision && hasCollidedAlready)

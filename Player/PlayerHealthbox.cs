@@ -29,6 +29,12 @@ namespace AF
         [Header("Sounds")]
         public AudioClip deathGruntSfx;
 
+        [Header("Elemental FX")]
+        public ParticleSystem fireFx;
+        public ParticleSystem frostFx;
+        public ParticleSystem lightningFx;
+        public ParticleSystem magicFx;
+
         Animator animator => GetComponentInParent<Animator>();
 
         PlayerPoiseController playerPoiseController => GetComponentInParent<PlayerPoiseController>();
@@ -38,7 +44,60 @@ namespace AF
              sceneSettings = FindObjectOfType<SceneSettings>(true);
         }
 
-        public void TakeEnvironmentalDamage(float damage, int poiseDamage, bool ignoreDodging)
+        public void Event_TakeDamage(float damage)
+        {
+            TakeEnvironmentalDamage(damage, 0, false, WeaponElementType.None);
+        }
+
+        public void PlayFireFX()
+        {
+            if (fireFx == null)
+            {
+                return;
+            }
+
+            fireFx.gameObject.SetActive(false);
+            fireFx.gameObject.SetActive(true);
+            fireFx.Play();
+        }
+
+        public void PlayMagicFX()
+        {
+            if (magicFx == null)
+            {
+                return;
+            }
+
+            magicFx.gameObject.SetActive(false);
+            magicFx.gameObject.SetActive(true);
+            magicFx.Play();
+        }
+
+        public void PlayFrostFX()
+        {
+            if (frostFx == null)
+            {
+                return;
+            }
+
+            frostFx.gameObject.SetActive(false);
+            frostFx.gameObject.SetActive(true);
+            frostFx.Play();
+        }
+
+        public void PlayLightningFX()
+        {
+            if (lightningFx == null)
+            {
+                return;
+            }
+
+            lightningFx.gameObject.SetActive(false);
+            lightningFx.gameObject.SetActive(true);
+            lightningFx.Play();
+        }
+
+        public void TakeEnvironmentalDamage(float damage, int poiseDamage, bool ignoreDodging, WeaponElementType weaponElementType)
         {
 
             if (Player.instance.currentHealth <= 0)
@@ -58,6 +117,24 @@ namespace AF
                 return;
             }
 
+
+
+            if (weaponElementType == WeaponElementType.Fire)
+            {
+                PlayFireFX();
+            }
+            if (weaponElementType == WeaponElementType.Frost)
+            {
+                PlayFrostFX();
+            }
+            if (weaponElementType == WeaponElementType.Lightning)
+            {
+                PlayLightningFX();
+            }
+            if (weaponElementType == WeaponElementType.Magic)
+            {
+                PlayMagicFX();
+            }
 
             healthStatManager.SubtractAmount(damage);
 
@@ -88,7 +165,7 @@ namespace AF
             }
         }
 
-        public void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponDamageSfx, int poiseDamage)
+        public void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponDamageSfx, int poiseDamage, WeaponElementType weaponElementType)
         {
             if (Player.instance.currentHealth <= 0)
             {
@@ -155,6 +232,23 @@ namespace AF
             if (dodgeController.hasIframes)
             {
                 return;
+            }
+
+            if (weaponElementType == WeaponElementType.Fire)
+            {
+                PlayFireFX();
+            }
+            if (weaponElementType == WeaponElementType.Frost)
+            {
+                PlayFrostFX();
+            }
+            if (weaponElementType == WeaponElementType.Lightning)
+            {
+                PlayLightningFX();
+            }
+            if (weaponElementType == WeaponElementType.Magic)
+            {
+                PlayMagicFX();
             }
 
             if (enemy != null)

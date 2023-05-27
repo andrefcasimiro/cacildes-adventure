@@ -33,11 +33,13 @@ namespace AF
                 && !objectEnemyIsOn.CompareTag("Water")
             )
             {
-                enemy.ReenableNavmesh();
+                enemy.StopFall();
+
+                animator.Play(enemy.hashWaiting);
             }
 
             // To prevent enemy from being stuck
-            enemy.transform.position += enemy.transform.forward * -1f * 5f * Time.deltaTime;
+            enemy.transform.position += enemy.transform.forward * -1f * Time.deltaTime;
         }
 
 

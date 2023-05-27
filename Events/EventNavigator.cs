@@ -13,11 +13,13 @@ namespace AF
         StarterAssets.StarterAssetsInputs inputs;
         RaycastHit HitInfo;
 
+        PlayerCombatController playerCombatController;
 
         IEventNavigatorCapturable currentTarget;
 
         private void Awake()
         {
+            playerCombatController = FindObjectOfType<PlayerCombatController>(true);
 
              documentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
              inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
@@ -66,9 +68,17 @@ namespace AF
                 eventNavigatorCapturable ??= HitInfo.collider.GetComponentInParent<IEventNavigatorCapturable>();
                 eventNavigatorCapturable ??= HitInfo.collider.GetComponentInChildren<IEventNavigatorCapturable>();
 
-                if (eventNavigatorCapturable != null)
+                if (eventNavigatorCapturable != null && eventNavigatorCapturable != currentTarget)
                 {
-                    currentTarget = eventNavigatorCapturable;
+                    var hitPosition = HitInfo.transform.position;
+                    hitPosition.y = playerCombatController.transform.position.y;
+                    Vector3 dist = hitPosition - playerCombatController.transform.position;
+                    float angle = Vector3.Angle(dist.normalized, playerCombatController.transform.forward);
+                    
+                    if (angle <= 50)
+                    {
+                        currentTarget = eventNavigatorCapturable;
+                    }
                 }
             }
             else

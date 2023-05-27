@@ -23,6 +23,9 @@ namespace AF
         [Tooltip("How far away from the ladder the player is when climbing from top")]
         public float playerTopOffsetFromStairs = 2.65f;
 
+        [Header("Extra")]
+        public float bottomYAdditionalOffset = 0;
+
         private void Awake()
         {
             player = FindObjectOfType<ClimbController>(true);
@@ -96,7 +99,7 @@ namespace AF
             if (playerHeadY >= ladderBottom && playerHeadY <= ladderTop)
             {
                 var topTransformPosition = transform.position + (transform.forward / playerOffsetFromStairs);
-                topTransformPosition.y = ladderBottom;
+                topTransformPosition.y = ladderBottom + bottomYAdditionalOffset;
                 player.currentLadder = this;
                 player.StartFromBottomV2(topTransformPosition);
 

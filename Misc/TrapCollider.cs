@@ -27,7 +27,7 @@ namespace AF
         {
             if (other.gameObject.tag == "Player")
             {
-                other.GetComponentInChildren<PlayerHealthbox>(true).TakeEnvironmentalDamage(damage, 0, false);
+                other.GetComponentInChildren<PlayerHealthbox>(true).TakeEnvironmentalDamage(damage, 0, false, WeaponElementType.None);
             }
 
             if (other.gameObject.tag == "Enemy")

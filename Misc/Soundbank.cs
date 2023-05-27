@@ -16,11 +16,14 @@ namespace AF
         public AudioClip insufficientStamina;
         public AudioClip quickItemSwitch;
         public AudioClip enemyGuardBreak;
+        public AudioClip reputationIncreased;
+        public AudioClip reputationDecreased;
 
         [Header("Movement")]
         public AudioClip cloth;
         public AudioClip dodge;
         public AudioClip landing;
+
 
         [Header("Misc Sounds")]
         public AudioClip alert;
@@ -80,6 +83,16 @@ namespace AF
 
             BGMManager.instance.PlaySound(uiHover, null);
             selectCooldownTimer = 0;
+        }
+
+        public void PlayReputationIncreased()
+        {
+            BGMManager.instance.PlaySound(reputationIncreased, null);
+        }
+
+        public void PlayReputationDecreased()
+        {
+            BGMManager.instance.PlaySound(reputationDecreased, null);
         }
         #endregion
 

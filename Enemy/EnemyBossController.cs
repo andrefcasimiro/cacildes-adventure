@@ -23,6 +23,11 @@ namespace AF
 
         public UnityEvent onBossBattleBeginEvent;
         bool hasRunBossBattleBeginEvent = false;
+        public UnityEvent onBossBattleEnd;
+
+        [Header("Boss Partner")]
+        public int order = 1;
+        public EnemyBossController partner;
 
         private void Start()
         {
@@ -47,6 +52,11 @@ namespace AF
         {
             GetComponent<UIDocument>().enabled = true;
 
+            if (order == 1 && partner != null)
+            {
+                bossHud.rootVisualElement.Q<VisualElement>("container").style.marginBottom = 50;
+            }
+
             bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
             bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName.GetText();
 
@@ -68,6 +78,11 @@ namespace AF
                 onBossBattleBeginEvent.Invoke();
             }
 
+            if (order == 1 && partner != null)
+            {
+                partner.BeginBossBattle();
+            }
+
             ShowBossHud();
 
             if (fogWall != null)
@@ -82,6 +97,18 @@ namespace AF
                     BGMManager.instance.PlayMusic(bossMusic);
                 }
             }
+        }
+
+        public bool AllBossesAreDead()
+        {
+            var bossIsDead = GetComponent<EnemyHealthController>().currentHealth <= 0;
+        
+            if (partner == null)
+            {
+                return bossIsDead;
+            }
+
+            return bossIsDead && partner.GetComponent<EnemyHealthController>().currentHealth <= 0;
         }
     }
 }

@@ -178,7 +178,7 @@ namespace AF
             bool slowDown = GamePreferences.instance.ShouldSlowDownTimeWhenParrying();
             if (slowDown)
             {
-                Time.timeScale = 0.65f;
+                //Time.timeScale = 0.65f;
             }
 
             Instantiate(parryFx, tf.transform.position, Quaternion.identity);
@@ -189,7 +189,7 @@ namespace AF
 
             if (slowDown)
             {
-                StartCoroutine(ResetTimeScale());
+                //StartCoroutine(ResetTimeScale());
             }
         }
 

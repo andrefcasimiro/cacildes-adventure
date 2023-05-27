@@ -22,9 +22,15 @@ namespace AF
             MOUNTAINPASS = 7,
             SNAILCLIFF = 8,
             CECILY_TOWN = 9,
+            WEST_BRIDGE = 10,
+            ORC_CAVE = 11,
+            ORC_CAVE_2 = 12,
+            ARUN_VILLAGE = 13,
+            ARUN_TEMPLE_ENTRANCE = 14,
+            ARUN_TEMPLE = 15
         }
 
-        private void Awake()
+        private void Awake()    
         {
             if (instance != null && instance != this)
             {

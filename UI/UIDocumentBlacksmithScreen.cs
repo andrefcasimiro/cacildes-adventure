@@ -136,7 +136,8 @@ namespace AF
 
             foreach (var it in Player.instance.ownedItems)
             {
-                if ((it.item as Weapon) != null)
+                Weapon wp = it.item as Weapon;
+                if (wp != null && wp.canBeUpgraded)
                 {
                     weapons.Add(it);
                 }

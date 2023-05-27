@@ -1,3 +1,6 @@
+using Cinemachine;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AF
@@ -8,12 +11,17 @@ namespace AF
         [HideInInspector] public Animator animator => GetComponent<Animator>();
         [HideInInspector] public FootstepListener footstepListener => GetComponentInParent<FootstepListener>();
 
-
         AudioSource customAudioSource => GetComponent<AudioSource>();
         public AudioClip customSfx;
 
-        private void Start()
+        public bool playCustomSfxOnAttackAnimation = false;
+
+        CinemachineImpulseSource impulseSource => GetComponent<CinemachineImpulseSource>();
+
+        private void Awake()
         {
+
+
             enemy = GetComponentInParent<EnemyManager>();
         }
 
@@ -44,6 +52,10 @@ namespace AF
 
         public void CastBuff()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyBuffController == null || enemy.enemyBuffController.buffs.Length <= 0)
             {
                 return;
@@ -54,6 +66,10 @@ namespace AF
 
         public void OnBuffCast()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyBuffController == null || enemy.enemyBuffController.buffs.Length <= 0)
             {
                 return;
@@ -64,6 +80,10 @@ namespace AF
 
         public void OnBuffStart()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyBuffController == null || enemy.enemyBuffController.buffs.Length <= 0)
             {
                 return;
@@ -74,6 +94,10 @@ namespace AF
 
         public void OnBuffEnd( )
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyBuffController == null || enemy.enemyBuffController.buffs.Length <= 0)
             {
                 return;
@@ -83,6 +107,12 @@ namespace AF
         }
         public void HitStart()
         {
+            if (playCustomSfxOnAttackAnimation)
+            {
+                customAudioSource.PlayOneShot(customSfx);
+                return;
+            }
+
             if (enemy.enemyWeaponController.leftHandWeapon != null)
             {
                 enemy.enemyWeaponController.ActivateLeftHandHitbox();
@@ -91,9 +121,15 @@ namespace AF
             {
                 enemy.enemyWeaponController.ActivateRightHandHitbox();
             }
+
         }
         public void HitEnd()
         {
+            if (enemy == null)
+            {
+                return;
+            }
+
             if (enemy.enemyWeaponController.leftHandWeapon != null)
             {
                 enemy.enemyWeaponController.DeactivateLeftHandHitbox();
@@ -106,25 +142,49 @@ namespace AF
 
         public void ActivateHitbox()
         {
+            if (playCustomSfxOnAttackAnimation)
+            {
+                customAudioSource.PlayOneShot(customSfx);
+                return;
+
+            }
             enemy.enemyWeaponController.ActivateLeftHandHitbox();
+
+
         }
         public void DeactivateHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.DeactivateLeftHandHitbox();
         }
 
         public void ActivateLeftHandHitbox(AnimationEvent animationEvent)
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.ActivateLeftHandHitbox();
         }
 
         public void ActivateLeftWeaponHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.ActivateLeftHandHitbox();
         }
 
         public void DeactivateLeftHandHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.DeactivateLeftHandHitbox();
         }
 
@@ -135,16 +195,35 @@ namespace AF
 
         public void ActivateRightHandHitbox()
         {
+            if (playCustomSfxOnAttackAnimation)
+            {
+                customAudioSource.PlayOneShot(customSfx);
+                return;
+
+            }
             enemy.enemyWeaponController.ActivateRightHandHitbox();
+
+
         }
 
         public void ActivateRightWeaponHitbox()
         {
+            if (playCustomSfxOnAttackAnimation)
+            {
+                customAudioSource.PlayOneShot(customSfx);
+                return;
+
+            }
             enemy.enemyWeaponController.ActivateRightHandHitbox();
+
         }
 
         public void DeactivateRightHandHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.DeactivateRightHandHitbox();
         }
 
@@ -155,57 +234,162 @@ namespace AF
 
         public void ActivateLeftLegHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.ActivateLeftLegHitbox();
         }
 
         public void DeactivateLeftLegHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.DeactivateLeftLegHitbox();
         }
 
         public void ActivateRightLegHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.ActivateRightLegHitbox();
         }
 
         public void DeactivateRightLegHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.DeactivateRightLegHitbox();
         }
 
         public void ActivateHeadHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.ActivateHeadHitbox();
         }
 
         public void DeactivateHeadHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.DeactivateHeadHitbox();
         }
 
         public void ActivateHeadWeaponHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.ActivateHeadHitbox();
         }
 
         public void DeactivateHeadWeaponHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.DeactivateHeadHitbox();
         }
 
         public void ActivateAreaOfImpactHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.ActivateAreaOfImpactHitbox();
         }
 
         public void DeactivateAreaOfImpactHitbox()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             enemy.enemyWeaponController.DeactivateAreaOfImpactHitbox();
+        }
+
+        public void ShakeCameraLight()
+        {
+            if (impulseSource == null)
+            {
+                return;
+            }
+            impulseSource.GenerateImpulseWithForce(.2f);
+        }
+
+        public void ShakeCamera()
+        {
+            if (impulseSource == null)
+            {
+                return;
+            }
+
+            impulseSource.GenerateImpulse();
+        }
+
+        public void ActivateGolemRightLegHitbox(AnimationEvent animationEvent)
+        {
+            PlayFootstep(animationEvent);
+
+            ActivateRightLegHitbox();
+
+            ShakeCamera();
+
+            ActivateHitboxSpecial();
+        }
+
+        public void ActivateGolemLeftLegHitbox(AnimationEvent animationEvent)
+        {
+            PlayFootstep(animationEvent);
+
+            ActivateLeftLegHitbox();
+
+            ShakeCamera();
+
+            ActivateHitboxSpecial();
+        }
+
+        public void ActivateHitboxSpecial()
+        {
+            if (enemy.enemyWeaponController.leftHandWeapon != null && enemy.enemyWeaponController.leftHandWeapon.IsActive())
+            {
+                enemy.enemyWeaponController.leftHandWeapon.ActivateHitboxSpecial();
+            }
+            else if (enemy.enemyWeaponController.rightHandWeapon != null && enemy.enemyWeaponController.rightHandWeapon.IsActive())
+            {
+                enemy.enemyWeaponController.rightHandWeapon.ActivateHitboxSpecial();
+            }
+            else if (enemy.enemyWeaponController.leftLegWeapon != null && enemy.enemyWeaponController.leftLegWeapon.IsActive())
+            {
+                enemy.enemyWeaponController.leftLegWeapon.ActivateHitboxSpecial();
+            }
+            else if (enemy.enemyWeaponController.rightLegWeapon != null && enemy.enemyWeaponController.rightLegWeapon.IsActive())
+            {
+                enemy.enemyWeaponController.rightLegWeapon.ActivateHitboxSpecial();
+            }
+            else if (enemy.enemyWeaponController.headWeapon != null && enemy.enemyWeaponController.headWeapon.IsActive())
+            {
+                enemy.enemyWeaponController.headWeapon.ActivateHitboxSpecial();
+            }
         }
 
         public void ShowBow()
         {
-            if (enemy.enemyProjectileController == null)
+            if (enemy == null || enemy.enemyProjectileController == null)
             {
                 return;
             }
@@ -215,7 +399,7 @@ namespace AF
 
         public void HideBow()
         {
-            if (enemy.enemyProjectileController == null)
+            if (enemy == null || enemy.enemyProjectileController == null)
             {
                 return;
             }
@@ -224,11 +408,22 @@ namespace AF
         }
         public void FireProjectile()
         {
+            if (playCustomSfxOnAttackAnimation)
+            {
+                customAudioSource.PlayOneShot(customSfx);
+                return;
+
+            }
+
             enemy.enemyProjectileController.FireProjectile();
         }
 
         public void ActivateDodge()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyDodgeController == null)
             {
                 return;
@@ -239,6 +434,10 @@ namespace AF
 
         public void DeactivateDodge()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyDodgeController == null)
             {
                 return;
@@ -250,6 +449,10 @@ namespace AF
         public void EvaluateDecisionAfterBlockHit()
         {
 
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyBlockController == null)
             {
                 return;
@@ -260,6 +463,10 @@ namespace AF
 
         public void ActivateBlock()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyBlockController == null)
             {
                 return;
@@ -270,6 +477,10 @@ namespace AF
 
         public void DeactivateBlock()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyBlockController == null)
             {
                 return;
@@ -280,6 +491,10 @@ namespace AF
 
         public void EnableParry()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyPostureController == null)
             {
                 return;
@@ -290,6 +505,10 @@ namespace AF
 
         public void DisableParry()
         {
+            if (enemy == null)
+            {
+                return;
+            }
             if (enemy.enemyPostureController == null)
             {
                 return;
