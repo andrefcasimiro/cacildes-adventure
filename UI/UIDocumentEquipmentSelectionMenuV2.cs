@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AF
 {
@@ -50,7 +51,11 @@ namespace AF
             unequipActions.Add(EquipmentType.Armor, equipmentGraphicsHandler.UnequipArmor);
             unequipActions.Add(EquipmentType.Gauntlets, equipmentGraphicsHandler.UnequipGauntlet);
             unequipActions.Add(EquipmentType.Legwear, equipmentGraphicsHandler.UnequipLegwear);
-            unequipActions.Add(EquipmentType.Accessories, OnUnequipAccessory);
+            unequipActions.Add(EquipmentType.Accessories, () => {
+                OnUnequipAccessoryCheckIfAccessoryWasDestroyedPermanently();
+
+                menuManager.OpenEquipmentListMenu();
+            });
 
             this.root = GetComponent<UIDocument>().rootVisualElement;
             menuManager.SetupNavMenu(root);
@@ -641,9 +646,13 @@ namespace AF
                     Button accessoryBtn = accessoryButton.Q<Button>();
                     menuManager.SetupButton(accessoryBtn, () =>
                     {
-                        CheckIfAccessoryShouldBeDestroyed(Player.instance.equippedAccessory);
+                        bool wasItemDestroyedPermantently = OnUnequipAccessoryCheckIfAccessoryWasDestroyedPermanently();
 
-                        equipmentGraphicsHandler.EquipAccessory(accessory);
+                        if (!wasItemDestroyedPermantently)
+                        {
+                            equipmentGraphicsHandler.EquipAccessory(accessory);
+                        }
+
                         menuManager.PlayClick();
                         menuManager.OpenEquipmentListMenu();
                     });
@@ -777,16 +786,17 @@ namespace AF
             itemStats.style.visibility = Visibility.Visible;
         }
 
-        void OnUnequipAccessory()
+        bool OnUnequipAccessoryCheckIfAccessoryWasDestroyedPermanently()
         {
             var unequipedAccessory = Player.instance.equippedAccessory;
 
             equipmentGraphicsHandler.UnequipAccessory();
 
-            CheckIfAccessoryShouldBeDestroyed(unequipedAccessory);
+            bool wasDestroyed = CheckIfAccessoryShouldBeDestroyed(unequipedAccessory);
+            return wasDestroyed;
         }
 
-        void CheckIfAccessoryShouldBeDestroyed(Accessory unequipedAccessory)
+        bool CheckIfAccessoryShouldBeDestroyed(Accessory unequipedAccessory)
         {
             if (unequipedAccessory != null && unequipedAccessory.destroyOnUnequip)
             {
@@ -803,8 +813,13 @@ namespace AF
                     }
                 }
 
-                SaveSystem.instance.SaveGameData(unequipedAccessory.name.GetText() + " destroyed");
+
+                SaveSystem.instance.SaveGameData("item_destroyed");
+
+                return true;
             }
+
+            return false;
         }
         #endregion
 
@@ -880,9 +895,68 @@ namespace AF
                     this.root.Q<ScrollView>().Add(itemButton);
                 }
             }
+
+            var playerSpells = playerInventory.GetSpells();
+            if (playerSpells.Count > 0)
+            {
+                foreach (var spell in playerSpells)
+                {
+                    VisualElement itemButton = equipmentSelectionItem.CloneTree();
+
+                    if (Player.instance.favoriteItems.Contains(spell))
+                    {
+                        DrawFavoriteItem(itemButton);
+                    }
+                    else
+                    {
+                        DrawUnfavoriteItem(itemButton);
+                    }
+
+                    Button actionButton = itemButton.Q<Button>();
+                    menuManager.SetupButton(actionButton, () =>
+                    {
+                        if (Player.instance.favoriteItems.Contains(spell))
+                        {
+                            DrawUnfavoriteItem(itemButton);
+                            FindObjectOfType<FavoriteItemsManager>(true).RemoveFavoriteItemFromList(spell);
+                        }
+                        else
+                        {
+                            DrawFavoriteItem(itemButton);
+                            FindObjectOfType<FavoriteItemsManager>(true).AddFavoriteItemToList(spell);
+                        }
+
+                        menuManager.PlayClick();
+                    });
+
+                    actionButton.RegisterCallback<FocusInEvent>(ev =>
+                    {
+                        ShowConsumableItemPreview(spell);
+                    });
+                    actionButton.RegisterCallback<FocusOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    actionButton.RegisterCallback<MouseOverEvent>(ev =>
+                    {
+                        ShowConsumableItemPreview(spell);
+                    });
+                    actionButton.RegisterCallback<MouseOutEvent>(ev =>
+                    {
+                        HideItemInfo();
+                    });
+
+                    itemButton.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(spell.sprite);
+                    itemButton.Q<Label>("Name").text = spell.name.GetText();
+
+
+                    this.root.Q<ScrollView>().Add(itemButton);
+                }
+            }
         }
 
-        void ShowConsumableItemPreview(Consumable consumable)
+        void ShowConsumableItemPreview(Item consumable)
         {
             var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
             var itemStats = root.Q<VisualElement>("ItemStats");

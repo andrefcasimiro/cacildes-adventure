@@ -9,7 +9,8 @@ namespace AF
         public enum OnConsumeActionType
         {
             EAT,
-            DRINK
+            DRINK,
+            CLOCK
         }
 
         public enum ConsumablePropertyName
@@ -28,6 +29,10 @@ namespace AF
             ALL_STATS_INCREASE,
 
             REPUTATION_INCREASE,
+
+            REVEAL_ILLUSIONARY_WALLS,
+
+            SPEED_1_HOUR,
         }
 
         [System.Serializable]
@@ -71,15 +76,16 @@ namespace AF
         public bool applyNegativeStatus = false;
         public StatusEffect statusToApply;
 
+        public bool notStackable = false;
+        public bool shouldNotRemoveOnUse = false;
+
         public ConsumableEffect[] consumableEffects;
 
         public OnConsumeActionType onConsumeActionType = OnConsumeActionType.DRINK;
 
         public virtual void OnConsume()
         {
-            PlayerInventory playerInventory = FindObjectOfType<PlayerInventory>(true);
-
-            playerInventory.PrepareItemForConsuming(this);
+            FindObjectOfType<PlayerInventory>(true).PrepareItemForConsuming(this);
 
         }
 
@@ -92,15 +98,17 @@ namespace AF
                 return;
             }
 
-            playerInventory.RemoveItem(this, 1);
+            if (shouldNotRemoveOnUse == false)
+            {
+                playerInventory.RemoveItem(this, 1);
+            }
 
             if (restoreHealth)
             {
                 var healthStatManager = FindObjectOfType<HealthStatManager>(true);
                 if (restoreHealthInPercentage)
                 {
-                    float percentage = healthStatManager.GetMaxHealth() * amountOfHealthToRestore / 100;
-                    healthStatManager.RestoreHealthPercentage(percentage);
+                    healthStatManager.RestoreHealthPercentage(amountOfHealthToRestore);
                 }
                 else
                 {
@@ -113,8 +121,7 @@ namespace AF
                 var staminaStatManager = FindObjectOfType<StaminaStatManager>(true);
                 if (restoreStaminaInPercentage)
                 {
-                    float percentage = staminaStatManager.GetMaxStamina() * amountOfStaminaToRestore / 100;
-                    staminaStatManager.RestoreStaminaPercentage(percentage);
+                    staminaStatManager.RestoreStaminaPercentage(amountOfStaminaToRestore);
                 }
                 else
                 {
@@ -150,6 +157,13 @@ namespace AF
                 if (idx != -1)
                 {
                     playerConsumablesManager.RemoveConsumable(Player.instance.appliedConsumables[idx]);
+                }
+
+                // Is it a instant effect?
+                if (appliedConsumables.currentDuration <= 0)
+                {
+                    playerConsumablesManager.EvaluateEffect(appliedConsumables);
+                    return;
                 }
 
                 playerConsumablesManager.AddConsumableEffect(appliedConsumables);

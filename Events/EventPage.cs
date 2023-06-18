@@ -1,3 +1,4 @@
+using Mono.Cecil.Cil;
 using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
@@ -51,6 +52,7 @@ namespace AF
         [Header("Settings")]
         public bool allowTimePassage = false;
         public bool faceOriginalTransformAfterEventIsFinished = false;
+        public bool isPersonBusy = false;
 
         // Event Page transform child that controls movement
         private GameObject player;
@@ -68,7 +70,10 @@ namespace AF
 
         Transform originalTransform;
 
+        NotificationManager notificationManager;
 
+        float eventCooldown = Mathf.Infinity;
+        float maxEventCooldown = 0.5f;
 
         private void Awake()
         {
@@ -123,6 +128,11 @@ namespace AF
                 }
             }
 
+            if (eventCooldown < maxEventCooldown)
+            {
+                eventCooldown += Time.deltaTime;
+            }
+
         }
 
         private void OnTriggerEnter(Collider other)
@@ -150,11 +160,6 @@ namespace AF
                 dayNightManager.tick = false;
             }
 
-            if (greetingSfx != null)
-            {
-                player.GetComponent<PlayerCombatController>().combatAudioSource.PlayOneShot(greetingSfx);
-            }
-
             if (this.isActiveAndEnabled)
             {
                 StartCoroutine(DispatchEvents());
@@ -175,26 +180,45 @@ namespace AF
 
             isRunning = true;
 
-            // The event parent has more important events?
-            if (overrideEvents.Count > 0)
+            if (isPersonBusy)
+            {
+                if (notificationManager == null)
+                {
+                    notificationManager = FindObjectOfType<NotificationManager>(true);
+                }
+
+                notificationManager.ShowNotification(LocalizedTerms.ThisPersonIsBusy(), notificationManager.personBusy);
+            }
+            else
             {
 
-                foreach (EventBase ev in overrideEvents)
+                if (greetingSfx != null)
                 {
-                    if (ev != null)
+                    player.GetComponent<PlayerCombatController>().combatAudioSource.PlayOneShot(greetingSfx);
+                }
+
+                // The event parent has more important events?
+                if (overrideEvents.Count > 0)
+                {
+
+                    foreach (EventBase ev in overrideEvents)
                     {
-                        yield return StartCoroutine(ev.Dispatch());
+                        if (ev != null)
+                        {
+                            yield return StartCoroutine(ev.Dispatch());
+                        }
                     }
                 }
-            }
-            else // Run this page events
-            {
-                foreach (EventBase ev in pageEvents)
+                else // Run this page events
                 {
-                    if (ev != null)
+                    foreach (EventBase ev in pageEvents)
                     {
-                        yield return StartCoroutine(ev.Dispatch());
+                        if (ev != null)
+                        {
+                            yield return StartCoroutine(ev.Dispatch());
+                        }
                     }
+
                 }
 
             }
@@ -247,7 +271,7 @@ namespace AF
 
         public void OnCaptured()
         {
-            if (isRunning || eventTrigger != EventTrigger.ON_KEY_PRESS || CanRunEventPage() == false)
+            if (isRunning || eventTrigger != EventTrigger.ON_KEY_PRESS || CanRunEventPage() == false || this.enabled == false)
             {
                 return;
             }
@@ -278,6 +302,14 @@ namespace AF
 
         public void OnInvoked()
         {
+
+            if (eventCooldown < maxEventCooldown)
+            {
+                return;
+            }
+
+            eventCooldown = 0f;
+
             if (isRunning || CanRunEventPage() == false)
             {
                 return;

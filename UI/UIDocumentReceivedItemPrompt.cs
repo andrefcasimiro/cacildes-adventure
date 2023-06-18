@@ -32,18 +32,15 @@ namespace AF
 
         public List<ItemsReceived> itemsUI = new List<ItemsReceived>();
 
-
         private void Awake()
         {
             this.gameObject.SetActive(false);
+            inputs = FindObjectOfType<StarterAssetsInputs>(true);
         }
 
         private void OnEnable()
         {
-            inputs = FindObjectOfType<StarterAssetsInputs>(true);
-
             this.root = uiDocument.rootVisualElement;
-
 
             if (Gamepad.current != null)
             {
@@ -93,9 +90,8 @@ namespace AF
                 }
 
             }
-
-
         }
+
 
         private void Update()
         {

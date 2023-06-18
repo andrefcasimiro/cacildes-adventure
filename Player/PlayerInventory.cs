@@ -10,6 +10,7 @@ namespace AF
     {
         public readonly int hashDrinking = Animator.StringToHash("Drinking");
         public readonly int hashEating = Animator.StringToHash("Eating");
+        public readonly int hashClock = Animator.StringToHash("Clock");
         public readonly int hashIsConsumingItem = Animator.StringToHash("IsConsumingItem");
 
         FavoriteItemsManager favoriteItemsManager => GetComponent<FavoriteItemsManager>();
@@ -28,6 +29,7 @@ namespace AF
         ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
         PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
+        PlayerInventory playerInventory => GetComponent<PlayerInventory>();
         PlayerPoiseController playerPoiseController => GetComponent<PlayerPoiseController>();
 
         public Transform handItemRef;
@@ -37,6 +39,22 @@ namespace AF
         private void Awake()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
+        }
+
+        public void ReplenishItems()
+        {
+            foreach (var item in Player.instance.ownedItems)
+            {
+                if (item.usages > 0)
+                {
+                    var idx = Player.instance.ownedItems.IndexOf(item);
+
+                    Player.instance.ownedItems[idx].amount += item.usages;
+                    Player.instance.ownedItems[idx].usages = 0;
+                }
+            }
+
+            favoriteItemsManager.UpdateFavoriteItems();
         }
 
         public void AddItem(Item item, int quantity)
@@ -69,27 +87,54 @@ namespace AF
 
             if (Player.instance.ownedItems[itemEntryIndex].amount <= 1)
             {
-                // Remove item 
-                Player.instance.ownedItems.RemoveAt(itemEntryIndex);
-
-                // Remove item from favorite
-                var idxOfThisItemInFavorites = Player.instance.favoriteItems.IndexOf(item);
-                if (idxOfThisItemInFavorites != -1)
+                // If not reusable item
+                if (item.lostUponUse)
                 {
-                    Player.instance.favoriteItems.Remove(item);
+                    // Remove item 
+                    Player.instance.ownedItems.RemoveAt(itemEntryIndex);
 
-                    if (idxOfThisItemInFavorites == 0)
+                    // Remove item from favorite
+                    var idxOfThisItemInFavorites = Player.instance.favoriteItems.IndexOf(item);
+                    if (idxOfThisItemInFavorites != -1)
                     {
-                        favoriteItemsManager.SwitchFavoriteItemsOrder();
+                        Player.instance.favoriteItems.Remove(item);
+
+                        if (idxOfThisItemInFavorites == 0)
+                        {
+                            favoriteItemsManager.SwitchFavoriteItemsOrder();
+                        }
                     }
+                }
+                else
+                {
+                    Player.instance.ownedItems[itemEntryIndex].amount = 0;
+                    Player.instance.ownedItems[itemEntryIndex].usages++;
                 }
             }
             else
             {
                 Player.instance.ownedItems[itemEntryIndex].amount -= amount;
+
+                if (item.lostUponUse == false)
+                {
+                    Player.instance.ownedItems[itemEntryIndex].usages++;
+                }
+
             }
 
             FindObjectOfType<UIDocumentPlayerHUDV2>(true).UpdateFavoriteItems();
+        }
+
+        public int GetItemQuantity(Item item)
+        {
+            var entry = Player.instance.ownedItems.FirstOrDefault(x => x.item.name.GetEnglishText() == item.name.GetEnglishText());
+
+            if (entry == null)
+            {
+                return 0;
+            }
+
+            return entry.amount;
         }
 
         public List<Weapon> GetWeapons()
@@ -221,6 +266,22 @@ namespace AF
             return items;
         }
 
+        public List<Spell> GetSpells()
+        {
+            List<Spell> items = new();
+
+            foreach (var item in Player.instance.ownedItems)
+            {
+                var possibleItem = item.item as Spell;
+                if (possibleItem != null)
+                {
+                    items.Add(possibleItem);
+                }
+            }
+
+            return items;
+        }
+
         public bool IsConsumingItem()
         {
             return animator.GetBool(hashIsConsumingItem);
@@ -230,6 +291,13 @@ namespace AF
         {
             if (IsConsumingItem())
             {
+                return;
+            }
+
+
+            if (consumable.lostUponUse == false && playerInventory.GetItemQuantity(consumable) <= 0)
+            {
+                notificationManager.ShowNotification(LocalizedTerms.DepletedConsumable(), notificationManager.notEnoughSpells);
                 return;
             }
 
@@ -291,6 +359,10 @@ namespace AF
             {
                 animator.Play(hashEating);
             }
+            else if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.CLOCK)
+            {
+                animator.Play(hashClock);
+            }
 
             equipmentGraphicsHandler.HideWeapons();
 
@@ -305,6 +377,12 @@ namespace AF
 
         public void FinishItemConsumption()
         {
+            if (currentConsumedItem.onConsumeActionType == Consumable.OnConsumeActionType.CLOCK)
+            {
+                StartCoroutine(RecoverWatchControl(1.2f));
+                return;
+            }
+
             if (currentConsumedItem.destroyItemOnConsumeMoment)
             {
                 StartCoroutine(RecoverControl(currentConsumedItem.onConsumeActionType == Consumable.OnConsumeActionType.DRINK ? 0.7f : 0.9f));
@@ -325,6 +403,17 @@ namespace AF
 
             playerComponentManager.EnableCharacterController();
             playerComponentManager.EnableComponents();
+        }
+
+        IEnumerator RecoverWatchControl(float waitTime)
+        {
+            yield return new WaitForSeconds(waitTime);
+
+            playerComponentManager.EnableCharacterController();
+            playerComponentManager.EnableComponents();
+
+            currentConsumedItem = null;
+            Destroy(this.consumableGraphicInstance);
         }
 
         /// <summary>

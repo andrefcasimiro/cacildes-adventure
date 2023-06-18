@@ -105,6 +105,16 @@ namespace AF
             }
 
             itemCounter.style.display = DisplayStyle.Flex;
+
+            if (favItem != null)
+            {
+                var consumable = favItem.item as Consumable;
+                if (consumable != null && consumable.notStackable)
+                {
+                    itemCounter.style.display = DisplayStyle.None;
+                }
+            }
+
             quickItemName.text = Player.instance.favoriteItems[0].name.GetText();
 
         }

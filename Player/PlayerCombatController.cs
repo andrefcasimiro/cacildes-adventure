@@ -14,7 +14,9 @@ namespace AF
         public readonly int hashHeavyAttack2 = Animator.StringToHash("Heavy Attack B");
         public readonly int hashHeavyAttack3 = Animator.StringToHash("Heavy Attack C");
         public readonly int hashJumpAttack = Animator.StringToHash("Jump Attack");
-
+        public readonly int hashIsJumpAttacking = Animator.StringToHash("IsJumpAttacking");
+        public readonly int hashIsStartingJumpAttack = Animator.StringToHash("IsStartingJumpAttack");
+        
         [Header("Transform Refs")]
         public Transform headRef;
 
@@ -292,6 +294,15 @@ namespace AF
             return true;
         }
 
+        public bool IsJumpAttacking()
+        {
+            return animator.GetBool(hashIsJumpAttacking);
+        }
+
+        public bool IsStartingJumpAttack()
+        {
+            return animator.GetBool(hashIsStartingJumpAttack);
+        }
 
     }
 }

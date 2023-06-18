@@ -1,5 +1,6 @@
 using Mono.Cecil.Cil;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -39,7 +40,7 @@ namespace AF
         public UnityEvent onEnemyDeathAfter1Second;
         public Collider[] collidersToDisableOnDeath;
 
-        [HideInInspector] public EnemyHealthHitbox[] enemyHealthHitboxes => GetComponentsInChildren<EnemyHealthHitbox>(true);
+        [HideInInspector] public List<EnemyHealthHitbox> enemyHealthHitboxes = new();
 
         // Components
         EnemyManager enemyManager => GetComponent<EnemyManager>();
@@ -48,6 +49,7 @@ namespace AF
         EnemyBossController enemyBossController => GetComponent<EnemyBossController>();
         CombatNotificationsController combatNotificationsController => GetComponent<CombatNotificationsController>();
         SceneSettings sceneSettings;
+        EnemyPushableOnDeath enemyPushableOnDeath => GetComponent<EnemyPushableOnDeath>();
 
         int amountToRestore = 0;
 
@@ -65,15 +67,21 @@ namespace AF
         {
              sceneSettings = FindObjectOfType<SceneSettings>(true);
              playerParryManager = FindObjectOfType<PlayerParryManager>(true);
+
+            foreach (var healthHitboxInChildren in GetComponentsInChildren<EnemyHealthHitbox>(true))
+            {
+                this.enemyHealthHitboxes.Add(healthHitboxInChildren);
+            }
+
+            foreach (var healthHitboxInThisObject in GetComponents<EnemyHealthHitbox>())
+            {
+                this.enemyHealthHitboxes.Add(healthHitboxInThisObject);
+            }
+
         }
 
         private void Start()
         {
-            if (enemyHealthHitboxes == null || enemyHealthHitboxes.Length <= 0)
-            {
-                Debug.LogError("Could not find any enemy health hitboxes on " + gameObject.name + " children. Please add one");
-            }
-
 
             RestoreHealth();
 
@@ -136,7 +144,7 @@ namespace AF
 
         public int GetMaxHealth()
         {
-            return Player.instance.CalculateAIHealth(maxHealthOverride != -1 ? maxHealthOverride : enemyManager.enemy.baseHealth, enemyManager.currentLevel);
+            return Player.instance.CalculateAIHealth(maxHealthOverride != -1 ? maxHealthOverride : enemyManager.enemy.baseHealth, enemyManager. currentLevel);
         }
 
         public void InitializeEnemyHUD()
@@ -175,7 +183,7 @@ namespace AF
 
             if (damage != Mathf.Infinity && damage != 9999999)
             {
-                combatNotificationsController.ShowDamage(damage);
+                combatNotificationsController.ShowDamage(Mathf.RoundToInt(damage));
             }
 
             if (enemyManager.enemy.damagedParticle != null)
@@ -219,6 +227,11 @@ namespace AF
 
         public void TakeDamage(AttackStatManager playerAttackStatManager, Weapon weapon, Vector3 collisionPoint, AudioClip weaponHitSfx, float hitboxDamageBonus)
         {
+            if (enemyPushableOnDeath != null && enemyPushableOnDeath.isActivated)
+            {
+                enemyPushableOnDeath.Throw();
+            }
+
             if (!canTakeDamage)
             {
                 return;
@@ -235,18 +248,17 @@ namespace AF
                 onTakingDamageEventHasRun = true;
             }
 
-            if (enemyManager.enemyBlockController != null && Random.Range(0, 100) < enemyManager.enemyBlockController.parryWeight)
+            if (enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.CanParry())
             {
                 enemyManager.enemyBlockController.ActivateParry();
                 return;
             }
 
-            enemyManager.PushEnemy(weapon != null ? (int)weapon.pushForce : 1f);;
+            enemyManager.PushEnemy(weapon != null ? (int)weapon.pushForce : 1f, ForceMode.Impulse);;
 
-            if (enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.IsBlocking())
+            if (enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.CanBlock())
             {
-                enemyManager.enemyBlockController.HandleBlock(collisionPoint, weapon.blockHitAmount + (playerAttackStatManager.IsHeavyAttacking() ? 1 : 0));
-
+                enemyManager.enemyBlockController.HandleBlock(collisionPoint, weapon != null ? weapon.blockHitAmount : 1 + (playerAttackStatManager.IsHeavyAttacking() ? 1 : 0));
                 return;
             }
 
@@ -289,7 +301,7 @@ namespace AF
             }
 
             // Raw damage to display without elemental and status bonuses
-            var displayedDamage = appliedDamage;
+            var displayedDamage = Mathf.RoundToInt(appliedDamage);
 
             // Elemental Damage Bonus
             if (weapon != null)
@@ -299,7 +311,7 @@ namespace AF
                     var elementalBonus = Mathf.Clamp((int)(weapon.GetWeaponFireAttack() * enemyManager.enemy.fireDamageBonus), 0, Mathf.Infinity);
                     appliedDamage += elementalBonus;
 
-                    combatNotificationsController.ShowFireDamage(elementalBonus);
+                    combatNotificationsController.ShowFireDamage(Mathf.RoundToInt(elementalBonus));
 
                     Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
                 }
@@ -308,7 +320,7 @@ namespace AF
                     var elementalBonus = Mathf.Clamp(weapon.GetWeaponFrostAttack() * enemyManager.enemy.frostDamageBonus, 0, Mathf.Infinity);
                     appliedDamage += elementalBonus;
 
-                    combatNotificationsController.ShowFrostDamage(elementalBonus);
+                    combatNotificationsController.ShowFrostDamage(Mathf.RoundToInt(elementalBonus));
 
                     Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
                 }
@@ -317,7 +329,7 @@ namespace AF
                     var elementalBonus = Mathf.Clamp(weapon.GetWeaponLightningAttack() * enemyManager.enemy.lightningDamageBonus, 0, Mathf.Infinity);
                     appliedDamage += elementalBonus;
 
-                    combatNotificationsController.ShowLightningDamage(elementalBonus);
+                    combatNotificationsController.ShowLightningDamage(Mathf.RoundToInt(elementalBonus));
 
                     //Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
                 }
@@ -326,9 +338,7 @@ namespace AF
                     var elementalBonus = Mathf.Clamp(weapon.GetWeaponMagicAttack() * enemyManager.enemy.magicDamageBonus, 0, Mathf.Infinity);
                     appliedDamage += elementalBonus;
 
-                    combatNotificationsController.ShowMagicDamage(elementalBonus);
-
-                    //Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
+                    combatNotificationsController.ShowMagicDamage(Mathf.RoundToInt(elementalBonus));
                 }
 
                 if (weaponTypeBonusTable.Length > 0)
@@ -350,7 +360,7 @@ namespace AF
 
             }
 
-            this.currentHealth = Mathf.Clamp(currentHealth - appliedDamage, 0f, GetMaxHealth());
+            this.currentHealth = Mathf.Clamp(currentHealth - Mathf.RoundToInt(appliedDamage), 0f, GetMaxHealth());
 
             if (enemyManager.enemy.damagedParticle != null)
             {
@@ -442,7 +452,7 @@ namespace AF
             }
 
             // Status Effects for bows
-            combatNotificationsController.ShowDamage(physicalDamage);
+            combatNotificationsController.ShowDamage(Mathf.RoundToInt(damage));
 
             if (this.currentHealth <= 0)
             {
@@ -616,6 +626,12 @@ namespace AF
             enemyManager.enemyPostureController.stunnedParticle.SetActive(false);
 
             BGMManager.instance.PlayMapMusicAfterKillingEnemy(enemyManager);
+
+
+            if (enemyPushableOnDeath != null)
+            {
+                enemyPushableOnDeath.Activate();
+            }
         }
 
 
@@ -669,14 +685,14 @@ namespace AF
         {
             foreach (var enemyHealthHitbox in enemyHealthHitboxes)
             {
-                enemyHealthHitbox.gameObject.SetActive(true);
+                enemyHealthHitbox.enabled = true;
             }
         }
         public void DisableHealthHitboxes()
         {
             foreach (var enemyHealthHitbox in enemyHealthHitboxes)
             {
-                enemyHealthHitbox.gameObject.SetActive(false);
+                enemyHealthHitbox.enabled = false;
             }
         }
 

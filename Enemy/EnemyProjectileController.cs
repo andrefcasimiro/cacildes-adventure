@@ -27,6 +27,9 @@ namespace AF
         [Header("Animations")]
         public string[] shootActions;
 
+        [Header("Multiple Projections")]
+        public Transform[] projectilesSpawnPoints;
+
         private void Awake()
         {
             playerClimbController = FindObjectOfType<ClimbController>(true);
@@ -116,6 +119,31 @@ namespace AF
             }
 
             projectile.Shoot(playerClimbController.playerHeadRef.transform);
+        }
+
+        /// <summary>
+        ///  Animation Event
+        /// </summary>
+        public void FireMultipleProjectiles()
+        {
+            foreach (var projectileSpawnPoint in projectilesSpawnPoints)
+            {
+
+
+                var rot = Quaternion.LookRotation(projectileSpawnPoint.transform.position - transform.position);
+                GameObject projectileInstance = Instantiate(projectilePrefab, projectileSpawnPoint.transform.position, rot);
+                var rot3 = projectileInstance.transform.localRotation;
+                rot.x = 0;
+                rot.z = 0;
+                projectileInstance.transform.localRotation = rot3;
+
+                Projectile projectile = projectileInstance.GetComponent<Projectile>();
+
+
+                projectile.ShootAndPreserveRotation(playerClimbController.playerHeadRef.transform);
+            }
+
+
         }
 
     }

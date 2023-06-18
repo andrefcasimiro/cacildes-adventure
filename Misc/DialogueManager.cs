@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 namespace AF
@@ -10,7 +11,13 @@ namespace AF
     {
         public LocalizedText choiceText;
 
+        [Header("Use Sub Events")]
         public GameObject subEventPage;
+
+        [Header("Use Quick Response")]
+        public Character replier;
+        public LocalizedText response;
+        public UnityEvent onResponseFinished;
 
         [Header("Depends on Switch?")]
         public SwitchEntry switchEntry;

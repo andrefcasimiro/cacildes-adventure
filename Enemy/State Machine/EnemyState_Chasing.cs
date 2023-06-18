@@ -14,8 +14,10 @@ namespace AF
 
         float agentSpeed = -1f;
 
+
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+
             animator.gameObject.TryGetComponent<EnemyManager>(out enemy);
 
             if (enemy == null)
@@ -68,6 +70,7 @@ namespace AF
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+
             if (enemy.agent.enabled)
             {
                 if (enemy.enemyTargetController.ignoreCompanions == false && enemy.enemyTargetController.currentCompanion != null)
@@ -142,11 +145,24 @@ namespace AF
                 {
                     enemy.enemyProjectileController.isReadyToShoot = false;
                 }
+
             }
             else if (distanceBetweenEnemyAndTarget <= (enemy.agent.stoppingDistance + (focusedOnCompanion ? enemy.enemyTargetController.currentCompanion.agent.stoppingDistance : 0)))
             {
+
                 animator.SetBool(enemy.hashChasing, false);
-                animator.SetBool(enemy.hashCombatting, true);
+
+                var runningAttack = enemy.enemyCombatController.GetRunAttack(false);
+                if (runningAttack != null)
+                {
+                    enemy.FacePlayerImmediately();
+                    animator.Play(runningAttack.runningAttack);
+                }
+                else
+                {
+                    animator.SetBool(enemy.hashCombatting, true);
+                }
+
             }
 
         }

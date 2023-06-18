@@ -1,6 +1,7 @@
 using StarterAssets;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -25,6 +26,15 @@ namespace AF
 
         [Header("Extra")]
         public float bottomYAdditionalOffset = 0;
+        public float extraColliderHeightAfterSettingLadderTop = 0f;
+
+        [Header("Events")]
+        public UnityEvent onBeginClimb;
+        public UnityEvent onEndClimb;
+        public UnityEvent onBeginClimbFromTop;
+        public UnityEvent onBeginClimbFromBottom;
+
+        BoxCollider boxCollider => GetComponent<BoxCollider>();
 
         private void Awake()
         {
@@ -38,7 +48,9 @@ namespace AF
             playerShootingManager = FindObjectOfType<PlayerShootingManager>(true);
             
             ladderBottom = transform.position.y;
-            ladderTop = transform.position.y + GetComponent<BoxCollider>().bounds.extents.y * 2;
+            ladderTop = transform.position.y + boxCollider.bounds.extents.y * 2;
+
+            boxCollider.size = new Vector3(boxCollider.bounds.size.x, boxCollider.bounds.size.y + extraColliderHeightAfterSettingLadderTop, boxCollider.bounds.size.z);
         }
 
         private void OnTriggerEnter(Collider other)
@@ -96,12 +108,22 @@ namespace AF
 
             float playerHeadY = player.playerHeadRef.transform.position.y;
 
+            if (onBeginClimb != null)
+            {
+                onBeginClimb.Invoke();
+            }
+
             if (playerHeadY >= ladderBottom && playerHeadY <= ladderTop)
             {
                 var topTransformPosition = transform.position + (transform.forward / playerOffsetFromStairs);
                 topTransformPosition.y = ladderBottom + bottomYAdditionalOffset;
                 player.currentLadder = this;
                 player.StartFromBottomV2(topTransformPosition);
+
+                if (onBeginClimbFromBottom != null)
+                {
+                    onBeginClimbFromBottom.Invoke();
+                }
 
             }
             else if (playerHeadY >= ladderTop)
@@ -110,7 +132,15 @@ namespace AF
                 var topTransformPosition = transform.position - (transform.forward / playerTopOffsetFromStairs);
                 topTransformPosition.y = ladderTop;
                 player.StartFromTopV2(topTransformPosition);
+
+
+                if (onBeginClimbFromTop != null)
+                {
+                    onBeginClimbFromTop.Invoke();
+                }
             }
+
+
         }
 
         private void Update()
@@ -141,11 +171,22 @@ namespace AF
             if (playerHeadY > ladderTop)
             {
                 player.ExitToTop();
+
+                StartCoroutine(EndClimbEvent());
             }
             else if (playerFeetY - ladderBottom < 0)
             {
                 player.ExitToBottom();
+
+                StartCoroutine(EndClimbEvent());
             }
+        }
+
+        IEnumerator EndClimbEvent()
+        {
+            yield return new WaitForSeconds(2.5f);
+
+            onEndClimb.Invoke();
         }
     }
 }

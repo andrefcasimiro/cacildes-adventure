@@ -73,7 +73,7 @@ namespace AF
             SetGameLanguage(GameLanguage.ENGLISH);
         }
 
-        private void Update()
+/*        private void Update()
         {
             // For debugging purposes
             if (Input.GetKeyDown(KeyCode.Alpha9))
@@ -87,7 +87,7 @@ namespace AF
                     SetGameLanguage(GameLanguage.ENGLISH);
                 }
             }
-        }
+        }*/
 
         public void SetGameLanguage(GameLanguage language)
         {

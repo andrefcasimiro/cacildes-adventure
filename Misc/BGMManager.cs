@@ -15,6 +15,8 @@ namespace AF
 
         public static BGMManager instance;
 
+        public float fadeMusicSpeed = 2f;
+
         private void Awake()
         {
             if (instance != null && instance != this)
@@ -29,15 +31,67 @@ namespace AF
 
         public void PlayMusic(AudioClip musicToPlay)
         {
+            StopAllCoroutines();
+
+            if (this.bgmAudioSource.clip != null)
+            {
+                StartCoroutine(HandleMusicChange(musicToPlay));
+            }
+            else
+            {
+                // No music playing before, lets do a fade in
+                this.bgmAudioSource.volume = 0;
+                this.bgmAudioSource.clip = musicToPlay;
+                this.bgmAudioSource.Play();
+                StartCoroutine(FadeInCore());
+            }
+        }
+        IEnumerator HandleMusicChange(AudioClip musicToPlay)
+        {
+            yield return FadeOutCore();
+            yield return new WaitUntil(() => this.bgmAudioSource.volume <= 0);
+
             this.bgmAudioSource.clip = musicToPlay;
             this.bgmAudioSource.Play();
+            yield return FadeInCore();
         }
 
         public void StopMusic()
         {
+            StopAllCoroutines();
+
+            if (this.bgmAudioSource.clip != null)
+            {
+                StartCoroutine(FadeOutCore());
+            }
+            else
+            {
+                this.bgmAudioSource.Stop();
+                this.bgmAudioSource.clip = null;
+            }
+        }
+
+        #region Fade In and Out Core Logic
+        private IEnumerator FadeInCore()
+        {
+            while (this.bgmAudioSource.volume < 1)
+            {
+                this.bgmAudioSource.volume += fadeMusicSpeed * Time.deltaTime;
+                yield return new WaitForEndOfFrame();
+            }
+        }
+        private IEnumerator FadeOutCore()
+        {
+            while (this.bgmAudioSource.volume > 0)
+            {
+                this.bgmAudioSource.volume -= fadeMusicSpeed * Time.deltaTime;
+                yield return new WaitForEndOfFrame();
+            }
+
             this.bgmAudioSource.Stop();
             this.bgmAudioSource.clip = null;
         }
+        #endregion
 
         public void PlayAmbience(AudioClip ambience)
         {

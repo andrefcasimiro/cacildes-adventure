@@ -51,6 +51,9 @@ namespace AF
         public readonly int hashDodgeLeft = Animator.StringToHash("Dodge_Left");
         public readonly int hashDodgeRight = Animator.StringToHash("Dodge_Right");
 
+        public readonly int hashGuardBreak = Animator.StringToHash("Guard Break");
+        public readonly int hashParry = Animator.StringToHash("Parry");
+
         #endregion
 
         [Header("Components")]
@@ -83,6 +86,9 @@ namespace AF
         [Header("Audio Sources")]
         public AudioSource combatAudioSource;
 
+        [Header("Is Flying Enemy")]
+        public bool isFlyingEnemy = false;
+
         // Flags
         [HideInInspector] public bool facePlayer = false;
 
@@ -94,6 +100,10 @@ namespace AF
         [Header("Revive Options")]
         public UnityEvent onRevive;
         public string customReviveDefaultAnimation;
+        public string customStartAnimation;
+
+        [Header("Combat Partner")]
+        public EnemyManager combatPartner;
 
         // Components
         [HideInInspector] public EnemyPatrolController enemyPatrolController => GetComponent<EnemyPatrolController>();
@@ -115,6 +125,8 @@ namespace AF
         [HideInInspector] public EnemyBehaviorController enemyBehaviorController => GetComponent<EnemyBehaviorController>();
         [HideInInspector] public EnemyNegativeStatusController enemyNegativeStatusController => GetComponent<EnemyNegativeStatusController>();
         [HideInInspector] public EnemyTeleportManager enemyTeleportManager => GetComponent<EnemyTeleportManager>();
+        [HideInInspector] public EnemyPushableOnDeath enemyPushableOnDeath => GetComponent<EnemyPushableOnDeath>();
+
 
         [HideInInspector] public EventPage eventPage => GetComponent<EventPage>();
 
@@ -130,12 +142,19 @@ namespace AF
         {
             player = GameObject.FindWithTag("Player");
 
+            lastGroundedPositionY = transform.position.y;
+
             if (animatorOverrideController != null)
             {
                 animator.runtimeAnimatorController = animatorOverrideController;
             }
 
             animator.speed = animatorSpeed;
+
+            if (string.IsNullOrEmpty(customStartAnimation))
+            {
+                animator.Play(customStartAnimation);
+            }
         }
 
         private void Start()
@@ -165,6 +184,16 @@ namespace AF
             }
         }
 
+        public void CallCombatPartner()
+        {
+            if (combatPartner == null || combatPartner.enemyCombatController.IsWaiting() || combatPartner.enemyCombatController.IsInCombat())
+            {
+                return;
+            }
+
+            combatPartner.enemyCombatController.ForceIntoCombat();
+        }
+
         public void FacePlayer()
         {
             FaceTarget(player.transform);
@@ -178,8 +207,21 @@ namespace AF
             transform.rotation = Quaternion.Lerp(this.transform.rotation, rotation, Time.deltaTime * rotationSpeed);
         }
 
-        public void PushEnemy(float pushForce)
+        public void FacePlayerImmediately()
         {
+            var lookRotation = player.transform.position - this.transform.position;
+            lookRotation.y = 0;
+            var rotation = Quaternion.LookRotation(lookRotation);
+            transform.rotation = rotation;
+        }
+
+
+        public void PushEnemy(float pushForce, ForceMode forceMode)
+        {
+            if (isFlyingEnemy)
+            {
+                return;
+            }
 
             rigidbody.useGravity = true;
             rigidbody.isKinematic = false;
@@ -192,9 +234,11 @@ namespace AF
 
             var slamDirection = (transform.position - player.transform.position).normalized;
 
+            slamDirection.y = 0;
+
             var pushForceValue = pushForce - (int)enemy.weight;
             var finalPushForce = pushForceValue > 0 ? pushForceValue : 0;
-            rigidbody.AddForce(slamDirection * finalPushForce * 100, ForceMode.Impulse);
+            rigidbody.AddForce(slamDirection * finalPushForce * 100, forceMode);
 
             StartCoroutine(RestoreNavmeshIfGrounded(.5f));
         }
@@ -238,6 +282,11 @@ namespace AF
 
         public void Revive()
         {
+            if (enemyPushableOnDeath != null)
+            {
+                enemyPushableOnDeath.Deactivate();
+            }
+
             animator.SetBool(hashDying, false);
 
             enemyHealthController.currentHealth = enemyHealthController.GetMaxHealth();

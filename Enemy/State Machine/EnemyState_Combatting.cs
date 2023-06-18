@@ -45,9 +45,19 @@ namespace AF
                 enemy.enemyBehaviorController.TurnAgressive();
             }
 
+            if (enemy.combatPartner != null)
+            {
+                enemy.CallCombatPartner();
+            }
+
             if (enemy.enemyHealthController != null)
             {
                 enemy.enemyHealthController.ShowHUD();
+            }
+
+            if (enemy.enemyCombatController.hasHyperArmorActive)
+            {
+                enemy.enemyCombatController.hasHyperArmorActive = false;
             }
 
             // Notify active player companions
@@ -118,6 +128,10 @@ namespace AF
             {
                 flow.Add(action, this.UseBuffDice);
             }
+            else if (action == EnemyCombatController.CombatAction.UseRunningAttack)
+            {
+                flow.Add(action, this.UseRunningAttackDice);
+            }
         }
 
         public void RespondToPlayer()
@@ -174,7 +188,7 @@ namespace AF
             }
 
             int blockDice = Random.Range(0, 100);
-            if (blockDice < enemy.enemyBlockController.blockWeight && this.blockActions.Length > 0)
+            if (blockDice < enemy.enemyBlockController.blockWeight && this.blockActions.Length > 0 && enemy.enemyBlockController.CanBlock())
             {
                 int blockClip = Random.Range(0, this.blockActions.Length);
                 animator.Play(this.blockActions[blockClip]);
@@ -207,6 +221,21 @@ namespace AF
             {
                 int attackClip = Random.Range(0, attacks.Length);
                 animator.Play(attacks[attackClip]);
+                return true;
+            }
+
+            return false;
+        }
+
+        bool UseRunningAttackDice()
+        {
+            int attackDice = Random.Range(0, 100);
+
+            EnemyCombatController.RunningAttack runningAttack = enemy.enemyCombatController.GetRunAttack(true);
+
+            if (attackDice < enemy.enemyCombatController.lightAttackWeight && runningAttack != null)
+            {
+                animator.Play(runningAttack.runningAttack);
                 return true;
             }
 

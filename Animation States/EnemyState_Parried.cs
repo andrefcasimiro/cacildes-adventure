@@ -30,7 +30,7 @@ namespace AF
             {
                 if (enemy.IsGrounded() == null)
                 {
-                    animator.Play(enemy.hashFalling);
+                    animator.CrossFade(enemy.hashFalling, 0.1f);
                 }
             }
         }

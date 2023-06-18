@@ -61,11 +61,10 @@ namespace AF
 
         public void ActivateParry()
         {
-            enemyManager.animator.Play("Parry");
+            enemyManager.animator.Play(enemyManager.hashParry);
 
             playerPoiseController.IncreasePoiseDamage(1);
-
-            playerPoiseController.GetComponent<Animator>().Play("Parried");
+            playerPoiseController.PlayParried();
 
             if (shield != null)
             {
@@ -75,12 +74,10 @@ namespace AF
 
         public void HandleBlock(Vector3 blockContactPosition, int guardBreakHitAmount)
         {
-            if (currentBlockHits >= maxHitsBeforeGuardBreak)
+            if (currentBlockHits >= maxHitsBeforeGuardBreak && enemyManager.animator.HasState(0, enemyManager.hashGuardBreak))
             {
-                enemyManager.animator.Play("Guard Break");
+                enemyManager.animator.Play(enemyManager.hashGuardBreak);
                 Soundbank.instance.PlayEnemyGuardBreak();
-                //Time.timeScale = 0.75f;
-                //StartCoroutine(ResetTimeScale());
                 currentBlockHits = 0;
                 return;
             }
@@ -105,12 +102,6 @@ namespace AF
             }
         }
 
-        IEnumerator ResetTimeScale()
-        {
-            yield return new WaitForSeconds(2f);
-            Time.timeScale = 1f;
-        }
-
         /// <summary>
         /// Animation Event
         /// </summary>
@@ -118,7 +109,7 @@ namespace AF
         {
             if (Random.Range(0, 100) <= 50)
             {
-                enemyManager.animator.Play("Combatting");
+                enemyManager.animator.Play(enemyManager.hashCombatting);
             }
         }
 
@@ -146,6 +137,62 @@ namespace AF
             }
 
             enemyManager.enemyHealthController.EnableHealthHitboxes();
+        }
+
+        public bool CanBlock()
+        {
+            if (enemyManager.enemyBlockController.blockWeight == 0)
+            {
+                return false;
+            }
+
+            if (IsBlocking())
+            {
+                return false;
+            }
+
+            if (IsBusy())
+            {
+                return false;
+            }
+
+            return Random.Range(0, 100) < enemyManager.enemyBlockController.blockWeight;
+        }
+
+        public bool CanParry()
+        {
+            if (enemyManager.enemyBlockController.parryWeight == 0) {
+                return false;
+            }
+
+            if (IsBusy())
+            {
+                return false;
+            }
+
+            return Random.Range(0, 100) < enemyManager.enemyBlockController.parryWeight;
+        }
+
+        public bool IsBusy()
+        {
+
+            // If not waiting, don't allow to block or parry because it means we are in the middle of another action
+            if (!enemyManager.enemyCombatController.IsWaiting())
+            {
+                return true;
+            }
+
+            if (enemyManager.enemyPostureController != null && enemyManager.enemyPostureController.IsStunned())
+            {
+                return true;
+            }
+
+            if (enemyManager.enemyDodgeController != null && enemyManager.enemyDodgeController.IsDodging())
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 

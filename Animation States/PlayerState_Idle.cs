@@ -1,3 +1,4 @@
+using StarterAssets;
 using UnityEngine;
 
 namespace AF
@@ -7,6 +8,9 @@ namespace AF
 
         PlayerInventory playerInventory;
         DodgeController dodgeController;
+
+        CharacterController characterController;
+        ThirdPersonController thirdPersonController;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
@@ -27,6 +31,11 @@ namespace AF
             else
             {
                 dodgeController.hasIframes = false;
+            }
+
+            if (characterController == null)
+            {
+                characterController = animator.GetComponent<CharacterController>();
             }
         }
     }

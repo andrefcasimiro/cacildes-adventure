@@ -21,6 +21,11 @@ namespace AF
                 enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
 
+            if (enemy.enemyCombatController.hasHyperArmorActive)
+            {
+                enemy.enemyCombatController.hasHyperArmorActive = false;
+            }
+
             enemy.rigidbody.useGravity = false;
             enemy.rigidbody.isKinematic = true;
 
@@ -42,27 +47,6 @@ namespace AF
                 else
                 {
                     animator.Play(enemy.hashFalling);
-                }
-            }
-
-            // On State enter, evaluate if we should circle around
-            if (enemy.enemyCombatController.circleAroundWeight > 0)
-            {
-                float dice = Random.Range(0, 100);
-
-                if (dice <= enemy.enemyCombatController.circleAroundWeight)
-                {
-                    float randomDir = Random.Range(0, 1);
-                    if (randomDir < 0.5)
-                    {
-                        animator.Play(enemy.enemyCombatController.circleAroundRightAnimation);
-                    }
-                    else
-                    {
-                        animator.Play(enemy.enemyCombatController.circleAroundLeftAnimation);
-                    }
-
-                    return;
                 }
             }
 
@@ -90,9 +74,26 @@ namespace AF
             {
                 waitingCounter += Time.deltaTime;
             }
-            else // We've waited long enough, request new combat decision
+            else
+            // We've waited long enough, request new combat decision
             {
-                animator.SetBool(enemy.hashIsWaiting, false);
+                // Decide if we are going to strafe enxt
+                if (enemy.enemyCombatController.circleAroundWeight > 0 && Random.Range(0, 100) < enemy.enemyCombatController.circleAroundWeight)
+                {
+                    float randomDir = Random.Range(0, 1);
+                    if (randomDir < 0.5)
+                    {
+                        animator.Play(enemy.enemyCombatController.circleAroundRightAnimation);
+                    }
+                    else
+                    {
+                        animator.Play(enemy.enemyCombatController.circleAroundLeftAnimation);
+                    }
+                }
+                else
+                {
+                    animator.SetBool(enemy.hashIsWaiting, false);
+                }
             }
         }
     }

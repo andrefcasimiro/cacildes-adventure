@@ -12,11 +12,16 @@ namespace AF
 
         public new LocalizedText name;
 
+        [Header("Descriptions")]
+
         public LocalizedText description;
 
-        public float value = 0;
+        public LocalizedText shortDescription;
 
+        public float value = 0;
         public float weight = 0;
+
+        public bool lostUponUse = true;
 
     }
 

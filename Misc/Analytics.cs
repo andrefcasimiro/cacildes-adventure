@@ -12,7 +12,7 @@ namespace AF
     {
         async void Awake()
         {
-            try
+            /*try
             {
                 await UnityServices.InitializeAsync();
 
@@ -26,18 +26,18 @@ namespace AF
             catch (Exception e)
             {
                 Debug.LogException(e);
-            }
+            }*/
         }
 
         public void OptOut()
         {
-            AnalyticsService.Instance.OptOut();
+            //AnalyticsService.Instance.OptOut();
         }
 
        
         public void TrackAnalyticsEvent(string message)
         {
-            if (PlayerPrefs.GetInt("dontAllowAds") == 1)
+            /*if (PlayerPrefs.GetInt("dontAllowAds") == 1)
             {
                 return;
             }
@@ -47,7 +47,7 @@ namespace AF
                     {
                                 { "message", message },
                     }
-                );
+                );*/
         }
 
 

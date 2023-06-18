@@ -5,20 +5,29 @@ namespace AF
 
     public class ActivateDeathColliderOnStateEnter : StateMachineBehaviour
     {
+        EnemyManager enemyManager;
         Collider collider;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            var deathCollider = animator.gameObject.GetComponentInChildren<DeathColliderRef>();
-
-            if (deathCollider == null)
+            enemyManager = animator.GetComponentInParent<EnemyManager>();
+            if (enemyManager == null)
             {
-                return;
+                enemyManager = animator.GetComponent<EnemyManager>();
             }
 
-            BoxCollider collider = deathCollider.GetComponent<BoxCollider>();
+            if (enemyManager != null)
+            {
+                var deathCollider = enemyManager.GetComponentInChildren<DeathColliderRef>(true);
+                if (deathCollider == null)
+                {
+                    return;
+                }
 
-            collider.enabled = true;
+                collider = deathCollider.GetComponent<BoxCollider>();
+
+                collider.enabled = true;
+            }
         }
 
         public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

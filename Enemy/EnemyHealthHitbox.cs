@@ -5,14 +5,19 @@ namespace AF
 {
     public class EnemyHealthHitbox : MonoBehaviour
     {
-        [HideInInspector] public EnemyManager enemyManager;
+        public EnemyManager enemyManager;
 
         public float damageBonus = 0f;
 
+
         private void Start()
         {
-            enemyManager = GetComponentInParent<EnemyManager>();
+            if (enemyManager == null)
+            {
+                enemyManager = GetComponentInParent<EnemyManager>();
+            }
         }
+
 
     }
 }

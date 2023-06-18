@@ -50,6 +50,18 @@ namespace AF
             footstepListener.PlayFootstep(animationEvent);
         }
 
+        public void PlayLargeFootstep(AnimationEvent animationEvent)
+        {
+            if (footstepListener == null)
+            {
+                return;
+            }
+
+            ShakeCameraLight();
+
+            footstepListener.PlayFootstep(animationEvent);
+        }
+
         public void CastBuff()
         {
             if (enemy == null)
@@ -105,6 +117,10 @@ namespace AF
 
             enemy.enemyBuffController.OnBuffEnd();
         }
+
+
+
+
         public void HitStart()
         {
             if (playCustomSfxOnAttackAnimation)
@@ -149,8 +165,6 @@ namespace AF
 
             }
             enemy.enemyWeaponController.ActivateLeftHandHitbox();
-
-
         }
         public void DeactivateHitbox()
         {
@@ -416,6 +430,11 @@ namespace AF
             }
 
             enemy.enemyProjectileController.FireProjectile();
+        }
+
+        public void FireMultipleProjectiles()
+        {
+            enemy.enemyProjectileController.FireMultipleProjectiles();
         }
 
         public void ActivateDodge()

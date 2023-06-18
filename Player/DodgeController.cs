@@ -8,6 +8,7 @@ namespace AF
     public class DodgeController : MonoBehaviour
     {
         public readonly int hashRoll = Animator.StringToHash("Roll");
+        public readonly int hashCrouchRoll = Animator.StringToHash("Dodge Crouch");
         public readonly int hashDodgeRight = Animator.StringToHash("Dodge Right");
         public readonly int hashDodgeLeft = Animator.StringToHash("Dodge Left");
         public readonly int hashBackStep = Animator.StringToHash("BackStep");
@@ -141,14 +142,22 @@ namespace AF
         void HandleDodge()
         {
 
-            if (_input.move == Vector2.zero)
+            if (_input.move == Vector2.zero && thirdPersonController.skateRotation == false)
             {
                 animator.CrossFade(hashBackStep, 0.05f);
                 return;
             }
 
             hasIframes = true;
-            animator.CrossFade(hashRoll, 0.05f);
+
+            if (thirdPersonController.skateRotation)
+            {
+                animator.Play(hashCrouchRoll);
+            }
+            else
+            {
+                animator.CrossFade(hashRoll, 0.05f);
+            }
         }
 
     }

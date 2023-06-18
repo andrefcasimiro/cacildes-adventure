@@ -313,12 +313,15 @@ namespace AF
                 return;
             }
 
+            animator.SetBool("IsCrouched", false);
+
             StartCoroutine(PlayDeathSfx());
 
             playerComponentManager.DisableCharacterController();
             playerComponentManager.DisableComponents();
 
             animator.Play(hashDying);
+            animator.SetBool("IsDying", true);
 
             // Remove active consumables
             playerCombatController.GetComponent<PlayerConsumablesManager>().ClearAllConsumables();

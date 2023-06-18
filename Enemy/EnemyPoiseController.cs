@@ -72,7 +72,10 @@ namespace AF
 
                 cooldownBeforeTakingAnotherHitToPoise = 0f;
 
-                enemyManager.animator.SetTrigger(enemyManager.hashTakingDamage);
+                if (enemyManager.enemyCombatController.hasHyperArmorActive == false)
+                {
+                    enemyManager.animator.SetTrigger(enemyManager.hashTakingDamage);
+                }
 
                 // Should be tied to animation perhaps
                 if (enemyManager.enemyBuffController != null)

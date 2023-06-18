@@ -16,7 +16,7 @@ namespace AF
             menuManager = FindObjectOfType<MenuManager>(true);
         }
 
-        private void Update()
+/*        private void Update()
         {
             if (inputs.quickSave)
             {
@@ -33,7 +33,7 @@ namespace AF
 
                 SaveSystem.instance.LoadLastSavedGame();
             }
-        }
+        }*/
     }
 
 }

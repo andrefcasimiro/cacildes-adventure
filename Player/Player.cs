@@ -38,6 +38,9 @@ namespace AF
             public Item item;
 
             public int amount;
+
+            // only applicable to items that are not lost upon use
+            public int usages = 0;
         }
 
         public static Player instance;
@@ -120,6 +123,7 @@ namespace AF
                 {
                     item = Instantiate(ownedItem.item),
                     amount = ownedItem.amount,
+                    usages = ownedItem.usages,
                 });
             }
 
@@ -183,7 +187,8 @@ namespace AF
             }
         }
 
-        private void Update()
+        // TODO: Remove on build
+       private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
@@ -194,6 +199,15 @@ namespace AF
                 FindObjectOfType<DayNightManager>(true).SetTimeOfDay(Mathf.RoundToInt(Player.instance.timeOfDay) + 1, 0);
             }
             if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                FindObjectOfType<DayNightManager>(true).SetTimeOfDay(Mathf.RoundToInt(Player.instance.timeOfDay) + 12, 0);
+                foreach (var iClockListener in FindObjectsOfType<MonoBehaviour>(true).OfType<IClockListener>())
+                {
+                    iClockListener.OnHourChanged();
+                }
+
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha4))
             {
                 unlockAllBonfires = !unlockAllBonfires;
             }
@@ -237,6 +251,7 @@ namespace AF
                 var helmets = Resources.LoadAll<Helmet>("Items/Helmets");
                 var legwears = Resources.LoadAll<Legwear>("Items/Legwears");
                 var shields = Resources.LoadAll<Shield>("Items/Shields");
+                var spells = Resources.LoadAll<Spell>("Items/Spells");
                 var weapons = Resources.LoadAll<Weapon>("Items/Weapons");
                 var keyItems = Resources.LoadAll<Item>("Items/Key Items");
                 var upgradeMaterials = Resources.LoadAll<UpgradeMaterial>("Items/Upgrade Materials");
@@ -282,6 +297,10 @@ namespace AF
                     }
                     if (itemInstance == null)
                     {
+                        itemInstance = spells.FirstOrDefault(i => i.name.GetEnglishText() == serializedItem.itemName);
+                    }
+                    if (itemInstance == null)
+                    {
                         var originalItemInstance = weapons.FirstOrDefault(i => serializedItem.itemName.StartsWith(i.name.GetEnglishText()));
 
                         if (originalItemInstance != null)
@@ -305,6 +324,7 @@ namespace AF
 
                                     itemEntry.item = weapon;
                                     itemEntry.amount = serializedItem.itemCount;
+                                    itemEntry.usages = serializedItem.itemUsage;
                                     this.ownedItems.Add(itemEntry);
 
                                     continue;
@@ -327,6 +347,7 @@ namespace AF
                         var itemEntry = new ItemEntry();
                         itemEntry.item = (Item)itemInstance;
                         itemEntry.amount = serializedItem.itemCount;
+                        itemEntry.usages = serializedItem.itemUsage;
                         this.ownedItems.Add(itemEntry);
                     }
                 }

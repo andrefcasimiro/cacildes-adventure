@@ -19,35 +19,41 @@ namespace AF
 
         List<EnemyBossController> enemyBossControllers = new();
 
+
         private void Awake()
         {
             enemyBossControllers = FindObjectsOfType<EnemyBossController>(true).ToList();
 
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
             sceneSettings = FindObjectOfType<SceneSettings>(true);
+
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag == "Player")
+            if (other.gameObject.CompareTag("Player"))
             {
                 BGMManager.instance.PlaySound(waterSfx, other.GetComponent<PlayerCombatController>().combatAudioSource);
 
-                var noBossInCombat = enemyBossControllers.Count <= 0 || enemyBossControllers.All(x => x.fogWall.activeSelf == false);
+                var noBossInCombat = enemyBossControllers.Count <= 0 || enemyBossControllers.All(x => x.fogWall != null && x.fogWall.activeSelf == false);
                 if (respawnInstead && noBossInCombat)
                 {
                     playerComponentManager.GetComponent<ThirdPersonController>().trackFallDamage = false;
                     playerComponentManager.GetComponent<ThirdPersonController>().isSliding = false;
+                    playerComponentManager.GetComponent<ThirdPersonController>().isSlidingOnIce = false;
                     playerComponentManager.UpdatePosition(respawnPoint.transform.position, Quaternion.identity);
                     Instantiate(sceneSettings.respawnFx, respawnPoint.transform.position, Quaternion.identity);
                     playerComponentManager.GetComponent<ThirdPersonController>().trackFallDamage = true;
+
+                    Physics.autoSyncTransforms = false;
+
                     return;
                 }   
 
                 other.GetComponentInChildren<PlayerHealthbox>(true).Die();
             }
 
-            if (other.gameObject.tag == "Enemy")
+            if (other.gameObject.CompareTag("Enemy"))
             {
                 var enemyManager = other.GetComponent<EnemyManager>();
 

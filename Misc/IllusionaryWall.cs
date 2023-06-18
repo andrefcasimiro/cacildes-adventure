@@ -70,6 +70,22 @@ namespace AF
             }
         }
 
+        private void OnTriggerStay(Collider other)
+        {
+            if (hasBeenHit)
+            {
+                return;
+            }
+
+            if (other.CompareTag("Player"))
+            {
+                if (other.GetComponent<DodgeController>().IsDodging())
+                {
+                    hasBeenHit = true;
+                }
+            }
+        }
+
     }
 
 }

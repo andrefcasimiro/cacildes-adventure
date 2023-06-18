@@ -8,6 +8,17 @@ namespace AF
     {
         public Cinemachine.CinemachineImpulseSource cinemachineImpulseSource;
 
+        public AudioSource audioSource => GetComponent<AudioSource>();
+
+        public float timeBeforeDroppingStalacites = .5f;
+
+        PlayerCombatController playerCombatController;
+
+        private void Awake()
+        {
+            playerCombatController = FindObjectOfType<PlayerCombatController>(true);
+        }
+
         public void ShakeCamera()
         {
 
@@ -22,6 +33,20 @@ namespace AF
 
         public void Launch()
         {
+            cinemachineImpulseSource.GenerateImpulse();
+
+            audioSource.Play();
+
+            StartCoroutine(DropStalactites());
+        }
+
+        IEnumerator DropStalactites()
+        {
+            yield return new WaitForSeconds(timeBeforeDroppingStalacites);
+
+            transform.position = new Vector3(playerCombatController.transform.position.x, this.transform.position.y, playerCombatController.transform.position.z);
+
+
             Stalactite[] stalactites = transform.GetComponentsInChildren<Stalactite>();
 
             foreach (Stalactite t in stalactites)

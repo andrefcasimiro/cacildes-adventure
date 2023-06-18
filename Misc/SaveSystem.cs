@@ -5,7 +5,11 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Windows;
 using static AF.Player;
+using Directory = System.IO.Directory;
+using File = System.IO.File;
+using Input = UnityEngine.Input;
 
 namespace AF
 {
@@ -29,6 +33,7 @@ namespace AF
         double totalPlayTimeInSeconds;
 
         public bool loadingFromGameOver = false;
+
 
         private void Awake()
         {
@@ -119,6 +124,7 @@ namespace AF
             // Player
             GameObject player = GameObject.FindWithTag("Player");
 
+
             PlayerData playerData = new()
             {
                 position = player.transform.position,
@@ -185,7 +191,8 @@ namespace AF
                 SerializableItem serializableItem = new SerializableItem
                 {
                     itemName = GetSerializableItemName(itemEntry),
-                    itemCount = itemEntry.amount
+                    itemCount = itemEntry.amount,
+                    itemUsage = itemEntry.usages
                 };
                 serializableItems.Add(serializableItem);
             }
@@ -293,11 +300,30 @@ namespace AF
             foreach (var shopEntry in ShopManager.instance.characterShopInstances)
             {
                 SerializableShopItem[] itemsBoughtFromPlayer = shopEntry.boughtItemsFromPlayer.Select(item => {
-                    return new SerializableShopItem() { itemName = item.item.name.GetEnglishText(), itemCount = item.quantity, priceModifier = item.priceModifier };
+                    return new SerializableShopItem() {
+                        itemName = item.item.name.GetEnglishText(),
+                        itemCount = item.quantity,
+                        priceModifier = item.priceModifier,
+                        isRestockable = item.isRestockable,
+                    };
+                }).ToArray();
+
+                SerializableShopItem[] boughtItemsByPlayerThatDoNotRestock = shopEntry.boughtItemsByPlayerThatDoNotRestock.Select(item => {
+                    return new SerializableShopItem() {
+                        itemName = item.item.name.GetEnglishText(),
+                        itemCount = item.quantity,
+                        priceModifier = item.priceModifier,
+                        isRestockable = item.isRestockable,
+                    };
                 }).ToArray();
 
                 SerializableShopItem[] stockItems = shopEntry.itemStock.Select(item => {
-                    return new SerializableShopItem() { itemName = item.item.name.GetEnglishText(), itemCount = item.quantity, priceModifier = item.priceModifier };
+                    return new SerializableShopItem() {
+                        itemName = item.item.name.GetEnglishText(),
+                        itemCount = item.quantity,
+                        priceModifier = item.priceModifier,
+                        isRestockable = item.isRestockable,
+                    };
                 }).ToArray();
 
                 shopsToSave.Add(new()
@@ -305,6 +331,7 @@ namespace AF
                     shopName = shopEntry.name,
                     dayThatTradingBegan = shopEntry.dayThatTradingBegan,
                     itemsBoughtFromPlayer = itemsBoughtFromPlayer,
+                    boughtItemsByPlayerThatDoNotRestock = boughtItemsByPlayerThatDoNotRestock,
                     stockItems = stockItems,
                 });
             }
@@ -314,6 +341,10 @@ namespace AF
             gameData.unlockedBonfires = Player.instance.unlockedBonfires.ToArray();
 
             Save(gameData, saveGameName);
+
+
+            var notificationManager = FindObjectOfType<NotificationManager>(true);
+            notificationManager.ShowNotification(LocalizedTerms.ProgressSaved(), notificationManager.systemSuccess);
         }
         #endregion
 
@@ -360,6 +391,23 @@ namespace AF
                 LoadGameData(targetFile);
             }
 
+        }
+
+        // TODO Remove for builds
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F5))
+            {
+
+                SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
+
+                SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
+            }
+
+            if (Input.GetKeyDown(KeyCode.F9))
+            {
+                SaveSystem.instance.LoadLastSavedGame();
+            }
         }
 
         IEnumerator CallLoad(GameData gameData)
@@ -531,6 +579,7 @@ namespace AF
         public int dayThatTradingBegan;
         public SerializableShopItem[] stockItems;
         public SerializableShopItem[] itemsBoughtFromPlayer;
+        public SerializableShopItem[] boughtItemsByPlayerThatDoNotRestock;
     }
 
     [System.Serializable]
@@ -637,6 +686,7 @@ namespace AF
     {
         public string itemName;
         public int itemCount;
+        public int itemUsage;
     }
 
     [System.Serializable]
@@ -645,6 +695,7 @@ namespace AF
         public string itemName;
         public int itemCount;
         public int priceModifier;
+        public bool isRestockable;
     }
 
     [System.Serializable]

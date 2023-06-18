@@ -2,6 +2,9 @@ using UnityEngine;
 using StarterAssets;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AF
 {
@@ -29,6 +32,15 @@ namespace AF
         [Header("Analytics")]
         public string analyticsMessage;
 
+        public int reputationToDecreaseOnPickup = -1;
+
+        [Header("Stealing")]
+        public bool isStealing = false;
+        [Range(0, 100f)]
+        public float chanceToSteal = 50;
+        public bool isStealingButGetsItemAnyway = false;
+        
+
         private void Awake()
         {
              inputs = FindObjectOfType<StarterAssetsInputs>(true);
@@ -50,8 +62,21 @@ namespace AF
         public void OnCaptured()
         {
             uIDocumentKeyPrompt.key = "E";
-            uIDocumentKeyPrompt.action = LocalizedTerms.PickupItem();
+
+            if (isStealing)
+            {
+                uIDocumentKeyPrompt.action = LocalizedTerms.GetStealChance(GetStealChance());
+            }
+            else
+            {
+                uIDocumentKeyPrompt.action = LocalizedTerms.PickupItem();
+            }
             uIDocumentKeyPrompt.gameObject.SetActive(true);
+        }
+
+        float GetStealChance()
+        {
+            return chanceToSteal + playerInventory.GetComponent<EquipmentGraphicsHandler>().chanceToStealBonus;
         }
 
         public void OnInvoked()
@@ -59,6 +84,45 @@ namespace AF
             inputs.interact = false;
 
             uIDocumentKeyPrompt.gameObject.SetActive(false);
+
+
+
+            if (isStealing)
+            {
+                if (!isStealingButGetsItemAnyway && UnityEngine.Random.Range(0, 100f) > GetStealChance())
+                {
+                    // Get All items Price
+
+                    var itemsPrice = item != null ? item.value : items.Sum(x => x.value);
+
+                    if (Player.instance.currentGold >= itemsPrice)
+                    {
+                        FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice);
+                        Player.instance.currentGold -= (int)itemsPrice;
+
+                        var notif = FindObjectOfType<NotificationManager>(true);
+                        notif.ShowNotification(LocalizedTerms.CaughtStealing(), notif.personBusy);
+                        Soundbank.instance.PlayReputationDecreased();
+                    }
+                    else
+                    {
+                        FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice - Player.instance.currentGold);
+                        Player.instance.currentGold = 0;
+
+                        // Lose reputation instead
+                        FindObjectOfType<NotificationManager>(true).DecreaseReputation(1);
+
+                    }
+
+                    return;
+                }
+            }
+
+
+            if (reputationToDecreaseOnPickup != -1)
+            {
+                FindObjectOfType<NotificationManager>(true).DecreaseReputation(reputationToDecreaseOnPickup);
+            }
 
             if (onPickupEvent != null)
             {

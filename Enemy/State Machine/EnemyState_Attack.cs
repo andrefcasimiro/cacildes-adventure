@@ -16,6 +16,10 @@ namespace AF {
 
         public bool isParriable = true;
 
+        public bool dontFacePlayerOnStateUpdate = false;
+
+        public bool activateHyperArmor = false;
+        
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             animator.gameObject.TryGetComponent(out enemy);
@@ -31,6 +35,11 @@ namespace AF {
             enemy.enemyCombatController.bonusBlockStaminaCost = blockStaminaBonusCost;
             enemy.enemyCombatController.currentAttackPoiseDamage += postureDamageBonus;
 
+            if (activateHyperArmor)
+            {
+                enemy.enemyCombatController.hasHyperArmorActive = true;
+            }
+
             // Enable tracking
             enemy.facePlayer = true;
 
@@ -40,8 +49,17 @@ namespace AF {
             }
         }
 
+        public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        {
+            if (enemy.facePlayer && dontFacePlayerOnStateUpdate)
+            {
+                enemy.facePlayer = false;
+            }
+        }
+
         public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+
             enemy.enemyCombatController.weaponDamage -= attackPointsBonus;
             enemy.enemyCombatController.statusEffectAmount = 0f;
             enemy.enemyCombatController.weaponStatusEffect = null;

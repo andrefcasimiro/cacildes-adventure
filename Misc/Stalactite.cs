@@ -14,8 +14,12 @@ namespace AF
         float maxCooldownOnAir = 5f;
         float cooldownOnAir = Mathf.Infinity;
 
+        PlayerHealthbox playerHealthbox;
+
         private void Awake()
         {
+            playerHealthbox = FindObjectOfType<PlayerHealthbox>(true);
+
             originalPosition = transform.localPosition;
         }
 
@@ -34,23 +38,32 @@ namespace AF
 
         public void Drop()
         {
+
+            GetComponent<MeshRenderer>().enabled = true;
             GetComponent<Rigidbody>().isKinematic = false;
             cooldownOnAir = 0f;
         }
 
         private void OnTriggerEnter(Collider other)
         {
+            if (other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("EnemyHealthHitbox"))
+            {
+                return;
+                }
+
             if (other.gameObject.CompareTag("Player"))
             {
-                FindObjectOfType<PlayerHealthbox>(true).TakeDamage(damageInflicted, this.transform, null, 5, WeaponElementType.None);
-                Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);
-                ResetStalacites();
+                playerHealthbox.TakeDamage(damageInflicted, this.transform, null, 5, WeaponElementType.None);
             }
+            Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);
+            ResetStalacites();
+
         }
 
         private void ResetStalacites()
         {
             GetComponent<Rigidbody>().isKinematic = true;
+            GetComponent<MeshRenderer>().enabled = false;
 
             transform.localPosition = originalPosition;
         }

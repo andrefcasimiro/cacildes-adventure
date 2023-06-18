@@ -18,6 +18,8 @@ namespace AF
         public Sprite recipeIcon;
         public Sprite door;
         public Sprite levelUp;
+        public Sprite personBusy;
+        public Sprite notEnoughSpells;
 
         public Sprite reputationIncreaseSprite;
         public Sprite reputationDecreaseSprite;
@@ -84,6 +86,7 @@ namespace AF
             timePassed = 0f;
         }
 
+        // TODO: This should be on a proper class
         public void IncreaseReputation(int value)
         {
             Player.instance.currentReputation += value;
@@ -92,6 +95,7 @@ namespace AF
             ShowNotification(LocalizedTerms.ReputationIncreased(value), reputationIncreaseSprite);
         }
 
+        // TODO: This should be on a proper class
         public void DecreaseReputation(int value)
         {
             Player.instance.currentReputation -= value;

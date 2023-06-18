@@ -36,9 +36,12 @@ namespace AF
 
         MenuManager menuManager;
 
+        DialogueManager dialogueManager;
+
         private void Awake()
         {
              menuManager = FindObjectOfType<MenuManager>(true);
+            dialogueManager = FindObjectOfType<DialogueManager>(true);
 
             this.gameObject.SetActive(false);
         }
@@ -188,7 +191,7 @@ namespace AF
                         }
                         else if (selectedChoice.reputationAmountToDecrease != 0)
                         {
-                            FindObjectOfType<NotificationManager>(true).DecreaseReputation(selectedChoice.reputationAmountToIncrease);
+                            FindObjectOfType<NotificationManager>(true).DecreaseReputation(selectedChoice.reputationAmountToDecrease);
                         }
                         SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(selectedChoice.reputationSwitchEntry, true);
                     }
@@ -205,15 +208,29 @@ namespace AF
                     selectedChoice = focusedSelectedChoice;
                 }
 
-                EventBase[] choiceEvents = selectedChoice.subEventPage.GetComponents<EventBase>();
-
-                if (choiceEvents.Length > 0)
+                // Use Sub Events Option
+                if (selectedChoice.subEventPage != null)
                 {
-                    foreach (EventBase subEvent in choiceEvents)
+                    EventBase[] choiceEvents = selectedChoice.subEventPage.GetComponents<EventBase>();
+
+                    if (choiceEvents.Length > 0)
                     {
-                        yield return subEvent.Dispatch();
+                        foreach (EventBase subEvent in choiceEvents)
+                        {
+                            yield return subEvent.Dispatch();
+                        }
                     }
                 }
+                else if (selectedChoice.response.localizedTexts.Count() > 0)
+                {
+                    yield return dialogueManager.ShowDialogueWithChoices(selectedChoice.replier, selectedChoice.response, new List<DialogueChoice>(), 0.05f, false);
+                
+                    if (selectedChoice.onResponseFinished != null)
+                    {
+                        selectedChoice.onResponseFinished.Invoke();
+                    }
+                }
+
             }
             else
             {

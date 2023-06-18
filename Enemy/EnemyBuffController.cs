@@ -21,6 +21,8 @@ namespace AF
 
             public bool isActive = true;
 
+            public float duration = -1f;
+
             public UnityEvent onBuffEventStart;
             public UnityEvent onBuffEventCast;
             public UnityEvent onBuffEventEnd;
@@ -60,9 +62,6 @@ namespace AF
 
         LockOnManager lockOnManager;
 
-        public float timeBeforeAbleToUseBuffs = 5f;
-        float startCooldown = 0f;
-
         private void Awake()
         {
             lockOnManager = FindObjectOfType<LockOnManager>(true);
@@ -70,15 +69,7 @@ namespace AF
 
         private void Update()
         {
-            if (enemyManager.enemyCombatController.IsInCombat() || enemyManager.enemyCombatController.IsWaiting())
-            {
-                if (startCooldown < timeBeforeAbleToUseBuffs)
-                {
-                    startCooldown += Time.deltaTime;
-                }
-
-                UpdateBuffs();
-            }
+            UpdateBuffs();
         }
 
         public void PlayEnemyBuffSfx()
@@ -133,12 +124,7 @@ namespace AF
 
         public bool CanUseBuff(Buff buff)
         {
-            if (!   buff.isActive)
-            {
-                return false;
-            }
-
-            if (startCooldown < timeBeforeAbleToUseBuffs)
+            if (!buff.isActive)
             {
                 return false;
             }
@@ -223,6 +209,19 @@ namespace AF
             {
                 StartCoroutine(ShowWeaponAfter(buff));
             }
+
+            if (buff.duration != -1f)
+            {
+                StartCoroutine(EndBuffAfter(buff));
+            }
+        }
+
+        IEnumerator EndBuffAfter(Buff buff)
+        {
+            yield return new WaitForSeconds(buff.duration);
+
+            buff.onBuffEventEnd.Invoke();
+            enemyManager.facePlayer = false;
         }
 
         IEnumerator ShowWeaponAfter(Buff buff)

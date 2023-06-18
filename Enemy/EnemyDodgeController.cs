@@ -7,6 +7,7 @@ namespace AF
 {
     public class EnemyDodgeController : MonoBehaviour
     {
+        [HideInInspector] public int hashIsDodging = Animator.StringToHash("IsDodging");
 
         [Header("Dodge Settings")]
         [Range(0, 100)][Tooltip("0 means never, 100 means always")]
@@ -74,8 +75,9 @@ namespace AF
                     enemyManager.agent.enabled = false;
                     LookAtPlayer();
                     enemyManager.facePlayer = false;
-                    enemyManager.enemyHealthController.DisableHealthHitboxes();
                     enemyManager.animator.CrossFade(enemyManager.hashDodgeRight, 0.1f);
+
+                    ActivateDodge();
                 }
                 else
                 {
@@ -85,8 +87,10 @@ namespace AF
                     LookAtPlayer();
                     // Face playerManager first
                     enemyManager.facePlayer = false;
-                    enemyManager.enemyHealthController.DisableHealthHitboxes();
                     enemyManager.animator.CrossFade(enemyManager.hashDodgeLeft, 0.1f);
+
+                    ActivateDodge();
+
                 }
 
                 return;
@@ -116,6 +120,11 @@ namespace AF
         {
             enemyManager.facePlayer = true;
             enemyManager.enemyHealthController.EnableHealthHitboxes();
+        }
+
+        public bool IsDodging()
+        {
+            return enemyManager.animator.GetBool(hashIsDodging);
         }
     }
 }

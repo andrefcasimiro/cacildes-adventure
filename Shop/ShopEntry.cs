@@ -11,6 +11,8 @@ namespace AF
         public int quantity;
 
         public int priceModifier = 0;
+
+        public bool isRestockable = true;
     }
 
     [CreateAssetMenu(menuName = "Data / New Shop")]

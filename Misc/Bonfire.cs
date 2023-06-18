@@ -15,16 +15,20 @@ namespace AF
         public GameObject fireFx;
 
         PlayerComponentManager playerComponentManager;
+        PlayerInventory playerInventory;
 
         public bool canBeTravelledTo = true;
 
         private void Start()
         {
+            playerInventory = FindObjectOfType<PlayerInventory>(true);
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
         }
 
         public void ActivateBonfire()
         {
+            playerInventory.ReplenishItems();
+
             // Cure playerManager
             playerComponentManager.CurePlayer();
 

@@ -66,6 +66,16 @@ namespace AF
             rigidBody.AddForce(this.transform.up * upwardsVelocity, forceMode);
         }
 
+        public void ShootAndPreserveRotation(Transform target)
+        {
+            this.currentTarget = target;
+
+            transform.parent = null;
+
+            rigidBody.AddForce(this.transform.forward * forwardVelocity, forceMode);
+            rigidBody.AddForce(this.transform.up * upwardsVelocity, forceMode);
+        }
+
         public void Shoot(Vector3 position, bool directToEnemy)
         {
             targetDestination = position;
@@ -214,7 +224,7 @@ namespace AF
                     enemyHealthHitbox.enemyManager.enemyHealthController
                         .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
 
-                    enemyHealthHitbox.enemyManager.PushEnemy(projectilePushForce * -1f);
+                    enemyHealthHitbox.enemyManager.PushEnemy(projectilePushForce * -1f, ForceMode.Impulse);
                 }
 
                 hasCollidedAlready = true;

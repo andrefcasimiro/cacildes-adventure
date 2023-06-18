@@ -49,4 +49,13 @@ public class EnemyState_Strafing : StateMachineBehaviour
             }
         }
     }
+
+    public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        // Reset block bool on state exit
+        if (enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.blockWhileStrafing)
+        {
+            animator.SetBool(enemyManager.hashIsBlocking, false);
+        }
+    }
 }

@@ -39,23 +39,23 @@ namespace AF
             combatNotificationEntries.Add(instance);
         }
 
-        public void ShowDamage(float amount)
+        public void ShowDamage(int amount)
         {
             AddNotification("- " + amount, combatNotificationManager.damage);
         }
-        public void ShowFireDamage(float amount)
+        public void ShowFireDamage(int amount)
         {
             AddNotification("- " + amount, combatNotificationManager.fireDamage);
         }
-        public void ShowFrostDamage(float amount)
+        public void ShowFrostDamage(int amount)
         {
             AddNotification("- " + amount, combatNotificationManager.frostDamage);
         }
-        public void ShowLightningDamage(float amount)
+        public void ShowLightningDamage(int amount)
         {
             AddNotification("- " + amount, combatNotificationManager.lightningDamage);
         }
-        public void ShowMagicDamage(float amount)
+        public void ShowMagicDamage(int amount)
         {
             AddNotification("- " + amount, combatNotificationManager.magicDamage);
         }

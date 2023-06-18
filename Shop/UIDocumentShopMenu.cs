@@ -44,11 +44,10 @@ namespace AF
             FindObjectOfType<PlayerComponentManager>(true).DisableComponents();
             FindObjectOfType<EventNavigator>(true).enabled = false;
 
-            if (HasReplenished())
+            if (ShouldReplenish())
             {
                 Replenish();
             }
-
         }
 
         private void Update()
@@ -75,6 +74,7 @@ namespace AF
             root.Q<Button>("ButtonExit").text = LocalizedTerms.ExitShop();
             root.Q<Button>("ButtonExit").RegisterCallback<ClickEvent>((ev) => { ExitShop(); });
 
+            OnHourChanged();
 
             if (isBuying)
             {
@@ -99,7 +99,10 @@ namespace AF
 
             foreach (var stockItem in shopEntry.itemStock)
             {
-                itemsToShow.Add(stockItem);
+                if (!ShopManager.instance.HasPlayerBoughtNonRestockableItem(shopEntry, stockItem))
+                {
+                    itemsToShow.Add(stockItem);
+                }
             }
             foreach (var boughtItemFromPlayer in shopEntry.boughtItemsFromPlayer)
             {
@@ -154,7 +157,7 @@ namespace AF
                     HideItemPreview(root);
                 });
 
-                cloneButton.RegisterCallback<ClickEvent>(ev =>
+                cloneButton.Q<Button>("BuySellItem").RegisterCallback<ClickEvent>(ev =>
                 {
                     BuyItem(item);
                 });
@@ -198,7 +201,7 @@ namespace AF
 
         public void OnHourChanged()
         {
-            if (HasReplenished())
+            if (ShouldReplenish())
             {
                 // If is only one day passed, only enable after passing the hour threshold
                 var shopRefreshValue = ShopManager.instance.GetShopInstanceByName(shopEntry.name).dayThatTradingBegan;
@@ -222,16 +225,17 @@ namespace AF
             ShopManager.instance.ReplenishShopStock(shopEntry.name, shopEntry.itemStock);
         }
 
-        bool HasReplenished()
+        bool ShouldReplenish()
         {
-            var shopRefreshValue = ShopManager.instance.GetShopInstanceByName(shopEntry.name).dayThatTradingBegan;
-
-            if (Player.instance.daysPassed > shopRefreshValue + daysToRestock)
+            var shop = ShopManager.instance.GetShopInstanceByName(shopEntry.name);
+            var shopRefreshValue = shop != null ? shop.dayThatTradingBegan : -1;
+            
+            if (shopRefreshValue == -1)
             {
                 return true;
             }
 
-            return false;
+            return Player.instance.daysPassed > shopRefreshValue + daysToRestock;
         }
 
     }

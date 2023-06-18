@@ -16,6 +16,7 @@ namespace AF
         // The items collected here are never restocked. These are items sold by the player and he can buy them back at any time from the shop keeper
         public List<ShopItem> boughtItemsFromPlayer = new();
 
+        public List<ShopItem> boughtItemsByPlayerThatDoNotRestock = new();
     }
 
     public class ShopManager : MonoBehaviour, ISaveable
@@ -49,7 +50,12 @@ namespace AF
                 List<ShopItem> newDefaultStocksItems = new();
                 foreach (var s in shopEntry.itemStock)
                 {
-                    newDefaultStocksItems.Add(new ShopItem(){ item = s.item, quantity = s.quantity, priceModifier = s.priceModifier });
+                    newDefaultStocksItems.Add(new ShopItem(){
+                        item = s.item,
+                        quantity = s.quantity,
+                        priceModifier = s.priceModifier,
+                        isRestockable = s.isRestockable,
+                    });
                 }
 
                 characterShopInstances.Add(new ShopEntryInstance()
@@ -57,7 +63,8 @@ namespace AF
                     name = shopEntry.name,
                     dayThatTradingBegan = -1,
                     itemStock = newDefaultStocksItems,
-                    boughtItemsFromPlayer = new List<ShopItem>()
+                    boughtItemsFromPlayer = new List<ShopItem>(),
+                    boughtItemsByPlayerThatDoNotRestock = new (),
                 }); ;
             }
         }
@@ -74,13 +81,34 @@ namespace AF
             this.characterShopInstances[idx].itemStock.Clear();
 
             List<ShopItem> newDefaultStocksItems = new();
-            foreach (var s in defaultStockItems)
+            foreach (var defaultStockItem in defaultStockItems)
             {
-                newDefaultStocksItems.Add(new ShopItem() { item = s.item, quantity = s.quantity, priceModifier = s.priceModifier });
+                // Is it a non restockable item and has player bought it?
+                if (!HasPlayerBoughtNonRestockableItem(this.characterShopInstances[idx], defaultStockItem))
+                {
+                    newDefaultStocksItems.Add(new ShopItem()
+                    {
+                        item = defaultStockItem.item,
+                        quantity = defaultStockItem.quantity,
+                        priceModifier = defaultStockItem.priceModifier,
+                        isRestockable = defaultStockItem.isRestockable,
+                    });
+                }
             }
-            this.characterShopInstances[idx].itemStock = newDefaultStocksItems;
 
+            this.characterShopInstances[idx].itemStock = newDefaultStocksItems;
             this.characterShopInstances[idx].dayThatTradingBegan = -1;
+        }
+
+        public bool HasPlayerBoughtNonRestockableItem(ShopEntryInstance characterShop, ShopItem item)
+        {
+            if (item.isRestockable)
+            {
+                return false;
+            }
+
+            return characterShop.boughtItemsByPlayerThatDoNotRestock.FirstOrDefault(
+                        x => x.item.name.GetEnglishText() == item.item.name.GetEnglishText()) != null;
         }
 
         public bool HasStock(string shopName, ShopItem shopItem)
@@ -91,8 +119,8 @@ namespace AF
             {
                 return false;
             }
-            var itemInStock = shop.itemStock.FirstOrDefault(x => x.item.name.GetEnglishText() == shopItem.item.name.GetEnglishText());
 
+            var itemInStock = shop.itemStock.FirstOrDefault(x => x.item.name.GetEnglishText() == shopItem.item.name.GetEnglishText());
             if (itemInStock != null && itemInStock.quantity > 0)
             {
                 return true;
@@ -111,8 +139,10 @@ namespace AF
         {
             var idx = characterShopInstances.FindIndex(characterShopInstance => characterShopInstance.name == shopEntryName);
 
-            var indexOfItemInStock = characterShopInstances[idx].itemStock.FindIndex(itemToBuyInStock => itemToBuyInStock == itemToBuy);
-            var indexOfItemBoughtItemsFromPlayer = characterShopInstances[idx].boughtItemsFromPlayer.FindIndex(itemToBuyInStock => itemToBuyInStock == itemToBuy);
+            var indexOfItemInStock = characterShopInstances[idx].itemStock.FindIndex(
+                itemToBuyInStock => itemToBuyInStock.item.name.GetEnglishText() == itemToBuy.item.name.GetEnglishText());
+            var indexOfItemBoughtItemsFromPlayer = characterShopInstances[idx].boughtItemsFromPlayer.FindIndex(
+                itemToBuyInStock => itemToBuyInStock.item.name.GetEnglishText() == itemToBuy.item.name.GetEnglishText());
 
             if (indexOfItemInStock == -1 && indexOfItemBoughtItemsFromPlayer == -1)
             {
@@ -128,6 +158,11 @@ namespace AF
                 this.characterShopInstances[idx].boughtItemsFromPlayer[indexOfItemBoughtItemsFromPlayer].quantity--;
             }
 
+            if (!itemToBuy.isRestockable)
+            {
+                this.characterShopInstances[idx].boughtItemsByPlayerThatDoNotRestock.Add(itemToBuy);
+            }
+
             if (this.characterShopInstances[idx].dayThatTradingBegan == -1)
             {
                 this.characterShopInstances[idx].dayThatTradingBegan = Player.instance.daysPassed;
@@ -136,6 +171,7 @@ namespace AF
             // Retrieve coin to player
             var finalPrice = GetItemToBuyPrice(itemToBuy);
 
+            FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost(finalPrice);
             Player.instance.currentGold -= finalPrice;
 
             // Give item to player
@@ -150,14 +186,16 @@ namespace AF
             var idx = characterShopInstances.FindIndex(characterShopInstance => characterShopInstance.name == shopEntryName);
 
             // Update merchant inventory
-            var idxOfItemBoughtFromPlayer = this.characterShopInstances[idx].boughtItemsFromPlayer.FindIndex(shopItem => shopItem.item.name.GetEnglishText() == itemToSell.name.GetEnglishText());
+            var idxOfItemBoughtFromPlayer = this.characterShopInstances[idx].boughtItemsFromPlayer.FindIndex(
+                shopItem => shopItem.item.name.GetEnglishText() == itemToSell.name.GetEnglishText());
             if (idxOfItemBoughtFromPlayer != -1)
             {
                 this.characterShopInstances[idx].boughtItemsFromPlayer[idxOfItemBoughtFromPlayer].quantity++;
             }
             else
             {
-                this.characterShopInstances[idx].boughtItemsFromPlayer.Add(new() { item = itemToSell, quantity = 1, priceModifier = 0 });
+                this.characterShopInstances[idx].boughtItemsFromPlayer.Add(new() {
+                    item = itemToSell, quantity = 1, priceModifier = 0, isRestockable = false });
             }
 
             // Give coin to player
@@ -230,7 +268,12 @@ namespace AF
                     }
                     else
                     {
-                        itemStock.Add(new ShopItem() { item = itemsTable[savedItemStock.itemName], quantity = savedItemStock.itemCount, priceModifier = savedItemStock.priceModifier });
+                        itemStock.Add(new ShopItem() {
+                            item = itemsTable[savedItemStock.itemName],
+                            quantity = savedItemStock.itemCount,
+                            priceModifier = savedItemStock.priceModifier,
+                            isRestockable = savedItemStock.isRestockable,
+                        });
                     }
                 }
                 this.characterShopInstances[idx].itemStock = itemStock;
@@ -245,11 +288,36 @@ namespace AF
                     }
                     else
                     {
-                        itemsBoughtFromPlayer.Add(new ShopItem() { item = itemsTable[savedItemBoughtFromPlayer.itemName], quantity = savedItemBoughtFromPlayer.itemCount, priceModifier = savedItemBoughtFromPlayer.priceModifier });
+                        itemsBoughtFromPlayer.Add(new ShopItem() {
+                            item = itemsTable[savedItemBoughtFromPlayer.itemName],
+                            quantity = savedItemBoughtFromPlayer.itemCount,
+                            priceModifier = savedItemBoughtFromPlayer.priceModifier,
+                            isRestockable = savedItemBoughtFromPlayer.isRestockable,
+                        });
                     }
                 }
-
                 this.characterShopInstances[idx].boughtItemsFromPlayer = itemsBoughtFromPlayer;
+
+
+                List<ShopItem> boughtItemsByPlayerThatDoNotRestock = new();
+                foreach (var boughtItemByPlayerThatDoesNotRestock in savedShop.boughtItemsByPlayerThatDoNotRestock)
+                {
+                    var itemIndex = itemStock.FindIndex(x => x.item.name.GetEnglishText() == boughtItemByPlayerThatDoesNotRestock.itemName);
+                    if (itemIndex != -1)
+                    {
+                        boughtItemsByPlayerThatDoNotRestock[itemIndex].quantity++;
+                    }
+                    else
+                    {
+                        boughtItemsByPlayerThatDoNotRestock.Add(new ShopItem() {
+                            item = itemsTable[boughtItemByPlayerThatDoesNotRestock.itemName],
+                            quantity = boughtItemByPlayerThatDoesNotRestock.itemCount,
+                            priceModifier = boughtItemByPlayerThatDoesNotRestock.priceModifier,
+                            isRestockable = boughtItemByPlayerThatDoesNotRestock.isRestockable,
+                        });
+                    }
+                }
+                this.characterShopInstances[idx].boughtItemsByPlayerThatDoNotRestock = boughtItemsByPlayerThatDoNotRestock;
 
             }
         }

@@ -18,7 +18,7 @@ namespace AF
         [Header("!! English name must match filename")]
         public new LocalizedText name;
 
-        public Consumable resultingItem;
+        public Item resultingItem;
 
         public List<CraftingIngredientEntry> ingredients = new List<CraftingIngredientEntry>();
     }

@@ -10,15 +10,7 @@ namespace AF
         CharacterController characterController;
         [HideInInspector] public Animator animator => GetComponent<Animator>();
 
-        Vector3 deltaPos;
-
         Transform originalParent;
-
-        public void OnAnimatorMove()
-        {
-            deltaPos = animator.deltaPosition;
-
-        }
 
         private void OnTriggerEnter(Collider other)
         {
@@ -29,9 +21,13 @@ namespace AF
                     characterController = other.GetComponent<CharacterController>();
                 }
 
-                originalParent = characterController.transform.parent;
-                characterController.transform.SetParent(this.transform);
-                Physics.autoSyncTransforms = true;
+                if (Physics.autoSyncTransforms == false)
+                {
+                    originalParent = characterController.transform.parent;
+                    characterController.transform.SetParent(this.transform);
+                    Physics.autoSyncTransforms = true;
+                }
+
             }
         }
         private void OnTriggerExit(Collider other)

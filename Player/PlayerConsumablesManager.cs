@@ -15,6 +15,8 @@ namespace AF
         StarterAssets.ThirdPersonController thirdPersonController => GetComponent<StarterAssets.ThirdPersonController>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
+        bool isPassingTime = false;
+
         private void Update()
         {
             if (Player.instance.appliedConsumables.Count > 0)
@@ -131,7 +133,7 @@ namespace AF
             }
         }
 
-        void EvaluateEffect(AppliedConsumable entry)
+        public void EvaluateEffect(AppliedConsumable entry)
         {
             if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.HEALTH_REGENERATION)
             {
@@ -183,6 +185,61 @@ namespace AF
             {
                 equipmentGraphicsHandler.dexterityBonus += (int)entry.consumableEffect.value;
             }
+
+            #region Instant Consumable Effects
+
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.REVEAL_ILLUSIONARY_WALLS)
+            {
+                foreach (var illusionaryWall in FindObjectsOfType<IllusionaryWall>())
+                {
+                    illusionaryWall.hasBeenHit = true;
+                }
+            }
+
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SPEED_1_HOUR)
+            {
+                StartCoroutine(MoveTime());
+            }
+
+            #endregion
+        }
+
+
+        IEnumerator MoveTime()
+        {
+            if (!isPassingTime)
+            {
+                isPassingTime = true;
+
+                bool isInteriorOriginal = FindObjectOfType<SceneSettings>(true).isInterior;
+
+                FindObjectOfType<SceneSettings>(true).isInterior = false;
+                FindObjectOfType<DayNightManager>(true).tick = true;
+                var originalDaySpeed = Player.instance.daySpeed;
+
+                var targetHour = Mathf.Floor(Player.instance.timeOfDay) + 1;
+
+                if (targetHour > 23)
+                {
+                    Player.instance.timeOfDay = 0;
+                    targetHour = 0;
+                }
+
+                yield return null;
+
+                Player.instance.daySpeed = 2;
+
+                yield return new WaitUntil(() => Mathf.Floor(Player.instance.timeOfDay) == targetHour);
+
+                Player.instance.daySpeed = originalDaySpeed;
+
+                FindObjectOfType<DayNightManager>(true).tick = FindObjectOfType<DayNightManager>(true).TimePassageAllowed();
+                FindObjectOfType<SceneSettings>(true).isInterior = isInteriorOriginal;
+
+                isPassingTime = false;
+            }
+
+            yield return null;
         }
     }
 }

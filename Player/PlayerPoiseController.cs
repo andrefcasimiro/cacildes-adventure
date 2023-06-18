@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using StarterAssets;
+using System.Collections;
 using UnityEngine;
 
 namespace AF
@@ -8,6 +9,7 @@ namespace AF
         public readonly int hashStunnedDamage = Animator.StringToHash("StunnedDamage");
         public readonly int hashTakingDamage = Animator.StringToHash("TakingDamage");
         public readonly int hashIsTakingDamage = Animator.StringToHash("IsTakingDamage");
+        public readonly int hashParried = Animator.StringToHash("Parried");
 
         [Header("Posture")]
         public int unarmedPoiseHits = 1;
@@ -20,6 +22,7 @@ namespace AF
 
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
         PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
+        ThirdPersonController tps => GetComponent<ThirdPersonController>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
         ClimbController climbController => GetComponent<ClimbController>();
@@ -35,9 +38,10 @@ namespace AF
 
         public bool isStunned = false;
 
+        PlayerSpellManager playerSpellManager => GetComponent<PlayerSpellManager>();
+
         private void Update()
         {
-
             if (currentPoiseHitCount <= 0)
             {
                 return;
@@ -61,8 +65,13 @@ namespace AF
                 return;
             }
 
-            if (currentPoiseHitCount >= GetMaxPoise())
+            var playerMaxPoise = GetMaxPoise();
+            var poiseDamageReceived = Mathf.Abs(poiseDamage - playerMaxPoise);
+
+            if (currentPoiseHitCount >= playerMaxPoise && playerSpellManager.ShouldInterruptSpell(poiseDamageReceived))
             {
+                playerSpellManager.CancelAnySpells();
+
                 ActivatePoiseDamage();
             }
         }
@@ -98,7 +107,11 @@ namespace AF
 
             currentPoiseHitCount = 0;
             playerComponentManager.DisableComponents();
-            playerComponentManager.DisableCharacterController();
+
+            if (!tps.skateRotation)
+            {
+                playerComponentManager.DisableCharacterController();
+            }
         }
 
         IEnumerator RecoverControl(float waitTime)
@@ -125,6 +138,11 @@ namespace AF
         public bool IsTakingDamage()
         {
             return animator.GetBool(hashIsTakingDamage);
+        }
+
+        public void PlayParried()
+        {
+            animator.Play(hashParried);
         }
 
     }

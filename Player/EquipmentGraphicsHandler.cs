@@ -60,6 +60,9 @@ namespace AF
 
         public int reputationBonus = 0;
 
+        public float chanceToStealBonus = 0;
+
+
         public List<string> helmetNakedParts = new List<string>
         {
             "Hair",

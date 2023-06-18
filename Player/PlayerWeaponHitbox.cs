@@ -23,7 +23,7 @@ namespace AF
         float maxTimerBeforeAllowingDamageAgain = .5f;
         float damageCooldownTimer = Mathf.Infinity;
 
-        List<EnemyHealthHitbox> hitEnemies = new List<EnemyHealthHitbox>();
+        List<EnemyHealthHitbox> hitEnemies = new();
 
         private void Awake()
         {
@@ -137,18 +137,21 @@ namespace AF
 
             if (!hitEnemies.Contains(enemyHealthHitbox))
             {
-                hitEnemies.Add(enemyHealthHitbox);
-
-                enemyHealthHitbox.enemyManager.enemyHealthController.TakeDamage(
-                    attackStatManager,
-                    weapon,
-                    other.ClosestPointOnBounds(this.transform.position),
-                    (weapon != null && weapon.impactFleshSfx != null) ? weapon.impactFleshSfx : playerCombatController.unarmedHitImpactSfx,
-                    enemyHealthHitbox.damageBonus);
-
-                if (enemyHealthHitbox.enemyManager.enemyTargetController != null)
+                if (enemyHealthHitbox.enabled)
                 {
-                    enemyHealthHitbox.enemyManager.enemyTargetController.BreakCompanionFocus();
+                    hitEnemies.Add(enemyHealthHitbox);
+
+                    enemyHealthHitbox.enemyManager.enemyHealthController.TakeDamage(
+                        attackStatManager,
+                        weapon,
+                        other.ClosestPointOnBounds(this.transform.position),
+                        (weapon != null && weapon.impactFleshSfx != null) ? weapon.impactFleshSfx : playerCombatController.unarmedHitImpactSfx,
+                        enemyHealthHitbox.damageBonus);
+
+                    if (enemyHealthHitbox.enemyManager.enemyTargetController != null)
+                    {
+                        enemyHealthHitbox.enemyManager.enemyTargetController.BreakCompanionFocus();
+                    }
                 }
 
                 damageCooldownTimer = 0f;

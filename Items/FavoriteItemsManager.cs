@@ -12,6 +12,8 @@ namespace AF
 
         public StarterAssets.StarterAssetsInputs inputs;
 
+        PlayerSpellManager playerSpellManager => GetComponent<PlayerSpellManager>();
+
         MenuManager menuManager;
 
         private void Awake()
@@ -64,16 +66,27 @@ namespace AF
 
                 Player.ItemEntry itemEntry = Player.instance.ownedItems.Find(item => item.item.name.GetEnglishText() == currentItem.name.GetEnglishText());
 
-                if (itemEntry.amount <= 1)
+                if (itemEntry.amount <= 1 && itemEntry.item.lostUponUse)
                 {
                     RemoveFavoriteItemFromList(currentItem);
                 }
 
-                Consumable consumableItem = (Consumable)currentItem;
+                Consumable consumableItem = currentItem as Consumable;
                 if (consumableItem != null)
                 {
                     consumableItem.OnConsume();
                 }
+                else
+                {
+                    Spell spell = currentItem as Spell;
+
+                    if (spell != null)
+                    {
+                        playerSpellManager.PrepareSpell(spell);
+                    }
+                }
+
+
 
             }
 
@@ -110,9 +123,16 @@ namespace AF
             var thisItemInstance = Player.instance.favoriteItems.ElementAt(i);
             Player.instance.favoriteItems.RemoveAt(i);
 
-            Item itemAtFirstIndex = Player.instance.favoriteItems.ElementAt(0);
-            Player.instance.favoriteItems[0] = thisItemInstance;
-            Player.instance.favoriteItems.Add(itemAtFirstIndex);
+            if (Player.instance.favoriteItems.Count > 0)
+            {
+                Item itemAtFirstIndex = Player.instance.favoriteItems.ElementAt(0);
+                Player.instance.favoriteItems[0] = thisItemInstance;
+                Player.instance.favoriteItems.Add(itemAtFirstIndex);
+            }
+            else
+            {
+                Player.instance.favoriteItems.Add(thisItemInstance);
+            }
 
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }
@@ -127,6 +147,11 @@ namespace AF
         {
             Player.instance.favoriteItems.Add(item);
 
+            uIDocumentPlayerHUDV2.UpdateFavoriteItems();
+        }
+
+        public void UpdateFavoriteItems()
+        {
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }
     }

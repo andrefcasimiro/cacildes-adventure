@@ -10,12 +10,6 @@ namespace AF
         {
             GetComponent<MeshRenderer>().enabled = false;
         }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
     }
 
 }

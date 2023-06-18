@@ -75,7 +75,7 @@ namespace AF
                     Vector3 dist = hitPosition - playerCombatController.transform.position;
                     float angle = Vector3.Angle(dist.normalized, playerCombatController.transform.forward);
                     
-                    if (angle <= 50)
+                    if (angle / 2 <= 50)
                     {
                         currentTarget = eventNavigatorCapturable;
                     }

@@ -13,6 +13,12 @@ namespace AF
         PlayerHealthbox playerHealthbox => GetComponentInChildren<PlayerHealthbox>();
         PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
         ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
+        UIDocumentStatusEffectV2 uIDocumentStatusEffectV2;
+
+        private void Awake()
+        {
+            uIDocumentStatusEffectV2 = FindObjectOfType<UIDocumentStatusEffectV2>(true);
+        }
 
         private void Update()
         {
@@ -103,8 +109,13 @@ namespace AF
 
         public void RemoveAppliedStatus(AppliedStatus appliedStatus)
         {
+            if (appliedStatus == null)
+            {
+                return;
+            }
+
             Player.instance.appliedStatus.Remove(appliedStatus);
-            FindObjectOfType<UIDocumentStatusEffectV2>(true).RemoveNegativeStatusEntry(appliedStatus.statusEffect);
+            uIDocumentStatusEffectV2.RemoveNegativeStatusEntry(appliedStatus.statusEffect);
 
             if (appliedStatus.statusEffect.disablePlayerMovement)
             {

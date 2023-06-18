@@ -5,6 +5,14 @@ using System.Linq;
 
 namespace AF
 {
+    [System.Serializable]
+    public class SwitchRandomMessages {
+
+        public LocalizedText message;
+        public SwitchEntry switchDependant;
+        public bool requiredSwitchValueToDisplayMessage;
+    }
+
     public class EV_DisplayMessage : EventBase
     {
         [Header("Actor")]
@@ -15,6 +23,10 @@ namespace AF
         public LocalizedText message;
         public LocalizedText[] randomMessages;
         public LocalizedText[] negativeReputationMessages;
+
+        [Header("Conditional Random Messages")]
+        public SwitchRandomMessages[] switchRandomMessages;
+
 
         [Header("Choices")]
         public List<DialogueChoice> choices = new List<DialogueChoice>();
@@ -49,6 +61,7 @@ namespace AF
                 character = GetComponentInParent<CompanionManager>(true).companion.character;
             }
         }
+
 
         public override IEnumerator Dispatch()
         {
@@ -86,6 +99,12 @@ namespace AF
 
             if (skip == false)
             {
+                // In the case where we have enemies like Petra that may have very nested events in them, sometimes dialogue manager is null on Awake
+                if (dialogueManager == null)
+                {
+                    dialogueManager = FindObjectOfType<DialogueManager>(true);
+                }
+
                 if (facePlayer)
                 {
                     FacePlayer();
@@ -96,17 +115,32 @@ namespace AF
                     animator.CrossFade(animationClip, 0.2f);
                 }
 
-                var displayMessage = message;
-                if (randomMessages.Length > 0)
+                List<LocalizedText> randomMessagesTable = randomMessages.ToList();
+                if (switchRandomMessages != null && switchRandomMessages.Length > 0)
                 {
-                    var idx = Random.Range(0, randomMessages.Length);
-                    displayMessage = randomMessages[idx];
+                    foreach (var switchRandomMessage in switchRandomMessages)
+                    {
+                        if (SwitchManager.instance.GetSwitchCurrentValue(switchRandomMessage.switchDependant) == switchRandomMessage.requiredSwitchValueToDisplayMessage) {
+                            randomMessagesTable.Add(switchRandomMessage.message);
+                        }
+                    }
                 }
 
-                if (negativeReputationMessages!= null && negativeReputationMessages.Length > 0)
+                var displayMessage = message;
+                
+                if (randomMessagesTable.Count > 0)
                 {
-                    var idx = Random.Range(0, negativeReputationMessages.Length);
-                    displayMessage = negativeReputationMessages[idx];
+                    var idx = Random.Range(0, randomMessagesTable.Count);
+                    displayMessage = randomMessagesTable[idx];
+                }
+                else if (negativeReputationMessages!= null && negativeReputationMessages.Length > 0)
+                {
+                    if (Player.instance.GetCurrentReputation() < 0)
+                    {
+                        var idx = Random.Range(0, negativeReputationMessages.Length);
+                        displayMessage = negativeReputationMessages[idx];
+                    }
+
                 }
 
                 yield return dialogueManager.ShowDialogueWithChoices(

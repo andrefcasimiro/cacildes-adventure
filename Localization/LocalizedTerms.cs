@@ -77,6 +77,24 @@ namespace AF
 
         #endregion
 
+        public static string ThisPersonIsBusy()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Esta pessoa está ocupada.",
+                _ => "This person is busy.",
+            };
+        }
+
+        public static string CaughtStealing()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Foste apanhado a roubar!",
+                _ => "You were caught stealing!",
+            };
+        }
+
         #region Companions
 
         public static string HasJoinedTheParty()
@@ -123,7 +141,14 @@ namespace AF
                 _ => "",
             };
         }
-
+        public static string GetStealChance(float chance)
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Roubar (%" + chance + " chance de sucesso)",
+                _ => "Steal (%" + chance + " success probability)",
+            };
+        }
         public static string ExitShop()
         {
             return GamePreferences.instance.gameLanguage switch
@@ -384,6 +409,15 @@ namespace AF
             {
                 GamePreferences.GameLanguage.PORTUGUESE => "A tua reputação desceu -" + amount + " pontos! Reputação atual: " + Player.instance.GetCurrentReputation(),
                 _ => "Your reputation decreased -" + amount + " points! Current reputation: " + Player.instance.GetCurrentReputation(),
+            };
+        }
+
+        public static string InsufficientReputationToEnterThisHouse()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Reputação insuficiente para entrar nesta casa",
+                _ => "Insufficient reputation to enter this house",
             };
         }
 
@@ -805,6 +839,14 @@ namespace AF
             };
         }
 
+        public static string ProgressSaved()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Jogo guardado",
+                _ => "Game saved",
+            };
+        }
         public static string SavedAt()
         {
             return GamePreferences.instance.gameLanguage switch
@@ -878,6 +920,14 @@ namespace AF
             {
                 GamePreferences.GameLanguage.PORTUGUESE => "Não podes consumir itens neste momento",
                 _ => "Can't consume item at this time",
+            };
+        }
+        public static string DepletedConsumable()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Item depletado",
+                _ => "Consumable depleted",
             };
         }
         public static string CantShootArrowsAtThisTime()

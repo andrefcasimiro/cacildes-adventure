@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using StarterAssets;
 using UnityEngine.Events;
+using System.Linq;
 
 namespace AF
 {
@@ -12,6 +13,7 @@ namespace AF
             public Item item;
             public int quantity = 1;
             [Range(0, 100)] public float chance = 100;
+
         }
 
         [Header("Single Item")]
@@ -31,12 +33,18 @@ namespace AF
         [Header("Events")]
         public UnityEvent onItemPickup;
 
+        [Header("Stealing")]
+        public bool isStealing = false;
+        [Range(0, 100f)]
+        public float chanceToSteal = 50;
+
         private GameObject graphic => transform.GetChild(0).gameObject;
 
         StarterAssetsInputs inputs;
         UIDocumentKeyPrompt uIDocumentKeyPrompt;
         UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
         PlayerInventory playerInventory;
+        EquipmentGraphicsHandler equipmentGraphicsHandler;
 
         private void Awake()
         {
@@ -44,6 +52,7 @@ namespace AF
              uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
              uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
              playerInventory = FindObjectOfType<PlayerInventory>(true);
+            equipmentGraphicsHandler = playerInventory.GetComponent<EquipmentGraphicsHandler>();
         }
 
         private void Start()
@@ -121,8 +130,22 @@ namespace AF
             }
 
             uIDocumentKeyPrompt.key = "E";
-            uIDocumentKeyPrompt.action = LocalizedTerms.GetActionText(action);
+
+            if (isStealing)
+            {
+                uIDocumentKeyPrompt.action = LocalizedTerms.GetStealChance(GetStealChance());
+            }
+            else
+            {
+                uIDocumentKeyPrompt.action = LocalizedTerms.GetActionText(action);
+            }
+
             uIDocumentKeyPrompt.gameObject.SetActive(true);
+        }
+
+        float GetStealChance()
+        {
+            return chanceToSteal + equipmentGraphicsHandler.chanceToStealBonus;
         }
 
         public void OnInvoked()
@@ -135,6 +158,38 @@ namespace AF
             uIDocumentKeyPrompt.gameObject.SetActive(false);
 
             inputs.interact = false;
+
+
+            if (isStealing)
+            {
+                if (Random.Range(0, 100f) > GetStealChance())
+                {
+                    // Get All items Price
+
+                    var itemsPrice = item != null ? item.value : replenishableItemEntries.Sum(x => x.item.value);
+                    
+                    if (Player.instance.currentGold >= itemsPrice)
+                    {
+                        FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice);
+                        Player.instance.currentGold -= (int)itemsPrice;
+
+                        var notif = FindObjectOfType<NotificationManager>(true);
+                        notif.ShowNotification(LocalizedTerms.CaughtStealing(), notif.personBusy);
+                        Soundbank.instance.PlayReputationDecreased();
+                    }
+                    else
+                    {
+                        FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice - Player.instance.currentGold);
+                        Player.instance.currentGold = 0;
+
+                        // Lose reputation instead
+                        FindObjectOfType<NotificationManager>(true).DecreaseReputation(1);
+                    }
+
+                    return;
+                }
+            }
+
 
             if (item != null)
             {

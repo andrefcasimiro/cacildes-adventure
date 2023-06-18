@@ -27,7 +27,11 @@ namespace AF
             ORC_CAVE_2 = 12,
             ARUN_VILLAGE = 13,
             ARUN_TEMPLE_ENTRANCE = 14,
-            ARUN_TEMPLE = 15
+            ARUN_TEMPLE = 15,
+            SNOWY_MOUNTAINS_OF_BRR = 16,
+            CECILY_TOWN_UPPER = 18,
+            CECILY_TOWN_CASTLE = 19,
+            SNOWY_MOUNTAIN_TEMPLE = 20
         }
 
         private void Awake()    

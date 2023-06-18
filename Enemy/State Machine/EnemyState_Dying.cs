@@ -9,6 +9,8 @@ namespace AF
         public bool turnKinematic = true;
         public bool useGravity = false;
         public bool disableCapsuleCollider = true;
+        public bool disableNavMeshAgent = false;
+        public bool unfreezePosition = false;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
@@ -24,6 +26,11 @@ namespace AF
             if (useGravity)
             {
                 enemy.GetComponent<Rigidbody>().useGravity = true;
+            }
+
+            if (unfreezePosition)
+            {
+                enemy.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
             }
 
             if (disableCapsuleCollider)
@@ -43,6 +50,11 @@ namespace AF
 
             enemy.enemyHealthController.DisableHealthHitboxes();
             enemy.enemyHealthController.onEnemyDeath.Invoke();
+
+            if (disableNavMeshAgent)
+            {
+                enemy.agent.enabled = false;
+            }
 
             enemy.enabled = false;
         }

@@ -11,6 +11,7 @@ namespace AF
         VisualElement root;
 
         int currentReceivedAmount = 0;
+        int currentDeductedAmount = 0;
         int playerGold = 0;
 
         bool counterEnabled = false;
@@ -23,6 +24,7 @@ namespace AF
             this.gameObject.SetActive(false);
         }
 
+        #region Positive Gold
         public void NotifyGold(int amount)
         {
             Soundbank.instance.PlayCoin();
@@ -49,6 +51,30 @@ namespace AF
             yield return new WaitForSeconds(1f);
             counterEnabled = true;
         }
+        #endregion
+
+        #region Negative Gold
+        public void NotifyGoldLost(int amount)
+        {
+            Soundbank.instance.PlayCoin();
+            counterEnabled = false;
+            ScoreIncrement = 0;
+
+            StopAllCoroutines();
+
+            this.currentDeductedAmount = amount;
+            this.playerGold = Player.instance.currentGold;
+
+            this.gameObject.SetActive(true);
+
+            this.root = uiDocument.rootVisualElement;
+
+            root.Q<Label>("GoldReceived").text = "- " + currentDeductedAmount;
+            root.Q<Label>("ActualGold").text = "" + playerGold + " " + LocalizedTerms.Gold();
+
+            StartCoroutine(EnableCounter());
+        }
+        #endregion
 
         private void Update()
         {
@@ -71,7 +97,22 @@ namespace AF
 
                 root.Q<Label>("GoldReceived").text = "+ " + currentReceivedAmount;
                 root.Q<Label>("ActualGold").text = "" + playerGold + " " + LocalizedTerms.Gold();
-            }   
+            }
+            else if (currentDeductedAmount > 0)
+            {
+                ScoreIncrement += Time.deltaTime * scoreIncreaseRate;
+
+                currentDeductedAmount -= (int)ScoreIncrement;
+                if (currentDeductedAmount < 0) { currentDeductedAmount = 0; }
+
+                playerGold -= (int)ScoreIncrement;
+
+                if (playerGold <= Player.instance.currentGold) { playerGold = Player.instance.currentGold; }
+
+
+                root.Q<Label>("GoldReceived").text = "- " + currentDeductedAmount;
+                root.Q<Label>("ActualGold").text = "" + playerGold + " " + LocalizedTerms.Gold();
+            }
             else
             {
                 counterEnabled = false;

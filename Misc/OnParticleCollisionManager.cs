@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -18,6 +17,16 @@ namespace AF
 
         public UnityEvent onParticleCollisionEvent;
 
+        public string tagToCollideWith = "Player";
+
+        DestroyableSpellParticle destroyableSpellParticle;
+
+
+        private void Awake()
+        {
+            destroyableSpellParticle = GetComponentInParent<DestroyableSpellParticle>();
+        }
+
         private void Update()
         {
             if (cooldown <= maxCooldownBeforeAnotherDamage)
@@ -33,7 +42,7 @@ namespace AF
                 return;
             }
 
-            if (other.CompareTag("Player") == false)
+            if (other.CompareTag(tagToCollideWith) == false)
             {
                 return;
             }
@@ -43,6 +52,11 @@ namespace AF
             if (numCollisionEvents > 0)
             {
                 onParticleCollisionEvent.Invoke();
+
+                if (destroyableSpellParticle != null)
+                {
+                    destroyableSpellParticle.OnCollide(other);
+                }
 
                 cooldown = 0f;
             }

@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -31,6 +32,8 @@ namespace AF
         public LocalizedText CraftButton;
         public LocalizedText missingIngredientsMessage;
         public LocalizedText receivedMessage;
+        public LocalizedText failedMixtureMessage;
+        public LocalizedText requiredIngredients;
 
         UIDocument uIDocument => GetComponent<UIDocument>();
         [HideInInspector] public VisualElement root;
@@ -52,6 +55,7 @@ namespace AF
         {
             root.Q<Button>("ButtonExit").text = ButtonExit.GetText();
             root.Q<Label>("AvailableRecipes").text = AvailableRecipes.GetText();
+            root.Q<Label>("RequiredIngredients").text = requiredIngredients.GetText();
         }
 
         private void OnEnable()
@@ -136,7 +140,7 @@ namespace AF
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(recipe.resultingItem.sprite);
                 scrollItem.Q<Label>("ItemName").text = recipe.resultingItem.name.GetText();
-                scrollItem.Q<Label>("ItemDescription").text = recipe.resultingItem.description.GetText();
+                scrollItem.Q<Label>("ItemDescription").text = recipe.resultingItem.shortDescription.localizedTexts.Length > 0 ? recipe.resultingItem.shortDescription.GetText() : "";
 
                 var craftBtn = scrollItem.Q<Button>("CraftButton");
                 craftBtn.text = CraftButton.GetText();
@@ -152,6 +156,11 @@ namespace AF
 
                 menuManager.SetupButton(craftBtn, () =>
                 {
+                    if (craftBtn.enabledSelf == false)
+                    {
+                        return;
+                    }
+
                     if (!CanCraftItem(recipe))
                     {
                         Soundbank.instance.PlayCraftError();
@@ -159,11 +168,25 @@ namespace AF
                         return;
                     }
 
-                    Soundbank.instance.PlayCraftSuccess();
+                    var ingredientThatCanRuinMixture = recipe.ingredients.FirstOrDefault(x => x.ingredient.chanceToRuinMixture > 0);
+                    float chanceToRuinMixture = 0;
+                    if (ingredientThatCanRuinMixture != null)
+                    {
+                        chanceToRuinMixture = ingredientThatCanRuinMixture.ingredient.chanceToRuinMixture;
+                    }
 
-                    playerInventory.AddItem(recipe.resultingItem, 1);
+                    if (chanceToRuinMixture > 0 && Random.Range(0, 100) < chanceToRuinMixture)
+                    {
+                        Soundbank.instance.PlayCraftError();
+                        notificationManager.ShowNotification(failedMixtureMessage.GetText(), notificationManager.alchemyLackOfIngredients);
+                    }
+                    else
+                    {
+                        Soundbank.instance.PlayCraftSuccess();
+                        playerInventory.AddItem(recipe.resultingItem, 1);
+                        notificationManager.ShowNotification(receivedMessage.GetText() + " " + recipe.resultingItem.name.GetText(), recipe.resultingItem.sprite);
+                    }
 
-                    notificationManager.ShowNotification(receivedMessage.GetText() + " " + recipe.resultingItem.name.GetText(), recipe.resultingItem.sprite);
 
                     foreach (var ingredient in recipe.ingredients)
                     {
