@@ -64,7 +64,7 @@ namespace AF
         public void ShowNotification(string message, Sprite sprite)
         {
             // Delete last entry
-            if (this.notificationsPanel.childCount >= MAX_ITEMS_IN_QUEUE)
+            if (this.notificationsPanel != null && this.notificationsPanel.childCount >= MAX_ITEMS_IN_QUEUE)
             {
                 this.notificationsPanel.RemoveAt(0);
             }

@@ -72,6 +72,46 @@ namespace AF
                 return "Increased Stats";
             }
 
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Aumento de Destreza";
+                }
+
+                return "Increased Dexterity";
+            }
+
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Aumento de Força";
+                }
+
+                return "Increased Strength";
+            }
+
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Invencível";
+                }
+
+                return "Invencibility";
+            }
+
+            if (consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Flatulência";
+                }
+
+                return "Flatulence";
+            }
+
             return "";
         }
 

@@ -12,10 +12,15 @@ namespace AF
 
         // References
         Collider boxCollider => GetComponent<Collider>();
-        TrailRenderer trailRenderer => GetComponent<TrailRenderer>();
+        public TrailRenderer trailRenderer;
 
         float maxTimerBeforeAllowingDamageAgain = .5f;
         float damageCooldownTimer = Mathf.Infinity;
+
+        public StatusEffect statusEffectToInflict;
+        public int amountOfStatusEffectPerHit;
+
+        public int pushForceAmount = -1;
 
         private void Awake()
         {
@@ -62,13 +67,7 @@ namespace AF
 
         public void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag != "EnemyHealthHitbox")
-            {
-                return;
-            }
-
-            var enemy = other.GetComponent<EnemyHealthHitbox>();
-            if (enemy == null)
+            if (!other.TryGetComponent<EnemyHealthHitbox>(out var enemy))
             {
                 return;
             }
@@ -78,12 +77,33 @@ namespace AF
                 return;
             }
 
+            if (enemy.enemyManager.enemyHealthController.currentHealth <= 0)
+            {
+                return;
+            }
+
             enemy.enemyManager.enemyHealthController.TakeEnvironmentalDamage(companionManager.GetCompanionAttack());
             enemy.enemyManager.enemyPoiseController.IncreasePoiseDamage(poiseDamage);
+
+            if (statusEffectToInflict != null)
+            {
+
+                var enemyStatusController = enemy.enemyManager.enemyNegativeStatusController;
+
+                if (enemyStatusController != null)
+                {
+                    enemyStatusController.InflictStatusEffect(statusEffectToInflict, amountOfStatusEffectPerHit);
+                }
+            }
 
             if (enemy.enemyManager.enemyTargetController != null)
             {
                 enemy.enemyManager.enemyTargetController.FocusOnCompanion(this.companionManager);
+            }
+
+            if (pushForceAmount != -1)
+            {
+                enemy.enemyManager.PushEnemy(pushForceAmount, ForceMode.Acceleration);
             }
 
             BGMManager.instance.PlaySound(weaponImpactSfx, companionManager.combatAudioSource);

@@ -17,12 +17,19 @@ namespace AF
         public bool destroyOnUnequip = false;
         public AudioClip onUnequipDestroySoundclip;
 
+        [Header("Stats")]
+        public bool increaseAttackPowerTheLowerTheReputation = false;
+
+        public bool increasesSpellDamage = false;
+        public float spellDamageMultiplier = 2.15f;
+
         public void OnEquip()
         {
         }
 
         public void OnUnequip()
         {
+
         }
 
     }

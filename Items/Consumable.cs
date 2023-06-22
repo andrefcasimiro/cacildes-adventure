@@ -33,6 +33,12 @@ namespace AF
             REVEAL_ILLUSIONARY_WALLS,
 
             SPEED_1_HOUR,
+
+            RESTORE_SPELL_USE,
+
+            NO_DAMAGE_FOR_X_SECONDS,
+
+            FART_ON_HIT,
         }
 
         [System.Serializable]

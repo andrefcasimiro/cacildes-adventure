@@ -16,8 +16,17 @@ namespace AF
 
             if (weaponPivotHandler != null)
             {
-                weaponPivotHandler.transform.localPosition = weaponPivotHandler.blockingPosition;
-                weaponPivotHandler.transform.localRotation = Quaternion.Euler(new Vector3(weaponPivotHandler.blockRotationX, weaponPivotHandler.blockRotationY, weaponPivotHandler.blockRotationZ));
+
+                if (weaponPivotHandler.useCustomLockOnBlockingTransform && animator.GetBool("IsLockedOn"))
+                {
+                    weaponPivotHandler.transform.localPosition = weaponPivotHandler.lockOnBlockingPosition;
+                    weaponPivotHandler.transform.localRotation = Quaternion.Euler(new Vector3(weaponPivotHandler.lockOnBlockRotationX, weaponPivotHandler.lockOnBlockRotationY, weaponPivotHandler.lockOnBlockRotationZ));
+                }
+                else
+                {
+                    weaponPivotHandler.transform.localPosition = weaponPivotHandler.blockingPosition;
+                    weaponPivotHandler.transform.localRotation = Quaternion.Euler(new Vector3(weaponPivotHandler.blockRotationX, weaponPivotHandler.blockRotationY, weaponPivotHandler.blockRotationZ));
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using static AF.GamePreferences;
 
 namespace AF
@@ -144,7 +145,18 @@ namespace AF
 
         public int GetMaxHealth()
         {
-            return Player.instance.CalculateAIHealth(maxHealthOverride != -1 ? maxHealthOverride : enemyManager.enemy.baseHealth, enemyManager. currentLevel);
+            var baseHealth = Player.instance.CalculateAIHealth(maxHealthOverride != -1 ? maxHealthOverride : enemyManager.enemy.baseHealth, enemyManager. currentLevel);
+
+            if (Player.instance.companions.Count == 1)
+            {
+                baseHealth = (int)(baseHealth * 1.5f);
+            }
+            else if (Player.instance.companions.Count > 1)
+            {
+                baseHealth = (int)(baseHealth * Player.instance.companions.Count);
+            }
+
+            return baseHealth;
         }
 
         public void InitializeEnemyHUD()
@@ -287,6 +299,14 @@ namespace AF
             float appliedDamage = weapon != null ? playerAttackStatManager.GetWeaponAttack(weapon) : playerAttackStatManager.GetCurrentPhysicalAttack();
             appliedDamage += hitboxDamageBonus;
 
+            if (weapon != null && weapon.doubleDamageDuringNightTime)
+            {
+                if (Player.instance.timeOfDay > 20 || Player.instance.timeOfDay < 5)
+                {
+                    appliedDamage *= 2;
+                }
+            }
+
             if (enemyManager.enemyPostureController.IsStunned())
             {
                 appliedDamage *= enemyManager.enemy.brokenPostureDamageMultiplier;
@@ -339,6 +359,11 @@ namespace AF
                     appliedDamage += elementalBonus;
 
                     combatNotificationsController.ShowMagicDamage(Mathf.RoundToInt(elementalBonus));
+
+                    if (weapon.elementImpactFx != null)
+                    {
+                        Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
+                    }
                 }
 
                 if (weaponTypeBonusTable.Length > 0)
@@ -493,17 +518,7 @@ namespace AF
 
             if (enemyLoot != null)
             {
-                if (enemyBossController != null)
-                {
-                    if (enemyBossController.AllBossesAreDead())
-                    {
-                        StartCoroutine(enemyLoot.GiveLoot());
-                    }
-                }
-                else
-                {
-                    StartCoroutine(enemyLoot.GiveLoot());
-                }
+                StartCoroutine(enemyLoot.GiveLoot());
             }
 
             yield return PlayDeathSfx();
@@ -605,6 +620,9 @@ namespace AF
                     }
 
                     targetBoss.onBossBattleEnd.Invoke();
+
+                    // Save game
+                    SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
                 }
             }
         }

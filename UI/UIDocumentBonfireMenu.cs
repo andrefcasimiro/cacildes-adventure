@@ -20,7 +20,14 @@ namespace AF
         public LocalizedText passTimeText;
         public LocalizedText travelText;
         public LocalizedText exitBonfireText;
+        
+        CursorManager cursorManager;
 
+        private void Awake()
+        {
+            cursorManager = FindObjectOfType<CursorManager>(true);
+        }
+        
         private void Start()
         {
             originalDaySpeed = Player.instance.daySpeed;
@@ -79,7 +86,7 @@ namespace AF
             });
             #endregion
 
-            Utils.ShowCursor();
+            cursorManager.ShowCursor();
 
             FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
         }

@@ -38,14 +38,20 @@ namespace AF
 
         DialogueManager dialogueManager;
 
+        PlayerComponentManager playerComponentManager;
+
+        CursorManager cursorManager;
+
         private void Awake()
         {
              menuManager = FindObjectOfType<MenuManager>(true);
             dialogueManager = FindObjectOfType<DialogueManager>(true);
+            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
+            cursorManager = FindObjectOfType<CursorManager>(true);
 
-            this.gameObject.SetActive(false);
+            this.gameObject.SetActive(false);         
         }
-
+ 
         private void OnEnable()
         {
             hasFinishedTypewriter = false;
@@ -139,14 +145,11 @@ namespace AF
 
             if (dialogueChoices.Count > 0)
             {
-                Utils.ShowCursor();
+                cursorManager.ShowCursor();
 
                 dialogueChoicePanel.style.display = DisplayStyle.Flex;
 
                 DialogueChoice selectedChoice = null;
-
-                // Hack for gamepad support
-                DialogueChoice focusedSelectedChoice = null;
 
                 Button elementToFocus = null;
                 foreach (var dialogueChoice in dialogueChoices)
@@ -159,27 +162,21 @@ namespace AF
                         selectedChoice = dialogueChoice;
                     });
 
-                    // Hack for gamepad support
-                    newDialogueChoiceItem.Q<Button>().RegisterCallback<FocusEvent>(ev =>
-                    {
-                        focusedSelectedChoice = dialogueChoice;
-                    });
-
                     if (elementToFocus == null)
                     {
                         elementToFocus = newDialogueChoiceItem.Q<Button>();
-                        focusedSelectedChoice = dialogueChoice;
                     }
 
                     dialogueChoicePanel.Add(newDialogueChoiceItem);
                 }
-
-                FindObjectOfType<PlayerComponentManager>(true).DisableCharacterController();
-                FindObjectOfType<PlayerComponentManager>(true).DisableComponents();
                 elementToFocus.Focus();
 
-                yield return new WaitUntil(() => selectedChoice != null || (Gamepad.current != null && Gamepad.current.buttonWest.isPressed && focusedSelectedChoice != null));
+                playerComponentManager.DisableCharacterController();
+                playerComponentManager.DisableComponents();
 
+                yield return new WaitUntil(() => selectedChoice != null);
+
+                #region Reputation on response
                 if (selectedChoice.reputationAmountToIncrease != 0 || selectedChoice.reputationAmountToDecrease != 0)
                 {
 
@@ -196,17 +193,16 @@ namespace AF
                         SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(selectedChoice.reputationSwitchEntry, true);
                     }
                 }
+                #endregion
 
-                Utils.HideCursor();
+                cursorManager.HideCursor();
 
-                FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();
-                FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
+                #region Reeenable player movement
 
-                // Hack for gamepad support
-                if (selectedChoice == null && focusedSelectedChoice != null)
-                {
-                    selectedChoice = focusedSelectedChoice;
-                }
+
+                playerComponentManager.EnableCharacterController();
+                playerComponentManager.EnableComponents();
+                #endregion
 
                 // Use Sub Events Option
                 if (selectedChoice.subEventPage != null)

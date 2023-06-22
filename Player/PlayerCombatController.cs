@@ -62,16 +62,27 @@ namespace AF
         [Header("Heavy Attacks")]
         public int unarmedHeavyAttackBonus = 35;
 
+        public bool skipIK = false;
+
         private void Start()
         {
-
             uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
             equipmentGraphicsHandler.DeactivateAllHitboxes();
+        }
+
+        public void SkipIK()
+        {
+            skipIK = true;
         }
 
         private void OnAnimatorIK(int layerIndex)
         {
             if (playerParryManager.IsBlocking() && Player.instance.equippedShield != null)
+            {
+                return;
+            }
+
+            if (skipIK)
             {
                 return;
             }
@@ -302,6 +313,14 @@ namespace AF
         public bool IsStartingJumpAttack()
         {
             return animator.GetBool(hashIsStartingJumpAttack);
+        }
+
+        private void OnDisable()
+        {
+            animator.SetBool(hashIsJumpAttacking, false);
+            animator.SetBool(hashIsStartingJumpAttack, false);
+            animator.SetBool(hashCombatting, false);
+            isHeavyAttacking = false;
         }
 
     }

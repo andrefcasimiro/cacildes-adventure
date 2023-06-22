@@ -8,6 +8,7 @@ namespace AF
 {
     public class UIDocumentShopMenu : MonoBehaviour
     {
+        CursorManager cursorManager;
 
         [Header("Day / Night Manager")]
         public int daysToRestock = 3;
@@ -30,6 +31,8 @@ namespace AF
         private void Awake()
         {
              inputs = FindObjectOfType<StarterAssetsInputs>(true);
+
+            cursorManager = FindObjectOfType<CursorManager>(true);
         }
 
         private void Start()
@@ -39,7 +42,7 @@ namespace AF
 
         public void Open()
         {
-            Utils.ShowCursor();
+            cursorManager.ShowCursor();
 
             FindObjectOfType<PlayerComponentManager>(true).DisableComponents();
             FindObjectOfType<EventNavigator>(true).enabled = false;
@@ -63,7 +66,7 @@ namespace AF
             FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
             FindObjectOfType<EventNavigator>(true).enabled = true;
 
-            Utils.HideCursor();
+            cursorManager.HideCursor();
             this.gameObject.SetActive(false);
         }
 
@@ -85,8 +88,7 @@ namespace AF
                 DrawSellMenu();
             }
 
-            Utils.ShowCursor();
-
+            cursorManager.ShowCursor();
         }
 
         void DrawBuyMenu()

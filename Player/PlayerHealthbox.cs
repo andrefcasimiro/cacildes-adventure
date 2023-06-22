@@ -37,7 +37,13 @@ namespace AF
 
         Animator animator => GetComponentInParent<Animator>();
 
+        public bool isInvencible = false;
+
         PlayerPoiseController playerPoiseController => GetComponentInParent<PlayerPoiseController>();
+
+        [Header("Fart")]
+        public bool fartOnHit = false;
+        public DestroyableParticle farting;
 
         private void Awake()
         {
@@ -148,6 +154,11 @@ namespace AF
                 Instantiate(playerPoiseController.damageParticlePrefab, transform.position, Quaternion.identity);
             }
 
+            if (fartOnHit)
+            {
+                Instantiate(farting, transform.position, Quaternion.identity);
+            }
+
             if (Player.instance.currentHealth <= 0)
             {
                 // Track player death
@@ -167,6 +178,17 @@ namespace AF
 
         public void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponDamageSfx, int poiseDamage, WeaponElementType weaponElementType)
         {
+
+            if (fartOnHit)
+            {
+                Instantiate(farting, transform.position, Quaternion.identity);
+            }
+
+            if (isInvencible)
+            {
+                return;
+            }
+
             if (Player.instance.currentHealth <= 0)
             {
                 return;
@@ -314,6 +336,7 @@ namespace AF
             }
 
             animator.SetBool("IsCrouched", false);
+            animator.SetBool("IsDodging", false);
 
             StartCoroutine(PlayDeathSfx());
 

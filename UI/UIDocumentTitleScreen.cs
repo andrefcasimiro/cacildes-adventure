@@ -1,7 +1,4 @@
-using System;
-using Unity.Services.Analytics;
 using UnityEngine;
-using UnityEngine.Analytics;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -22,12 +19,14 @@ namespace AF
         TitleScreenManager titleScreenManager => GetComponentInParent<TitleScreenManager>();
         MenuManager menuManager;
 
+        CursorManager cursorManager;
+
         private void Awake()
         {
-            Utils.ShowCursor();
-
+            cursorManager = FindObjectOfType<CursorManager>(true);
             menuManager = FindObjectOfType<MenuManager>(true);
 
+            cursorManager.ShowCursor();
         }
 
         private void Start()

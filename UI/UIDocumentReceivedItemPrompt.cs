@@ -81,9 +81,20 @@ namespace AF
                     if (itemInstance != null)
                     {
                         var consumable = itemInstance.item as Consumable;
-                        if (consumable != null)
+                        if (consumable != null && Gamepad.current == null)
                         {
+
+                            if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                            {
+                                root.Q<VisualElement>("AddToFavoriteItems").Q<Label>("AddToFavoriteItemsLabel").text = "Adicionar aos favoritos";
+                            }
+                            else
+                            {
+                                root.Q<VisualElement>("AddToFavoriteItems").Q<Label>("AddToFavoriteItemsLabel").text = "Add to Favorite Items";
+                            }
+
                             root.Q<VisualElement>("AddToFavoriteItems").style.display = DisplayStyle.Flex;
+
                         }
                     }
 

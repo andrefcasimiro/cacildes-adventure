@@ -15,6 +15,13 @@ namespace AF
         public float blockRotationY;
         public float blockRotationZ;
 
+        [Header("Lock On Blocking Transform")]
+        public bool useCustomLockOnBlockingTransform = false;
+        public Vector3 lockOnBlockingPosition;
+        public float lockOnBlockRotationX;
+        public float lockOnBlockRotationY;
+        public float lockOnBlockRotationZ;
+
         [Header("Back Ref Transform")]
         public bool useCustomBackRefTransform = false;
 

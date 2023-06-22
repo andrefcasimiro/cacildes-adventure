@@ -10,6 +10,8 @@ namespace AF
 {
     public class MenuManager : MonoBehaviour
     {
+        CursorManager cursorManager;
+
         public GameObject equipmentListMenu;
         public GameObject equipmentSelectionMenu;
         public GameObject inventoryMenu;
@@ -40,6 +42,11 @@ namespace AF
         public LocalizedText loadLabel;
         public LocalizedText quitGameLabel;
         public LocalizedText returnToTitleScreenLabel;
+
+        private void Awake()
+        {
+            cursorManager = FindObjectOfType<CursorManager>(true);
+        }
 
         private void Start()
         {
@@ -77,8 +84,8 @@ namespace AF
                 {
                     // Get screenshot before opening menu
                     SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
-
-                        Utils.ShowCursor();
+                    
+                    cursorManager.ShowCursor();
                     this.OpenMenu();
                 }
             }
@@ -165,7 +172,7 @@ namespace AF
                 return;
             }
 
-            Utils.HideCursor();
+            cursorManager.HideCursor();
 
             equipmentListMenu.SetActive(false);
             equipmentSelectionMenu.SetActive(false);

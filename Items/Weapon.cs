@@ -123,6 +123,10 @@ namespace AF
 
         [Header("Weapon Bonus")]
         public int amountOfGoldReceivedPerHit = 0;
+        public bool doubleDamageDuringNightTime = false;
+
+        public string customWeaponBlockAnimationName = "Custom Weapon Blocking";
+        public bool useCustomWeaponBlock = false;
 
         public string GetWeaponDisplayName()
         {

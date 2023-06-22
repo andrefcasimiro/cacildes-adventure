@@ -2,11 +2,14 @@
 using System.Collections;
 using System.Linq;
 using Mono.Cecil.Cil;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
     public class SceneSettings: MonoBehaviour, IClockListener
     {
+        CursorManager cursorManager;
+
         [Header("Music")]
         public AudioClip dayMusic;
         public AudioClip nightMusic;
@@ -31,6 +34,8 @@ namespace AF
  
         void Awake()
         {
+            cursorManager = FindObjectOfType<CursorManager>(true);
+
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
 
             StartCoroutine(SpawnPlayer());
@@ -62,14 +67,21 @@ namespace AF
 
             if (isTitleScreen && Player.instance.hasShownTitleScreen == false)
             {
-                Utils.ShowCursor();
+                cursorManager.ShowCursor();
             }
             else
             {
-                Utils.HideCursor();
+                StartCoroutine(HideCursorAfterLoadingScene());
             }
 
             GamePreferences.instance.UpdateGraphics();
+        }
+
+        IEnumerator HideCursorAfterLoadingScene()
+        {
+            yield return new WaitForSeconds(.2f);
+
+            cursorManager.HideCursor();
         }
 
         #region Scene Music & Ambience

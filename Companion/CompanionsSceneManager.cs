@@ -13,6 +13,7 @@ namespace AF
         private void Awake()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
+
         }
 
         private void Start()
@@ -22,6 +23,7 @@ namespace AF
 
         public void AddCompanionToParty(Companion companion)
         {
+            // If already in party, skip
             if (Player.instance.companions.FirstOrDefault(x => x.companionId == companion.companionId) != null)
             {
                 return;
@@ -33,7 +35,10 @@ namespace AF
             Player.instance.companions.Add(serializedCompanion);
 
             var allCompanionsInScene = FindObjectsOfType<CompanionManager>(true);
-            allCompanionsInScene.FirstOrDefault(x => x.companion == companion).inParty = true;
+            var companionInScene = allCompanionsInScene.FirstOrDefault(x => x.companion.companionId == companion.companionId);
+            companionInScene.inParty = true;
+            companionInScene.gameObject.SetActive(true);
+            companionInScene.SpawnNearPlayer();
 
             Soundbank.instance.PlayCompanionJoinParty();
             notificationManager.ShowNotification(companion.character.name + " " + LocalizedTerms.HasJoinedTheParty(), companion.character.avatar);
@@ -55,7 +60,7 @@ namespace AF
             }
 
             var allCompanionsInMap = FindObjectsOfType<CompanionManager>(true);
-            allCompanionsInMap.FirstOrDefault(x => x.companion == companion).inParty = false;
+            allCompanionsInMap.FirstOrDefault(x => x.companion.companionId == companion.companionId).inParty = false;
 
             Player.instance.companions.Remove(companionInstance);
 

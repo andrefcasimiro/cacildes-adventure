@@ -266,6 +266,11 @@ namespace AF
                 return false;
             }
 
+            if (uIDocumentDialogueWindow.isActiveAndEnabled)
+            {
+                return false;
+            }
+
             return true;
         }
 

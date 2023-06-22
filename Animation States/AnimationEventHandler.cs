@@ -8,6 +8,7 @@ namespace AF
     public class AnimationEventHandler : MonoBehaviour
     {
         [HideInInspector] public EnemyManager enemy;
+        [HideInInspector] public CompanionManager companion;
         [HideInInspector] public Animator animator => GetComponent<Animator>();
         [HideInInspector] public FootstepListener footstepListener => GetComponentInParent<FootstepListener>();
 
@@ -23,6 +24,7 @@ namespace AF
 
 
             enemy = GetComponentInParent<EnemyManager>();
+            companion = GetComponentInParent<CompanionManager>();
         }
 
         public void FacePlayer()
@@ -138,21 +140,42 @@ namespace AF
                 enemy.enemyWeaponController.ActivateRightHandHitbox();
             }
 
+            if (companion != null)
+            {
+                if (companion.leftWeapon != null)
+                {
+                    companion.ActivateLeftWeaponHitbox();
+                }
+                if (companion.rightWeapon != null)
+                {
+                    companion.ActivateRightWeaponHitbox();
+                }
+            }
+
         }
         public void HitEnd()
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                if (enemy.enemyWeaponController.leftHandWeapon != null)
+                {
+                    enemy.enemyWeaponController.DeactivateLeftHandHitbox();
+                }
+                if (enemy.enemyWeaponController.rightHandWeapon != null)
+                {
+                    enemy.enemyWeaponController.DeactivateRightHandHitbox();
+                }
             }
-
-            if (enemy.enemyWeaponController.leftHandWeapon != null)
+            if (companion != null)
             {
-                enemy.enemyWeaponController.DeactivateLeftHandHitbox();
-            }
-            if (enemy.enemyWeaponController.rightHandWeapon != null)
-            {
-                enemy.enemyWeaponController.DeactivateRightHandHitbox();
+                if (companion.leftWeapon != null)
+                {
+                    companion.DeactivateLeftWeaponHitbox();
+                }
+                if (companion.rightWeapon != null)
+                {
+                    companion.DeactivateRightWeaponHitbox();
+                }
             }
         }
 
@@ -164,42 +187,68 @@ namespace AF
                 return;
 
             }
-            enemy.enemyWeaponController.ActivateLeftHandHitbox();
+
+            if (enemy != null)
+            {
+                enemy.enemyWeaponController.ActivateLeftHandHitbox();
+            }
+
+            if (companion != null)
+            {
+                companion.ActivateLeftHandHitbox();
+            }
+
         }
         public void DeactivateHitbox()
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                enemy.enemyWeaponController.DeactivateLeftHandHitbox();
             }
-            enemy.enemyWeaponController.DeactivateLeftHandHitbox();
+
+
+            if (companion != null)
+            {
+                companion.ActivateRightHandHitbox();
+            }
         }
 
         public void ActivateLeftHandHitbox(AnimationEvent animationEvent)
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                enemy.enemyWeaponController.ActivateLeftHandHitbox();
             }
-            enemy.enemyWeaponController.ActivateLeftHandHitbox();
+            if (companion != null)
+            {
+                companion.ActivateLeftHandHitbox();
+            }
         }
 
         public void ActivateLeftWeaponHitbox()
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                enemy.enemyWeaponController.ActivateLeftHandHitbox();
             }
-            enemy.enemyWeaponController.ActivateLeftHandHitbox();
+            if (companion != null)
+            {
+                companion.ActivateRightHandHitbox();
+            }
         }
 
         public void DeactivateLeftHandHitbox()
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                enemy.enemyWeaponController.DeactivateLeftHandHitbox();
             }
-            enemy.enemyWeaponController.DeactivateLeftHandHitbox();
+
+
+            if (companion != null)
+            {
+                companion.DeactivateLeftHandHitbox();
+            }
         }
 
         public void DeactivateLeftWeaponHitbox()
@@ -215,8 +264,16 @@ namespace AF
                 return;
 
             }
-            enemy.enemyWeaponController.ActivateRightHandHitbox();
 
+            if (enemy != null)
+            {
+                enemy.enemyWeaponController.ActivateRightHandHitbox();
+            }
+
+            if (companion != null)
+            {
+                companion.ActivateRightHandHitbox();
+            }
 
         }
 
@@ -228,17 +285,28 @@ namespace AF
                 return;
 
             }
-            enemy.enemyWeaponController.ActivateRightHandHitbox();
 
+            if (enemy != null)
+            {
+                enemy.enemyWeaponController.ActivateRightHandHitbox();
+            }
+
+            if (companion != null)
+            {
+                companion.ActivateRightWeaponHitbox();
+            }
         }
 
         public void DeactivateRightHandHitbox()
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                enemy.enemyWeaponController.DeactivateRightHandHitbox();
             }
-            enemy.enemyWeaponController.DeactivateRightHandHitbox();
+            if (companion != null)
+            {
+                companion.DeactivateRightWeaponHitbox();
+            }
         }
 
         public void DeactivateRightWeaponHitbox()
@@ -248,38 +316,34 @@ namespace AF
 
         public void ActivateLeftLegHitbox()
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                enemy.enemyWeaponController.ActivateLeftLegHitbox();
             }
-            enemy.enemyWeaponController.ActivateLeftLegHitbox();
         }
 
         public void DeactivateLeftLegHitbox()
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                enemy.enemyWeaponController.DeactivateLeftLegHitbox();
             }
-            enemy.enemyWeaponController.DeactivateLeftLegHitbox();
         }
 
         public void ActivateRightLegHitbox()
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                enemy.enemyWeaponController.ActivateRightLegHitbox();
             }
-            enemy.enemyWeaponController.ActivateRightLegHitbox();
         }
 
         public void DeactivateRightLegHitbox()
         {
-            if (enemy == null)
+            if (enemy != null)
             {
-                return;
+                enemy.enemyWeaponController.DeactivateRightLegHitbox();
             }
-            enemy.enemyWeaponController.DeactivateRightLegHitbox();
         }
 
         public void ActivateHeadHitbox()
@@ -288,6 +352,7 @@ namespace AF
             {
                 return;
             }
+
             enemy.enemyWeaponController.ActivateHeadHitbox();
         }
 

@@ -34,7 +34,7 @@ namespace AF
         public int basePhysicalAttack = 100;
         public float levelMultiplier = 3.25f;
 
-        public float jumpAttackMultiplier = 1.5f;
+        public float jumpAttackMultiplier = 2.25f;
 
         ThirdPersonController thirdPersonController;
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
@@ -117,6 +117,16 @@ namespace AF
             if (weapon.halveDamage)
             {
                 return (int)(value / 2);
+            }
+
+            if (Player.instance.equippedAccessory != null && Player.instance.equippedAccessory.increaseAttackPowerTheLowerTheReputation)
+            {
+                if (Player.instance.GetCurrentReputation() < 0)
+                {
+                    int extraAttackPower = (int)(Mathf.Abs(Player.instance.GetCurrentReputation()) * 3.25f);
+
+                    value += extraAttackPower;
+                }
             }
 
             return value;

@@ -18,6 +18,8 @@ namespace AF
                 companionManager = animator.GetComponentInParent<CompanionManager>(true);
             }
 
+            companionManager.DisableAllWeaponHitboxes();
+
             companionManager.FaceEnemy();
 
             companionManager.agent.isStopped = true;
@@ -26,6 +28,7 @@ namespace AF
             {
                 companionManager.StopCombat();
             }
+
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

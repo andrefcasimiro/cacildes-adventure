@@ -21,6 +21,8 @@ namespace AF
             playerHealthbox = FindObjectOfType<PlayerHealthbox>(true);
 
             originalPosition = transform.localPosition;
+
+            this.gameObject.SetActive(false);
         }
 
         private void Update()
@@ -66,6 +68,8 @@ namespace AF
             GetComponent<MeshRenderer>().enabled = false;
 
             transform.localPosition = originalPosition;
+
+            this.gameObject.SetActive(false);
         }
 
     }

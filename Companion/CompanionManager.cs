@@ -306,6 +306,7 @@ namespace AF
                 if (timeInSamePosition > maxTimeStuck)
                 {
                     RespawnNearPlayer();
+                    timeInSamePosition = 0f;
                 }
             }
             else
@@ -319,22 +320,27 @@ namespace AF
 
         void RespawnNearPlayer()
         {
+            Transform targetTransform = player.transform;
+
 
             // Teleport near player
-            NavMeshHit rightHit;
-            NavMesh.SamplePosition(player.transform.position, out rightHit, 10f, NavMesh.AllAreas);
-            agent.enabled = false;
-            agent.nextPosition = rightHit.position;
-            transform.position = rightHit.position;
-            agent.enabled = true;
+            NavMesh.SamplePosition(targetTransform.position + targetTransform.forward * -1f, out NavMeshHit rightHit, 10f, NavMesh.AllAreas);
 
-            Instantiate(spawnCompanionFx, transform.position, Quaternion.identity);
+            if (rightHit.hit)
+            {
+                agent.enabled = false;
+                agent.nextPosition = rightHit.position;
+                transform.position = rightHit.position;
+                agent.enabled = true;
+
+                Instantiate(spawnCompanionFx, transform.position, Quaternion.identity);
+            }
 
         }
 
         public bool ShouldRunToPlayer()
         {
-            if (waitingForPlayer || inParty == false)
+            if (waitingForPlayer || inParty == false || IsInCombat())
             {
                 return false;
             }

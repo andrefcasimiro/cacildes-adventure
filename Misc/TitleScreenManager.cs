@@ -18,6 +18,13 @@ namespace AF
 
         public int gameStartHour = 11;
 
+        CursorManager cursorManager;
+
+        private void Awake()
+        {
+            cursorManager = FindObjectOfType<CursorManager>(true);
+        }
+
         private void Start()
         {
             if (Player.instance.hasShownTitleScreen)
@@ -26,7 +33,7 @@ namespace AF
                 return;
             }
 
-            Utils.ShowCursor();
+            cursorManager.ShowCursor();
 
             FindObjectOfType<UIBlackCanvas>(true).gameObject.SetActive(true);
 
@@ -64,7 +71,7 @@ namespace AF
         {
             FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
 
-            Utils.HideCursor();
+            cursorManager.HideCursor();
 
             FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
 

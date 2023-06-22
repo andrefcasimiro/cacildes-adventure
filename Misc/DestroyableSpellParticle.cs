@@ -68,6 +68,11 @@ namespace AF
                     damage *= enemy.magicDamageBonus;
                 }
 
+                if (Player.instance.equippedAccessory != null && Player.instance.equippedAccessory.increasesSpellDamage)
+                {
+                    damage = (int)(damage * Player.instance.equippedAccessory.spellDamageMultiplier);
+                }
+
                 enemyHealthController.TakeEnvironmentalDamage(damage);
 
                 var enemyBehavior = other.GetComponent<EnemyBehaviorController>();

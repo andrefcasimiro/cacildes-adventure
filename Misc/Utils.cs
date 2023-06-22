@@ -17,29 +17,6 @@ namespace AF
 
             origin.rotation = rotation;
         }
-
-        public static void ShowCursor()
-        {
-            if (Gamepad.current == null)
-            {
-                Cursor.visible = true;
-            }
-            else
-            {
-                Cursor.visible = false;
-
-                MonoBehaviour.FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
-            }
-
-            Cursor.lockState = CursorLockMode.None;
-        }
-
-        public static void HideCursor()
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
         public static Vector3 GetNearestNavMeshPoint(Vector3 reference)
         {
             // Teleport near player

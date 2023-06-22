@@ -30,6 +30,7 @@ namespace AF
 
         [Header("Damage Enemies Instead?")]
         public bool damageEnemiesInstead = false;
+        public bool forceEnemiesIntoCombat = true;
 
         private void Awake()
         {
@@ -125,6 +126,24 @@ namespace AF
                         }
 
                         cooldown = 0f;
+                    }
+
+
+                if (statusEffect != null)
+                {
+                    var enemyNegativeStatus = enemyHealthController.GetComponent<EnemyNegativeStatusController>();
+
+                    if (enemyNegativeStatus != null)
+                    {
+                        enemyNegativeStatus.InflictStatusEffect(statusEffect, statusEffectAmount);
+
+                    }
+                }
+
+
+                if (forceEnemiesIntoCombat)
+                    {
+                        enemyHealthController.GetComponent<EnemyManager>().enemyBehaviorController.ChasePlayer();
                     }
                 }
         }

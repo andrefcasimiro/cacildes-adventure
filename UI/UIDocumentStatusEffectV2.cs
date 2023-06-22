@@ -154,8 +154,13 @@ namespace AF
 
             var appliedStatusLabel = statusEntry.Q<Label>("AppliedStatusLabel");
             appliedStatusLabel.text = LocalizedTerms.GetConsumableDisplayNameEffect(appliedConsumable.consumableEffect.consumablePropertyName)
-                    + " (" + (appliedConsumable.consumableEffect.isPositive ? "+" : "-") +  appliedConsumable.consumableEffect.value + ""
+                    ;
+
+            if (appliedConsumable.consumableEffect.value != 0)
+            {
+                appliedStatusLabel.text += " (" + (appliedConsumable.consumableEffect.isPositive ? "+" : "-") + appliedConsumable.consumableEffect.value + ""
                     + (appliedConsumable.consumableEffect.unit.localizedTexts.Length > 0 ? " " + appliedConsumable.consumableEffect.unit.GetText() : "") + ")";
+            }
 
             if (appliedConsumable.currentDuration <= 0)
             {

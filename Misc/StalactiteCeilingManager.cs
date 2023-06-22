@@ -47,10 +47,11 @@ namespace AF
             transform.position = new Vector3(playerCombatController.transform.position.x, this.transform.position.y, playerCombatController.transform.position.z);
 
 
-            Stalactite[] stalactites = transform.GetComponentsInChildren<Stalactite>();
+            Stalactite[] stalactites = transform.GetComponentsInChildren<Stalactite>(true);
 
             foreach (Stalactite t in stalactites)
             {
+                t.gameObject.SetActive(true);
                 t.Drop();
             }
         }

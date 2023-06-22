@@ -21,6 +21,11 @@ namespace AF
         {
         }
 
+        public bool PlayerMovementIsEnabled()
+        {
+            return thirdPersonController.enabled;
+        }
+
         public void EnableComponents()
         {
             thirdPersonController.enabled = true;

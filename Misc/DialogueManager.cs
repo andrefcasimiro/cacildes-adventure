@@ -104,7 +104,9 @@ namespace AF
                 yield return new WaitUntil(() => Gamepad.current.buttonWest.IsActuated() == false);
             }
 
-            yield return new WaitUntil(() => inputs.interact == true || Gamepad.current != null && Gamepad.current.buttonWest.isPressed);
+            yield return new WaitUntil(
+                () => inputs.interact == true
+                || Gamepad.current != null && (Gamepad.current.buttonWest.isPressed || Gamepad.current.buttonSouth.isPressed));
 
             if (dialogueChoices.Count > 0)
             {

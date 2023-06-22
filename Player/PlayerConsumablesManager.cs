@@ -10,7 +10,7 @@ namespace AF
         DefenseStatManager defenseStatManager => GetComponent<DefenseStatManager>();
         HealthStatManager healthStatManager => GetComponent<HealthStatManager>();
         StaminaStatManager staminaStatManager => GetComponent<StaminaStatManager>();
-        PlayerHealthbox playerHealthbox => GetComponent<PlayerHealthbox>();
+        PlayerHealthbox playerHealthbox => GetComponentInChildren<PlayerHealthbox>();
         AttackStatManager attackStatManager => GetComponent<AttackStatManager>();
         StarterAssets.ThirdPersonController thirdPersonController => GetComponent<StarterAssets.ThirdPersonController>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
@@ -131,6 +131,17 @@ namespace AF
             {
                 equipmentGraphicsHandler.dexterityBonus -= (int)consumableToDelete.consumableEffect.value;
             }
+
+            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
+            {
+                playerHealthbox.isInvencible = false;
+            }
+
+            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
+            {
+                playerHealthbox.fartOnHit = false;
+            }
+
         }
 
         public void EvaluateEffect(AppliedConsumable entry)
@@ -186,6 +197,11 @@ namespace AF
                 equipmentGraphicsHandler.dexterityBonus += (int)entry.consumableEffect.value;
             }
 
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
+            {
+                playerHealthbox.isInvencible = true;
+            }
+
             #region Instant Consumable Effects
 
             if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.REVEAL_ILLUSIONARY_WALLS)
@@ -196,9 +212,31 @@ namespace AF
                 }
             }
 
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
+            {
+                playerHealthbox.fartOnHit = true;
+            }
+
             if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SPEED_1_HOUR)
             {
                 StartCoroutine(MoveTime());
+            }
+
+            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.RESTORE_SPELL_USE)
+            {
+                foreach (var item in Player.instance.ownedItems)
+                {
+                    var castedSpell = item.item as Spell;
+
+                    if (castedSpell != null)
+                    {
+                        item.amount += item.usages;
+                        item.usages = 0;
+
+                    }
+                }
+
+                FindObjectOfType<FavoriteItemsManager>(true).UpdateFavoriteItems();
             }
 
             #endregion

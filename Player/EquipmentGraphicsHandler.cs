@@ -118,6 +118,7 @@ namespace AF
             InitializeEquipment();
         }
 
+
         public void InitializeEquipment()
         {
             ReloadEquipmentGraphics();
@@ -736,6 +737,10 @@ namespace AF
             }
 
             var instance = Instantiate(Player.instance.equippedWeapon.weaponSpecial, transform.position + transform.up, Quaternion.identity);
+
+            var lookDir = transform.position + transform.forward - instance.transform.position;
+            lookDir.y = 0;
+            instance.transform.rotation = Quaternion.LookRotation(lookDir);
 
             if (Player.instance.equippedWeapon.parentWeaponSpecialToPlayer)
             {

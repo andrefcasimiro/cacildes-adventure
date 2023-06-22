@@ -9,8 +9,14 @@ namespace AF
     public class SwitchRandomMessages {
 
         public LocalizedText message;
+
+        [Header("Switch")]
         public SwitchEntry switchDependant;
         public bool requiredSwitchValueToDisplayMessage;
+
+        [Header("Companion")]
+        public Companion companionDependant;
+
     }
 
     public class EV_DisplayMessage : EventBase
@@ -120,7 +126,18 @@ namespace AF
                 {
                     foreach (var switchRandomMessage in switchRandomMessages)
                     {
-                        if (SwitchManager.instance.GetSwitchCurrentValue(switchRandomMessage.switchDependant) == switchRandomMessage.requiredSwitchValueToDisplayMessage) {
+                        //First check if switch allows message
+                        bool shouldAdd = switchRandomMessage.switchDependant == null
+|| SwitchManager.instance.GetSwitchCurrentValue(switchRandomMessage.switchDependant) == switchRandomMessage.requiredSwitchValueToDisplayMessage;
+
+                        //  then check if an additional companion is required
+                        if (shouldAdd && switchRandomMessage.companionDependant != null)
+                        {
+                            shouldAdd = Player.instance.companions.Exists(x => x.companionId == switchRandomMessage.companionDependant.companionId);
+                        }
+
+                        if (shouldAdd)
+                        {
                             randomMessagesTable.Add(switchRandomMessage.message);
                         }
                     }

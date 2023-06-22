@@ -19,7 +19,7 @@ namespace AF
         public float scoreIncreaseRate = 1.25f;
         float ScoreIncrement = 0;
 
-        private void Start()
+        private void Awake()
         {
             this.gameObject.SetActive(false);
         }

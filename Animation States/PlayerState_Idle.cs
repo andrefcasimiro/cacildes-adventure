@@ -12,6 +12,8 @@ namespace AF
         CharacterController characterController;
         ThirdPersonController thirdPersonController;
 
+        PlayerCombatController combatController;
+
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             if (playerInventory == null)
@@ -37,6 +39,13 @@ namespace AF
             {
                 characterController = animator.GetComponent<CharacterController>();
             }
+
+            if (combatController == null)
+            {
+                combatController = animator.GetComponent<PlayerCombatController>();
+            }
+
+            combatController.skipIK = false;
         }
     }
 }

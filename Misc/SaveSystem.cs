@@ -490,10 +490,17 @@ namespace AF
                 saveFileEntry.sceneName = gameData.currentSceneName;
                 var targetTexture = new Texture2D(2, 2);
 
-                if (screenshots.Length > 0 && string.IsNullOrEmpty(screenshots[i]) == false)
+                try
                 {
-                    targetTexture.LoadImage(File.ReadAllBytes(screenshots[i]));
-                    saveFileEntry.screenshot = targetTexture;
+                    if (screenshots.Length > 0 && screenshots[i] != null && string.IsNullOrEmpty(screenshots[i]) == false)
+                    {
+                        targetTexture.LoadImage(File.ReadAllBytes(screenshots[i]));
+                        saveFileEntry.screenshot = targetTexture;
+                    }
+                }
+                catch (IndexOutOfRangeException ex)
+                {
+                    saveFileEntry.screenshot = fallbackSaveScreenshot;
                 }
 
                 saveFileEntry.currentObjective = "";

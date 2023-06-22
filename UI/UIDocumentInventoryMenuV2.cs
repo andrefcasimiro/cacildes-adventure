@@ -53,8 +53,8 @@ namespace AF
                     LocalizedTerms.Gauntlets(),
                     LocalizedTerms.Boots(),
                     LocalizedTerms.Accessory() + "s",
-                    LocalizedTerms.ShowAlchemyIngredients() + "s",
-                    LocalizedTerms.ShowCookingIngredients() + "s",
+                    LocalizedTerms.ShowAlchemyIngredients(),
+                    LocalizedTerms.ShowCookingIngredients(),
                     LocalizedTerms.ShowCraftingMaterials(),
                     LocalizedTerms.ShowKeyItems(),
             };

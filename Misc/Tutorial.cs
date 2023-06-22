@@ -30,8 +30,11 @@ namespace AF
 
         int currentIndex = 0;
 
+        CursorManager cursorManager;
+
         private void Awake()
         {
+            cursorManager = FindObjectOfType<CursorManager>(true);
             gameObject.SetActive(false);
         }
 
@@ -79,14 +82,14 @@ namespace AF
             root.Q<Button>("ContinueButton").RegisterCallback<ClickEvent>(ev =>
             {
                 FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
-                Utils.HideCursor();
+                cursorManager.HideCursor();
                 this.gameObject.SetActive(false);
             });
             root.Q<Button>("ContinueButton").text = LocalizedTerms.Continue();
 
             DrawUI(root);
 
-            Utils.ShowCursor();
+            cursorManager.ShowCursor();
         }
 
         void DrawUI(VisualElement root)

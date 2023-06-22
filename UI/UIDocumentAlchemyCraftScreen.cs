@@ -7,6 +7,8 @@ namespace AF
 {
     public class UIDocumentAlchemyCraftScreen : MonoBehaviour
     {
+        CursorManager cursorManager;
+
         public enum CraftActivity
         {
             ALCHEMY,
@@ -47,6 +49,7 @@ namespace AF
              notificationManager = FindObjectOfType<NotificationManager>(true);
              menuManager = FindObjectOfType<MenuManager>(true);
              playerInventory = FindObjectOfType<PlayerInventory>(true);
+            cursorManager = FindObjectOfType<CursorManager>(true);
 
             this.gameObject.SetActive(false);
         }
@@ -63,7 +66,7 @@ namespace AF
             this.root = uIDocument.rootVisualElement;
 
             BGMManager.instance.PlaySound(sfxOnEnterMenu, null);
-            Utils.ShowCursor();
+            cursorManager.ShowCursor();
 
             Translate(root);
 
@@ -89,7 +92,7 @@ namespace AF
             FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
             FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();
             this.gameObject.SetActive(false);
-            Utils.HideCursor();
+            cursorManager.HideCursor();
         }
 
         void DrawUI()

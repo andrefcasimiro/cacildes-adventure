@@ -19,10 +19,12 @@ namespace AF
             if (enablePlayerMovement)
             {
                 playerComponentManager.EnableComponents();
+                playerComponentManager.EnableCharacterController();
             }
             else
             {
                 playerComponentManager.DisableComponents();
+                playerComponentManager.DisableCharacterController();
             }
 
             yield return null;

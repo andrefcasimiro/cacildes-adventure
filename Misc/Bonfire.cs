@@ -19,6 +19,13 @@ namespace AF
 
         public bool canBeTravelledTo = true;
 
+        CursorManager cursorManager;
+
+        private void Awake()
+        {
+            cursorManager = FindObjectOfType<CursorManager>(true);
+        }
+
         private void Start()
         {
             playerInventory = FindObjectOfType<PlayerInventory>(true);
@@ -103,7 +110,7 @@ namespace AF
             playerComponentManager.EnableCharacterController();
             playerComponentManager.EnableComponents();
 
-            Utils.HideCursor();
+            cursorManager.HideCursor();
         }
     }
 }

@@ -59,11 +59,6 @@ namespace AF
             Player.instance.currentGold += (int)goldToReceive;
 
             GetLoot();
-
-            if (enemyBossController != null && enemyBossController.partner != null && enemyBossController.order == 1)
-            {
-                StartCoroutine(enemyBossController.partner.GetComponent<EnemyLoot>().GiveLoot());
-            }
         }
 
         private void GetLoot()
