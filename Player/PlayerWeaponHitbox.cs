@@ -25,6 +25,12 @@ namespace AF
 
         List<EnemyHealthHitbox> hitEnemies = new();
 
+        public bool debug = false;
+
+        public DestroyableParticle heavyAttackParticle;
+
+        public bool isFoot = false;
+
         private void Awake()
         {
             attackStatManager = GetComponentInParent<AttackStatManager>();
@@ -66,7 +72,8 @@ namespace AF
         public void EnableHitbox()
         {
             var weapon = Player.instance.equippedWeapon;
-            if (weapon != null && weapon.swingSfx != null)
+
+            if (isFoot == false && weapon != null && weapon.swingSfx != null)
             {
                 BGMManager.instance.PlaySound(weapon.swingSfx, playerCombatController.combatAudioSource);
             }
@@ -80,6 +87,11 @@ namespace AF
                 trailRenderer.enabled = true;
             }
 
+            if (debug)
+            {
+                GetComponent<MeshRenderer>().enabled = true;
+            }
+
             boxCollider.enabled = true;
         }
 
@@ -90,19 +102,43 @@ namespace AF
                 trailRenderer.enabled = false;
             }
 
+            if (debug)
+            {
+                GetComponent<MeshRenderer>().enabled = false;
+            }
+
             boxCollider.enabled = false;
         }
 
         public void OnTriggerEnter(Collider other)
         {
+
+            if (other.CompareTag("Explodable"))
+            {
+                other.TryGetComponent(out ExplodingBarrel explodingBarrel);
+
+                if (explodingBarrel != null)
+                {
+                    explodingBarrel.Explode();
+                    return;
+                }
+            }
+
             var weapon = Player.instance.equippedWeapon;
-            if (!other.TryGetComponent<EnemyHealthHitbox>(out var enemyHealthHitbox))
+
+            var enemyHealthHitbox = other.GetComponent<EnemyHealthHitbox>();
+            if (enemyHealthHitbox == null)
+            {
+                enemyHealthHitbox = other.GetComponentInChildren<EnemyHealthHitbox>();
+            }
+
+
+            if (enemyHealthHitbox == null)
             {
                 if (other.gameObject.CompareTag("IllusionaryWall"))
                 {
                     other.GetComponent<IllusionaryWall>().hasBeenHit = true;
                 }
-
 
                 if (other.gameObject.CompareTag("Wood"))
                 {
@@ -110,13 +146,13 @@ namespace AF
                     {
                         destroyable.DestroyObject(other.ClosestPointOnBounds(destroyable.transform.position));
                     }
-                    else if (weapon != null && weapon.woodImpactFx != null)
+                    else if (weapon != null && weapon.woodImpactFx != null && timer > maxTimerBeforeHittingObjects)
                     {
                         Instantiate(weapon.woodImpactFx, transform.position, Quaternion.identity);
                     }
                 }
 
-                if (weapon != null)
+                if (weapon != null && timer > maxTimerBeforeHittingObjects)
                 {
                     if (other.gameObject.CompareTag("Metal") && weapon.metalImpactFx != null)
                     {
@@ -129,11 +165,9 @@ namespace AF
                     }
                 }
 
+                timer = 0;
                 return;
             }
-
-            // If hit enemy, dont allow to hit objects to avoid overlap
-            timer = 0;
 
             if (!hitEnemies.Contains(enemyHealthHitbox))
             {
@@ -152,6 +186,13 @@ namespace AF
                     {
                         enemyHealthHitbox.enemyManager.enemyTargetController.BreakCompanionFocus();
                     }
+
+                    if (heavyAttackParticle != null && attackStatManager.IsHeavyAttacking())
+                    {
+                        Instantiate(heavyAttackParticle, trailRenderer.transform.position, Quaternion.identity);
+                    }
+
+
                 }
 
                 damageCooldownTimer = 0f;

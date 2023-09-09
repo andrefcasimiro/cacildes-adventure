@@ -13,6 +13,7 @@ namespace AF
         ThirdPersonController thirdPersonController;
 
         PlayerCombatController combatController;
+        EquipmentGraphicsHandler equipmentGraphicsHandler;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
@@ -33,6 +34,11 @@ namespace AF
             else
             {
                 dodgeController.hasIframes = false;
+            }
+
+            if (equipmentGraphicsHandler == null)
+            {
+                equipmentGraphicsHandler = animator.GetComponent<EquipmentGraphicsHandler>();
             }
 
             if (characterController == null)

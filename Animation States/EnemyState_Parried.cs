@@ -5,34 +5,8 @@ namespace AF
 
     public class EnemyState_Parried : StateMachineBehaviour
     {
-        EnemyManager enemy;
-
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-
-            animator.TryGetComponent(out enemy);
-
-            if (enemy == null)
-            {
-                enemy = animator.GetComponentInParent<EnemyManager>();
-            }
-
-            enemy.rigidbody.useGravity = true;
-            enemy.rigidbody.isKinematic = false;
-            enemy.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-
-            enemy.agent.updatePosition = false;
-        }
-
-        public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-        {
-            if (enemy.canFall)
-            {
-                if (enemy.IsGrounded() == null)
-                {
-                    animator.CrossFade(enemy.hashFalling, 0.1f);
-                }
-            }
         }
     }
 

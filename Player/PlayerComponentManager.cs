@@ -12,14 +12,11 @@ namespace AF
         DodgeController dodgeController => GetComponent<DodgeController>();
         PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
 
+
         public bool isInTutorial = false;
         public bool isInBonfire = false;
 
         CharacterController characterController => GetComponent<CharacterController>();
-
-        private void Awake()
-        {
-        }
 
         public bool PlayerMovementIsEnabled()
         {
@@ -29,6 +26,7 @@ namespace AF
         public void EnableComponents()
         {
             thirdPersonController.enabled = true;
+            thirdPersonController.canMove = true;
             playerCombatController.enabled = true;
             dodgeController.enabled = true;
             playerParryManager.enabled = true;
@@ -37,7 +35,7 @@ namespace AF
         public void DisableComponents()
         {
             thirdPersonController.StopMovement();
-            thirdPersonController.enabled = false;
+            thirdPersonController.canMove = false;
             playerCombatController.enabled = false;
             dodgeController.enabled = false;
             playerParryManager.enabled = false;
@@ -77,13 +75,16 @@ namespace AF
 
         public void UpdatePosition(Vector3 newPosition, Quaternion newRotation)
         {
-            bool memoizedTrackFallDamage = thirdPersonController.trackFallDamage;
+            // Store the initial state of fall damage tracking
+            bool originalTrackFallDamage = thirdPersonController.trackFallDamage;
 
+            // Disable fall damage tracking temporarily
             thirdPersonController.trackFallDamage = false;
 
+            // Disable character controller to avoid unintended collisions during position update
             DisableCharacterController();
-            transform.position = newPosition;
 
+            transform.position = newPosition;
             if (newRotation != Quaternion.identity)
             {
                 transform.rotation = newRotation;
@@ -91,7 +92,9 @@ namespace AF
 
             EnableCharacterController();
 
-            thirdPersonController.trackFallDamage = memoizedTrackFallDamage;
+            // Restore original fall damage tracking state
+            thirdPersonController.trackFallDamage = originalTrackFallDamage;
+ 
             thirdPersonController.fallDamageInitialized = true;
         }
 

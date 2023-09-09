@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using StarterAssets;
+using System.Linq;
 
 namespace AF
 {
@@ -18,11 +19,11 @@ namespace AF
 
         [Header("Scaling Multipliers")]
         public float E = 1f;
-        public float D = 1.1f;
-        public float C = 1.4f;
-        public float B = 1.8f;
-        public float A = 2f;
-        public float S = 2.4f;
+        public float D = 1.05f;
+        public float C = 1.2f;
+        public float B = 1.5f;
+        public float A = 1.8f;
+        public float S = 2f;
         
         private Dictionary<string, float> scalingDictionary = new Dictionary<string, float>();
 
@@ -39,6 +40,7 @@ namespace AF
         ThirdPersonController thirdPersonController;
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+        HealthStatManager healthStatManager => GetComponent<HealthStatManager>();
 
         private void Awake()
         {
@@ -60,6 +62,11 @@ namespace AF
             return playerCombatController.isHeavyAttacking;
         }
 
+        public bool IsJumpAttacking()
+        {
+            return playerCombatController.IsJumpAttacking() || playerCombatController.IsStartingJumpAttack();
+        }
+
         public int GetCurrentPhysicalAttack()
         {
             int heavyAttackBonus = 0;
@@ -68,9 +75,16 @@ namespace AF
                 heavyAttackBonus = playerCombatController.unarmedHeavyAttackBonus;
             }
 
+            var value = basePhysicalAttack;
+
+            if (IsJumpAttacking())
+            {
+                value = Mathf.FloorToInt(value * jumpAttackMultiplier);
+            }
+
             return (int)Mathf.Round(
                 Mathf.Ceil(
-                    basePhysicalAttack
+                    value
                         + (Player.instance.strength * levelMultiplier)
                         + (Player.instance.dexterity * levelMultiplier)
                         + (equipmentGraphicsHandler.strengthBonus * levelMultiplier)
@@ -93,6 +107,29 @@ namespace AF
 
 
         #region Weapon Attack
+        public int CompareWeapon(Weapon weaponToCompare)
+        {
+            if (Player.instance.equippedWeapon == null)
+            {
+                return 1;
+            }
+
+            var weaponToCompareAttack = GetWeaponAttack(weaponToCompare);
+            var currentWeaponAttack = GetWeaponAttack(Player.instance.equippedWeapon);
+            
+            if (weaponToCompareAttack > currentWeaponAttack)
+            {
+                return 1;
+            }
+
+            if (weaponToCompareAttack == currentWeaponAttack)
+            {
+                return 0;
+            }
+
+            return -1;
+        }
+
         public int GetWeaponAttack(Weapon weapon)
         {
             var value = (int)(
@@ -109,9 +146,9 @@ namespace AF
                 value += heavyAttackBonus;
             }
 
-            if (!thirdPersonController.Grounded)
+            if (IsJumpAttacking())
             {
-                value = (int)(value * jumpAttackMultiplier);
+                value = Mathf.FloorToInt(value * jumpAttackMultiplier);
             }
 
             if (weapon.halveDamage)
@@ -119,7 +156,7 @@ namespace AF
                 return (int)(value / 2);
             }
 
-            if (Player.instance.equippedAccessory != null && Player.instance.equippedAccessory.increaseAttackPowerTheLowerTheReputation)
+            if (Player.instance.equippedAccessories.Count > 0 && Player.instance.equippedAccessories.Find(x => x.increaseAttackPowerTheLowerTheReputation) != null)
             {
                 if (Player.instance.GetCurrentReputation() < 0)
                 {
@@ -127,6 +164,19 @@ namespace AF
 
                     value += extraAttackPower;
                 }
+            }
+
+            if (Player.instance.equippedAccessories.Count > 0 && Player.instance.equippedAccessories.Find(x => x.increaseAttackPowerWithLowerHealth) != null)
+            {
+                int extraAttackPower = (int)(value * healthStatManager.GetExtraAttackBasedOnCurrentHealth());
+
+                value += extraAttackPower;
+            }
+
+            if (Player.instance.equippedAccessories.Count > 0)
+            {
+                var attackBonuses = Player.instance.equippedAccessories.Sum(x => x.physicalAttackBonus);
+                value += attackBonuses;
             }
 
             return value;

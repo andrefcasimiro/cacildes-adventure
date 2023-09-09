@@ -17,6 +17,14 @@ namespace AF
 
         bool isPassingTime = false;
 
+        FavoriteItemsManager favoriteItemsManager => GetComponent<FavoriteItemsManager>();
+        UIDocumentStatusEffectV2 uIDocumentStatusEffectV2;
+
+        private void Awake()
+        {
+            uIDocumentStatusEffectV2 = FindAnyObjectByType<UIDocumentStatusEffectV2>(FindObjectsInactive.Include);
+        }
+
         private void Update()
         {
             if (Player.instance.appliedConsumables.Count > 0)
@@ -43,7 +51,7 @@ namespace AF
                 EvaluateEffect(Player.instance.appliedConsumables.Last());
             }
 
-            FindObjectOfType<UIDocumentStatusEffectV2>(true).AddConsumableEntry(consumableEffect.consumableEffect);
+            uIDocumentStatusEffectV2.AddConsumableEntry(consumableEffect.consumableEffect);
         }
 
         private void HandleConsumableEffects()
@@ -85,59 +93,58 @@ namespace AF
         public void RemoveConsumable(AppliedConsumable consumableToDelete)
         {
             Player.instance.appliedConsumables.Remove(consumableToDelete);
-            FindObjectOfType<UIDocumentStatusEffectV2>(true).RemoveConsumableEntry(consumableToDelete);
+            uIDocumentStatusEffectV2.RemoveConsumableEntry(consumableToDelete);
 
             if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STAMINA_REGENERATION_RATE)
             {
                 staminaStatManager.staminaRegenerationBonus = 0f;
             }
-
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.JUMP_HEIGHT)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.JUMP_HEIGHT)
             {
                 thirdPersonController.trackFallDamage = true;
                 thirdPersonController.JumpHeightBonus = 0f;
             }
-
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.PHYSICAL_ATTACK_BONUS)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.PHYSICAL_ATTACK_BONUS)
             {
                 attackStatManager.physicalAttackBonus = 0f;
             }
-
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
             {
                 staminaStatManager.negativeStaminaRegenerationBonus = 0f;
             }
-
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
             {
                 equipmentGraphicsHandler.vitalityBonus -= (int)consumableToDelete.consumableEffect.value;
                 equipmentGraphicsHandler.enduranceBonus -= (int)consumableToDelete.consumableEffect.value;
                 equipmentGraphicsHandler.dexterityBonus -= (int)consumableToDelete.consumableEffect.value;
                 equipmentGraphicsHandler.strengthBonus -= (int)consumableToDelete.consumableEffect.value;
+                equipmentGraphicsHandler.intelligenceBonus -= (int)consumableToDelete.consumableEffect.value;
             }
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.VITALITY_INCREASE)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.VITALITY_INCREASE)
             {
                 equipmentGraphicsHandler.vitalityBonus -= (int)consumableToDelete.consumableEffect.value;
             }
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ENDURANCE_INCREASE)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ENDURANCE_INCREASE)
             {
                 equipmentGraphicsHandler.enduranceBonus -= (int)consumableToDelete.consumableEffect.value;
             }
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
             {
                 equipmentGraphicsHandler.strengthBonus -= (int)consumableToDelete.consumableEffect.value;
             }
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
             {
                 equipmentGraphicsHandler.dexterityBonus -= (int)consumableToDelete.consumableEffect.value;
             }
-
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.INTELLIGENCE_INCREASE)
+            {
+                equipmentGraphicsHandler.intelligenceBonus -= (int)consumableToDelete.consumableEffect.value;
+            }
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
             {
                 playerHealthbox.isInvencible = false;
             }
-
-            if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
             {
                 playerHealthbox.fartOnHit = false;
             }
@@ -150,79 +157,71 @@ namespace AF
             {
                 healthStatManager.RestoreHealthPoints(entry.consumableEffect.value);
             }
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STAMINA_REGENERATION_RATE)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STAMINA_REGENERATION_RATE)
             {
                 staminaStatManager.staminaRegenerationBonus = entry.consumableEffect.value;
             }
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.JUMP_HEIGHT)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.JUMP_HEIGHT)
             {
                 thirdPersonController.trackFallDamage = false;
                 thirdPersonController.JumpHeightBonus = entry.consumableEffect.value;
             }
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.PHYSICAL_ATTACK_BONUS)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.PHYSICAL_ATTACK_BONUS)
             {
                 attackStatManager.physicalAttackBonus = entry.consumableEffect.value;
             }
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
             {
                 staminaStatManager.negativeStaminaRegenerationBonus = entry.consumableEffect.value;
             }
-
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
             {
                 equipmentGraphicsHandler.vitalityBonus += (int)entry.consumableEffect.value;
                 equipmentGraphicsHandler.enduranceBonus += (int)entry.consumableEffect.value;
                 equipmentGraphicsHandler.dexterityBonus += (int)entry.consumableEffect.value;
                 equipmentGraphicsHandler.strengthBonus += (int)entry.consumableEffect.value;
+                equipmentGraphicsHandler.intelligenceBonus += (int)entry.consumableEffect.value;
             }
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.VITALITY_INCREASE)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.VITALITY_INCREASE)
             {
                 equipmentGraphicsHandler.vitalityBonus += (int)entry.consumableEffect.value;
             }
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ENDURANCE_INCREASE)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ENDURANCE_INCREASE)
             {
                 equipmentGraphicsHandler.enduranceBonus += (int)entry.consumableEffect.value;
             }
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
             {
                 equipmentGraphicsHandler.strengthBonus += (int)entry.consumableEffect.value;
             }
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
             {
                 equipmentGraphicsHandler.dexterityBonus += (int)entry.consumableEffect.value;
             }
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.INTELLIGENCE_INCREASE)
+            {
+                equipmentGraphicsHandler.intelligenceBonus += (int)entry.consumableEffect.value;
+            }
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
             {
                 playerHealthbox.isInvencible = true;
             }
-
-            #region Instant Consumable Effects
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.REVEAL_ILLUSIONARY_WALLS)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.REVEAL_ILLUSIONARY_WALLS)
             {
-                foreach (var illusionaryWall in FindObjectsOfType<IllusionaryWall>())
+                foreach (var illusionaryWall in FindObjectsByType<IllusionaryWall>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 {
                     illusionaryWall.hasBeenHit = true;
                 }
             }
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
             {
                 playerHealthbox.fartOnHit = true;
             }
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SPEED_1_HOUR)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.SPEED_1_HOUR)
             {
                 StartCoroutine(MoveTime());
             }
-
-            if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.RESTORE_SPELL_USE)
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.RESTORE_SPELL_USE)
             {
                 foreach (var item in Player.instance.ownedItems)
                 {
@@ -236,10 +235,8 @@ namespace AF
                     }
                 }
 
-                FindObjectOfType<FavoriteItemsManager>(true).UpdateFavoriteItems();
+                favoriteItemsManager.UpdateFavoriteItems();
             }
-
-            #endregion
         }
 
 

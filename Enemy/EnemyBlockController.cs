@@ -20,11 +20,6 @@ namespace AF
         PlayerPoiseController playerPoiseController;
         PlayerParryManager playerParryManager;
 
-        [Header("Block Defense")]
-        public int maxHitsBeforeGuardBreak = 2;
-        public float maxHitsCooldownBeforeResetGuardBreak = 15f;
-        int currentBlockHits = 0;
-        float cooldownBeforeResettingGuardBreak;
 
         private void Awake()
         {
@@ -36,14 +31,6 @@ namespace AF
         void Start()
         {
             InitializeShield();
-        }
-
-        private void Update()
-        {
-            if (cooldownBeforeResettingGuardBreak < maxHitsCooldownBeforeResetGuardBreak)
-            {
-                cooldownBeforeResettingGuardBreak += Time.deltaTime;
-            }
         }
 
         void InitializeShield()
@@ -74,15 +61,15 @@ namespace AF
 
         public void HandleBlock(Vector3 blockContactPosition, int guardBreakHitAmount)
         {
-            if (currentBlockHits >= maxHitsBeforeGuardBreak && enemyManager.animator.HasState(0, enemyManager.hashGuardBreak))
+            if (enemyManager.enemyPostureController != null)
             {
-                enemyManager.animator.Play(enemyManager.hashGuardBreak);
-                Soundbank.instance.PlayEnemyGuardBreak();
-                currentBlockHits = 0;
-                return;
+                bool hasBrokePosture = enemyManager.enemyPostureController.TakePostureDamage(guardBreakHitAmount);
+            
+                if (hasBrokePosture)
+                {
+                    return;
+                }
             }
-
-            currentBlockHits += guardBreakHitAmount;
 
             if (blockParticleEffect != null)
             {

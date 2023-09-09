@@ -397,6 +397,15 @@ namespace AF
             };
         }
 
+        public static string Intelligence()
+        {
+            return GamePreferences.instance.gameLanguage switch
+            {
+                GamePreferences.GameLanguage.PORTUGUESE => "Inteligência",
+                _ => "Intelligence",
+            };
+        }
+
         public static string Endurance()
         {
             return GamePreferences.instance.gameLanguage switch

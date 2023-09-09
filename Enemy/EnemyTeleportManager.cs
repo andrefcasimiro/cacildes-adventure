@@ -7,6 +7,11 @@ namespace AF
 {
     public class EnemyTeleportManager : MonoBehaviour
     {
+
+        [Header("Options")]
+        [Range(0, 100)] public int chanceToTeleport = 50;
+        [Range(0, 100)] public int chanceToUseBuff = 25;
+
         [Header("FX")]
         public GameObject teleportFX;
         public GameObject teleportFinishFX;
@@ -51,11 +56,13 @@ namespace AF
         IEnumerator BeginTeleportCoroutine()
         {
             onTeleport.Invoke();
+            enemyManager.characterController.enabled = false;
 
             Instantiate(teleportFX, transform.position, Quaternion.identity);
 
             enemyManager.enemyNegativeStatusController.HideHUD();
             enemyManager.enemyPostureController.HideHUD();
+            enemyManager.enemyHealthController.HideHUD();
 
             yield return new WaitForSeconds(delayBeforeDisablingRenderers);
             enemyManager.enemyHealthController.DisableHealthHitboxes();
@@ -95,7 +102,10 @@ namespace AF
                 enemyManager.animator.Play(reapperAnimationName);
             }
 
+            enemyManager.characterController.enabled = true;
+
             enemyManager.enemyHealthController.EnableHealthHitboxes();
+            enemyManager.enemyHealthController.ShowHUD();
 
             foreach (var skinnedMeshRenderer in enemyMeshRenderers)
             {
@@ -120,6 +130,8 @@ namespace AF
 
                 NavMesh.SamplePosition(player.transform.position, out rightHit, 5f, NavMesh.AllAreas);
                 transform.position = new Vector3(rightHit.position.x, rightHit.position.y, rightHit.position.z);
+
+                enemyManager.agent.SetDestination(transform.position);
                 return;
             }
 
@@ -127,6 +139,7 @@ namespace AF
 
             NavMesh.SamplePosition(newTeleportPosition.transform.position, out rightHit, 5f, NavMesh.AllAreas);
             transform.position = new Vector3(rightHit.position.x, initialY, rightHit.position.z);
+            enemyManager.agent.SetDestination(transform.position);
         }
 
     }

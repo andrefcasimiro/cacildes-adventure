@@ -59,7 +59,9 @@ namespace AF
         [HideInInspector] public float bonusBlockStaminaCost = 0f;
         [HideInInspector] public int currentAttackPoiseDamage = 1;
         [HideInInspector] public bool hasHyperArmorActive = false;
-
+        [HideInInspector] public string transitionToExecution = "";
+        [HideInInspector] public string playerExecutedClip = "";
+        
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
         public void ForceIntoCombat()
@@ -74,7 +76,14 @@ namespace AF
 
         public int GetCurrentAttack()
         {
-            return Player.instance.CalculateAIAttack(enemyManager.enemy.basePhysicalAttack, enemyManager.currentLevel) + weaponDamageBonus;
+            var attackPower = Player.instance.CalculateAIAttack(enemyManager.enemy.basePhysicalAttack, enemyManager.currentLevel) + weaponDamageBonus;
+
+            if (enemyManager.attackReducingFactor > 1)
+            {
+                attackPower = (int)(attackPower / enemyManager.attackReducingFactor);
+            }
+
+            return attackPower;
         }
 
         public bool IsInCombat()

@@ -466,6 +466,30 @@ namespace AF
             }
         }
 
+        public void ActivateHitboxSpecialWithoutOpeningHitboxes()
+        {
+            if (enemy.enemyWeaponController.leftHandWeapon != null && enemy.enemyWeaponController.leftHandWeapon.hitboxSpecialFx != null)
+            {
+                enemy.enemyWeaponController.leftHandWeapon.ActivateHitboxSpecial();
+            }
+            else if (enemy.enemyWeaponController.rightHandWeapon != null && enemy.enemyWeaponController.rightHandWeapon.hitboxSpecialFx != null)
+            {
+                enemy.enemyWeaponController.rightHandWeapon.ActivateHitboxSpecial();
+            }
+            else if (enemy.enemyWeaponController.leftLegWeapon != null && enemy.enemyWeaponController.leftLegWeapon.hitboxSpecialFx != null)
+            {
+                enemy.enemyWeaponController.leftLegWeapon.ActivateHitboxSpecial();
+            }
+            else if (enemy.enemyWeaponController.rightLegWeapon != null && enemy.enemyWeaponController.rightLegWeapon.hitboxSpecialFx != null)
+            {
+                enemy.enemyWeaponController.rightLegWeapon.ActivateHitboxSpecial();
+            }
+            else if (enemy.enemyWeaponController.headWeapon != null && enemy.enemyWeaponController.headWeapon.hitboxSpecialFx != null)
+            {
+                enemy.enemyWeaponController.headWeapon.ActivateHitboxSpecial();
+            }
+        }
+
         public void ShowBow()
         {
             if (enemy == null || enemy.enemyProjectileController == null)
@@ -513,7 +537,7 @@ namespace AF
                 return;
             }
 
-            enemy.enemyDodgeController.ActivateDodge();
+            //enemy.enemyDodgeController.ActivateDodge();
         }
 
         public void DeactivateDodge()

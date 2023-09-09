@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace AF
 {
@@ -19,27 +17,20 @@ namespace AF
                 enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
 
+            enemy.BeginFall();
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            enemy.rigidbody.useGravity = true;
-            enemy.rigidbody.isKinematic = false;
-            enemy.rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-
-            Transform objectEnemyIsOn = enemy.IsGrounded();
-            if (
-                objectEnemyIsOn != null
-                && !objectEnemyIsOn.CompareTag("Water")
-            )
+            if (enemy.enemyHealthController.currentHealth > 0)
             {
-                enemy.StopFall();
-
-                animator.Play(enemy.hashWaiting);
+                enemy.characterController.Move(animator.transform.forward * -1f * 2f * Time.deltaTime);
             }
+        }
 
-            // To prevent enemy from being stuck
-            enemy.transform.position += enemy.transform.forward * -1f * Time.deltaTime;
+        public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        {
+            enemy.StopFall();
         }
 
 

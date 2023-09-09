@@ -17,7 +17,7 @@ namespace AF
 
             if (enemy.IsNavMeshAgentActive())
             {
-                enemy.agent.isStopped = true;
+                // enemy.agent.isStopped = true;
             }
         }
 

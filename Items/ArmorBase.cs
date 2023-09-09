@@ -40,6 +40,7 @@ namespace AF
         public int enduranceBonus = 0;
         public int strengthBonus = 0;
         public int dexterityBonus = 0;
+        public int intelligenceBonus = 0;
 
         [Header("Poise")]
         public int poiseBonus = 0;

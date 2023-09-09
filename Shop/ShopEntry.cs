@@ -20,6 +20,11 @@ namespace AF
     {
         // The items here are restocked if dayThatTradingBegan is != -1 and the daysToRespawnStock have passed
         public List<ShopItem> itemStock = new();
+
+
+        public Item requiredItemForDiscounts;
+        public float discountGivenByItemInInventory = 0.3f;
+
     }
 
 }

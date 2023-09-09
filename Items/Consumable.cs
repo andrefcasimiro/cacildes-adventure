@@ -25,6 +25,7 @@ namespace AF
             ENDURANCE_INCREASE,
             STRENGTH_INCREASE,
             DEXTERITY_INCREASE,
+            INTELLIGENCE_INCREASE,
 
             ALL_STATS_INCREASE,
 

@@ -6,18 +6,16 @@ namespace AF
     {
         EnemyManager enemyManager;
 
-        public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+
+        public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             enemyManager = animator.GetComponent<EnemyManager>();
             if (enemyManager == null)
             {
                 enemyManager = animator.GetComponentInParent<EnemyManager>();
             }
-        }
 
-        public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-        {
-            if (enemyManager.enemyPostureController != null)
+            if (enemyManager != null && enemyManager.enemyPostureController != null)
             {
                 enemyManager.enemyPostureController.RecoverPosture();
             }

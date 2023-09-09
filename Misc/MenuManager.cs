@@ -8,8 +8,18 @@ using UnityEngine.InputSystem;
 
 namespace AF
 {
+    public enum ActiveMenu
+    {
+        EQUIPMENT,
+        OPTIONS,
+        OBJECTIVES,
+        EXIT_GAME,
+    }
+
     public class MenuManager : MonoBehaviour
     {
+        public ActiveMenu activeMenu = ActiveMenu.EQUIPMENT;
+
         CursorManager cursorManager;
 
         public GameObject equipmentListMenu;
@@ -43,26 +53,60 @@ namespace AF
         public LocalizedText quitGameLabel;
         public LocalizedText returnToTitleScreenLabel;
 
+        ThirdPersonController thirdPersonController;
+
+        // Components
+        ViewEquipmentMenu viewEquipmentMenu;
+        ViewSettingsMenu viewSettingsMenu;
+        ViewObjectivesMenu viewObjectivesMenu;
+
         private void Awake()
         {
             cursorManager = FindObjectOfType<CursorManager>(true);
+            thirdPersonController = FindAnyObjectByType<ThirdPersonController>(FindObjectsInactive.Include);
         }
 
         private void Start()
         {
             titleScreenManager = FindObjectOfType<TitleScreenManager>(true);
             uIDocumentBook = FindObjectOfType<UIDocumentBook>(true);
-
             alchemyCraftScreen = FindObjectOfType<UIDocumentAlchemyCraftScreen>(true);
-
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
-
             climbController = playerComponentManager.GetComponent<ClimbController>();
-
             uIDocumentGameOver = FindObjectOfType<UIDocumentGameOver>(true);
+
+
+            viewEquipmentMenu = GetComponentInChildren<ViewEquipmentMenu>(true);
+            viewSettingsMenu = GetComponentInChildren<ViewSettingsMenu>(true);
+            viewObjectivesMenu = GetComponentInChildren<ViewObjectivesMenu>(true);
+
+            starterAssetsInputs.onMenuInput += EvaluateMenu;
         }
 
-        private void Update()
+        void EvaluateMenu()
+        {
+            starterAssetsInputs.menu = false;
+
+            if (!CanUseMenu())
+            {
+                return;
+            }
+
+            if (IsMenuOpen())
+            {
+                this.CloseMenu();
+                thirdPersonController.LockCameraPosition = false;
+                cursorManager.HideCursor();
+            }
+            else
+            {
+                this.OpenMenu();
+                thirdPersonController.LockCameraPosition = true;
+                cursorManager.ShowCursor();
+            }
+        }
+
+        /*private void Update()
         {
             if (starterAssetsInputs.menu)
             {
@@ -82,14 +126,11 @@ namespace AF
                 }
                 else
                 {
-                    // Get screenshot before opening menu
-                    SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
-                    
                     cursorManager.ShowCursor();
                     this.OpenMenu();
                 }
             }
-        }
+        }*/
 
         bool CanUseMenu()
         {
@@ -145,9 +186,32 @@ namespace AF
             return true;
         }
 
+        public void SetMenuView(ActiveMenu activeMenu) {
+            this.activeMenu = activeMenu;
+
+            CloseMenuViews();
+
+            if (activeMenu == ActiveMenu.EQUIPMENT)
+            {
+                viewEquipmentMenu.gameObject.SetActive(true);
+            }
+            if (activeMenu == ActiveMenu.OPTIONS)
+            {
+                viewSettingsMenu.gameObject.SetActive(true);
+            }
+            if (activeMenu == ActiveMenu.OBJECTIVES)
+            {
+                viewObjectivesMenu.gameObject.SetActive(true);
+            }
+        }
+
         public void OpenMenu()
         {
-            equipmentListMenu.SetActive(true);
+            cursorManager.ShowCursor();
+
+            SetMenuView(activeMenu);
+
+            /*equipmentListMenu.SetActive(true);
             equipmentSelectionMenu.SetActive(false);
             inventoryMenu.SetActive(false);
             optionsMenu.SetActive(false);
@@ -157,11 +221,23 @@ namespace AF
             playerComponentManager.DisableCharacterController();
             playerComponentManager.DisableComponents();
 
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
+            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);*/
+        }
+
+        void CloseMenuViews()
+        {
+            viewEquipmentMenu.gameObject.SetActive(false);
+            viewSettingsMenu.gameObject.SetActive(false);
+            viewObjectivesMenu.gameObject.SetActive(false);
         }
 
         public void CloseMenu()
         {
+            CloseMenuViews();
+            cursorManager.HideCursor();
+
+            return;
+
             playerComponentManager.DisableComponents();
 
             if (equipmentSelectionMenu.activeSelf)
@@ -194,6 +270,21 @@ namespace AF
 
         public bool IsMenuOpen()
         {
+            if (viewEquipmentMenu.isActiveAndEnabled)
+            {
+                return true;
+            }
+
+            if (viewSettingsMenu.isActiveAndEnabled)
+            {
+                return true;
+            }
+
+            if (viewObjectivesMenu.isActiveAndEnabled)
+            {
+                return true;
+            }
+
             return this.equipmentListMenu.activeSelf || this.equipmentSelectionMenu.activeSelf || this.inventoryMenu.activeSelf
                 || this.optionsMenu.activeSelf || this.loadMenu.activeSelf || this.controlsMenu.activeSelf;
         }

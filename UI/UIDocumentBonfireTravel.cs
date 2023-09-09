@@ -1,3 +1,4 @@
+using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,13 +26,15 @@ namespace AF
 
         VisualElement root;
 
-        void TranslateRoot()
-        {
-        }
-
+        CursorManager cursorManager;
+        ThirdPersonController thirdPersonController;
 
         private void Awake()
         {
+
+            cursorManager = FindAnyObjectByType<CursorManager>(FindObjectsInactive.Include);
+            thirdPersonController = FindAnyObjectByType<ThirdPersonController>(FindObjectsInactive.Include);
+
             gameObject.SetActive(false);
         }
 
@@ -42,10 +45,11 @@ namespace AF
         private void OnEnable()
         {
             root = GetComponent<UIDocument>().rootVisualElement;
-            TranslateRoot();
 
             root.Q<Button>("CloseBtn").RegisterCallback<ClickEvent>(ev =>
             {
+                thirdPersonController.LockCameraPosition = false;
+
                 uIDocumentBonfireMenu.gameObject.SetActive(true);
                 this.gameObject.SetActive(false);
             });
@@ -81,7 +85,8 @@ namespace AF
 
             }
 
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
+            cursorManager.ShowCursor();
+            thirdPersonController.LockCameraPosition = true;
         }
     }
 

@@ -193,10 +193,8 @@ namespace AF
             if (gold != -1)
             {
                 // Save Game to prevent us from dying and picking money infinitely
-                SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
                 SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
             }
-
 
             if (!string.IsNullOrEmpty(analyticsMessage))
             {

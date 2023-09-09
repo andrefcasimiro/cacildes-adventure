@@ -249,6 +249,11 @@ namespace AF
                     // Can not block attack, stop blocking
                     playerCombatController.GetComponent<Animator>().SetBool(playerParryManager.hashIsBlocking, false);
                 }
+
+                if (Player.instance.equippedShield != null && Player.instance.equippedShield.damageDealtToEnemiesUponBlocking > 0)
+                {
+                    enemy.enemyHealthController.TakeEnvironmentalDamage(Player.instance.equippedShield.damageDealtToEnemiesUponBlocking);
+                }
             }
 
             if (dodgeController.hasIframes)
@@ -300,26 +305,6 @@ namespace AF
                     Instantiate(playerPoiseController.damageParticlePrefab, transform.position, Quaternion.identity);
                 }
 
-                // Track player death
-                /*AnalyticsService.Instance.CustomData("player_killed_by_enemy",
-                new Dictionary<string, object>()
-                {
-                                            { "killed_by", enemy.name + " (Lv. " + enemy.currentLevel + ") on map " + SceneManager.GetActiveScene().name },
-                                            { "player_level", FindObjectOfType<PlayerLevelManager>(true).GetCurrentLevel() },
-                                            { "player_vitality", Player.instance.vitality },
-                                            { "player_endurance", Player.instance.endurance },
-                                            { "player_strength", Player.instance.strength },
-                                            { "player_dexterity", Player.instance.dexterity },
-                                            { "player_weapon", Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.name : "Unarmed" },
-                                            { "player_shield", Player.instance.equippedShield != null ? Player.instance.equippedShield.name : "-" },
-                                            { "player_helmet", Player.instance.equippedHelmet != null ? Player.instance.equippedHelmet.name : "-" },
-                                            { "player_armor", Player.instance.equippedArmor != null ? Player.instance.equippedArmor.name : "-" },
-                                            { "player_gauntlets", Player.instance.equippedGauntlets != null ? Player.instance.equippedGauntlets.name : "-" },
-                                            { "player_legwear", Player.instance.equippedLegwear != null ? Player.instance.equippedLegwear.name : "-" },
-                                            { "player_acessory", Player.instance.equippedAccessory != null ? Player.instance.equippedAccessory.name : "-" },
-                }
-    );*/
-
                 Die();
             }
             else if (playerParryManager.IsBlocking() == false)
@@ -340,7 +325,7 @@ namespace AF
 
             StartCoroutine(PlayDeathSfx());
 
-            playerComponentManager.DisableCharacterController();
+            //playerComponentManager.DisableCharacterController();
             playerComponentManager.DisableComponents();
 
             animator.Play(hashDying);

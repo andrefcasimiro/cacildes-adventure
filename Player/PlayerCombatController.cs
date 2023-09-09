@@ -64,10 +64,15 @@ namespace AF
 
         public bool skipIK = false;
 
+
+        MenuManager menuManager;
+
         private void Start()
         {
             uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
             equipmentGraphicsHandler.DeactivateAllHitboxes();
+
+            menuManager = FindAnyObjectByType<MenuManager>(FindObjectsInactive.Include);
         }
 
         public void SkipIK()
@@ -272,6 +277,11 @@ namespace AF
 
         bool CanAttack()
         {
+            if (menuManager.IsMenuOpen())
+            {
+                return false;
+            }
+
             if (playerShootingManager.IsShooting())
             {
                 return false;

@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
-using Mono.Cecil.Cil;
 using UnityEngine.InputSystem;
 
 namespace AF
 {
-    public class SceneSettings: MonoBehaviour, IClockListener
+    public class SceneSettings : MonoBehaviour, IClockListener
     {
         CursorManager cursorManager;
 
@@ -31,12 +30,11 @@ namespace AF
         public DestroyableParticle respawnFx;
 
         PlayerComponentManager playerComponentManager;
- 
+
         void Awake()
         {
-            cursorManager = FindObjectOfType<CursorManager>(true);
-
-            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
+            cursorManager = FindAnyObjectByType<CursorManager>(FindObjectsInactive.Include);
+            playerComponentManager = FindAnyObjectByType<PlayerComponentManager>(FindObjectsInactive.Include);
 
             StartCoroutine(SpawnPlayer());
 
@@ -94,103 +92,70 @@ namespace AF
                 return;
             }
 
-            EvaluateMusic(false);
-            EvaluateMusic(true);
+            EvaluateMusic();
+            EvaluateAmbience();
         }
 
-        void EvaluateMusic(bool isAmbience)
+        /// <summary>
+        /// Evaluate and control the music based on time of day.
+        /// </summary>
+        void EvaluateMusic()
         {
-            var daySfx = dayMusic;
-            var nightSfx = nightMusic;
-
-            if (isAmbience)
+            if (dayMusic == null && nightMusic == null)
             {
-                daySfx = dayAmbience;
-                nightSfx = nightAmbience;
-            }
-
-            if (nightSfx == null && daySfx == null)
-            {
-                if (isAmbience)
-                {
-                    BGMManager.instance.StopAmbience();
-                }
-                else
-                {
-                    BGMManager.instance.StopMusic();
-                }
-
+                // Stop the music playback if there are no available tracks.
+                BGMManager.instance.StopMusic();
                 return;
             }
 
-            // If no night track is set, play day always
-            if (nightSfx == null && daySfx != null)
+            if (CanPlayDaySfx(dayMusic))
             {
-                if (IsPlayingSameTrack(daySfx.name, isAmbience))
+                if (IsPlayingSameMusicTrack(dayMusic.name) == false)
                 {
-                    return;
+                    BGMManager.instance.PlayMusic(dayMusic);
                 }
-
-                if (isAmbience)
-                {
-                    BGMManager.instance.PlayAmbience(daySfx);
-                }
-                else
-                {
-                    BGMManager.instance.PlayMusic(daySfx);
-                }
-
-                return;
             }
-
-            // If we have day and night track, decide which to play based on time of day
-            if (CanPlayNightSfx(nightSfx))
+            else if (CanPlayNightSfx(nightMusic))
             {
-                if (IsPlayingSameTrack(nightSfx.name, isAmbience))
+                if (IsPlayingSameMusicTrack(nightMusic.name) == false)
                 {
-                    return;
+                    BGMManager.instance.PlayMusic(nightMusic);
                 }
-
-                if (isAmbience)
-                {
-                    BGMManager.instance.PlayAmbience(nightSfx);
-                }
-                else
-                {
-                    BGMManager.instance.PlayMusic(nightSfx);
-                }
-
-                return;
-            }
-
-            if (CanPlayDaySfx(daySfx))
-            {
-                if (IsPlayingSameTrack(daySfx.name, isAmbience))
-                {
-                    return;
-                }
-
-                if (isAmbience)
-                {
-                    BGMManager.instance.PlayAmbience(daySfx);
-                }
-                else
-                {
-                    BGMManager.instance.PlayMusic(daySfx);
-                }
-
-                return;
             }
         }
 
-        bool IsPlayingSameTrack(string musicClipName, bool isAmbience)
+        void EvaluateAmbience()
         {
-            if (isAmbience)
+            if (nightAmbience == null && dayAmbience == null)
             {
-                return BGMManager.instance.ambienceAudioSource.clip != null && BGMManager.instance.ambienceAudioSource.clip.name == musicClipName;
+                BGMManager.instance.StopAmbience();
+                return;
             }
 
+            if (CanPlayDaySfx(dayAmbience))
+            {
+                if (IsPlayingSameAmbienceTrack(dayAmbience.name) == false)
+                {
+                    BGMManager.instance.PlayAmbience(dayAmbience);
+                }
+            }
+            else if (CanPlayNightSfx(nightAmbience))
+            {
+                if (IsPlayingSameAmbienceTrack(nightAmbience.name) == false)
+                {
+                    BGMManager.instance.PlayAmbience(nightAmbience);
+                }
+            }
+        }
+
+        bool IsPlayingSameMusicTrack(string musicClipName)
+        {
             return BGMManager.instance.bgmAudioSource.clip != null && BGMManager.instance.bgmAudioSource.clip.name == musicClipName;
+        }
+
+        bool IsPlayingSameAmbienceTrack(string musicClipName)
+        {
+            return BGMManager.instance.ambienceAudioSource.clip != null && BGMManager.instance.ambienceAudioSource.clip.name == musicClipName;
         }
 
         bool IsNightTime()
@@ -205,7 +170,7 @@ namespace AF
 
         bool CanPlayDaySfx(AudioClip clip)
         {
-            return IsNightTime() == false && clip != null;
+            return !IsNightTime() && clip != null;
         }
 
         public void OnHourChanged()

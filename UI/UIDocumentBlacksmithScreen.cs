@@ -31,6 +31,8 @@ namespace AF
         PlayerInventory playerInventory;
         CursorManager cursorManager;
 
+        [HideInInspector] public bool returnToBonfire = false;
+
         private void Awake()
         {
              notificationManager = FindObjectOfType<NotificationManager>(true);
@@ -73,6 +75,14 @@ namespace AF
 
         void Close()
         {
+            if (returnToBonfire)
+            {
+                FindAnyObjectByType<UIDocumentBonfireMenu>(FindObjectsInactive.Include).gameObject.SetActive(true);
+                cursorManager.ShowCursor();
+                returnToBonfire = false;
+                this.gameObject.SetActive(false);
+                return;
+            }
 
             FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
             FindObjectOfType<PlayerComponentManager>(true).EnableCharacterController();

@@ -8,15 +8,31 @@ namespace AF
     public class DestroyableSpellParticle : DestroyableParticle
     {
         public Spell spell;
+        [HideInInspector] public EquipmentGraphicsHandler equipmentGraphicsHandler;
 
 
         EnemyHealthController enemyHealthController = null;
 
         List<EnemyHealthController> enemiesHit = new();
 
+        public bool collideOnlyOnce = true;
+
+        public float timeBetweenDamage = Mathf.Infinity;
+        public float maxTimeBetweenDamage = 0.1f;
+
+        public int pushForce = 0;
+
         private void OnParticleCollision(GameObject other)
         {
             OnCollide(other);
+        }
+
+        private void Update()
+        {
+            if (timeBetweenDamage < maxTimeBetweenDamage)
+            {
+                timeBetweenDamage += Time.deltaTime;
+            }
         }
 
         public void OnCollide(GameObject other)
@@ -26,6 +42,36 @@ namespace AF
                 return;
             }
 
+            if (other.CompareTag("Explodable"))
+            {
+                other.TryGetComponent(out ExplodingBarrel explodingBarrel);
+
+                if (explodingBarrel != null)
+                {
+                    explodingBarrel.Explode();
+                    return;
+                }
+            }
+
+
+            if (other.CompareTag("Ignitable"))
+            {
+                other.TryGetComponent(out FireablePillar fireablePillar);
+
+                if (fireablePillar != null)
+                {
+                    fireablePillar.Explode();
+                    return;
+                }
+            }
+
+
+            if (collideOnlyOnce == false && timeBetweenDamage < maxTimeBetweenDamage)
+            {
+                return;
+            }
+
+
             enemyHealthController = other.GetComponent<EnemyHealthController>();
             if (enemyHealthController == null)
             {
@@ -34,7 +80,7 @@ namespace AF
 
             if (enemyHealthController != null)
             {
-                if (enemiesHit.Contains(enemyHealthController))
+                if (collideOnlyOnce == true && enemiesHit.Contains(enemyHealthController))
                 {
                     return;
                 }
@@ -48,7 +94,15 @@ namespace AF
                     Instantiate(spell.impactFx, other.transform.position, Quaternion.identity);
                 }
 
-                var damage = spell.damageOnHitEnemy;
+                var intelligenceBonus = 0;
+                if (equipmentGraphicsHandler != null)
+                {
+                    intelligenceBonus = equipmentGraphicsHandler.intelligenceBonus;
+                }
+
+                var damage = (float)Player.instance.CalculateSpellValue(
+                    (int)spell.damageOnHitEnemy, intelligenceBonus + Player.instance.intelligence);
+
                 Enemy enemy = enemyHealthController.GetComponent<EnemyManager>().enemy;
 
                 if (spell.spellElement == WeaponElementType.Fire)
@@ -68,9 +122,41 @@ namespace AF
                     damage *= enemy.magicDamageBonus;
                 }
 
-                if (Player.instance.equippedAccessory != null && Player.instance.equippedAccessory.increasesSpellDamage)
+                if (spell.increaseDamageWithReputation)
                 {
-                    damage = (int)(damage * Player.instance.equippedAccessory.spellDamageMultiplier);
+                    var reputation = Player.instance.GetCurrentReputation();
+
+                    if (reputation <= 0)
+                    {
+                        reputation = 1;
+                    }
+
+                    damage += (reputation * 2.25f);
+                }
+
+                if (pushForce != 0)
+                {
+                    var finalPushForce = Player.instance.CalculateSpellValue(pushForce, intelligenceBonus + Player.instance.intelligence);
+
+                    if (spell.increaseDamageWithReputation)
+                    {
+                        var reputation = Player.instance.GetCurrentReputation();
+
+                        if (reputation <= 0)
+                        {
+                            reputation = 1;
+                        }
+
+                        finalPushForce += (reputation / 2);
+                    }
+
+                    other.GetComponent<EnemyManager>().PushEnemy(finalPushForce, ForceMode.Acceleration);
+                }
+
+                var targetAccessory = Player.instance.equippedAccessories.Find(x => x.spellDamageMultiplier > 0);
+                if (targetAccessory != null)
+                {
+                    damage = (int)(damage * targetAccessory.spellDamageMultiplier);
                 }
 
                 enemyHealthController.TakeEnvironmentalDamage(damage);
@@ -89,8 +175,13 @@ namespace AF
                     enemyStatus.InflictStatusEffect(spell.statusEffectInflict, spell.statusEffectInflictAmount);
                 }
 
+                if (collideOnlyOnce == false)
+                {
+                    timeBetweenDamage = 0;
+                }
 
             }
+
         }
 
     }

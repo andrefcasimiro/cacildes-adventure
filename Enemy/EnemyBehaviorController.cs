@@ -17,6 +17,13 @@ namespace AF
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
+        [Header("Player Apparel")]
+        public Helmet disguisedHelmet;
+        public Armor disguisedArmor;
+        public Gauntlet disguisedGauntlets;
+        public Legwear disguisedLegwear;
+        public bool requireOnlyArmor = false;
+
         private void Start()
         {
             EvaluateIfAgressive();
@@ -39,7 +46,7 @@ namespace AF
                 }
             }
 
-            if (FactionManager.instance.IsFriendlyTowardsPlayer(faction))
+            if (FactionManager.instance.IsFriendlyTowardsPlayer(faction) || IsPlayerDisguisedAsFaction())
             {
                 TurnFriendly();
             }
@@ -47,9 +54,34 @@ namespace AF
             {
                 TurnAgressive();
             }
-
         }
 
+        bool IsPlayerDisguisedAsFaction()
+        {
+            // If `requireOnlyArmor` is true, check only the equipped armor.
+            if (requireOnlyArmor)
+            {
+                return Player.instance.equippedArmor != null && Player.instance.equippedArmor.name.GetEnglishText() == disguisedArmor.name.GetEnglishText();
+            }
+
+            // Check if any disguise items are missing.
+            if (disguisedHelmet == null || disguisedArmor == null || disguisedGauntlets == null || disguisedLegwear == null)
+            {
+                return false;
+            }
+
+            // Check if any equipment slot is empty.
+            if (Player.instance.equippedHelmet == null || Player.instance.equippedArmor == null || Player.instance.equippedGauntlets == null || Player.instance.equippedLegwear == null)
+            {
+                return false;
+            }
+
+            // Check if all equipment pieces match the disguise.
+            return Player.instance.equippedHelmet.name.GetEnglishText() == disguisedHelmet.name.GetEnglishText()
+                && Player.instance.equippedGauntlets.name.GetEnglishText() == disguisedGauntlets.name.GetEnglishText()
+                && Player.instance.equippedArmor.name.GetEnglishText() == disguisedArmor.name.GetEnglishText()
+                && Player.instance.equippedLegwear.name.GetEnglishText() == disguisedLegwear.name.GetEnglishText();
+        }
         void TurnFriendly()
         {
             isAgressive = false;

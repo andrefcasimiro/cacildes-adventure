@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Windows;
@@ -15,9 +16,6 @@ namespace AF
 {
     public class SaveSystem : MonoBehaviour
     {
-        [HideInInspector] public Texture2D currentScreenshot;
-        public Texture2D fallbackSaveScreenshot;
-
         public static SaveSystem instance;
 
         public AudioClip saveSfx;
@@ -34,6 +32,7 @@ namespace AF
 
         public bool loadingFromGameOver = false;
 
+        ScreenshotCaptureManager screenshotCaptureManager;
 
         private void Awake()
         {
@@ -48,6 +47,18 @@ namespace AF
 
             sessionStartDateTime = DateTime.Now;
         }
+
+        #region Screenshot
+        public Texture2D GetSaveFileScreenshot()
+        {
+            if (screenshotCaptureManager == null)
+            {
+                screenshotCaptureManager = FindObjectOfType<ScreenshotCaptureManager>(true);
+            }
+
+            return screenshotCaptureManager.CaptureScreenshot();
+        }
+        #endregion
 
         #region System
 
@@ -66,13 +77,8 @@ namespace AF
                 File.Delete(screenshotPath);
             }
 
-            var targetScreenshot = fallbackSaveScreenshot;
-            if (currentScreenshot != null)
-            {
-                targetScreenshot = currentScreenshot;
-            }
-
-            File.WriteAllBytes(Path.Combine(Application.persistentDataPath, fileName + ".jpg"), targetScreenshot.EncodeToJPG());
+            Texture2D screenshot = GetSaveFileScreenshot();
+            File.WriteAllBytes(Path.Combine(Application.persistentDataPath, fileName + ".jpg"), screenshot.EncodeToJPG());
 
 
             string jsonDataString = JsonUtility.ToJson(data, true);
@@ -124,7 +130,6 @@ namespace AF
             // Player
             GameObject player = GameObject.FindWithTag("Player");
 
-
             PlayerData playerData = new()
             {
                 position = player.transform.position,
@@ -138,8 +143,10 @@ namespace AF
                 vitality = Player.instance.vitality,
                 endurance = Player.instance.endurance,
                 strength = Player.instance.strength,
-                dexterity = Player.instance.dexterity
-            };
+                dexterity = Player.instance.dexterity,
+                intelligence = Player.instance.intelligence,
+
+          }; 
 
             gameData.playerData = playerData;
 
@@ -177,9 +184,15 @@ namespace AF
                 playerEquipmentData.gauntletsName = Player.instance.equippedGauntlets.name.GetEnglishText();
             }
 
-            if (Player.instance.equippedAccessory != null)
+            if (Player.instance.equippedAccessories.Count > 0)
             {
-                playerEquipmentData.accessory1Name = Player.instance.equippedAccessory.name.GetEnglishText();
+                List<string> accessoryNames = new();
+                foreach (var equippedAcc in Player.instance.equippedAccessories)
+                {
+                    accessoryNames.Add(equippedAcc.name.GetEnglishText());
+                }
+
+                playerEquipmentData.acessoryNames = accessoryNames.ToArray();
             }
 
             gameData.playerEquipmentData = playerEquipmentData;
@@ -188,10 +201,12 @@ namespace AF
             List<SerializableItem> serializableItems = new List<SerializableItem>();
             foreach (Player.ItemEntry itemEntry in Player.instance.ownedItems)
             {
+                int amountToSave = itemEntry.amount;
+
                 SerializableItem serializableItem = new SerializableItem
                 {
                     itemName = GetSerializableItemName(itemEntry),
-                    itemCount = itemEntry.amount,
+                    itemCount = amountToSave,
                     itemUsage = itemEntry.usages
                 };
                 serializableItems.Add(serializableItem);
@@ -398,8 +413,15 @@ namespace AF
         {
             if (Input.GetKeyDown(KeyCode.F5))
             {
+                if (screenshotCaptureManager == null)
+                {
+                    screenshotCaptureManager = FindObjectOfType<ScreenshotCaptureManager>(true);
 
-                SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
+                    if (screenshotCaptureManager != null)
+                    {
+                        screenshotCaptureManager.CaptureScreenshot();
+                    }
+                }
 
                 SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
             }
@@ -482,14 +504,15 @@ namespace AF
             {
                 var gameData = GetGameData(files[i]);
 
-                SaveFileEntry saveFileEntry = new SaveFileEntry();
-                saveFileEntry.fileFullPath = files[i];
-                saveFileEntry.creationDate = gameData.saveFileCreationDate;
-                saveFileEntry.gameTime = gameData.gameTime;
-                saveFileEntry.level = gameData.playerData.vitality + gameData.playerData.endurance + gameData.playerData.strength + gameData.playerData.dexterity;
-                saveFileEntry.sceneName = gameData.currentSceneName;
+                SaveFileEntry saveFileEntry = new SaveFileEntry
+                {
+                    fileFullPath = files[i],
+                    creationDate = gameData.saveFileCreationDate,
+                    gameTime = gameData.gameTime,
+                    level = gameData.playerData.vitality + gameData.playerData.endurance + gameData.playerData.strength + gameData.playerData.dexterity + gameData.playerData.intelligence,
+                    sceneName = gameData.currentSceneName
+                };
                 var targetTexture = new Texture2D(2, 2);
-
                 try
                 {
                     if (screenshots.Length > 0 && screenshots[i] != null && string.IsNullOrEmpty(screenshots[i]) == false)
@@ -498,9 +521,14 @@ namespace AF
                         saveFileEntry.screenshot = targetTexture;
                     }
                 }
-                catch (IndexOutOfRangeException ex)
+                catch (IndexOutOfRangeException)
                 {
-                    saveFileEntry.screenshot = fallbackSaveScreenshot;
+                    if (screenshotCaptureManager == null)
+                    {
+                        screenshotCaptureManager = FindObjectOfType<ScreenshotCaptureManager>(true);
+                    }
+
+                    saveFileEntry.screenshot = screenshotCaptureManager.fallbackSaveScreenshot;
                 }
 
                 saveFileEntry.currentObjective = "";
@@ -656,6 +684,7 @@ namespace AF
         public int endurance;
         public int strength;
         public int dexterity;
+        public int intelligence;
 
     }
 
@@ -668,8 +697,7 @@ namespace AF
         public string chestName;
         public string gauntletsName;
         public string legwearName;
-        public string accessory1Name;
-        public string accessory2Name;
+        public string[] acessoryNames;
     }
 
     [System.Serializable]

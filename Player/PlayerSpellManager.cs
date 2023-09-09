@@ -52,6 +52,10 @@ namespace AF
 
             this.currentSpell = currentSpell;
 
+            // Use spells from extra intelligence level first
+            var spellName = currentSpell.name.GetEnglishText();
+
+
             if (playerInventory.GetItemQuantity(currentSpell) <= 0)
             {
                 notificationManager.ShowNotification(notEnoughSpellUsageText.GetText(), notificationManager.notEnoughSpells);
@@ -103,6 +107,11 @@ namespace AF
             playerComponentManager.GetComponent<ThirdPersonController>().enabled = true;
             playerComponentManager.GetComponent<ThirdPersonController>().canMove = false;
             playerComponentManager.GetComponent<ThirdPersonController>().canRotateCharacter = false;
+        }
+
+        public void OnSpellCast()
+        {
+            CastSpell();
         }
 
         /// <summary>
@@ -167,6 +176,7 @@ namespace AF
 
                 spellParticle.GetComponent<ParticleSystem>().Play();
 
+                spellParticle.equipmentGraphicsHandler = equipmentGraphicsHandler;
                 spellParticle.spell = currentSpell;
             }
 

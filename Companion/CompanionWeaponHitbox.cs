@@ -67,6 +67,17 @@ namespace AF
 
         public void OnTriggerEnter(Collider other)
         {
+            if (other.CompareTag("Explodable"))
+            {
+                other.TryGetComponent(out ExplodingBarrel explodingBarrel);
+
+                if (explodingBarrel != null)
+                {
+                    explodingBarrel.Explode();
+                    return;
+                }
+            }
+
             if (!other.TryGetComponent<EnemyHealthHitbox>(out var enemy))
             {
                 return;

@@ -9,7 +9,7 @@ namespace AF
 
         public int GetCurrentLevel()
         {
-            return (Player.instance.vitality + Player.instance.strength + Player.instance.dexterity + Player.instance.endurance);
+            return Player.instance.GetCurrentLevel();
         }
 
         public int GetRequiredExperienceForGivenLevel(int level)

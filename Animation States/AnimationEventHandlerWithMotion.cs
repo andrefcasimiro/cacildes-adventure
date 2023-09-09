@@ -5,6 +5,8 @@ namespace AF
 {
     public class AnimationEventHandlerWithMotion : AnimationEventHandler
     {
+        public bool syncCharacterController = true;
+
         private void OnAnimatorMove()
         {
             if (animator.applyRootMotion == false) { return; }
@@ -14,15 +16,20 @@ namespace AF
             {
                 enemy.agent.enabled = false;
             }
-            Vector3 pos = animator.deltaPosition;
 
+            Vector3 pos = animator.deltaPosition;
             pos.y = 0;
 
-            enemy.transform.position += pos;
+            if (syncCharacterController) { 
+                // Use CharacterController to move the character
+                enemy.characterController.Move(pos);
+            }
 
             var rot = animator.deltaRotation;
             rot.y = 0;
-            enemy.transform.rotation *= rot;
+
+            // Update the character's rotation
+            enemy.transform.rotation *= Quaternion.Euler(rot.eulerAngles);
 
             if (agentIsEnabled)
             {

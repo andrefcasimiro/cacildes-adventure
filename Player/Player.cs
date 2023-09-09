@@ -63,6 +63,7 @@ namespace AF
         public int endurance = 0;
         public int strength = 0;
         public int dexterity = 0;
+        public int intelligence = 0;
 
         [Header("Inventory")]
         public List<ItemEntry> ownedItems = new List<ItemEntry>();
@@ -73,7 +74,7 @@ namespace AF
         public ArmorBase equippedArmor;
         public Gauntlet equippedGauntlets;
         public Legwear equippedLegwear;
-        public Accessory equippedAccessory;
+        public List<Accessory> equippedAccessories = new();
 
         public ArmorBase defaultArmor;
         public Legwear defaultLegwear;
@@ -119,10 +120,12 @@ namespace AF
             ownedItems.Clear();
             foreach (var ownedItem in copiedOwnedItems)
             {
+                int baseAmount = ownedItem.amount;
+
                 ownedItems.Add(new ItemEntry()
                 {
                     item = Instantiate(ownedItem.item),
-                    amount = ownedItem.amount,
+                    amount = baseAmount,
                     usages = ownedItem.usages,
                 });
             }
@@ -178,12 +181,15 @@ namespace AF
                 i.amount = 1;
                 ownedItems.Add(i);
             }
-            if (equippedAccessory != null)
+            if (equippedAccessories.Count > 0)
             {
-                ItemEntry i = new ItemEntry();
-                i.item = equippedAccessory;
-                i.amount = 1;
-                ownedItems.Add(i);
+                foreach (var equippedAcc in equippedAccessories)
+                {
+                    ItemEntry i = new ItemEntry();
+                    i.item = equippedAcc;
+                    i.amount = 1;
+                    ownedItems.Add(i);
+                }
             }
         }
 
@@ -323,7 +329,9 @@ namespace AF
                                     }
 
                                     itemEntry.item = weapon;
-                                    itemEntry.amount = serializedItem.itemCount;
+
+                                    int amount = itemEntry.amount;
+                                    itemEntry.amount = amount;
                                     itemEntry.usages = serializedItem.itemUsage;
                                     this.ownedItems.Add(itemEntry);
 
@@ -425,6 +433,7 @@ namespace AF
             endurance = playerData.endurance;
             strength = playerData.strength;
             dexterity = playerData.dexterity;
+            intelligence = playerData.intelligence;
 
             StaminaStatManager staminaStatManager = FindObjectOfType<StaminaStatManager>(true);
             if (currentStamina < staminaStatManager.GetMaxStamina())
@@ -462,7 +471,20 @@ namespace AF
             }
 
             this.currentObjective = gameData.currentObjective;
+
         }
+
+        #region Accessories Logic
+        public bool IsAccessoryEquiped(Accessory accessory)
+        {
+            return GetEquippedAccessoryIndex(accessory) != -1;
+        }
+
+        public int GetEquippedAccessoryIndex(Accessory accessory)
+        {
+            return Player.instance.equippedAccessories.FindIndex(x => x.name.GetEnglishText() == accessory.name.GetEnglishText());
+        }
+        #endregion
 
         #region Recipe
         public void LearnRecipe(CraftingRecipe recipe)
@@ -495,6 +517,7 @@ namespace AF
             this.endurance = 1;
             this.dexterity = 1;
             this.strength = 1;
+            this.intelligence = 1;
 
             this.currentGold = 0;
 
@@ -511,7 +534,7 @@ namespace AF
             this.equippedArmor = defaultArmor;
             this.equippedGauntlets = null;
             this.equippedLegwear = defaultLegwear;
-            this.equippedAccessory = null;
+            this.equippedAccessories = new();
             this.equippedShield = null;
             this.equippedWeapon = null;
 
@@ -548,6 +571,7 @@ namespace AF
 
         public IEnumerator HandleLoadScene(int sceneIndex, bool deactivateLoadingScreenWhenFinished)
         {
+             SceneManager.UnloadScene(SceneManager.GetActiveScene());
 
             FindObjectOfType<UIDocumentLoadingScreen>(true).gameObject.SetActive(true);
             FindObjectOfType<UIDocumentLoadingScreen>(true).UpdateLoadingBar(0f);
@@ -557,13 +581,22 @@ namespace AF
             var loadingSceneAsync = SceneManager.LoadSceneAsync(sceneIndex);
             loadingSceneAsync.allowSceneActivation = true;
 
-            while (loadingSceneAsync.isDone == false)
+            UIDocumentLoadingScreen uIDocumentLoadingScreen = FindAnyObjectByType<UIDocumentLoadingScreen>(FindObjectsInactive.Include);
+            uIDocumentLoadingScreen.gameObject.SetActive(true);
+
+            while (loadingSceneAsync.progress < 0.9)
             {
                 float progress = Mathf.Clamp01(loadingSceneAsync.progress / 0.9f) * 100;
+                Debug.Log("Hello World: " + loadingSceneAsync.progress);
 
                 // activate loading screen between scenes
-                FindObjectOfType<UIDocumentLoadingScreen>(true).gameObject.SetActive(true);
-                FindObjectOfType<UIDocumentLoadingScreen>(true).UpdateLoadingBar(progress);
+                if (uIDocumentLoadingScreen == null)
+                {
+                    uIDocumentLoadingScreen = FindAnyObjectByType<UIDocumentLoadingScreen>(FindObjectsInactive.Include);
+                    uIDocumentLoadingScreen.gameObject.SetActive(true);
+                }
+
+                uIDocumentLoadingScreen.UpdateLoadingBar(progress);
 
                 yield return null;
             }
@@ -580,10 +613,16 @@ namespace AF
         }
 
         public IEnumerator HideLoadingScreen()
-        { 
-            yield return FindObjectOfType<UIDocumentLoadingScreen>(true).FadeAndDisable();
+        {
+            var loadingScreen = FindObjectOfType<UIDocumentLoadingScreen>(true);
+            yield return loadingScreen.FadeAndDisable();
         }
         #endregion
+
+        public int GetCurrentLevel()
+        {
+            return (Player.instance.vitality + Player.instance.strength + Player.instance.dexterity + Player.instance.endurance + Player.instance.intelligence);
+        }
 
         #region Reputation
         public int GetCurrentReputation()
@@ -594,47 +633,29 @@ namespace AF
 
         #region AI Formulas
 
-        /**
-            Base Health: 1100
-
-            LV2
-            1100 + (1100 * 2 * 0.1) = 1320
-
-            LV5
-            1100 + (1100 * 5 * 0.1) = 1650
-
-            LV10
-            1100 + (1100 * 10 * 0.1) = 2200
-
-            LV20
-            1100 + (1100 * 20 * 0.1) = 3300
-
-            LV50
-            1100 + (1100 * 50 * 0.1) = 5500
-
-
-            Base Health: 500
-            LV2 = 600
-            LV15 = 1250
-            LV50 = 3000
-        */
         public int CalculateAIHealth(int baseValue, int currentLevel)
         {
-            return baseValue + Mathf.RoundToInt(baseValue * currentLevel * .1f);
+            return baseValue + Mathf.RoundToInt(baseValue * Mathf.Pow(1.1f, currentLevel));
         }
 
         public int CalculateAIAttack(int baseValue, int currentLevel)
         {
-            return baseValue + Mathf.RoundToInt(baseValue * currentLevel * .1f);
+            return baseValue + Mathf.RoundToInt((baseValue / 2) * Mathf.Pow(1.15f, currentLevel));
         }
+
         public int CalculateAIPosture(int baseValue, int currentLevel)
         {
-            return baseValue + Mathf.RoundToInt(baseValue * currentLevel * .1f);
+            return baseValue + Mathf.RoundToInt((baseValue / 4) * Mathf.Pow(1.05f, currentLevel));
         }
 
         public int CalculateAIGenericValue(int baseValue, int currentLevel)
         {
-            return baseValue + Mathf.RoundToInt(baseValue * currentLevel * .1f);
+            return baseValue + Mathf.RoundToInt(baseValue * Mathf.Pow(1.05f, currentLevel));
+        }
+
+        public int CalculateSpellValue(int baseValue, int currentInteligence)
+        {
+            return baseValue + (Mathf.RoundToInt((baseValue / 2) * Mathf.Pow(1.015f, currentInteligence)) / 4);
         }
         #endregion
     }

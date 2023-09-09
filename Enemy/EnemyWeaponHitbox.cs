@@ -32,6 +32,7 @@ namespace AF
 
         [Header("Hitbox Special FX")]
         public DestroyableParticle hitboxSpecialFx;
+        public Transform hitboxTransformRef;
 
         private void Awake()
         {
@@ -71,7 +72,13 @@ namespace AF
                 return;
             }
 
-            Instantiate(hitboxSpecialFx,this.transform.position, Quaternion.identity);
+            Vector3 pos = transform.position;
+            if (hitboxTransformRef != null)
+            {
+                pos = hitboxTransformRef.transform.position;
+            }
+
+            Instantiate(hitboxSpecialFx, pos, Quaternion.identity);
         }
 
         void GetPlayerComponents()
@@ -135,6 +142,21 @@ namespace AF
             return boxCollider.enabled;
         }
 
+        private void OnTriggerStay(Collider other)
+        {
+
+            if (other.CompareTag("Explodable"))
+            {
+                other.TryGetComponent(out ExplodingBarrel explodingBarrel);
+
+                if (explodingBarrel != null)
+                {
+                    explodingBarrel.Explode();
+                }
+            }
+
+        }
+
         public void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.CompareTag("PlayerCompanionHealthHitbox"))
@@ -159,38 +181,88 @@ namespace AF
             if (playerParryManager.IsParrying() && enemy.enemyPostureController != null)
             {
                 playerParryManager.InstantiateParryFx();
-                enemy.enemyPostureController.TakePostureDamage();
+
+                int parryDamage = 0;
+                int playerParryBonus = (int)playerParryManager.GetComponent<EquipmentGraphicsHandler>().parryPostureDamageBonus;
+                if (playerParryBonus > 0)
+                {
+                    parryDamage = enemy.enemy.postureDamagePerParry + playerParryBonus;
+                }
+
+                enemy.enemyPostureController.TakePostureDamage(parryDamage);
                 return;
             }
 
-            float damageToReceive = Mathf.Clamp(
-                enemy.enemyCombatController.GetCurrentAttack() - defenseStatManager.GetDefenseAbsorption(),
-                Random.Range(1, 10),
-                healthStatManager.GetMaxHealth()
-            );
+            float damageToReceive = CalculateDamageToReceive(enemy.enemyCombatController.GetCurrentAttack(),
+                defenseStatManager.GetDefenseAbsorption(), healthStatManager.GetMaxHealth());
 
-            if (weaponElementType == WeaponElementType.Fire)
+            // Apply elemental defense reduction based on weaponElementType
+            float elementalDefense = 0f;
+            switch (weaponElementType)
             {
-                damageToReceive -= (int)defenseStatManager.GetFireDefense();
+                case WeaponElementType.Fire:
+                    elementalDefense = defenseStatManager.GetFireDefense() / 100; // Convert to percentage
+                    break;
+                case WeaponElementType.Frost:
+                    elementalDefense = defenseStatManager.GetFrostDefense() / 100; // Convert to percentage
+                    break;
+                case WeaponElementType.Lightning:
+                    elementalDefense = defenseStatManager.GetLightningDefense() / 100; // Convert to percentage
+                    break;
+                case WeaponElementType.Magic:
+                    elementalDefense = defenseStatManager.GetMagicDefense() / 100; // Convert to percentage
+                    break;
             }
-            if (weaponElementType == WeaponElementType.Frost)
+
+            // Calculate the final damage to receive, considering elemental defense
+            if (elementalDefense > 0)
             {
-                damageToReceive -= (int)defenseStatManager.GetFrostDefense();
+                damageToReceive = (int)(damageToReceive * (1 - elementalDefense)); // Subtract elemental defense as a percentage
             }
-            if (weaponElementType == WeaponElementType.Lightning)
+
+            if (!string.IsNullOrEmpty(enemy.enemyCombatController.playerExecutedClip) && !string.IsNullOrEmpty(enemy.enemyCombatController.transitionToExecution))
             {
-                damageToReceive -= (int)defenseStatManager.GetLightningDefense();
+                enemy.animator.Play(enemy.enemyCombatController.transitionToExecution);
+
+                // Calculate the desired position in front of the enemy
+                Vector3 desiredPlayerPosition = enemy.transform.position + enemy.transform.forward * 1f;
+
+                // Ensure the player stays at the same height as the enemy (if required)
+                desiredPlayerPosition.y = enemy.transform.position.y;
+
+                // Move the player to the desired position and rotation
+                enemy.player.GetComponent<PlayerComponentManager>().UpdatePosition(desiredPlayerPosition, enemy.transform.rotation);
+                enemy.player.GetComponent<PlayerComponentManager>().DisableComponents();
+                enemy.player.GetComponent<Animator>().Play(enemy.enemyCombatController.playerExecutedClip);
+                enemy.player.GetComponent<PlayerPoiseController>().MarkAsStunned();
             }
-            if (weaponElementType == WeaponElementType.Magic)
-            {
-                damageToReceive -= (int)defenseStatManager.GetMagicDefense();
-            }
+
 
             playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.enemyCombatController.currentAttackPoiseDamage, weaponElementType);
 
             DisableHitbox();
 
             damageCooldownTimer = 0f;
+        }
+
+        float CalculateDamageToReceive(float currentAttack, float defenseAbsorption, float maxHealth)
+        {
+            // Calculate the raw damage before absorption
+            float rawDamage = Mathf.Max(1f, currentAttack - defenseAbsorption);
+
+            // Calculate the logarithmic scaling factor based on defense absorption
+            float scalingFactor = 1f / (1f + Mathf.Log(defenseAbsorption + 1f, 20f));
+
+            // Calculate the final damage to receive
+            float damageToReceive = rawDamage * scalingFactor;
+
+            // Make sure the damage is at least 1 to avoid zero or negative values
+            damageToReceive = Mathf.Max(damageToReceive, 1f);
+
+            // Clamp the damage to not exceed the player's maximum health
+            damageToReceive = Mathf.Clamp(damageToReceive, 1f, maxHealth);
+
+            return (int)damageToReceive;
         }
     }
 }

@@ -47,6 +47,10 @@ namespace AF
 
         public float speedPenalty = 0f;
 
+        [Header("Spiked Shield")]
+
+        public float damageDealtToEnemiesUponBlocking = 0f;
+
         [Header("Sound Effects")]
         public AudioClip shieldDrawSfx;
 

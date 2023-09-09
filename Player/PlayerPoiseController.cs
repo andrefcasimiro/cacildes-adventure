@@ -9,6 +9,7 @@ namespace AF
         public readonly int hashStunnedDamage = Animator.StringToHash("StunnedDamage");
         public readonly int hashTakingDamage = Animator.StringToHash("TakingDamage");
         public readonly int hashIsTakingDamage = Animator.StringToHash("IsTakingDamage");
+        public readonly int hashIsStunned = Animator.StringToHash("IsStunned");
         public readonly int hashParried = Animator.StringToHash("Parried");
 
         [Header("Posture")]
@@ -39,6 +40,20 @@ namespace AF
         public bool isStunned = false;
 
         PlayerSpellManager playerSpellManager => GetComponent<PlayerSpellManager>();
+
+        LockOnManager lockOnManager;
+
+        CharacterController characterController => GetComponent<CharacterController>();
+
+        float characterSlopeLimit, characterStepOffset;
+
+        private void Awake()
+        {
+            characterSlopeLimit = characterController.slopeLimit;
+            characterStepOffset = characterController.stepOffset;
+
+            lockOnManager = FindAnyObjectByType<LockOnManager>(FindObjectsInactive.Include);
+        }
 
         private void Update()
         {
@@ -85,6 +100,10 @@ namespace AF
 
         public void ActivatePoiseDamage()
         {
+            characterController.detectCollisions = false;
+            characterController.slopeLimit = 0;
+            characterController.stepOffset = 0;
+            characterController.enabled = false;
             if (damageParticlePrefab != null)
             {
                 Instantiate(damageParticlePrefab, transform.position, Quaternion.identity);
@@ -93,9 +112,9 @@ namespace AF
             if (currentPoiseHitCount >= GetMaxPoise() * 3)
             {
                 isStunned = true;
+                MarkAsStunned();
                 animator.Play(hashStunnedDamage);
-                StartCoroutine(RecoverControl(stunnedDisableTime));
-                FindObjectOfType<LockOnManager>(true).DisableLockOn();
+                lockOnManager.DisableLockOn();
             }
             else
             {
@@ -108,10 +127,17 @@ namespace AF
             currentPoiseHitCount = 0;
             playerComponentManager.DisableComponents();
 
+            // Prevent enemies from pushing player
+
             if (!tps.skateRotation)
             {
-                playerComponentManager.DisableCharacterController();
+                //playerComponentManager.DisableCharacterController();
             }
+        }
+
+        public void MarkAsStunned()
+        {
+            StartCoroutine(RecoverControl(stunnedDisableTime));
         }
 
         IEnumerator RecoverControl(float waitTime)
@@ -121,6 +147,10 @@ namespace AF
             playerComponentManager.EnableCharacterController();
             playerComponentManager.EnableComponents();
             isStunned = false;
+            characterController.detectCollisions = true;
+
+            characterController.slopeLimit = characterSlopeLimit;
+            characterController.stepOffset = characterStepOffset;
         }
 
         public IEnumerator PlayHurtSfx()
@@ -144,6 +174,5 @@ namespace AF
         {
             animator.Play(hashParried);
         }
-
     }
 }

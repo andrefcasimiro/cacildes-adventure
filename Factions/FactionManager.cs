@@ -53,12 +53,14 @@ namespace AF
 
         public bool IsFriendlyTowardsPlayer(FactionName factionName)
         {
+
             FactionEntry factionEntry = factionEntriesDictionary[factionName.ToString()];
 
             return (factionEntry.factionIsGood
                 ? Player.instance.GetCurrentReputation() >= factionEntry.minimumRequiredReputationToInteract
                 : Player.instance.GetCurrentReputation() <= factionEntry.minimumRequiredReputationToInteract) && HasGoodOrNeutralRelationshipWithFaction(factionEntry);
         }
+
 
         public void SetFactionAffinity(FactionName factionName, int factionAffinity)
         {

@@ -73,7 +73,12 @@ namespace AF
 
         private void OnTriggerStay(Collider other)
         {
-            if (other.gameObject.tag == "Wood" && IsDodging())
+            if (!IsDodging())
+            {
+                return;
+            }
+
+            if (other.gameObject.CompareTag("Wood"))
             {
                 var destroyable = other.GetComponent<Destroyable>();
                 if (destroyable != null)

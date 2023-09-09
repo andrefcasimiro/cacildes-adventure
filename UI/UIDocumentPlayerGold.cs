@@ -19,12 +19,34 @@ namespace AF
         public float scoreIncreaseRate = 1.25f;
         float ScoreIncrement = 0;
 
+        [HideInInspector] public ParticlePoolManager particlePoolManager;
+
+        ParticleSystem currentGold;
+
         private void Awake()
         {
+            particlePoolManager = FindAnyObjectByType<ParticlePoolManager>(FindObjectsInactive.Include);
+
             this.gameObject.SetActive(false);
         }
 
         #region Positive Gold
+        public void PlayCoinsFX(Transform origin)
+        {
+            if (currentGold != null)
+            {
+                currentGold.Stop();
+                particlePoolManager.goldPool.Pool.Release(currentGold);
+            }
+
+            Soundbank.instance.PlayCoin();
+            currentGold = particlePoolManager.goldPool.Pool.Get();
+            currentGold.transform.position = origin.position;
+            currentGold.Play();
+            var m = currentGold.main;
+            m.loop = false;
+        }
+
         public void NotifyGold(int amount)
         {
             Soundbank.instance.PlayCoin();
@@ -123,7 +145,20 @@ namespace AF
 
         IEnumerator Exit()
         {
+            if (currentGold != null)
+            {
+                currentGold.Stop();
+            }
+
             yield return new WaitForSeconds(3f);
+
+            if (currentGold != null)
+            {
+
+                particlePoolManager.goldPool.Pool.Release(currentGold);
+                currentGold = null;
+            }
+
             this.gameObject.SetActive(false);
         }
     }

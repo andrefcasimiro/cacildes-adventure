@@ -4,12 +4,22 @@ using UnityEngine;
 using System.Linq;
 using System.Collections;
 using static AF.Player;
+using Cinemachine;
 
 namespace AF
 {
 
+
     public class EquipmentGraphicsHandler : MonoBehaviour, ISaveable
     {
+        public int BASE_NUMBER_OF_ACCESSORIES_THAT_CAN_EQUIP = 2;
+
+        [System.Serializable]
+        public class ExtraAccessorySlot
+        {
+            public SwitchEntry[] requiredSwitches;
+        }
+        
         [HideInInspector] public Transform leftHand;
         [HideInInspector] public Transform rightHand;
 
@@ -50,6 +60,7 @@ namespace AF
         public int enduranceBonus = 0;
         public int strengthBonus = 0;
         public int dexterityBonus = 0;
+        public int intelligenceBonus = 0;
 
         public float fireDefenseBonus = 0;
         public float frostDefenseBonus = 0;
@@ -58,10 +69,16 @@ namespace AF
 
         public float additionalCoinPercentage = 0;
 
+        public float parryPostureDamageBonus = 0;
+
         public int reputationBonus = 0;
 
         public float chanceToStealBonus = 0;
 
+        CinemachineImpulseSource impulseSource => GetComponent<CinemachineImpulseSource>();
+
+
+        public List<ExtraAccessorySlot> extraAccessorySlots = new();
 
         public List<string> helmetNakedParts = new List<string>
         {
@@ -89,9 +106,12 @@ namespace AF
 
         RuntimeAnimatorController playerDefaultAnimator;
 
+        PlayerInventory playerInventory => GetComponent<PlayerInventory>();
+        NotificationManager notificationManager;
+
         private void Awake()
         {
-            
+            notificationManager = FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include);
         }
 
         void Start()
@@ -153,9 +173,12 @@ namespace AF
                 EquipGauntlet(Player.instance.equippedGauntlets);
             }
 
-            if (Player.instance.equippedAccessory != null)
+            if (Player.instance.equippedAccessories.Count > 0)
             {
-                EquipAccessory(Player.instance.equippedAccessory);
+                foreach (var acc in Player.instance.equippedAccessories)
+                {
+                    EquipAccessory(acc);
+                }
             }
         }
 
@@ -518,6 +541,79 @@ namespace AF
         }
         #endregion
 
+        #region Accessories
+
+        public bool OnUnequipAccessoryCheckIfAccessoryWasDestroyedPermanently(Accessory accessory)
+        {
+            var unequipedAccessoryIndex = Player.instance.GetEquippedAccessoryIndex(accessory);
+            if (unequipedAccessoryIndex == -1)
+            {
+                return false;
+            }
+
+            UnequipAccessory(accessory);
+
+            bool wasDestroyed = CheckIfAccessoryShouldBeDestroyed(accessory);
+            return wasDestroyed;
+        }
+
+        bool CheckIfAccessoryShouldBeDestroyed(Accessory unequipedAccessory)
+        {
+            if (unequipedAccessory != null && unequipedAccessory.destroyOnUnequip)
+            {
+
+                var itemIdx = Player.instance.ownedItems.FindIndex(x => x.item.name.GetEnglishText() == unequipedAccessory.name.GetEnglishText());
+
+                if (itemIdx != -1)
+                {
+                    Player.instance.ownedItems.RemoveAt(itemIdx);
+                }
+
+                notificationManager.ShowNotification(unequipedAccessory.name.GetText() + " " + LocalizedTerms.WasDestroyedByUnequiping() + ".", notificationManager.systemError);
+
+                if (unequipedAccessory.onUnequipDestroySoundclip != null)
+                {
+                    BGMManager.instance.PlaySound(unequipedAccessory.onUnequipDestroySoundclip, null);
+                }
+                SaveSystem.instance.SaveGameData("item_destroyed");
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool CanEquipMoreAccessories()
+        {
+            return BASE_NUMBER_OF_ACCESSORIES_THAT_CAN_EQUIP + GetExtraAccessorySlots() <= Player.instance.equippedAccessories.Count;
+        }
+
+        public int GetExtraAccessorySlots()
+        {
+            int extraSlotsCount = 0;
+
+            foreach (var extraAccessorySlot in extraAccessorySlots)
+            {
+                bool conditionsMet = true;
+
+                foreach (var requiredSwitch in extraAccessorySlot.requiredSwitches)
+                {
+                    if (!SwitchManager.instance.GetSwitchCurrentValue(requiredSwitch))
+                    {
+                        conditionsMet = false;
+                        break;
+                    }
+                }
+
+                if (conditionsMet)
+                {
+                    extraSlotsCount++;
+                }
+            }
+
+            return extraSlotsCount;
+        }
+
         public void EquipAccessory(Accessory accessoryToEquip)
         {
             if (accessoryToEquip == null)
@@ -525,15 +621,19 @@ namespace AF
                 return;
             }
 
-            if (accessoryToEquip != Player.instance.equippedAccessory)
-            {
-                UnequipAccessory();
+            var idx = Player.instance.GetEquippedAccessoryIndex(accessoryToEquip);
 
-                Player.instance.equippedAccessory = accessoryToEquip;
+            // If accessory is equiped, return;
+            if (idx != -1)
+            {
+                return;
             }
+
+            Player.instance.equippedAccessories.Add(accessoryToEquip);
 
             RecalculateEquipmentBonus();
         }
+#endregion
 
         public void UnequipWeapon()
         {
@@ -587,10 +687,17 @@ namespace AF
             RecalculateEquipmentBonus();
         }
 
-        public void UnequipAccessory()
+        public void UnequipAccessory(Accessory accessoryToUnequip)
         {
-            Player.instance.equippedAccessory = null;
+            var idx = Player.instance.GetEquippedAccessoryIndex(accessoryToUnequip);
 
+            if (idx == -1)
+            {
+                return;
+            }
+
+            Player.instance.equippedAccessories.RemoveAt(idx);
+            
             RecalculateEquipmentBonus();
         }
 
@@ -698,6 +805,12 @@ namespace AF
                     }
                 }
             }
+        }
+
+
+        public void ShakeCamera()
+        {
+            impulseSource.GenerateImpulse();
         }
 
         #region Hitboxes
@@ -1042,14 +1155,21 @@ namespace AF
                 UnequipGauntlet();
             }
 
-            if (!String.IsNullOrEmpty(playerEquipmentData.accessory1Name))
+            if (playerEquipmentData.acessoryNames.Length > 0)
             {
-                var accessory = Resources.Load<Accessory>("Items/Accessories/" + playerEquipmentData.accessory1Name);
-                EquipAccessory(accessory);
+                foreach (var acc in playerEquipmentData.acessoryNames)
+                {
+                    var accessory = Resources.Load<Accessory>("Items/Accessories/" + acc);
+                    EquipAccessory(accessory);
+                }
             }
             else
             {
-                UnequipAccessory();
+                var originalList = Player.instance.equippedAccessories.ToList();
+                foreach (var equippedAcc in originalList)
+                {
+                    UnequipAccessory(equippedAcc);
+                }
             }
 
         }
@@ -1095,9 +1215,10 @@ namespace AF
             {
                 this.weightPenalty += Player.instance.equippedLegwear.speedPenalty;
             }
-            if (Player.instance.equippedAccessory != null)
+            if (Player.instance.equippedAccessories.Count > 0)
             {
-                this.weightPenalty += Player.instance.equippedAccessory.speedPenalty;
+                float speedPenaltyAccessories = Player.instance.equippedAccessories.Sum(x => x.speedPenalty);
+                this.weightPenalty += speedPenaltyAccessories;
             }
 
             // Offset (in the case where an item removes weight penalties, like a ring of havel or something
@@ -1127,9 +1248,10 @@ namespace AF
             {
                 equipmentPoise += Player.instance.equippedLegwear.poiseBonus;
             }
-            if (Player.instance.equippedAccessory != null)
+            if (Player.instance.equippedAccessories.Count > 0)
             {
-                equipmentPoise += Player.instance.equippedAccessory.poiseBonus;
+                float poiseBonusAccessories = Player.instance.equippedAccessories.Sum(x => x.poiseBonus);
+                equipmentPoise += (int)poiseBonusAccessories;
             }
         }
 
@@ -1159,9 +1281,10 @@ namespace AF
                 equipmentPhysicalDefense += player.equippedLegwear.physicalDefense;
             }
 
-            if (player.equippedAccessory != null)
+            if (Player.instance.equippedAccessories.Count > 0)
             {
-                equipmentPhysicalDefense += player.equippedAccessory.physicalDefense;
+                float physicalDefenseBonus = Player.instance.equippedAccessories.Sum(x => x.physicalDefense);
+                equipmentPhysicalDefense += physicalDefenseBonus;
             }
         }
 
@@ -1201,9 +1324,11 @@ namespace AF
                 }
             }
 
-            if (Player.instance.equippedAccessory != null && Player.instance.equippedAccessory.statusEffectResistances.Length > 0)
+            if (Player.instance.equippedAccessories.Count > 0)
             {
-                foreach (var statusEffectResistance in Player.instance.equippedAccessory.statusEffectResistances)
+                var statusEffectResistances = Player.instance.equippedAccessories.SelectMany(x => x.statusEffectResistances);
+
+                foreach (var statusEffectResistance in statusEffectResistances)
                 {
                     HandleStatusEffectEntry(statusEffectResistance);
                 }
@@ -1235,6 +1360,7 @@ namespace AF
             this.enduranceBonus = 0;
             this.strengthBonus = 0;
             this.dexterityBonus = 0;
+            this.intelligenceBonus = 0;
 
             this.fireDefenseBonus = 0;
             this.frostDefenseBonus = 0;
@@ -1243,6 +1369,7 @@ namespace AF
 
             var initialReputation = 0;
             this.reputationBonus = 0;
+            this.parryPostureDamageBonus = 0;
 
             if (Player.instance.equippedHelmet != null)
             {
@@ -1250,6 +1377,7 @@ namespace AF
                 this.enduranceBonus += Player.instance.equippedHelmet.enduranceBonus;
                 this.strengthBonus += Player.instance.equippedHelmet.strengthBonus;
                 this.dexterityBonus += Player.instance.equippedHelmet.dexterityBonus;
+                this.intelligenceBonus += Player.instance.equippedHelmet.intelligenceBonus;
                 this.fireDefenseBonus += Player.instance.equippedHelmet.fireDefense;
                 this.frostDefenseBonus += Player.instance.equippedHelmet.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedHelmet.lightningDefense;
@@ -1262,6 +1390,7 @@ namespace AF
                 this.enduranceBonus += Player.instance.equippedArmor.enduranceBonus;
                 this.strengthBonus += Player.instance.equippedArmor.strengthBonus;
                 this.dexterityBonus += Player.instance.equippedArmor.dexterityBonus;
+                this.intelligenceBonus += Player.instance.equippedArmor.intelligenceBonus;
                 this.fireDefenseBonus += Player.instance.equippedArmor.fireDefense;
                 this.frostDefenseBonus += Player.instance.equippedArmor.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedArmor.lightningDefense;
@@ -1274,6 +1403,7 @@ namespace AF
                 this.enduranceBonus += Player.instance.equippedGauntlets.enduranceBonus;
                 this.strengthBonus += Player.instance.equippedGauntlets.strengthBonus;
                 this.dexterityBonus += Player.instance.equippedGauntlets.dexterityBonus;
+                this.intelligenceBonus += Player.instance.equippedGauntlets.intelligenceBonus;
                 this.fireDefenseBonus += Player.instance.equippedGauntlets.fireDefense;
                 this.frostDefenseBonus += Player.instance.equippedGauntlets.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedGauntlets.lightningDefense;
@@ -1286,23 +1416,29 @@ namespace AF
                 this.enduranceBonus += Player.instance.equippedLegwear.enduranceBonus;
                 this.strengthBonus += Player.instance.equippedLegwear.strengthBonus;
                 this.dexterityBonus += Player.instance.equippedLegwear.dexterityBonus;
+                this.intelligenceBonus += Player.instance.equippedLegwear.intelligenceBonus;
                 this.fireDefenseBonus += Player.instance.equippedLegwear.fireDefense;
                 this.frostDefenseBonus += Player.instance.equippedLegwear.frostDefense;
                 this.lightningDefenseBonus += Player.instance.equippedLegwear.lightningDefense;
                 this.magicDefenseBonus += Player.instance.equippedLegwear.magicDefense;
                 this.reputationBonus += Player.instance.equippedLegwear.reputationBonus;
             }
-            if (Player.instance.equippedAccessory != null)
+            if (Player.instance.equippedAccessories.Count> 0)
             {
-                this.vitalityBonus += Player.instance.equippedAccessory.vitalityBonus;
-                this.enduranceBonus += Player.instance.equippedAccessory.enduranceBonus;
-                this.strengthBonus += Player.instance.equippedAccessory.strengthBonus;
-                this.dexterityBonus += Player.instance.equippedAccessory.dexterityBonus;
-                this.fireDefenseBonus += Player.instance.equippedAccessory.fireDefense;
-                this.frostDefenseBonus += Player.instance.equippedAccessory.frostDefense;
-                this.lightningDefenseBonus += Player.instance.equippedAccessory.lightningDefense;
-                this.magicDefenseBonus += Player.instance.equippedAccessory.magicDefense;
-                this.reputationBonus += Player.instance.equippedAccessory.reputationBonus;
+                foreach (var acc in Player.instance.equippedAccessories)
+                {
+                    this.vitalityBonus += acc.vitalityBonus;
+                    this.enduranceBonus += acc.enduranceBonus;
+                    this.strengthBonus += acc.strengthBonus;
+                    this.dexterityBonus += acc.dexterityBonus;
+                    this.intelligenceBonus += acc.intelligenceBonus;
+                    this.fireDefenseBonus += acc.fireDefense;
+                    this.frostDefenseBonus += acc.frostDefense;
+                    this.lightningDefenseBonus += acc.lightningDefense;
+                    this.magicDefenseBonus += acc.magicDefense;
+                    this.reputationBonus += acc.reputationBonus;
+                    this.parryPostureDamageBonus += acc.postureDamagePerParry;
+                }
             }
 
             // Reputation has changed?
@@ -1334,13 +1470,22 @@ namespace AF
             {
                 additionalCoinPercentage += Player.instance.equippedLegwear.additionalCoinPercentage;
             }
-            if (Player.instance.equippedAccessory != null)
+            if (Player.instance.equippedAccessories.Count > 0)
             {
-                additionalCoinPercentage += Player.instance.equippedAccessory.additionalCoinPercentage;
+                var additionalCoinPercentageBonuses = Player.instance.equippedAccessories.Sum(x => x.additionalCoinPercentage);
+                additionalCoinPercentage += additionalCoinPercentageBonuses;
             }
         }
 
-            #endregion
 
+        // Every 5 levels, grant 1 extra spell
+        public int CalculateExtraSpellUsage()
+        {
+            return Player.instance.intelligence + intelligenceBonus / 5;
         }
+
+
+        #endregion
+
+    }
 }

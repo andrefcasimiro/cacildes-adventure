@@ -11,7 +11,6 @@ namespace AF
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-
             currentTimeOnWaypoint = 0;
 
             if (enemy == null)
@@ -30,6 +29,8 @@ namespace AF
                 enemy.enemyHealthController.HideHUD();
             }
 
+            enemy.RepositionNavmeshAgent();
+
             enemy.agent.SetDestination(enemy.transform.position);
         }
 
@@ -37,7 +38,7 @@ namespace AF
         {
             if (enemy.eventPage != null && enemy.eventPage.isRunning)
             {
-                enemy.agent.isStopped = true;
+                // enemy.agent.isStopped = true;
                 return;
             }
 

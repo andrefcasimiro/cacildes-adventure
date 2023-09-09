@@ -16,6 +16,10 @@ namespace AF
 
         MenuManager menuManager;
 
+
+        float inputDelayForSwitchingFavItems = Mathf.Infinity;
+        float maxInputDelayForSwitchingFavItems = 0.1f;
+
         private void Awake()
         {
              menuManager = FindObjectOfType<MenuManager>(true);
@@ -32,6 +36,12 @@ namespace AF
         {
             // Dont allow consuming items when menu is opened, we might be searching in the textbox using the 'R' or 'Q' key
 
+
+            if (inputDelayForSwitchingFavItems < maxInputDelayForSwitchingFavItems)
+            {
+                inputDelayForSwitchingFavItems += Time.deltaTime;
+            }
+
             if (inputs.consumeFavoriteItem)
             {
                 inputs.consumeFavoriteItem = false;
@@ -43,18 +53,27 @@ namespace AF
 
                 ConsumeFavoriteItem();
             }
-            else if (inputs.switchFavoriteItem)
+            else if (inputs.switchFavoriteItemNext || inputs.switchFavoriteItemBack)
             {
-                inputs.switchFavoriteItem = false;
+
+                int direction = inputs.switchFavoriteItemNext == true ? 1 : 0;
+                inputs.switchFavoriteItemNext = false;
+                inputs.switchFavoriteItemBack = false;
+
+                if (inputDelayForSwitchingFavItems < maxInputDelayForSwitchingFavItems)
+                {
+                    return;
+                }
 
                 if (menuManager.IsMenuOpen())
                 {
                     return;
                 }
 
-                SwitchFavoriteItemsOrder();
+                SwitchFavoriteItemsOrder(direction);
 
                 Soundbank.instance.PlayQuickItemSwitch();
+                inputDelayForSwitchingFavItems = 0;
             }
         }
 
@@ -93,16 +112,25 @@ namespace AF
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }
 
-        public void SwitchFavoriteItemsOrder()
+        public void SwitchFavoriteItemsOrder(int direction)
         {
             if (Player.instance.favoriteItems.Count <= 0)
             {
                 return;
             }
 
-            Item firstItem = Player.instance.favoriteItems.First();
-            Player.instance.favoriteItems.Remove(firstItem);
-            Player.instance.favoriteItems.Add(firstItem);
+            if (direction == 1)
+            {
+                Item firstItem = Player.instance.favoriteItems.First();
+                Player.instance.favoriteItems.Remove(firstItem);
+                Player.instance.favoriteItems.Add(firstItem);
+            }
+            else
+            {
+                Item lastItem = Player.instance.favoriteItems.Last();
+                Player.instance.favoriteItems.Remove(lastItem);
+                Player.instance.favoriteItems.Insert(0, lastItem);
+            }
 
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }
@@ -153,6 +181,10 @@ namespace AF
         public void UpdateFavoriteItems()
         {
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
+        }
+
+        public bool IsItemFavorited(Item item) {
+            return Player.instance.favoriteItems.FirstOrDefault(x => x.name.GetEnglishText() == item.name.GetEnglishText()) != null;
         }
     }
 

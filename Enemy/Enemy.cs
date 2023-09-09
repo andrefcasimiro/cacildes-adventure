@@ -6,9 +6,9 @@ namespace AF
     public enum EnemySize
     {
         Small = 1,
-        Medium = 3,
-        Large = 6,
-        Collossal = 8
+        Medium = 2,
+        Large = 3,
+        Collossal = 4,
     }
 
     [CreateAssetMenu(menuName = "NPCs / Enemy / New Enemy")]
@@ -50,9 +50,6 @@ namespace AF
         public int postureDamagePerParry = 25;
         public int maxPostureDamage = 100;
         public float postureDecreaseRate = 1.25f;
-
-        [Header("FX")]
-        public DestroyableParticle damagedParticle;
 
         [Header("EXP & Loot")]
         public int baseGold = 500;

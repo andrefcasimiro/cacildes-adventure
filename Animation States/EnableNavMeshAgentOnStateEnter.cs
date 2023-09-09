@@ -3,6 +3,8 @@ using UnityEngine.AI;
 
 namespace AF
 {
+
+    // Confirm if is unused
     public class EnableNavMeshAgentOnStateEnter : StateMachineBehaviour
     {
         [Header("Companion / Enemy Hybrid")]
@@ -31,7 +33,6 @@ namespace AF
             {
                 navMeshAgent.enabled = true;
                 navMeshAgent.isStopped = false;
-                navMeshAgent.updatePosition = true;
             }
         }
     }

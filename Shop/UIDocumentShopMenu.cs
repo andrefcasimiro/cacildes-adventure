@@ -124,6 +124,7 @@ namespace AF
         void UpdateItemsList(List<ShopItem> itemsToShow)
         {
             root.Q<ScrollView>().Clear();
+            var shop = ShopManager.instance.GetShopInstanceByName(shopEntry.name);
 
             foreach (var item in itemsToShow)
             {
@@ -131,11 +132,11 @@ namespace AF
                 cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.item.sprite);
                 cloneButton.Q<Label>("ItemName").text = item.item.name.GetText() + " ( " + item.quantity + " )";
 
-                bool canBuy = item.quantity > 0 && Player.instance.currentGold >= ShopManager.instance.GetItemToBuyPrice(item);
+                bool canBuy = item.quantity > 0 && Player.instance.currentGold >= ShopManager.instance.GetItemToBuyPrice(item, shop);
 
                 cloneButton.Q<Button>("BuySellItem").SetEnabled(canBuy);
                 cloneButton.Q<Button>("BuySellItem").style.opacity = (canBuy ? 1 : 0.5f);
-                cloneButton.Q<Button>("BuySellItem").text = LocalizedTerms.Buy() + " (" + ShopManager.instance.GetItemToBuyPrice(item) + " " + LocalizedTerms.Coins() + ")";
+                cloneButton.Q<Button>("BuySellItem").text = LocalizedTerms.Buy() + " (" + ShopManager.instance.GetItemToBuyPrice(item, shop) + " " + LocalizedTerms.Coins() + ")";
 
                 cloneButton.RegisterCallback<PointerOverEvent>(ev =>
                 {
@@ -171,7 +172,9 @@ namespace AF
 
         void BuyItem(ShopItem item)
         {
-            if (Player.instance.currentGold >= ShopManager.instance.GetItemToBuyPrice(item))
+            var shop = ShopManager.instance.GetShopInstanceByName(shopEntry.name);
+
+            if (Player.instance.currentGold >= ShopManager.instance.GetItemToBuyPrice(item, shop))
             {
                 if (!ShopManager.instance.HasStock(shopEntry.name, item))
                 {

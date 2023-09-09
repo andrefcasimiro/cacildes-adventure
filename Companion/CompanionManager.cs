@@ -142,7 +142,7 @@ namespace AF
 
         public int GetCompanionAttack()
         {
-            return Player.instance.CalculateAIAttack(baseAttackPower, playerLevelManager.GetCurrentLevel());
+            return Player.instance.CalculateAIGenericValue(baseAttackPower, playerLevelManager.GetCurrentLevel());
         }
 
         public void ResetAttackCooldown()
@@ -187,6 +187,9 @@ namespace AF
             {
                 return;
             }
+
+            // Check if companion is near first
+
 
             this.currentEnemy = currentEnemy;
 

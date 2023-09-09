@@ -19,6 +19,10 @@ namespace AF {
         public bool dontFacePlayerOnStateUpdate = false;
 
         public bool activateHyperArmor = false;
+
+        [Header("Execution Attack")]
+        public string transitionToExecution = "";
+        public string playerExecutedClip = "";
         
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
@@ -47,6 +51,9 @@ namespace AF {
             {
                 enemy.enemyPostureController.isParriable = isParriable;
             }
+
+            enemy.enemyCombatController.transitionToExecution = transitionToExecution;
+            enemy.enemyCombatController.playerExecutedClip = playerExecutedClip;
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -65,6 +72,9 @@ namespace AF {
             enemy.enemyCombatController.weaponStatusEffect = null;
             enemy.enemyCombatController.bonusBlockStaminaCost = 0f;
             enemy.enemyCombatController.currentAttackPoiseDamage -= postureDamageBonus;
+
+            enemy.enemyCombatController.transitionToExecution = "";
+            enemy.enemyCombatController.playerExecutedClip = "";
         }
     }
 }

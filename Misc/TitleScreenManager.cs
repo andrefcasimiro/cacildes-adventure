@@ -20,9 +20,11 @@ namespace AF
 
         CursorManager cursorManager;
 
+
         private void Awake()
         {
             cursorManager = FindObjectOfType<CursorManager>(true);
+
         }
 
         private void Start()
@@ -93,8 +95,6 @@ namespace AF
             // Save game
             yield return new WaitForEndOfFrame();
             
-            SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
-
             SaveSystem.instance.SaveGameData("autoSave");
 
             yield return new WaitForEndOfFrame();

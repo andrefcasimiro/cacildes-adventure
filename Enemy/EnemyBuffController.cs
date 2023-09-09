@@ -193,7 +193,7 @@ namespace AF
 
             if (buff.stopMovementWhileCasting && enemyManager.agent.isActiveAndEnabled)
             {
-                enemyManager.agent.isStopped = true;
+                // enemyManager.agent.isStopped = true;
             }
 
             enemyManager.animator.Play(buff.animationStartName);

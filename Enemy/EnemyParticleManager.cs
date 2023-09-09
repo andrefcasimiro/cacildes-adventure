@@ -15,6 +15,7 @@ namespace AF
         {
             var chance = Random.Range(0, particleList.Length);
 
+            particleList[chance].gameObject.SetActive(false);
             particleList[chance].gameObject.SetActive(true);
         }
 

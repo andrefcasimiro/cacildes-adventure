@@ -52,7 +52,7 @@ namespace AF
             unequipActions.Add(EquipmentType.Gauntlets, equipmentGraphicsHandler.UnequipGauntlet);
             unequipActions.Add(EquipmentType.Legwear, equipmentGraphicsHandler.UnequipLegwear);
             unequipActions.Add(EquipmentType.Accessories, () => {
-                OnUnequipAccessoryCheckIfAccessoryWasDestroyedPermanently();
+                //OnUnequipAccessoryCheckIfAccessoryWasDestroyedPermanently();
 
                 menuManager.OpenEquipmentListMenu();
             });
@@ -118,7 +118,7 @@ namespace AF
             }
             else if (selectedEquipmentType == EquipmentType.Accessories)
             {
-                DrawAccessoriesList();
+                //DrawAccessoriesList();
             }
             else if (selectedEquipmentType == EquipmentType.FavoriteItems)
             {
@@ -625,7 +625,7 @@ namespace AF
         #endregion
 
         #region Accessories
-        void DrawAccessoriesList()
+        /*void DrawAccessoriesList()
         {
             var playerAccessories = playerInventory.GetAccessories();
             if (playerAccessories.Count > 0)
@@ -695,7 +695,7 @@ namespace AF
                 }
             }
         }
-
+        */
         void ShowAccessoryItemPreview(Accessory accessory)
         {
             var itemPreviewElement = root.Q<VisualElement>("ItemPreview");
@@ -786,15 +786,15 @@ namespace AF
             itemStats.style.visibility = Visibility.Visible;
         }
 
-        bool OnUnequipAccessoryCheckIfAccessoryWasDestroyedPermanently()
+        /*bool OnUnequipAccessoryCheckIfAccessoryWasDestroyedPermanently()
         {
-            var unequipedAccessory = Player.instance.equippedAccessory;
+            var unequipedAccessory = Player.instance.equippedAccessories;
 
             equipmentGraphicsHandler.UnequipAccessory();
 
             bool wasDestroyed = CheckIfAccessoryShouldBeDestroyed(unequipedAccessory);
             return wasDestroyed;
-        }
+        }*/
 
         bool CheckIfAccessoryShouldBeDestroyed(Accessory unequipedAccessory)
         {

@@ -36,9 +36,13 @@ namespace AF
 
         NotificationManager notificationManager;
 
+        ViewClockMenu viewClockMenu;
+
         private void Awake()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
+
+            viewClockMenu = FindAnyObjectByType<ViewClockMenu>(FindObjectsInactive.Include);
         }
 
         public void ReplenishItems()
@@ -101,7 +105,7 @@ namespace AF
 
                         if (idxOfThisItemInFavorites == 0)
                         {
-                            favoriteItemsManager.SwitchFavoriteItemsOrder();
+                            favoriteItemsManager.SwitchFavoriteItemsOrder(1);
                         }
                     }
                 }
@@ -361,7 +365,9 @@ namespace AF
             }
             else if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.CLOCK)
             {
-                animator.Play(hashClock);
+                // Find Clock
+                viewClockMenu.gameObject.SetActive(true);
+                return;
             }
 
             equipmentGraphicsHandler.HideWeapons();

@@ -85,7 +85,7 @@ namespace AF
         {
             isSleeping = true;
             enemyManager.animator.CrossFade(enemyManager.hashSleeping, 0.1f);
-            enemyManager.agent.isStopped = true;
+            // enemyManager.agent.isStopped = true;
 
             if (bed != null)
             {

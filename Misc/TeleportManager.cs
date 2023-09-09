@@ -31,7 +31,8 @@ namespace AF
             SNOWY_MOUNTAINS_OF_BRR = 16,
             CECILY_TOWN_UPPER = 18,
             CECILY_TOWN_CASTLE = 19,
-            SNOWY_MOUNTAIN_TEMPLE = 20
+            SNOWY_MOUNTAIN_TEMPLE = 20,
+            DRUIDS_FOREST = 21,
         }
 
         private void Awake()    

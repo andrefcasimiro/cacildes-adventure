@@ -16,6 +16,15 @@ namespace AF
 
         public bool isParriable = false;
 
+        bool isDecreasingPosture = false;
+
+        ParticlePoolManager particlePoolManager;
+
+        private void Awake()
+        {
+            particlePoolManager = FindAnyObjectByType<ParticlePoolManager>(FindObjectsInactive.Include);
+        }
+
         private void Start()
         {
             InitializePostureHUD();
@@ -50,33 +59,76 @@ namespace AF
                 postureBarSlider.gameObject.SetActive(currentPostureDamage > 0);
             }
 
-            if (currentPostureDamage > 0)
+            if (isDecreasingPosture)
             {
-                currentPostureDamage -= Time.deltaTime * enemyManager.enemy.postureDecreaseRate;
+                if (currentPostureDamage > 0)
+                {
+                    currentPostureDamage -= Time.deltaTime * enemyManager.enemy.postureDecreaseRate;
+                }
+                else
+                {
+                    isDecreasingPosture = false;
+                }
             }
         }
 
-        public void TakePostureDamage()
+        public bool TakePostureDamage(int extraPostureDamage)
         {
             enemyManager.enemyWeaponController.DisableAllWeaponHitboxes();
 
-            currentPostureDamage = Mathf.Clamp(currentPostureDamage + enemyManager.enemy.postureDamagePerParry, 0, GetMaxPostureDamage());
+            var postureDamage = enemyManager.enemy.postureDamagePerParry;
+            if (extraPostureDamage != 0)
+            {
+                postureDamage = extraPostureDamage;
+            }
+
+            currentPostureDamage = Mathf.Clamp(currentPostureDamage + postureDamage, 0, GetMaxPostureDamage());
+            StartCoroutine(BeginDecreasingPosture());
 
             if (currentPostureDamage >= GetMaxPostureDamage())
             {
+                StartCoroutine(PlayStunnedFX());
+
                 BreakPosture();
+                return true;
             }
-            else
+            else if (extraPostureDamage == 0) // If damage from parry, play parry animation
             {
                 enemyManager.animator.Play(enemyManager.hashPostureHit);
             }
+
+            return false;
+        }
+
+        IEnumerator PlayStunnedFX()
+        {
+
+            var particle = particlePoolManager.stunnedFxPool.Pool.Get();
+
+            particle.transform.position = this.transform.position;
+            particle.transform.rotation = Quaternion.identity;
+            particle.Play();
+
+            yield return new WaitForSeconds(5f);
+
+            particlePoolManager.stunnedFxPool.Pool.Release(particle);
+
+        }
+
+        IEnumerator BeginDecreasingPosture()
+        {
+            isDecreasingPosture = false;
+            yield return new WaitForSeconds(1);
+            isDecreasingPosture = true;
         }
 
         void BreakPosture()
         {
             currentPostureDamage = 0f;
 
-            stunnedParticle.gameObject.SetActive(true);
+            Soundbank.instance.PlayEnemyGuardBreak();
+
+            //stunnedParticle.gameObject.SetActive(true);
             enemyManager.animator.Play(enemyManager.hashPostureBreak);
         }
 
@@ -92,6 +144,11 @@ namespace AF
 
         int GetMaxPostureDamage()
         {
+            if (enemyManager.currentLevel <= 1)
+            {
+                return enemyManager.enemy.maxPostureDamage;
+            }
+
             return Player.instance.CalculateAIPosture(enemyManager.enemy.maxPostureDamage, enemyManager.currentLevel);
         }
 

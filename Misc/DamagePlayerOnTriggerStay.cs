@@ -129,7 +129,7 @@ namespace AF
                     }
 
 
-                if (statusEffect != null)
+                if (statusEffect != null && enemyHealthController != null)
                 {
                     var enemyNegativeStatus = enemyHealthController.GetComponent<EnemyNegativeStatusController>();
 
@@ -141,7 +141,7 @@ namespace AF
                 }
 
 
-                if (forceEnemiesIntoCombat)
+                if (forceEnemiesIntoCombat && enemyHealthController != null)
                     {
                         enemyHealthController.GetComponent<EnemyManager>().enemyBehaviorController.ChasePlayer();
                     }

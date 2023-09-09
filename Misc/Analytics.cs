@@ -1,10 +1,6 @@
-using Unity.Services.Core;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using Unity.Services.Analytics;
-using Unity.Services.Core.Environments;
 
 namespace AF
 {

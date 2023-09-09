@@ -7,30 +7,33 @@ namespace AF
     {
         EnemyManager enemy;
 
-        [Header("Options")]
-        [Range(0, 100)] public int chanceToTeleport = 50;
-        [Range(0, 100)] public int chanceToUseBuff = 25;
+        EnemyTeleportManager enemyTeleportManager;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-
             animator.gameObject.TryGetComponent(out enemy);
             if (enemy == null)
             {
                 enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
 
+            enemyTeleportManager = enemy.enemyTeleportManager;
         }
 
         public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+            if (enemyTeleportManager == null)
+            {
+                return;
+            }
+
             var chance = Random.Range(0, 100);
 
-            if (chance > chanceToTeleport && enemy.enemyTeleportManager != null)
+            if (chance > enemyTeleportManager.chanceToTeleport)
             {
                 enemy.enemyTeleportManager.BeginTeleport();
             }
-            else if (chance > chanceToUseBuff)
+            else if (chance > enemyTeleportManager.chanceToUseBuff)
             {
                 enemy.enemyBuffController.PickRandomBuff();
             }

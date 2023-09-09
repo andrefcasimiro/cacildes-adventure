@@ -25,6 +25,10 @@ namespace AF
         public int projectilePoiseDamage = 5;
         public WeaponElementType projectileAttackElementType;
 
+        [Header("Status Effects")]
+        public StatusEffect statusEffectToApply;
+        public int amountOfStatusEffectToApply;
+
         [Header("Sound")]
         public AudioClip projectileImpactOnBodySfx;
         public AudioClip projectileImpactOnGroundSfx;
@@ -47,6 +51,9 @@ namespace AF
         public bool useV2Collision = false;
 
         public float projectilePushForce = 2f;
+
+        [Header("Triple Arrows Edge Case")]
+        public bool useChildren = false;
 
         private void Start()
         {
@@ -162,6 +169,31 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
+
+
+            if (other.CompareTag("Explodable"))
+            {
+                other.TryGetComponent(out ExplodingBarrel explodingBarrel);
+
+                if (explodingBarrel != null)
+                {
+                    explodingBarrel.Explode();
+                    return;
+                }
+            }
+
+            if (other.CompareTag("Ignitable"))
+            {
+                other.TryGetComponent(out FireablePillar fireablePillar);
+
+                if (fireablePillar != null)
+                {
+                    fireablePillar.Explode();
+                    return;
+                }
+            }
+
+
             // The below code is already too messy, but many enemies use it, so use a feature flag to opt-in on new logic
             if (useV2Collision)
             {
@@ -224,7 +256,12 @@ namespace AF
                     enemyHealthHitbox.enemyManager.enemyHealthController
                         .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
 
-                    enemyHealthHitbox.enemyManager.PushEnemy(projectilePushForce * -1f, ForceMode.Impulse);
+                    enemyHealthHitbox.enemyManager.PushEnemy(projectilePushForce, ForceMode.Impulse);
+                }
+
+                if (statusEffectToApply != null && enemyHealthHitbox.enemyManager.enemyNegativeStatusController != null)
+                {
+                    enemyHealthHitbox.enemyManager.enemyNegativeStatusController.InflictStatusEffect(statusEffectToApply, amountOfStatusEffectToApply);
                 }
 
                 hasCollidedAlready = true;

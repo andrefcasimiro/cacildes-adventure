@@ -102,6 +102,13 @@ namespace AF
             }
         }
 
+        public void NotifyClockListeners() {
+            foreach (IClockListener iClockListener in iClockListenersInScene)
+            {
+                iClockListener.OnHourChanged();
+            }
+        }
+
         private void Update()
         {
             if (dayNightIcon == null || dayNightText == null)

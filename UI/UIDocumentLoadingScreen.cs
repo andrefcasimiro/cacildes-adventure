@@ -24,7 +24,11 @@ namespace AF
 
         public IEnumerator FadeAndDisable()
         {
-            root = GetComponent<UIDocument>().rootVisualElement;
+            if (root == null)
+            {
+                root = GetComponent<UIDocument>().rootVisualElement;
+            }
+
             root.Q<VisualElement>("LoadingBar").style.opacity = 0f;
 
             var el = root.Q<VisualElement>("Background");

@@ -21,6 +21,8 @@ namespace AF
                 enemy = animator.GetComponentInParent<EnemyManager>(true);
             }
 
+            enemy.RepositionNavmeshAgent();
+
             if (enemy.enemyPatrolController == null || enemy.enemyPatrolController.waypoints.Count < 0)
             {
                 animator.SetBool(enemy.hashPatrol, false);
@@ -35,10 +37,18 @@ namespace AF
 
             enemy.enemyPatrolController.GotoNextPoint();
 
+
             if (walkSpeed > 0)
             {
                 originalSpeed = enemy.agent.speed;
                 enemy.agent.speed = walkSpeed;
+            }
+
+            if (enemy.walkSpeedOverride != -1)
+            {
+                originalSpeed = enemy.agent.speed;
+
+                enemy.agent.speed = enemy.walkSpeedOverride;
             }
         }
 
@@ -46,7 +56,7 @@ namespace AF
         {
             if (enemy.eventPage != null && enemy.eventPage.isRunning)
             {
-                enemy.agent.isStopped = true;
+                // enemy.agent.isStopped = true;
                 animator.SetBool(enemy.hashPatrol, false);
                 return;
             }
@@ -57,7 +67,7 @@ namespace AF
 
             if (enemy.enemySightController.IsPlayerInSight())
             {
-                enemy.agent.isStopped = true;
+                // enemy.agent.isStopped = true;
                 animator.SetBool(enemy.hashPatrol, false);
                 animator.SetBool(enemy.hashChasing, true);
                 return;

@@ -38,11 +38,11 @@ namespace AF
     public enum PushForce
     {
         None = 1,
-        Light = 3,
-        Medium = 4,
-        Large = 5,
-        VeryLarge = 6,
-        Colossal = 7,
+        Light = 2,
+        Medium = 3,
+        Large = 4,
+        VeryLarge = 5,
+        Colossal = 6,
     }
 
     [CreateAssetMenu(menuName = "Items / Weapon / New Weapon")]
@@ -119,14 +119,23 @@ namespace AF
 
         [Header("Weapon Special Attack")]
         public GameObject weaponSpecial;
+        public LocalizedText weaponSpecialDescription;
         public bool parentWeaponSpecialToPlayer = true;
 
         [Header("Weapon Bonus")]
         public int amountOfGoldReceivedPerHit = 0;
         public bool doubleDamageDuringNightTime = false;
 
+        [Header("Custom Weapon Blocking")]
         public string customWeaponBlockAnimationName = "Custom Weapon Blocking";
         public bool useCustomWeaponBlock = false;
+
+        [Header("Jump Attack")]
+        public float jumpAttackVelocity = -5f;
+        public bool stopInAir = true;
+
+        [Header("Shield Piercing")]
+        public bool ignoreShields = false;
 
         public string GetWeaponDisplayName()
         {

@@ -17,6 +17,10 @@ namespace AF
         public List<ShopItem> boughtItemsFromPlayer = new();
 
         public List<ShopItem> boughtItemsByPlayerThatDoNotRestock = new();
+
+
+        public Item requiredItemForDiscounts;
+        public float discountGivenByItemInInventory = 0.3f;
     }
 
     public class ShopManager : MonoBehaviour, ISaveable
@@ -26,6 +30,8 @@ namespace AF
         public static ShopManager instance;
 
         public float REPUTATION_MODIFIER = 2.25f;
+
+        PlayerInventory playerInventory;
 
         public void Awake()
         {
@@ -40,6 +46,11 @@ namespace AF
             }
 
             LoadCharacterShops();
+        }
+
+        private void Start()
+        {
+            playerInventory = FindAnyObjectByType<PlayerInventory>(FindObjectsInactive.Include);
         }
 
         public void LoadCharacterShops()
@@ -65,6 +76,8 @@ namespace AF
                     itemStock = newDefaultStocksItems,
                     boughtItemsFromPlayer = new List<ShopItem>(),
                     boughtItemsByPlayerThatDoNotRestock = new (),
+                    requiredItemForDiscounts = shopEntry.requiredItemForDiscounts,
+                    discountGivenByItemInInventory = shopEntry.discountGivenByItemInInventory,
                 }); ;
             }
         }
@@ -169,13 +182,13 @@ namespace AF
             }
 
             // Retrieve coin to player
-            var finalPrice = GetItemToBuyPrice(itemToBuy);
+            var finalPrice = GetItemToBuyPrice(itemToBuy, this.characterShopInstances[idx]);
 
             FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost(finalPrice);
             Player.instance.currentGold -= finalPrice;
 
             // Give item to player
-            FindObjectOfType<PlayerInventory>(true).AddItem(itemToBuy.item, 1);
+            playerInventory.AddItem(itemToBuy.item, 1);
 
             return true;
         }
@@ -207,13 +220,23 @@ namespace AF
             return true;
         }
 
-        public int GetItemToBuyPrice(ShopItem shopItem)
+        public int GetItemToBuyPrice(ShopItem shopItem, ShopEntryInstance shopEntryInstance)
         {
             var finalPrice = (int)Mathf.Abs(Mathf.Round((shopItem.item.value + shopItem.priceModifier) - (Player.instance.GetCurrentReputation() * REPUTATION_MODIFIER)));
+
 
             if (finalPrice <= 0)
             {
                 return 1;
+            }
+
+
+            if (shopEntryInstance.requiredItemForDiscounts != null)
+            {
+                if (shopEntryInstance.requiredItemForDiscounts is Helmet && Player.instance.equippedHelmet != null && Player.instance.equippedHelmet.name.GetEnglishText() == shopEntryInstance.requiredItemForDiscounts.name.GetEnglishText())
+                {
+                    finalPrice = (int)(finalPrice / shopEntryInstance.discountGivenByItemInInventory);
+                }
             }
 
             return finalPrice;

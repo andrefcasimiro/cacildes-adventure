@@ -166,8 +166,26 @@ namespace AF
             GameObject projectileInstance = Instantiate(currentProjectile.gameObject, projectileSpawnPointRef.position, transform.rotation);
 
             Projectile projectile = projectileInstance.GetComponent<Projectile>();
-            projectile.isFromPlayer = true;
-            projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
+            
+            
+            if (projectile != null && projectile.useChildren == false)
+            {
+                projectile.isFromPlayer = true;
+                projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
+            } else
+            {
+                // Multiple projectiles edge case
+                var projectiles = projectileInstance.GetComponentsInChildren<Projectile>();
+
+                foreach (var proj in projectiles)
+                {
+                    if (proj.useChildren) continue;
+
+                    proj.isFromPlayer = true;
+                    proj.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
+                }
+
+            }
         }
 
         public void OnThrow()

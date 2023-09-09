@@ -19,6 +19,7 @@ namespace AF
         int desiredEndurance;
         int desiredStrength;
         int desiredDexterity;
+        int desiredIntelligence;
 
         int virtualGold;
 
@@ -43,6 +44,8 @@ namespace AF
         public LocalizedText strengthExplanationText;
         public LocalizedText dexterityText;
         public LocalizedText dexterityExplanationText;
+        public LocalizedText intelligenceText;
+        public LocalizedText intelligenceExplanationText;
         public LocalizedText confirmText;
 
         VisualElement root;
@@ -65,6 +68,8 @@ namespace AF
             root.Q<Label>("StrengthExplanationText").text = strengthExplanationText.GetText();
             root.Q<Label>("DexterityText").text = dexterityText.GetText();
             root.Q<Label>("DexterityExplanationText").text = dexterityExplanationText.GetText();
+            root.Q<Label>("IntelligenceText").text = intelligenceText.GetText();
+            root.Q<Label>("IntelligenceExplanationText").text = intelligenceExplanationText.GetText();
             root.Q<Button>("ConfirmButton").text = confirmText.GetText();
         }
 
@@ -94,6 +99,7 @@ namespace AF
             desiredStrength = Player.instance.strength;
             desiredDexterity = Player.instance.dexterity;
             desiredEndurance = Player.instance.endurance;
+            desiredIntelligence = Player.instance.intelligence;
 
             root = GetComponent<UIDocument>().rootVisualElement;
             TranslateRoot();
@@ -161,6 +167,21 @@ namespace AF
                 DrawUI(root);
             });
 
+
+            root.Q<VisualElement>("Intelligence").Q<Button>("DecreaseBtn").RegisterCallback<ClickEvent>(ev =>
+            {
+                desiredIntelligence--;
+                virtualGold += playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
+                DrawUI(root);
+            });
+
+            root.Q<VisualElement>("Intelligence").Q<Button>("IncreaseBtn").RegisterCallback<ClickEvent>(ev =>
+            {
+                desiredIntelligence++;
+                virtualGold -= playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount() - 1);
+                DrawUI(root);
+            });
+
             root.Q<Button>("ConfirmButton").RegisterCallback<ClickEvent>(ev =>
             {
                 var oldLevel = playerLevelManager.GetCurrentLevel();
@@ -168,6 +189,7 @@ namespace AF
                 Player.instance.endurance = desiredEndurance;
                 Player.instance.strength = desiredStrength;
                 Player.instance.dexterity = desiredDexterity;
+                Player.instance.intelligence = desiredIntelligence;
 
                 Player.instance.currentGold = virtualGold;
 
@@ -213,6 +235,11 @@ namespace AF
             root.Q<VisualElement>("Dexterity").Q<Button>("DecreaseBtn").SetEnabled(desiredDexterity > Player.instance.dexterity);
             root.Q<VisualElement>("Dexterity").Q<Button>("IncreaseBtn").SetEnabled(HasEnoughExperienceForLevelling(virtualGold, GetDesiredLevelsAmount() + 1));
             root.Q<VisualElement>("Dexterity").Q<Label>("Value").text = desiredDexterity + "";
+
+            root.Q<VisualElement>("Intelligence").Q<Button>("DecreaseBtn").SetEnabled(desiredIntelligence > Player.instance.intelligence);
+            root.Q<VisualElement>("Intelligence").Q<Button>("IncreaseBtn").SetEnabled(HasEnoughExperienceForLevelling(virtualGold, GetDesiredLevelsAmount() + 1));
+            root.Q<VisualElement>("Intelligence").Q<Label>("Value").text = desiredIntelligence + "";
+
         }
 
         public bool HasEnoughExperienceForLevelling(float experience, int levelDesired)
@@ -236,9 +263,10 @@ namespace AF
             int enduranceLevels = Mathf.Abs(Player.instance.endurance - desiredEndurance);
             int strengthLevels = Mathf.Abs(Player.instance.strength - desiredStrength);
             int dexterityLevels = Mathf.Abs(Player.instance.dexterity - desiredDexterity);
+            int intelligenceLevels = Mathf.Abs(Player.instance.intelligence - desiredIntelligence);
 
             return playerLevelManager.GetCurrentLevel() + (
-                vitalityLevels + enduranceLevels + strengthLevels + dexterityLevels);
+                vitalityLevels + enduranceLevels + strengthLevels + dexterityLevels + intelligenceLevels);
         }
     }
 

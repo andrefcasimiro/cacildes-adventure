@@ -32,8 +32,6 @@ namespace AF
         public LockOnRef leftLockTarget;
         public LockOnRef rightLockTarget;
 
-        public LayerMask blockLayer;
-
         public float mouseSensitivityForNearbyTargets = 1.25f;
 
         int LayerEnvironment;
@@ -149,9 +147,15 @@ namespace AF
                 return;
             }
 
-            nearestLockOnTarget = leftLockTarget;
-
-            lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = (nearestLockOnTarget.transform);
+            RaycastHit hit;
+            if (Physics.Linecast(playerHeadRef.transform.position, leftLockTarget.transform.position, out hit))
+            {
+                if (hit.transform.gameObject.layer != LayerEnvironment && hit.transform.gameObject.layer != LayerDefault)
+                {
+                    nearestLockOnTarget = leftLockTarget;
+                    lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = (nearestLockOnTarget.transform);
+                }
+            }
         }
 
         public void SwitchToRightTarget()
@@ -161,9 +165,16 @@ namespace AF
                 return;
             }
 
-            nearestLockOnTarget = rightLockTarget;
+            RaycastHit hit;
+            if (Physics.Linecast(playerHeadRef.transform.position, rightLockTarget.transform.position, out hit))
+            {
+                if (hit.transform.gameObject.layer != LayerEnvironment && hit.transform.gameObject.layer != LayerDefault)
+                {
+                    nearestLockOnTarget = rightLockTarget;
+                    lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = (nearestLockOnTarget.transform);
+                }
+            }
 
-            lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = (nearestLockOnTarget.transform);
         }
 
         public void EnableLockOn()
@@ -218,6 +229,7 @@ namespace AF
                         availableTargets.Add(enemy);
                     }
                 }
+
             }
 
             for (int i = 0; i < availableTargets.Count; i++)

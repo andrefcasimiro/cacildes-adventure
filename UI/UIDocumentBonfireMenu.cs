@@ -1,3 +1,4 @@
+using StarterAssets;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -22,18 +23,35 @@ namespace AF
         public LocalizedText exitBonfireText;
         
         CursorManager cursorManager;
+        ThirdPersonController thirdPersonController;
+        SceneSettings sceneSettings;
+        DayNightManager dayNightManager;
+
+        PlayerLevelManager playerLevelManager;
+        PlayerInventory playerInventory;
+
+        bool hasEnoughForLevellingUp = false;
+
+        public Item blacksmithKit;
+        public Item alchemyKit;
 
         private void Awake()
         {
-            cursorManager = FindObjectOfType<CursorManager>(true);
+            cursorManager = FindAnyObjectByType<CursorManager>(FindObjectsInactive.Include);
+            thirdPersonController = FindAnyObjectByType<ThirdPersonController>(FindObjectsInactive.Include);
+            playerLevelManager = thirdPersonController.GetComponent<PlayerLevelManager>();
+            sceneSettings = FindAnyObjectByType<SceneSettings>(FindObjectsInactive.Include);
+            dayNightManager = FindAnyObjectByType<DayNightManager>(FindObjectsInactive.Include);
+            playerInventory = playerLevelManager.GetComponent<PlayerInventory>();
         }
-        
+
         private void Start()
         {
             originalDaySpeed = Player.instance.daySpeed;
             gameObject.SetActive(false);
         }
 
+        // THIS RUNS ONCE ON START. Maybe move gameObjectSetActive to Awake
         private void OnEnable()
         {
             isPassingTime = false;
@@ -44,16 +62,37 @@ namespace AF
 
             root.Q<Label>("BonfireNameLabel").text = bonfireNameLabel.GetText();
 
+            hasEnoughForLevellingUp = Player.instance.currentGold >= playerLevelManager.GetRequiredExperienceForNextLevel();
+
+            root.Q<Label>("LevelUpAvailableLabel").style.display = hasEnoughForLevellingUp ? DisplayStyle.Flex : DisplayStyle.None;
+
             #region Bonfire UI Buttons
             var levelUpButton = root.Q<Button>("LevelUpButton");
             var passTimeButton = root.Q<Button>("PassTimeButton");
             var exitBonfireButton = root.Q<Button>("LeaveButton");
             var travelButton = root.Q<Button>("TravelButton");
+            var upgradeWeapons = root.Q<Button>("UpgradeWeapons");
+            var brewPotions = root.Q<Button>("BrewPotions");
+            upgradeWeapons.style.display = playerInventory.GetItemQuantity(blacksmithKit) <= 0 ? DisplayStyle.None : DisplayStyle.Flex;
+            brewPotions.style.display = playerInventory.GetItemQuantity(alchemyKit) <= 0 ? DisplayStyle.None : DisplayStyle.Flex;
 
             levelUpButton.text = levelUpText.GetText();
+
+            if (hasEnoughForLevellingUp)
+            {
+                levelUpButton.text += " *";
+            }
+
             passTimeButton.text = passTimeText.GetText();
             travelButton.text = travelText.GetText();
+            upgradeWeapons.text = GamePreferences.instance.IsEnglish() ? "Upgrade Weapons" : "Melhorar Armas";
+            brewPotions.text = GamePreferences.instance.IsEnglish() ? "Brew Potions" : "Criar Poções";
+            travelButton.text = travelText.GetText();
             exitBonfireButton.text = exitBonfireText.GetText();
+
+
+            root.Q<Label>("CurrentGoldAndRequiredLabel").text = GamePreferences.instance.IsEnglish() ? "Your gold / Amount for next level" : "Moedas / Necessárias para próx. nível";
+            root.Q<Label>("GoldAndRequiredFornextLevel").text = Player.instance.currentGold + " / " + playerLevelManager.GetRequiredExperienceForNextLevel();
 
             levelUpButton.RegisterCallback<ClickEvent>(ev =>
             {
@@ -77,18 +116,36 @@ namespace AF
                 this.gameObject.SetActive(false);
             });
 
+
+            upgradeWeapons.RegisterCallback<ClickEvent>(ev =>
+            {
+                var blackSmithScreen = FindAnyObjectByType<UIDocumentBlacksmithScreen>(FindObjectsInactive.Include);
+                blackSmithScreen.returnToBonfire = true;
+
+                blackSmithScreen.gameObject.SetActive(true);
+                this.gameObject.SetActive(false);
+            });
+            brewPotions.RegisterCallback<ClickEvent>(ev =>
+            {
+                var alchemyCraftScreen = FindAnyObjectByType<UIDocumentAlchemyCraftScreen>(FindObjectsInactive.Include);
+                alchemyCraftScreen.returnToBonfire = true;
+
+                alchemyCraftScreen.gameObject.SetActive(true);
+                this.gameObject.SetActive(false);
+            });
+
             exitBonfireButton.RegisterCallback<ClickEvent>(ev =>
             {
                 Player.instance.daySpeed = originalDaySpeed;
 
                 bonfire.ExitBonfire();
-                FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
+                cursorManager.HideCursor();
+
+                thirdPersonController.LockCameraPosition = false;
             });
             #endregion
 
             cursorManager.ShowCursor();
-
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
         }
 
         IEnumerator MoveTime()
@@ -97,10 +154,10 @@ namespace AF
             {
                 isPassingTime = true;
 
-                bool isInteriorOriginal = FindObjectOfType<SceneSettings>(true).isInterior;
+                bool isInteriorOriginal = sceneSettings.isInterior;
 
-                FindObjectOfType<SceneSettings>(true).isInterior = false;
-                FindObjectOfType<DayNightManager>(true).tick = true;
+                sceneSettings.isInterior = false;
+                dayNightManager.tick = true;
                 var originalDaySpeed = Player.instance.daySpeed;
 
                 var targetHour = Mathf.Floor(Player.instance.timeOfDay) + 1;
@@ -115,12 +172,12 @@ namespace AF
 
                 Player.instance.daySpeed = 2;
 
-                yield return new WaitUntil(() => Mathf.Floor(Player.instance.timeOfDay) == targetHour);
+                yield return new WaitUntil(() => Mathf.FloorToInt(Player.instance.timeOfDay) == Mathf.FloorToInt(targetHour));
 
                 Player.instance.daySpeed = originalDaySpeed;
 
-                FindObjectOfType<DayNightManager>(true).tick = FindObjectOfType<DayNightManager>(true).TimePassageAllowed();
-                FindObjectOfType<SceneSettings>(true).isInterior = isInteriorOriginal;
+                dayNightManager.tick = dayNightManager.TimePassageAllowed();
+                sceneSettings.isInterior = isInteriorOriginal;
 
                 isPassingTime = false;
             }

@@ -12,6 +12,7 @@ namespace AF
         [Header("Stat Bonuses")]
         public int healthBonus = 0;
         public int staminaBonus = 0;
+        public int physicalAttackBonus = 0;
 
         [Header("Destroy On Equip Edge Case")]
         public bool destroyOnUnequip = false;
@@ -19,9 +20,15 @@ namespace AF
 
         [Header("Stats")]
         public bool increaseAttackPowerTheLowerTheReputation = false;
+        public bool increaseAttackPowerWithLowerHealth = false;
 
+        [Header("Posture")]
+        public int postureDamagePerParry = 0;
+
+        [Header("Spells")]
         public bool increasesSpellDamage = false;
         public float spellDamageMultiplier = 2.15f;
+
 
         public void OnEquip()
         {

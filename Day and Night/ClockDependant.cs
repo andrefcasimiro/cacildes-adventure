@@ -22,6 +22,10 @@ namespace AF
         public SwitchEntry switchDependant;
         public bool requiredValue;
 
+        [Header("Switch 2 Dependencies")]
+        public SwitchEntry switch2Dependant;
+        public bool switch2RequiredValue;
+
         [Header("Dont run this if Companion is in party")]
         public Companion companion;
 
@@ -35,6 +39,15 @@ namespace AF
             if (switchDependant != null)
             {
                 if (SwitchManager.instance.GetSwitchCurrentValue(switchDependant) != requiredValue)
+                {
+                    transform.GetChild(0).gameObject.SetActive(false);
+                    return;
+                }
+            }
+
+            if (switch2Dependant != null)
+            {
+                if (SwitchManager.instance.GetSwitchCurrentValue(switch2Dependant) != switch2RequiredValue)
                 {
                     transform.GetChild(0).gameObject.SetActive(false);
                     return;

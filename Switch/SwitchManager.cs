@@ -208,7 +208,7 @@ namespace AF
                     return;
                 }
 
-                UpdateSwitch(switchEntryInstances[switchIndex].switchEntry, savedSwitch.value, null);
+                UpdateSwitchWithoutRefreshingEvents(switchEntryInstances[switchIndex].switchEntry, savedSwitch.value);
             }
         }
         #endregion

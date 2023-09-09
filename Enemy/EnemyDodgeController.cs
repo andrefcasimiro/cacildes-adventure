@@ -71,8 +71,6 @@ namespace AF
 
                 if (playerIsOnTheLeft)
                 {
-                    // When dodging, disable agent because it will interfer with root motion logic and produce weird dodge movementsF
-                    enemyManager.agent.enabled = false;
                     LookAtPlayer();
                     enemyManager.facePlayer = false;
                     enemyManager.animator.CrossFade(enemyManager.hashDodgeRight, 0.1f);
@@ -81,16 +79,12 @@ namespace AF
                 }
                 else
                 {
-                    // When dodging, disable agent because it will interfer with root motion logic and produce weird dodge movementsF
-                    enemyManager.agent.enabled = false;
-
                     LookAtPlayer();
                     // Face playerManager first
                     enemyManager.facePlayer = false;
                     enemyManager.animator.CrossFade(enemyManager.hashDodgeLeft, 0.1f);
 
                     ActivateDodge();
-
                 }
 
                 return;
@@ -111,6 +105,7 @@ namespace AF
             if (enemyManager.enemy.dodgeSfx != null && enemyManager.combatAudioSource != null)
             {
                 BGMManager.instance.PlaySoundWithPitchVariation(enemyManager.enemy.dodgeSfx, enemyManager.combatAudioSource);
+                Debug.Log("Playing DODGE");
             }
 
             enemyManager.enemyHealthController.DisableHealthHitboxes();

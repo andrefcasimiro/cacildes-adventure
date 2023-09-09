@@ -15,8 +15,12 @@ namespace AF
         float agentSpeed = -1f;
 
 
+        bool hasDecidedRunAttack = false;
+
+
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+            hasDecidedRunAttack = false;
 
             animator.gameObject.TryGetComponent<EnemyManager>(out enemy);
 
@@ -35,6 +39,8 @@ namespace AF
                 agentSpeed = enemy.agent.speed;
             }
 
+            enemy.RepositionNavmeshAgent();
+
             if (enemy.enemyHealthController != null)
             {
                 enemy.enemyHealthController.ShowHUD();
@@ -52,7 +58,7 @@ namespace AF
 
                 enemy.enemyBossController.BeginBossBattle();
             }
-            else if (enemy.shouldPlayBattleMusic)
+            else
             {
                 BGMManager.instance.PlayBattleMusic();
             }
@@ -65,6 +71,18 @@ namespace AF
             if (enemy.chaseVelocityOverride != -1)
             {
                 enemy.agent.speed = enemy.chaseVelocityOverride;
+            }
+
+            if (enemy.agent.enabled)
+            {
+                if (enemy.enemyTargetController.ignoreCompanions == false && enemy.enemyTargetController.currentCompanion != null)
+                {
+                    enemy.agent.SetDestination(enemy.enemyTargetController.currentCompanion.transform.position);
+                }
+                else
+                {
+                    enemy.agent.SetDestination(enemy.player.transform.position);
+                }
             }
         }
 
@@ -82,7 +100,6 @@ namespace AF
                     enemy.agent.SetDestination(enemy.player.transform.position);
                 }
             }
-
 
             Vector3 targetPosition;
 
@@ -111,6 +128,9 @@ namespace AF
                     if (enemy.enemyBuffController.CanUseBuff(possibleBuff))
                     {
                         enemy.enemyBuffController.PrepareBuff(possibleBuff);
+
+                        enemy.agent.updatePosition = false;
+                        return;
                     }
                 }
             }
@@ -127,10 +147,12 @@ namespace AF
                 else if (enemy.enemyProjectileController != null && enemy.enemyProjectileController.CanShoot())
                 {
                     enemy.enemyProjectileController.PrepareProjectile();
+                    enemy.agent.updatePosition = false;
                     return;
                 }
             }
 
+            // Change to patrol
             if (distanceBetweenEnemyAndTarget > enemy.maximumChaseDistance || playerComponentManager.IsBusy())
             {
                 animator.SetBool(enemy.hashChasing, false);
@@ -149,23 +171,29 @@ namespace AF
             }
             else if (distanceBetweenEnemyAndTarget <= (enemy.agent.stoppingDistance + (focusedOnCompanion ? enemy.enemyTargetController.currentCompanion.agent.stoppingDistance : 0)))
             {
-
+                enemy.agent.updatePosition = false;
                 animator.SetBool(enemy.hashChasing, false);
+                animator.SetBool(enemy.hashCombatting, true);
+            }
+            // We are between max and min range of  chase, let's decide if we are close to a running attack here
+            else if (hasDecidedRunAttack == false)
+            {
+                // Since this code runs on every frame of state chasing, we need to perform this decision only once
+                hasDecidedRunAttack = true;
 
-                var runningAttack = enemy.enemyCombatController.GetRunAttack(false);
-                if (runningAttack != null)
+                var runningAttack = enemy.enemyCombatController.GetRunAttack(true);
+                if (runningAttack != null && Random.Range(0, 1f) > 0.85f)  // Half chance
                 {
+                    enemy.agent.updatePosition = false;
+                    animator.SetBool(enemy.hashChasing, false);
+
                     enemy.FacePlayerImmediately();
                     animator.Play(runningAttack.runningAttack);
                 }
-                else
-                {
-                    animator.SetBool(enemy.hashCombatting, true);
-                }
-
             }
 
         }
+
 
         IEnumerable<EnemyBuffController.Buff> Randomize(EnemyBuffController.Buff[] source)
         {
@@ -179,6 +207,8 @@ namespace AF
             {
                 enemy.agent.speed = agentSpeed;
             }
+
+            hasDecidedRunAttack = false;
         }
     }
 

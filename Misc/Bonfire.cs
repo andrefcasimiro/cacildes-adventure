@@ -1,3 +1,4 @@
+using StarterAssets;
 using System.Collections;
 using UnityEngine;
 
@@ -14,12 +15,14 @@ namespace AF
 
         public GameObject fireFx;
 
+        ThirdPersonController thirdPersonController;
         PlayerComponentManager playerComponentManager;
         PlayerInventory playerInventory;
 
         public bool canBeTravelledTo = true;
 
         CursorManager cursorManager;
+
 
         private void Awake()
         {
@@ -30,6 +33,7 @@ namespace AF
         {
             playerInventory = FindObjectOfType<PlayerInventory>(true);
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
+            thirdPersonController = FindAnyObjectByType<ThirdPersonController>(FindObjectsInactive.Include);
         }
 
         public void ActivateBonfire()
@@ -71,14 +75,14 @@ namespace AF
 
             playerComponentManager.GetComponent<Animator>().SetBool("IsSitting", true);
 
+            thirdPersonController.LockCameraPosition = true;
+
             StartCoroutine(ShowBonfireUI());
         }
 
         public void ExitBonfire()
         {
-
             // Save Game
-            SaveSystem.instance.currentScreenshot = ScreenCapture.CaptureScreenshotAsTexture();
             SaveSystem.instance.SaveGameData(bonfireName.GetText());
 
             uiDocumentBonfireMenu.gameObject.SetActive(false);

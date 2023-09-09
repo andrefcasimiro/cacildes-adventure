@@ -52,12 +52,14 @@ namespace AF
         public bool rotateToEnemyOnSpellCast = true;
         public float maxSpellDistance = 20f;
 
-
         [Header("Negative Effects Upon Usage")]
         public float selfDamageAmount = -1f;
         public WeaponElementType selfDamageType;
         public StatusEffect selfStatusEffect;
         public float selfStatusEffectAmount = -1f;
+
+        [Header("Reputation")]
+        public bool increaseDamageWithReputation = false;
 
         public bool IsLoopable()
         {

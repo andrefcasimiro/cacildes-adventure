@@ -23,16 +23,16 @@ namespace AF
             companionManager.FaceEnemy();
 
             companionManager.agent.isStopped = true;
-
-            if (companionManager.currentEnemy == null || companionManager.currentEnemy.enemyHealthController.currentHealth <= 0)
-            {
-                companionManager.StopCombat();
-            }
-
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+            if (companionManager.currentEnemy == null || companionManager.currentEnemy.enemyHealthController.currentHealth <= 0)
+            {
+                companionManager.StopCombat();
+                return;
+            }
+
             if (companionManager.ShouldChaseEnemy())
             {
                 animator.Play(companionManager.hashChasing);

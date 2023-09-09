@@ -29,6 +29,9 @@ namespace AF
         public int order = 1;
         public EnemyBossController partner;
 
+        [Header("Reputation")]
+        public int reputationLostForKillingBoss = 0;
+
         private void Start()
         {
             InitializeBossHUD();
@@ -46,6 +49,7 @@ namespace AF
         public void UpdateBossHUDHealthPercentage(float currentHealthPercentage)
         {
             bossFillBar.style.width = new Length(currentHealthPercentage, LengthUnit.Percent);
+
         }
 
         public void ShowBossHud()

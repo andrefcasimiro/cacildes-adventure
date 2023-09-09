@@ -28,6 +28,12 @@ public class EnemyState_Strafing : StateMachineBehaviour
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        if (Vector3.Distance(animator.transform.position, enemyManager.player.transform.position) > enemyManager.agent.stoppingDistance)
+        {
+            animator.Play(enemyManager.hashChasing);
+            return;
+        }
+
         if (enemyManager.enemyDodgeController != null)
         {
             enemyManager.enemyDodgeController.CheckForDodgeChance();

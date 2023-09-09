@@ -1,11 +1,9 @@
-using Mono.Cecil.Cil;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using static AF.GamePreferences;
 
 namespace AF
 {
@@ -39,7 +37,9 @@ namespace AF
         [Header("On Killing Events")]
         public UnityEvent onEnemyDeath;
         public UnityEvent onEnemyDeathAfter1Second;
-        public Collider[] collidersToDisableOnDeath;
+
+        [Header("FX")]
+        public Color bloodColor;
 
         [HideInInspector] public List<EnemyHealthHitbox> enemyHealthHitboxes = new();
 
@@ -52,6 +52,8 @@ namespace AF
         SceneSettings sceneSettings;
         EnemyPushableOnDeath enemyPushableOnDeath => GetComponent<EnemyPushableOnDeath>();
 
+        LockOnManager lockOnManager;
+
         int amountToRestore = 0;
 
         public float scoreIncreaseRate = 10f;
@@ -63,11 +65,22 @@ namespace AF
         public string analyticsMessage;
 
         PlayerParryManager playerParryManager;
+        PlayerCombatController playerCombatController;
+
+        ParticlePoolManager particlePoolManager;
+
+        float blockPostureDamageBonus = 1.25f;
+
+        [Header("For enemies with multiple healthhitboxes")]
+        public bool disableHealthhitboxesTemporarilyAfterHit = false;
 
         private void Awake()
         {
-             sceneSettings = FindObjectOfType<SceneSettings>(true);
-             playerParryManager = FindObjectOfType<PlayerParryManager>(true);
+            sceneSettings = FindFirstObjectByType<SceneSettings>(FindObjectsInactive.Include);
+            playerParryManager = FindFirstObjectByType<PlayerParryManager>(FindObjectsInactive.Include);
+            playerCombatController = playerParryManager.GetComponent<PlayerCombatController>();
+            lockOnManager = FindFirstObjectByType<LockOnManager>(FindObjectsInactive.Include);
+            particlePoolManager = FindFirstObjectByType<ParticlePoolManager>(FindObjectsInactive.Include);
 
             foreach (var healthHitboxInChildren in GetComponentsInChildren<EnemyHealthHitbox>(true))
             {
@@ -83,9 +96,7 @@ namespace AF
 
         private void Start()
         {
-
             RestoreHealth();
-
             InitializeEnemyHUD();
         }
 
@@ -95,7 +106,6 @@ namespace AF
 
             UpdateAmountToRestore();
         }
-
 
         void RestoreHealth()
         {
@@ -145,15 +155,28 @@ namespace AF
 
         public int GetMaxHealth()
         {
-            var baseHealth = Player.instance.CalculateAIHealth(maxHealthOverride != -1 ? maxHealthOverride : enemyManager.enemy.baseHealth, enemyManager. currentLevel);
+            var baseHealth = enemyManager.enemy.baseHealth;
+            if (enemyManager.currentLevel > 1)
+            {
+                baseHealth = Player.instance.CalculateAIHealth(maxHealthOverride != -1 ? maxHealthOverride : enemyManager.enemy.baseHealth, enemyManager.currentLevel);
+            }
 
             if (Player.instance.companions.Count == 1)
             {
+                baseHealth = (int)(baseHealth * 1.05f);
+            }
+            else if (Player.instance.companions.Count == 2)
+            {
+                baseHealth = (int)(baseHealth * 1.25f);
+            }
+            else if (Player.instance.companions.Count > 2)
+            {
                 baseHealth = (int)(baseHealth * 1.5f);
             }
-            else if (Player.instance.companions.Count > 1)
+
+            if (enemyManager.healthReducingFactor > 1)
             {
-                baseHealth = (int)(baseHealth * Player.instance.companions.Count);
+                baseHealth = (int)(baseHealth / enemyManager.healthReducingFactor);
             }
 
             return baseHealth;
@@ -178,6 +201,23 @@ namespace AF
             }
         }
 
+        public void UpdateMaxHealth()
+        {
+            if (enemyBossController != null)
+            {
+                return;
+            }
+
+            // If enemy is alive, update his current health to match the max health he now has
+            if (currentHealth > 0)
+            {
+                currentHealth = GetMaxHealth();
+            }
+
+            healthBarSlider.maxValue = GetMaxHealth() * 0.01f;
+
+        }
+
         public void TakeEnvironmentalDamage(float damage)
         {
             if (!canTakeDamage)
@@ -198,10 +238,8 @@ namespace AF
                 combatNotificationsController.ShowDamage(Mathf.RoundToInt(damage));
             }
 
-            if (enemyManager.enemy.damagedParticle != null)
-            {
-                Instantiate(enemyManager.enemy.damagedParticle, transform.position, Quaternion.identity);
-            }
+            StartCoroutine(particlePoolManager.DropBloodOnEnemy(transform.position, bloodColor));
+
 
             if (this.currentHealth <= 0)
             {
@@ -254,6 +292,12 @@ namespace AF
                 return;
             }
 
+            if (enemyBossController == null)
+            {
+                BGMManager.instance.PlayBattleMusic();
+            }
+
+
             if (onTakingDamage != null && onTakingDamageEventHasRun == false)
             {
                 onTakingDamage.Invoke();
@@ -268,20 +312,40 @@ namespace AF
 
             enemyManager.PushEnemy(weapon != null ? (int)weapon.pushForce : 1f, ForceMode.Impulse);;
 
+
             if (enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.CanBlock())
             {
-                enemyManager.enemyBlockController.HandleBlock(collisionPoint, weapon != null ? weapon.blockHitAmount : 1 + (playerAttackStatManager.IsHeavyAttacking() ? 1 : 0));
-                return;
+                int blockPostureDamage = playerCombatController.isHeavyAttacking || playerCombatController.IsJumpAttacking() || playerCombatController.IsStartingJumpAttack() ? 8 : 1;
+
+                blockPostureDamage += weapon != null ? (int)weapon.pushForce : 1;
+
+                float scaleFactor = Mathf.Sqrt(blockPostureDamage);
+
+                int finalBlockPostureDamage = Mathf.RoundToInt(scaleFactor * 13.5f * blockPostureDamageBonus);
+
+                enemyManager.enemyBlockController.HandleBlock(collisionPoint,
+                    finalBlockPostureDamage);
+
+
+                bool playerWeaponIgnoresShields = weapon == null ? false : weapon.ignoreShields;
+
+                if (playerWeaponIgnoresShields == false)
+                {
+                    return;
+                }
+            }
+
+            // CAN TAKE DAMAGE, LETS GO
+
+            if (disableHealthhitboxesTemporarilyAfterHit)
+            {
+                DisableHealthHitboxes();
+                StartCoroutine(ReenableHealthHitboxes());
             }
 
             if (enemyManager.enemySleepController != null && enemyManager.enemySleepController.isSleeping)
             {
                 enemyManager.enemySleepController.WakeUp();
-            }
-
-            if (enemyBossController == null && enemyManager.shouldPlayBattleMusic)
-            {
-                BGMManager.instance.PlayBattleMusic();
             }
 
             BGMManager.instance.PlaySoundWithPitchVariation(
@@ -333,7 +397,10 @@ namespace AF
 
                     combatNotificationsController.ShowFireDamage(Mathf.RoundToInt(elementalBonus));
 
-                    Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
+                    if (weapon.elementImpactFx != null)
+                    {
+                        Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
+                    }
                 }
                 if (weapon.frostAttack > 0)
                 {
@@ -342,7 +409,10 @@ namespace AF
 
                     combatNotificationsController.ShowFrostDamage(Mathf.RoundToInt(elementalBonus));
 
-                    Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
+                    if (weapon.elementImpactFx != null)
+                    {
+                        Instantiate(weapon.elementImpactFx, collisionPoint, Quaternion.identity);
+                    }
                 }
                 if (weapon.lightningAttack > 0)
                 {
@@ -366,7 +436,7 @@ namespace AF
                     }
                 }
 
-                if (weaponTypeBonusTable.Length > 0)
+                if (weaponTypeBonusTable.Length > 0 && weapon != null)
                 {
                     var weaponTypeBonus = weaponTypeBonusTable.FirstOrDefault(entry => entry.weaponAttackType == weapon.weaponAttackType);
                     if (weaponTypeBonus != null)
@@ -374,7 +444,7 @@ namespace AF
                         appliedDamage = (int)(appliedDamage * weaponTypeBonus.damageBonusMultiplier);
                     }
                 }
-                if (negativeWeaponTypeBonusTable.Length > 0)
+                if (negativeWeaponTypeBonusTable.Length > 0 && weapon != null)
                 {
                     var weaponTypeBonus = negativeWeaponTypeBonusTable.FirstOrDefault(entry => entry.weaponAttackType == weapon.weaponAttackType);
                     if (weaponTypeBonus != null)
@@ -387,10 +457,13 @@ namespace AF
 
             this.currentHealth = Mathf.Clamp(currentHealth - Mathf.RoundToInt(appliedDamage), 0f, GetMaxHealth());
 
-            if (enemyManager.enemy.damagedParticle != null)
+            /*if (enemyManager.enemy.damagedParticle != null)
             {
                 Instantiate(enemyManager.enemy.damagedParticle, collisionPoint, Quaternion.identity);
-            }
+            }*/
+
+            StartCoroutine(particlePoolManager.DropBloodOnEnemy(collisionPoint, bloodColor));
+
 
             // Status Effects
             if (weapon != null && weapon.statusEffects != null && weapon.statusEffects.Length > 0)
@@ -414,11 +487,36 @@ namespace AF
             if (this.currentHealth <= 0)
             {
                 Die();
+                return;
             }
-            else
+
+
+            bool isHeavyAttacking = playerCombatController.isHeavyAttacking || playerCombatController.IsJumpAttacking() || playerCombatController.IsStartingJumpAttack();
+
+            if (enemyManager.enemyPostureController != null)
             {
-                enemyManager.enemyPoiseController.IncreasePoiseDamage(weapon != null ? weapon.poiseDamageBonus : 1);
+                int weaponPostureDamage = isHeavyAttacking ? 8 : 1;
+
+                weaponPostureDamage += weapon != null ? (int)weapon.pushForce : 1;
+
+                float scaleFactor = Mathf.Sqrt(weaponPostureDamage);
+                int finalWeaponPostureDamage = Mathf.RoundToInt(scaleFactor * 12f);
+
+                var hasBrokePosture = enemyManager.enemyPostureController.TakePostureDamage(finalWeaponPostureDamage);
+            
+                if (hasBrokePosture)
+                {
+                    return;
+                }
             }
+
+            enemyManager.enemyPoiseController.IncreasePoiseDamage(weapon != null ? (weapon.poiseDamageBonus * (isHeavyAttacking ? 2 : 1 )) : 1);
+        }
+
+        IEnumerator ReenableHealthHitboxes()
+        {
+            yield return new WaitForSeconds(0.1f);
+            EnableHealthHitboxes();
         }
 
         public void TakeProjectileDamage(float damage, Projectile projectile)
@@ -450,9 +548,13 @@ namespace AF
 
             if (enemyManager.enemyPostureController != null)
             {
+
                 if (enemyManager.enemyPostureController.IsStunned())
                 {
                     physicalDamage *= enemyManager.enemy.brokenPostureDamageMultiplier;
+
+                    // Only allow 1 critical damage
+                    enemyManager.animator.SetBool(enemyManager.hashIsStunned, false);
                 }
                 // Disable stunned stars on hit
                 enemyManager.enemyPostureController.stunnedParticle.SetActive(false);
@@ -471,10 +573,7 @@ namespace AF
 
             this.currentHealth = Mathf.Clamp(currentHealth - physicalDamage, 0f, GetMaxHealth());
 
-            if (enemyManager.enemy.damagedParticle != null)
-            {
-                Instantiate(enemyManager.enemy.damagedParticle, transform.position, Quaternion.identity);
-            }
+            StartCoroutine(particlePoolManager.DropBloodOnEnemy(transform.position, bloodColor));
 
             // Status Effects for bows
             combatNotificationsController.ShowDamage(Mathf.RoundToInt(damage));
@@ -498,10 +597,11 @@ namespace AF
 
         public void Die()
         {
-            if (string.IsNullOrEmpty(analyticsMessage) == false)
-            {
-                FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
-            }
+            enemyManager.characterController.detectCollisions = false;
+            enemyManager.agent.enabled = false;
+
+
+            onEnemyDeath?.Invoke();
 
             StartCoroutine(DieFlow());
         }
@@ -547,41 +647,6 @@ namespace AF
                 }
             }
 
-
-            /*if (enemyManager.trackEnemyKill)
-            {
-                var playerActiveBuffs = "";
-                foreach (var activeBuff in Player.instance.appliedConsumables)
-                {
-                    if (playerActiveBuffs != "")
-                    {
-                        playerActiveBuffs += ", ";
-                    }
-
-                    playerActiveBuffs += activeBuff.consumableEffect.displayName;
-                }
-
-                /*AnalyticsService.Instance.CustomData(isBoss ? "boss_killed" : "enemy_killed",
-                        new Dictionary<string, object>()
-                        {
-                                { isBoss ? "boss" : "enemy", isBoss ? bossName : enemy.name + " (Lv. " + currentLevel + ") on map " + SceneManager.GetActiveScene().name },
-                                { "player_level", FindObjectOfType<PlayerLevelManager>(true).GetCurrentLevel() },
-                                { "player_vitality", Player.instance.vitality },
-                                { "player_endurance", Player.instance.endurance },
-                                { "player_strength", Player.instance.strength },
-                                { "player_dexterity", Player.instance.dexterity },
-                                { "player_weapon", Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.name : "Unarmed" },
-                                { "player_shield", Player.instance.equippedShield != null ? Player.instance.equippedShield.name : "-" },
-                                { "player_helmet", Player.instance.equippedHelmet != null ? Player.instance.equippedHelmet.name : "-" },
-                                { "player_armor", Player.instance.equippedArmor != null ? Player.instance.equippedArmor.name : "-" },
-                                { "player_gauntlets", Player.instance.equippedGauntlets != null ? Player.instance.equippedGauntlets.name : "-" },
-                                { "player_legwear", Player.instance.equippedLegwear != null ? Player.instance.equippedLegwear.name : "-" },
-                                { "player_acessory", Player.instance.equippedAccessory != null ? Player.instance.equippedAccessory.name : "-" },
-                                { "player_buffs", playerActiveBuffs },
-                        }
-                    );*/
-            
-
             // Notify companions that were attacking this enemy
 
             // Notify active playerManager companions
@@ -594,10 +659,6 @@ namespace AF
                 }
             }
 
-            foreach (var colliderToDisableOnDeath in collidersToDisableOnDeath)
-            {
-                colliderToDisableOnDeath.enabled = false;
-            }
 
             enemyManager.enemyWeaponController.DisableAllWeaponHitboxes();
 
@@ -620,6 +681,12 @@ namespace AF
                     }
 
                     targetBoss.onBossBattleEnd.Invoke();
+
+                    // Reputation Lost
+                    if (enemyBossController.reputationLostForKillingBoss > 0)
+                    {
+                        FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include).DecreaseReputation(enemyBossController.reputationLostForKillingBoss);
+                    }
 
                     // Save game
                     SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
@@ -655,8 +722,6 @@ namespace AF
 
         IEnumerator DisengageLockOn()
         {
-            var lockOnManager = FindObjectOfType<LockOnManager>(true);
-
             var lockOnRef = GetComponentInChildren<LockOnRef>(true);
 
             if (lockOnManager.isLockedOn

@@ -25,14 +25,14 @@ namespace AF
 
         private void Awake()
         {
-            attackStatManager = FindObjectOfType<AttackStatManager>(true);
-            defenseStatManager = FindObjectOfType<DefenseStatManager>(true);
-            menuManager = FindObjectOfType<MenuManager>(true);
+            attackStatManager = FindAnyObjectByType<AttackStatManager>(FindObjectsInactive.Include);
+            defenseStatManager = FindAnyObjectByType<DefenseStatManager>(FindObjectsInactive.Include);
+            menuManager = FindAnyObjectByType<MenuManager>(FindObjectsInactive.Include);
         }
 
         private void OnEnable()
         {
-            this.root = GetComponent<UIDocument>().rootVisualElement;
+            root = GetComponent<UIDocument>().rootVisualElement;
 
             menuManager.SetupNavMenu(this.root);
             menuManager.TranslateNavbar(root);
@@ -119,7 +119,7 @@ namespace AF
 
             // Accessory
             var accessoryElement = this.root.Q<VisualElement>("Accessory").Q<VisualElement>("Root").Q<Button>();
-            accessoryElement.Q<Label>("Label").text = player.equippedAccessory != null ? player.equippedAccessory.name.GetText() : LocalizedTerms.Accessory();
+            /*accessoryElement.Q<Label>("Label").text = player.equippedAccessory != null ? player.equippedAccessory.name.GetText() : LocalizedTerms.Accessory();
             accessoryElement.Q<Label>("Value").text = player.equippedAccessory != null
                 ? player.equippedAccessory.smallEffectDescription.GetText()
                 : "";
@@ -132,7 +132,8 @@ namespace AF
             else
             {
                 accessoryElement.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(emptyAccessorySprite);
-            }
+            }*/
+
             accessoryElement.RegisterCallback<ClickEvent>(ev =>
             {
                 menuManager.OpenEquipmentSelectionScreen(UIDocumentEquipmentSelectionMenuV2.EquipmentType.Accessories);
@@ -201,6 +202,7 @@ namespace AF
             {
                 btnElement.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(emptySprite);
             }
+
 
             menuManager.SetupButton(btnElement, () =>
             {

@@ -165,7 +165,7 @@ namespace AF
             }
 
             // Animator Logic
-            if (!string.IsNullOrEmpty(animationClip))
+            if (animator != null && !string.IsNullOrEmpty(animationClip))
             {
                 animator.CrossFade(animationClip, 0.2f);
             }

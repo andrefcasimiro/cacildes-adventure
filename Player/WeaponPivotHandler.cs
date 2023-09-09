@@ -30,7 +30,6 @@ namespace AF
         public float backRotationY;
         public float backRotationZ;
 
-
         private void Awake()
         {
             originalPosition = this.transform.localPosition;

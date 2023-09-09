@@ -5,7 +5,6 @@ namespace AF
 {
     public class UIDocumentTitleScreenOptions : MonoBehaviour
     {
-        public UIDocumentOptionsMenu uIDocumentOptionsMenu;
         VisualElement root => GetComponent<UIDocument>().rootVisualElement;
         MenuManager menuManager;
         UIDocumentTitleScreen uIDocumentTitleScreen;
@@ -13,10 +12,13 @@ namespace AF
         [Header("Localization")]
         public LocalizedText optionsLabel;
 
+        ViewComponent_GameSettings viewComponent_GameSettings => GetComponent<ViewComponent_GameSettings>();
+
+
         private void Awake()
         {
-            menuManager = FindObjectOfType<MenuManager>(true);
-            uIDocumentTitleScreen = FindObjectOfType<UIDocumentTitleScreen>(true);
+            menuManager = FindAnyObjectByType<MenuManager>(FindObjectsInactive.Include);
+            uIDocumentTitleScreen = FindAnyObjectByType<UIDocumentTitleScreen>(FindObjectsInactive.Include);
 
             gameObject.SetActive(false);
         }
@@ -35,8 +37,10 @@ namespace AF
                 Close();
             });
 
-            uIDocumentOptionsMenu.Activate(root);
-            uIDocumentOptionsMenu.onLanguageChanged += () =>
+            viewComponent_GameSettings.SetupRefs(root);
+            viewComponent_GameSettings.TranslateSettingsUI(root);
+
+            viewComponent_GameSettings.onLanguageChanged += () =>
             {
                 TranslateUI();
             };

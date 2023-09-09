@@ -15,7 +15,9 @@ namespace AF
 
         public static BGMManager instance;
 
-        public float fadeMusicSpeed = 2f;
+        public float fadeMusicSpeed = .1f;
+
+        SceneSettings sceneSettings;
 
         private void Awake()
         {
@@ -46,6 +48,13 @@ namespace AF
                 StartCoroutine(FadeInCore());
             }
         }
+        public void PlayBattleMusic()
+        {
+//            var battleMusic = sceneSettings.battleMusic;
+            StopMusic();
+
+        }
+
         IEnumerator HandleMusicChange(AudioClip musicToPlay)
         {
             yield return FadeOutCore();
@@ -71,10 +80,23 @@ namespace AF
             }
         }
 
+
+        public void StopMusicImmediately()
+        {
+            this.bgmAudioSource.Stop();
+            this.bgmAudioSource.clip = null;
+        }
+
         #region Fade In and Out Core Logic
         private IEnumerator FadeInCore()
         {
-            while (this.bgmAudioSource.volume < 1)
+            var volumeInGamePreferences = GamePreferences.instance.GetCurrentMusicVolume();
+            if (volumeInGamePreferences <= 0)
+            {
+                yield break;
+            }
+
+            while (this.bgmAudioSource.volume < volumeInGamePreferences)
             {
                 this.bgmAudioSource.volume += fadeMusicSpeed * Time.deltaTime;
                 yield return new WaitForEndOfFrame();
@@ -82,6 +104,12 @@ namespace AF
         }
         private IEnumerator FadeOutCore()
         {
+            var volumeInGamePreferences = GamePreferences.instance.GetCurrentMusicVolume();
+            if (volumeInGamePreferences <= 0)
+            {
+                yield break;
+            }
+
             while (this.bgmAudioSource.volume > 0)
             {
                 this.bgmAudioSource.volume -= fadeMusicSpeed * Time.deltaTime;
@@ -123,35 +151,23 @@ namespace AF
             customAudioSource.PlayOneShot(sfxToPlay);
         }
 
-        public void PlayBattleMusic()
-        {
-            var battleMusic = FindObjectOfType<SceneSettings>(true).battleMusic;
-
-            if (battleMusic != null)
-            {
-
-                if (this.bgmAudioSource.clip != null && this.bgmAudioSource.clip.name == battleMusic.name)
-                {
-                    return;
-                }
-
-
-                PlayMusic(battleMusic);
-            }
-        }
-
         public void PlayMapMusicAfterKillingEnemy(EnemyManager killedEnemy)
         {
             // Check if more enemies are in chase or combat state
-            var activeEnemies = FindObjectsOfType<EnemyManager>();
+            var activeEnemies = FindObjectsByType<EnemyManager>(FindObjectsSortMode.None);
 
             if (activeEnemies.FirstOrDefault(x => x.enemyCombatController.IsInCombat() && x != killedEnemy))
             {
                 return;
             }
 
+            if (sceneSettings == null)
+            {
+                sceneSettings = FindFirstObjectByType<SceneSettings>(FindObjectsInactive.Include);
+            }
+
             // Play map music
-            FindObjectOfType<SceneSettings>(true).HandleSceneSound();
+            sceneSettings.HandleSceneSound();
         }
 
         public bool IsPlayingMusicClip(string clipName)

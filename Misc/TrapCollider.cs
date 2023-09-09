@@ -12,6 +12,8 @@ namespace AF
 
         AudioSource audioSource => GetComponent<AudioSource>();
 
+        PlayerHealthbox playerHealthbox;
+
         public void PlaySwingSound()
         {
             // Not all trap colliders have soundsources sometimes (to not have multiple audiosources when only one is needed)
@@ -25,30 +27,16 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag == "Player")
+            if (other.gameObject.CompareTag("PlayerHealthbox"))
             {
-                other.GetComponentInChildren<PlayerHealthbox>(true).TakeEnvironmentalDamage(damage, 0, false, WeaponElementType.None);
-            }
 
-            if (other.gameObject.tag == "Enemy")
+                other.GetComponent<PlayerHealthbox>().TakeEnvironmentalDamage(damage, 0, false, WeaponElementType.None);
+            }
+            else if (other.gameObject.CompareTag("Enemy"))
             {
-                other.GetComponent<EnemyManager>().enemyHealthController.TakeEnvironmentalDamage(damage);
-
-                var rigidBody = other.GetComponent<Rigidbody>();
-                if (rigidBody != null)
-                {
-                    rigidBody.AddForce(moveForce * other.ClosestPoint(other.transform.position), ForceMode.Acceleration);
-                }
-
+                EnemyManager enemyManager = other.GetComponent<EnemyManager>();
+                enemyManager.enemyHealthController.TakeEnvironmentalDamage(damage);
             }
-        }
-        private void OnTriggerStay(Collider other)
-        {
-            if (other.gameObject.tag == "Player")
-            {
-                other.GetComponent<ImpactReceiver>().AddImpact(other.ClosestPointOnBounds(transform.position) * moveForce, moveForce);
-            }
-
         }
 
     }

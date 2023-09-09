@@ -26,29 +26,10 @@ namespace AF
                 enemy.enemyCombatController.hasHyperArmorActive = false;
             }
 
-            enemy.rigidbody.useGravity = false;
-            enemy.rigidbody.isKinematic = true;
-
-
             // Activate health hitboxes after dodging for safety
             enemy.enemyHealthController.EnableHealthHitboxes();
 
             enemy.enemyWeaponController.DisableAllWeaponHitboxes();
-
-            if (enemy.canFall)
-            {
-                if (enemy.IsGrounded() != null)
-                {
-                    if (enemy.agent.updatePosition == false)
-                    {
-                        enemy.ReenableNavmesh();
-                    }
-                }
-                else
-                {
-                    animator.Play(enemy.hashFalling);
-                }
-            }
 
             if (enemy.enemyCombatController.minimumDecisionTimeOverride != -1)
             {

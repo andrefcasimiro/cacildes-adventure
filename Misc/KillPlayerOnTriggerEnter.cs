@@ -19,6 +19,7 @@ namespace AF
 
         List<EnemyBossController> enemyBossControllers = new();
 
+        public bool ignoreEnemies = false;
 
         private void Awake()
         {
@@ -53,7 +54,7 @@ namespace AF
                 other.GetComponentInChildren<PlayerHealthbox>(true).Die();
             }
 
-            if (other.gameObject.CompareTag("Enemy"))
+            if (other.gameObject.CompareTag("Enemy") && ignoreEnemies == false)
             {
                 var enemyManager = other.GetComponent<EnemyManager>();
 

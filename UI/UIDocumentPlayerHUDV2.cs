@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -25,8 +26,11 @@ namespace AF
         EquipmentGraphicsHandler equipmentGraphicsHandler;
 
         IMGUIContainer itemIcon;
-        Label itemCounter;
         Label quickItemName;
+        Label consumeActionLabel;
+        Label switchItemActionLabel;
+        VisualElement consumeGamepadIcon;
+        VisualElement switchItemGamepadIcon;
 
         private void OnEnable()
         {
@@ -41,8 +45,14 @@ namespace AF
             staminaFill = root.Q<VisualElement>("StaminaFill");
 
             itemIcon = root.Q<IMGUIContainer>("ItemIcon");
-            itemCounter = root.Q<Label>("ItemCounterLabel");
             quickItemName = root.Q<Label>("QuickItemName");
+
+            consumeActionLabel = root.Q<Label>("ConsumeAction");
+            switchItemActionLabel = root.Q<Label>("SwitchAction");
+
+            consumeGamepadIcon = root.Q<VisualElement>("GamepadTriangle");
+            switchItemGamepadIcon = root.Q<VisualElement>("GamepadSwitchItem");
+
 
             UpdateFavoriteItems();
         }
@@ -89,33 +99,56 @@ namespace AF
             }
 
             itemIcon.style.backgroundImage = null;
-            itemCounter.text = "";
-            itemCounter.style.display = DisplayStyle.None;
+
             quickItemName.text = "";
+
+
+            consumeGamepadIcon.style.display = DisplayStyle.None;
+            switchItemGamepadIcon.style.display = DisplayStyle.None;
+
+            consumeActionLabel.text = "";
+            switchItemActionLabel.text = "";
 
             if (Player.instance == null || Player.instance.favoriteItems == null || Player.instance.favoriteItems.Count <= 0) { return; }
 
             itemIcon.style.backgroundImage = new StyleBackground(Player.instance.favoriteItems[0].sprite);
 
+
+
+            quickItemName.text = Player.instance.favoriteItems[0].name.GetText();
+
             var favItem = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == Player.instance.favoriteItems[0].name.GetEnglishText());
 
             if (favItem != null)
             {
-                itemCounter.text = favItem.amount.ToString();
-            }
-
-            itemCounter.style.display = DisplayStyle.Flex;
-
-            if (favItem != null)
-            {
-                var consumable = favItem.item as Consumable;
-                if (consumable != null && consumable.notStackable)
+                if (favItem.item is Consumable c && c.notStackable == false)
                 {
-                    itemCounter.style.display = DisplayStyle.None;
+                    quickItemName.text += " (" + favItem.amount.ToString() + ")";
+                }
+                else if (favItem.item is Spell s)
+                {
+                    var spellName = favItem.item.name.GetEnglishText();
+
+                    quickItemName.text += " (" + (favItem.amount).ToString() + ")";
                 }
             }
 
-            quickItemName.text = Player.instance.favoriteItems[0].name.GetText();
+            var isEnglish = GamePreferences.instance.IsEnglish();
+
+            if (Gamepad.current != null)
+            {
+                consumeGamepadIcon.style.display = DisplayStyle.Flex;
+                switchItemGamepadIcon.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                consumeActionLabel.text = "[R] ";
+                switchItemActionLabel.text = isEnglish ? "[Scrollwheel] " : "[Scrollwheel] ";
+            }
+
+
+            consumeActionLabel.text += isEnglish ? "Use" : "Usar";
+            switchItemActionLabel.text += isEnglish ? "Switch" : "Trocar";
 
         }
 

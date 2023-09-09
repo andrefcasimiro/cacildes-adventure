@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using UnityEngine.Events;
 using Quaternion = UnityEngine.Quaternion;
 using System.Collections;
+using System.Drawing;
+using UnityEngine.PlayerLoop;
+using UnityEngine.Profiling;
+using UnityEngine.UIElements;
+using Color = UnityEngine.Color;
 
 namespace AF
 {
@@ -54,16 +59,15 @@ namespace AF
         public readonly int hashGuardBreak = Animator.StringToHash("Guard Break");
         public readonly int hashParry = Animator.StringToHash("Parry");
 
+        public readonly int hashIsGrounded = Animator.StringToHash("IsGrounded");
+
         #endregion
 
         [Header("Components")]
         public Animator animator;
         public AnimatorOverrideController animatorOverrideController;
         public NavMeshAgent agent;
-        public new Rigidbody rigidbody => GetComponent<Rigidbody>();
-
-        [Header("Music")]
-        public bool shouldPlayBattleMusic = true;
+        [HideInInspector] public CharacterController characterController => GetComponent<CharacterController>();
 
         [Header("Enemy")]
         public Enemy enemy;
@@ -75,25 +79,22 @@ namespace AF
         public bool alwaysTrackPlayer = false;
         public bool canChase = true;
         public float chaseVelocityOverride = -1f;
+        public float walkSpeedOverride = -1f;
 
         [Header("Gravity")]
         public bool canFall = true;
         public float distToGround = 0.1f;
         float lastGroundedPositionY;
-        float minimumFallHeightToTakeDamage = 2f;
-        float damageMultiplierPerMeter = 45f;
+        float minimumFallHeightToTakeDamage = 1f;
+        float damageMultiplierPerMeter = 65f;
 
         [Header("Audio Sources")]
         public AudioSource combatAudioSource;
-
-        [Header("Is Flying Enemy")]
-        public bool isFlyingEnemy = false;
 
         // Flags
         [HideInInspector] public bool facePlayer = false;
 
         [Header("Rotation Options")]
-        public bool rotateWithAnimations = true;
         public float rotationSpeed = 5f;
         [HideInInspector] public GameObject player;
 
@@ -133,10 +134,16 @@ namespace AF
         Vector3 initialPosition; // For bonfire respawns
         Quaternion initialRotation; // For bonfire respawns
 
-        bool usesGravityByDefault;
-        bool isKinematicByDefault;
-        public bool forceKinematicOnRevive = false;
+        Vector3 smoothDesiredDirection;
+        bool isMovingSmoothly = false;
 
+        [Header("Pushable Options")]
+        public bool canBePushed = true;
+
+        float defaultAnimatorSpeed;
+
+        [HideInInspector] public float attackReducingFactor = 1;
+        [HideInInspector] public float healthReducingFactor = 1;
 
         private void Awake()
         {
@@ -150,6 +157,7 @@ namespace AF
             }
 
             animator.speed = animatorSpeed;
+            defaultAnimatorSpeed = animator.speed;
 
             if (string.IsNullOrEmpty(customStartAnimation))
             {
@@ -159,17 +167,64 @@ namespace AF
 
         private void Start()
         {
-            usesGravityByDefault = rigidbody.useGravity;
-            isKinematicByDefault = rigidbody.isKinematic;
-
             initialPosition = transform.position;
             initialRotation = transform.rotation;
 
+
+            ResetDifficulty();
+        }
+
+        public void ResetDifficulty()
+        {
+            // Don't change currently active enemies
+            if (enemyCombatController.IsInCombat())
+            {
+                return;
+            }
+
+            if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.EASY)
+            {
+                var animSpeed = Mathf.Clamp(animatorSpeed - 0.1f, 0.75f, Mathf.Infinity);
+                animator.speed = animSpeed;
+                attackReducingFactor = 4;
+                healthReducingFactor = 1.5f;
+            }
+            else if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.MEDIUM)
+            {
+                animator.speed = defaultAnimatorSpeed;
+                attackReducingFactor = 2;
+                healthReducingFactor = 1;
+            }
+            else
+            {
+                animator.speed = defaultAnimatorSpeed;
+                attackReducingFactor = 1;
+                healthReducingFactor = 1;
+            }
+
+            enemyHealthController.UpdateMaxHealth();
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.DrawSphere(transform.position + transform.up * -1f, .5f);
         }
 
         private void Update()
         {
-            Debug.DrawRay(transform.position + new Vector3(0, 0.1f, 0), transform.up * -1f, Color.red);
+            if (!characterController.isGrounded)
+            {
+                if (enemyPostureController == null || enemyPostureController.IsStunned() == false)
+                {
+                    characterController.Move(new Vector3(0.0f, -4.5f, 0.0f) * Time.deltaTime);
+
+                    animator.SetBool("IsGrounded", CheckEnemyGrounded());
+                }
+            }
+            else
+            {
+                animator.SetBool("IsGrounded", true);
+            }
 
             if (facePlayer)
             {
@@ -182,6 +237,44 @@ namespace AF
                     FacePlayer();
                 }
             }
+
+            if (isMovingSmoothly)
+            {
+                // Apply the force over time using lerp or move towards
+                smoothDesiredDirection = Vector3.Lerp(smoothDesiredDirection, Vector3.zero, 0.1f); // Adjust the lerp factor (0.1f) for desired smoothing
+
+                // Move the character controller using the force vector
+                characterController.Move(smoothDesiredDirection * Time.deltaTime);
+
+                // Check if the movement has reached the desired position or condition
+                if (smoothDesiredDirection.magnitude < 0.01f) // Adjust the threshold value for completion
+                {
+                    smoothDesiredDirection = Vector3.zero;
+
+                    isMovingSmoothly = false;
+                }
+            }
+        }
+
+        bool CheckEnemyGrounded()
+        {
+            // Cast a ray downward from the player's position
+            Ray groundRay = new Ray(transform.position, Vector3.down);
+
+            // Set the maximum distance the ray can travel
+            float maxDistance = 2f;
+
+            // Create a RaycastHit variable to store the information about the hit
+            RaycastHit hit;
+
+            // Perform the raycast and check if it hits something
+            if (Physics.Raycast(groundRay, out hit, maxDistance))
+            {
+                // You can add more conditions here if needed, e.g., check for specific tags or layers.
+                return true; // The enemy is grounded
+            }
+
+            return false; // The enemy is not grounded
         }
 
         public void CallCombatPartner()
@@ -218,66 +311,66 @@ namespace AF
 
         public void PushEnemy(float pushForce, ForceMode forceMode)
         {
-            if (isFlyingEnemy)
+            if (canBePushed == false)
             {
                 return;
             }
 
-            rigidbody.useGravity = true;
-            rigidbody.isKinematic = false;
-            rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
-
-            if (canFall)
-            {
-                agent.updatePosition = false;
-            }
-
             var slamDirection = (transform.position - player.transform.position).normalized;
-
             slamDirection.y = 0;
 
-            var pushForceValue = pushForce - (int)enemy.weight;
-            var finalPushForce = pushForceValue > 0 ? pushForceValue : 0;
-            rigidbody.AddForce(slamDirection * finalPushForce * 100, forceMode);
+            var pushForceValue = (pushForce * 5) / ((int)enemy.weight * 2);
+            var finalPushForce = (pushForceValue > 0 ? pushForceValue : 0) * 100;
 
-            StartCoroutine(RestoreNavmeshIfGrounded(.5f));
+            Vector3 targetPos = (finalPushForce * Time.deltaTime) * slamDirection;
+
+            MoveTowardsSmoothly(targetPos);
         }
 
-        IEnumerator RestoreNavmeshIfGrounded(float duration)
+        public void MoveTowardsSmoothly(Vector3 targetPos)
         {
-            yield return new WaitForSeconds(duration);
+            // Assign the target position to the force vector
+            smoothDesiredDirection = targetPos;
 
-            if (canFall && IsGrounded() == null)
-            {
-                BeginFall();
-            }
-            else
-            {
-                ReenableNavmesh();
-            }
+            isMovingSmoothly = true;
         }
 
         public void BeginFall()
         {
-            animator.Play(hashFalling);
-
             lastGroundedPositionY = transform.position.y;
         }
-
         public void StopFall()
         {
             var currentFallHeight = Mathf.Abs(lastGroundedPositionY - transform.position.y);
 
             // Takes fall damage?
             if (currentFallHeight > minimumFallHeightToTakeDamage && canFall
-                // Just to have something that ensures this only triggers once
+            // Just to have something that ensures this only triggers once
                 && agent.enabled == false)
             {
                 enemyHealthController.TakeEnvironmentalDamage(
                     Mathf.RoundToInt(currentFallHeight * damageMultiplierPerMeter));
             }
+        }
 
-            ReenableNavmesh();
+        public void RepositionNavmeshAgent()
+        {
+            // Sample a valid position on the NavMesh near the animator's position
+            Vector3 targetPosition = transform.position;
+            if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, .5f, NavMesh.AllAreas))
+            {
+                targetPosition = hit.position;
+            }
+
+            // Disable the character controller temporarily to avoid conflicts
+            characterController.enabled = false;
+
+            // Teleport the agent to the target position smoothly
+            agent.Warp(targetPosition);
+            agent.updatePosition = true;
+
+            // Re-enable the character controller
+            characterController.enabled = true;
         }
 
         public void Revive()
@@ -293,39 +386,27 @@ namespace AF
             enemyHealthController.EnableHealthHitboxes();
             enemyHealthController.InitializeEnemyHUD();
 
-            agent.updatePosition = false;
-            agent.SetDestination(initialPosition);
-            this.transform.position = initialPosition;
+            transform.position = initialPosition;
             this.transform.rotation = initialRotation;
-            agent.nextPosition = initialPosition;
-            agent.updatePosition = true;
-
-            var deathCollider = GetComponentInChildren<DeathColliderRef>(true);
-            if (deathCollider != null)
-            {
-                deathCollider.GetComponent<BoxCollider>().enabled = false;
-            }
-
-            foreach (var colliderToDisableOnDeath in GetComponents<Collider>())
-            {
-                colliderToDisableOnDeath.enabled = true;
-            }
-
-            rigidbody.isKinematic = isKinematicByDefault;
-
-            if (forceKinematicOnRevive)
-            {
-                rigidbody.isKinematic = true;
-            }
-
-            GetComponent<CapsuleCollider>().enabled = true;
 
             agent.enabled = true;
 
-            animator.Play(string.IsNullOrEmpty(customReviveDefaultAnimation) ? hashIdle : Animator.StringToHash(customReviveDefaultAnimation));
 
-            // Remove all negative status
-            enemyNegativeStatusController.ClearAllNegativeStatus();
+            if (!string.IsNullOrEmpty(customStartAnimation))
+            {
+                animator.Play(customStartAnimation);
+            }
+            else if (!string.IsNullOrEmpty(customReviveDefaultAnimation))
+            {
+                animator.Play(customReviveDefaultAnimation);
+            }
+            else
+            {
+                animator.Play(hashIdle);
+            }
+
+                // Remove all negative status
+                enemyNegativeStatusController.ClearAllNegativeStatus();
 
             if (enemyPostureController != null)
             {
@@ -348,6 +429,7 @@ namespace AF
 
             onRevive.Invoke();
 
+            characterController.detectCollisions = true;
         }
 
         public bool PlayerIsBehind()
@@ -394,40 +476,11 @@ namespace AF
             return false;
         }
 
-        public Transform IsGrounded()
-        {
-
-            Physics.Raycast(transform.position + new Vector3(0, distToGround, 0), transform.up * -1f, out RaycastHit hit, 1f);
-
-            return hit.transform;
-        }
-
         public bool IsNavMeshAgentActive()
         {
             return agent.enabled && agent.isOnNavMesh;
         }
 
-        public void ReenableNavmesh()
-        {
-            NavMeshHit rightHit;
-            NavMesh.SamplePosition(transform.position, out rightHit, 999f, NavMesh.AllAreas);
 
-            agent.enabled = false;
-            agent.nextPosition = rightHit.position;
-
-            agent.updatePosition = true;
-            agent.enabled = true;
-
-            rigidbody.useGravity = usesGravityByDefault;
-            rigidbody.isKinematic = isKinematicByDefault;
-
-            if (forceKinematicOnRevive)
-            {
-                rigidbody.isKinematic = true;
-            }
-
-            rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-
-        }
     }
 }

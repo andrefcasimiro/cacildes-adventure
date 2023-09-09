@@ -111,6 +111,24 @@ namespace AF
 
         public void OnGameLoaded(GameData gameData)
         {
+            Player.instance.companions.Clear();
+
+            foreach (var savedCompanion in gameData.companions)
+            {
+                SerializedCompanion serializedCompanion = new SerializedCompanion();
+                serializedCompanion.companionId = savedCompanion.companionId;
+                serializedCompanion.isWaitingForPlayer = savedCompanion.isWaitingForPlayer;
+                serializedCompanion.waitingForPlayerPosition = savedCompanion.waitingForPlayerPosition;
+                serializedCompanion.waitingForPlayerSceneIndex = savedCompanion.waitingForPlayerSceneIndex;
+                Player.instance.companions.Add(serializedCompanion);
+            }
+
+            // Notify all enemies in scene so we update their max health
+            foreach (var enemy in FindObjectsByType<EnemyHealthController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                enemy.UpdateMaxHealth();
+            }
+
             EvaluateCompanionsInScene();
         }
 

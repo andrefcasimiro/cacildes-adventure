@@ -41,7 +41,6 @@ namespace AF
         {
             currentPoiseHitCount = Mathf.Clamp(currentPoiseHitCount + 1 + poiseDamage, 0, enemyManager.enemy.maxPoiseHits);
 
-
             if (currentPoiseHitCount >= enemyManager.enemy.maxPoiseHits)
             {
                 ActivatePoiseDamage();
@@ -51,7 +50,6 @@ namespace AF
                 // If enemy was hit, force him into combat
                 if (enemyManager.enemyCombatController.IsInCombat() == false)
                 {
-                    enemyManager.agent.isStopped = true;
                     enemyManager.animator.SetBool(enemyManager.hashChasing, true);
                 }
             }

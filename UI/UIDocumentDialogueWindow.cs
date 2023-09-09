@@ -112,6 +112,14 @@ namespace AF
             StartCoroutine(Typewrite());
         }
 
+        private void Update()
+        {
+            if (dialogueChoices.Count > 0)
+            {
+                cursorManager.ShowCursor();
+            }
+        }
+
         public IEnumerator Typewrite()
         {
             for (int i = 0; i < dialogueText.Length + 1; i++)

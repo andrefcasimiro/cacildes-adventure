@@ -27,19 +27,29 @@ namespace AF
 
         public int bonusGold = 0;
 
+        EquipmentGraphicsHandler equipmentGraphicsHandler;
+        UIDocumentPlayerGold uIDocumentPlayerGold;
+
         private void Awake()
         {
-             playerInventory = FindObjectOfType<PlayerInventory>(true);
-             notificationManager = FindObjectOfType<NotificationManager>(true);
+             playerInventory = FindFirstObjectByType<PlayerInventory>(FindObjectsInactive.Include);
+            notificationManager = FindFirstObjectByType<NotificationManager>(FindObjectsInactive.Include);
+            equipmentGraphicsHandler = FindFirstObjectByType<EquipmentGraphicsHandler>(FindObjectsInactive.Include);
+            uIDocumentPlayerGold = FindFirstObjectByType<UIDocumentPlayerGold>(FindObjectsInactive.Include);
+
         }
 
         public IEnumerator GiveLoot()
         {
             yield return new WaitForSeconds(1f);
 
-            var goldToReceive = Player.instance.CalculateAIGenericValue(enemyManager.enemy.baseGold, enemyManager.currentLevel);
+            var goldToReceive = enemyManager.enemy.baseGold;
 
-            var equipmentGraphicsHandler = FindObjectOfType<EquipmentGraphicsHandler>(true);
+            if (enemyManager.currentLevel > 1)
+            {
+                goldToReceive = Player.instance.CalculateAIGenericValue(enemyManager.enemy.baseGold, enemyManager.currentLevel);
+            }
+
 
             if (equipmentGraphicsHandler != null)
             {
@@ -55,7 +65,8 @@ namespace AF
 
             goldToReceive += bonusGold;
 
-            FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGold(goldToReceive);
+            uIDocumentPlayerGold.PlayCoinsFX(transform);
+            uIDocumentPlayerGold.NotifyGold(goldToReceive);
             Player.instance.currentGold += (int)goldToReceive;
 
             GetLoot();
@@ -67,15 +78,35 @@ namespace AF
 
             bool hasPlayedFanfare = false;
 
-            var finalLootTable = overrideLootTable ? additionalLootTable : enemyManager.enemy.lootTable;
+            var provisionalLootTable = overrideLootTable ? additionalLootTable : enemyManager.enemy.lootTable;
 
             if (overrideLootTable == false && additionalLootTable.Count > 0)
             {
                 foreach (var additionalLoot in additionalLootTable)
                 {
-                    finalLootTable.Add(additionalLoot);
+                    provisionalLootTable.Add(additionalLoot);
                 }
             }
+
+            var finalLootTable = new List<DropCurrency>();
+           
+            // Filter armors or weapons that user might already have
+            foreach (var dropCurrency in provisionalLootTable)
+            {
+
+                if (dropCurrency.item is ArmorBase || dropCurrency.item is Weapon)
+                {
+                    if (playerInventory.GetItemQuantity(dropCurrency.item) > 0)
+                    {
+                        // If player owns armor, dont allow him to have multiple armors of that kind
+                        continue;
+                    }
+                }
+
+                finalLootTable.Add(dropCurrency);
+            }
+
+
 
             foreach (DropCurrency dropCurrency in finalLootTable)
             {
