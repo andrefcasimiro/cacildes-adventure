@@ -6,8 +6,11 @@ namespace AF
 {
     public class ExplodingBarrelDamage : MonoBehaviour
     {
-        public int damageForPlayer = 50;
-        public int damageForEnemies = 300;
+        public int damageFromFarDistance = 50;
+        public int multiplierForEnemies = 3;
+
+        public float maxExplosionDuration = .5f;
+        public float maxEffectiveDistance = 4f;
 
         PlayerHealthbox playerHealthbox;
         public ParticleSystem part => GetComponent<ParticleSystem>();
@@ -27,6 +30,8 @@ namespace AF
         public int pushforceForEnemies = 3;
 
         List<GameObject> hitEntities = new();
+
+        bool explosionIsActivated = true;
 
         private void Awake()
         {
@@ -55,71 +60,90 @@ namespace AF
                 return;
             }
 
+            if (!explosionIsActivated)
+            {
+                return;
+            }
 
-                if (other.CompareTag("Player") || other.CompareTag("PlayerHealthbox"))
+            StartCoroutine(DisableExplosion());
+
+            if (other.CompareTag("Player") || other.CompareTag("PlayerHealthbox"))
             {
                 hitEntities.Add(other);
 
-                var copiedDamage = damageForPlayer;
-                    if (copiedDamage > 0)
-                    {
-                        if (takeArmorInConsideration)
-                        {
-                            copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetDefenseAbsorption()), 0, 999);
-                        }
+                var copiedDamage = damageFromFarDistance;
 
-                        if (weaponElementType == WeaponElementType.Magic)
-                        {
-                            copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetMagicDefense()), 0, 999);
-                        }
+                var distance = Vector3.Distance(other.transform.position, transform.position);
 
-                        if (weaponElementType == WeaponElementType.Magic)
-                        {
-                            copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetFireDefense()), 0, 999);
-                        }
+                // Calculate damage multiplier based on distance (damage increases as distance decreases)
+                float distanceMultiplier = 1.0f - Mathf.Clamp01(distance / maxEffectiveDistance);
 
-                        playerHealthbox.TakeEnvironmentalDamage(copiedDamage, poiseDamage, ignoreDodging, weaponElementType);
-                    }
-                }
-                else
+                // Apply the multiplier to the copied damage and ensure it's not negative
+                copiedDamage = (int)Mathf.Max(Mathf.RoundToInt(copiedDamage * distanceMultiplier), 0);
+
+                if (copiedDamage > 0)
                 {
-                    EnemyHealthController enemyHealthController = null;
+                    copiedDamage = Player.instance.CalculateIncomingElementalAttack(copiedDamage, weaponElementType, defenseStatManager);
 
-                    if (other.CompareTag("Enemy"))
+                    playerHealthbox.TakeEnvironmentalDamage(0, poiseDamage, ignoreDodging, copiedDamage, weaponElementType);
+                }
+            }
+            else
+            {
+                EnemyHealthController enemyHealthController = null;
+
+                if (other.CompareTag("Enemy"))
                 {
                     hitEntities.Add(other);
 
                     enemyHealthController = other.GetComponent<EnemyHealthController>();
-                    }
-
-                    if (enemyHealthController == null)
-                    {
-                        enemyHealthController = other.GetComponent<EnemyHealthHitbox>()?.enemyManager?.enemyHealthController;
-                    }
-
-                    if (enemyHealthController != null)
-                    {
-                        var copiedDamage = damageForEnemies;
-
-                        if (copiedDamage > 0)
-                        {
-                            enemyHealthController.TakeEnvironmentalDamage(damageForEnemies);
-                        }
-
-                    enemyHealthController.GetComponent<EnemyManager>().PushEnemy(pushforceForEnemies, ForceMode.Acceleration);
-                    }
-
-                    
-
-
-                    if (forceEnemiesIntoCombat && enemyHealthController != null)
-                    {
-                        enemyHealthController.GetComponent<EnemyManager>().enemyBehaviorController.ChasePlayer();
-                    }
                 }
 
+
+
+                if (enemyHealthController == null)
+                {
+                    enemyHealthController = other.GetComponent<EnemyHealthHitbox>()?.enemyManager?.enemyHealthController;
+                }
+
+                if (enemyHealthController != null)
+                {
+
+                    var copiedDamage = damageFromFarDistance;
+
+                    var distance = Vector3.Distance(other.transform.position, transform.position);
+
+                    // Calculate damage multiplier based on distance (damage increases as distance decreases)
+                    float distanceMultiplier = 1.0f - Mathf.Clamp01(distance / maxEffectiveDistance);
+
+                    // Apply the multiplier to the copied damage and ensure it's not negative
+                    copiedDamage = (int)Mathf.Max(Mathf.RoundToInt(copiedDamage * distanceMultiplier), 0);
+
+                    if (copiedDamage > 0)
+                    {
+                        enemyHealthController.TakeEnvironmentalDamage(copiedDamage * multiplierForEnemies);
+                    }
+
+                    enemyHealthController.GetComponent<EnemyManager>().PushEnemy(pushforceForEnemies, ForceMode.Acceleration);
+                }
+
+
+
+
+                if (forceEnemiesIntoCombat && enemyHealthController != null)
+                {
+                    enemyHealthController.GetComponent<EnemyManager>().enemyBehaviorController.ChasePlayer();
+                }
             }
+
         }
+
+        IEnumerator DisableExplosion()
+        {
+            yield return new WaitForSeconds(maxExplosionDuration);
+            explosionIsActivated = false;
+        }
+    }
 
 
 }

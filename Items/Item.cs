@@ -19,7 +19,6 @@ namespace AF
         public LocalizedText shortDescription;
 
         public float value = 0;
-        public float weight = 0;
 
         public bool lostUponUse = true;
 

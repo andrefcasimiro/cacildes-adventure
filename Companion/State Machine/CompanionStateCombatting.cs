@@ -27,6 +27,8 @@ namespace AF
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+            companionManager.FaceEnemy();
+
             if (companionManager.currentEnemy == null || companionManager.currentEnemy.enemyHealthController.currentHealth <= 0)
             {
                 companionManager.StopCombat();
@@ -35,6 +37,7 @@ namespace AF
 
             if (companionManager.ShouldChaseEnemy())
             {
+                companionManager.FaceEnemy();
                 animator.Play(companionManager.hashChasing);
                 return;
             }
@@ -46,6 +49,7 @@ namespace AF
 
                 var animationDice = Random.Range(0, attackClipNames.Length);
 
+                companionManager.FaceEnemy();
                 animator.Play(attackClipNames[animationDice]);
             }
 

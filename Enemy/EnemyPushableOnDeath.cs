@@ -22,9 +22,14 @@ namespace AF
         {
             isActivated = true;
 
-            GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
+            var rigidbody = GetComponent<Rigidbody>();
+            if (rigidbody != null)
+            {
+                rigidbody.constraints = RigidbodyConstraints.FreezeRotation;
 
-            GetComponent<Rigidbody>().useGravity = true;
+                rigidbody.useGravity = true;
+
+            }
 
 
         }

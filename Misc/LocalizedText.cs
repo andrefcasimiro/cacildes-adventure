@@ -8,7 +8,7 @@ namespace AF
     public class LocalizedTextEntry
     {
         public GamePreferences.GameLanguage gameLanguage;
-        [TextArea] public string text;
+        [TextArea(5, 15)] public string text;
     }
 
     [System.Serializable]

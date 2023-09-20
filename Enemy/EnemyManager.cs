@@ -100,6 +100,7 @@ namespace AF
 
         [Header("Revive Options")]
         public UnityEvent onRevive;
+        public Transform customReviveTransformRef;
         public string customReviveDefaultAnimation;
         public string customStartAnimation;
 
@@ -172,6 +173,11 @@ namespace AF
 
 
             ResetDifficulty();
+
+            if (canFall == false)
+            {
+                animator.SetBool("IsGrounded", true);
+            }
         }
 
         public void ResetDifficulty()
@@ -212,18 +218,21 @@ namespace AF
 
         private void Update()
         {
-            if (!characterController.isGrounded)
+            if (canFall)
             {
-                if (enemyPostureController == null || enemyPostureController.IsStunned() == false)
+                if (!characterController.isGrounded)
                 {
-                    characterController.Move(new Vector3(0.0f, -4.5f, 0.0f) * Time.deltaTime);
+                    if (enemyPostureController == null || enemyPostureController.IsStunned() == false)
+                    {
+                        characterController.Move(new Vector3(0.0f, -4.5f, 0.0f) * Time.deltaTime);
 
-                    animator.SetBool("IsGrounded", CheckEnemyGrounded());
+                        animator.SetBool("IsGrounded", CheckEnemyGrounded());
+                    }
                 }
-            }
-            else
-            {
-                animator.SetBool("IsGrounded", true);
+                else
+                {
+                    animator.SetBool("IsGrounded", true);
+                }
             }
 
             if (facePlayer)
@@ -319,10 +328,13 @@ namespace AF
             var slamDirection = (transform.position - player.transform.position).normalized;
             slamDirection.y = 0;
 
-            var pushForceValue = (pushForce * 5) / ((int)enemy.weight * 2);
-            var finalPushForce = (pushForceValue > 0 ? pushForceValue : 0) * 100;
+            // Calculate the push force value, taking weight into account
+            var pushForceValue = pushForce * (5f - (float)enemy.weight) * 3.5f;
 
-            Vector3 targetPos = (finalPushForce * Time.deltaTime) * slamDirection;
+            // Ensure the push force is not negative
+            pushForceValue = Mathf.Max(pushForceValue, 1f);
+
+            Vector3 targetPos = (pushForceValue) * slamDirection;
 
             MoveTowardsSmoothly(targetPos);
         }
@@ -380,14 +392,24 @@ namespace AF
                 enemyPushableOnDeath.Deactivate();
             }
 
+
+
             animator.SetBool(hashDying, false);
 
             enemyHealthController.currentHealth = enemyHealthController.GetMaxHealth();
             enemyHealthController.EnableHealthHitboxes();
             enemyHealthController.InitializeEnemyHUD();
-
-            transform.position = initialPosition;
-            this.transform.rotation = initialRotation;
+            
+            if (customReviveTransformRef != null)
+            {
+                transform.position = customReviveTransformRef.transform.position;
+                this.transform.rotation = customReviveTransformRef.transform.rotation;
+            }
+            else
+            {
+                transform.position = initialPosition;
+                this.transform.rotation = initialRotation;
+            }
 
             agent.enabled = true;
 

@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 namespace AF
@@ -35,7 +36,10 @@ namespace AF
 
             Soundbank.instance.PlayLeverActivated();
 
-            notificationManager.ShowNotification(doorOpenedText.GetText(), notificationManager.door);
+            if (doorOpenedText != null && doorOpenedText.localizedTexts.Length > 0)
+            {
+                notificationManager.ShowNotification(doorOpenedText.GetText(), notificationManager.door);
+            }
         }
 
 
@@ -53,7 +57,10 @@ namespace AF
                 leverInactive.SetActive(!puzzleIsSolved);
             }
 
-            door.SetActive(!puzzleIsSolved);
+            if (door != null)
+            {
+                door.SetActive(!puzzleIsSolved);
+            }
         }
 
     }

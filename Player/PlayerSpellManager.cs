@@ -190,7 +190,7 @@ namespace AF
         {
             if (currentSpell.selfDamageAmount != -1)
             {
-                playerHealthbox.TakeEnvironmentalDamage(currentSpell.selfDamageAmount, 0, true, currentSpell.selfDamageType);
+                playerHealthbox.TakeEnvironmentalDamage(currentSpell.selfDamageAmount, 0, true, 0, currentSpell.selfDamageType);
             }
 
             if (currentSpell.selfStatusEffect != null)

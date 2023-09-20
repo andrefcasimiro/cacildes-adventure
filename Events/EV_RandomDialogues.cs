@@ -6,17 +6,11 @@ namespace AF
 {
     public class EV_RandomDialogues : EventBase
     {
-        [TextArea]
-        public string comment = "Put some dialogue events in the children of this gameobject";
-
+        public GameObject[] dialogueEvents;
 
         public override IEnumerator Dispatch()
         {
-            var childLength = transform.childCount;
-
-            yield return null;
-
-            var chance = Random.Range(0, childLength);
+            var chance = Random.Range(0, dialogueEvents.Length);
 
             var events = transform.GetChild(chance).GetComponents<EventBase>();
 

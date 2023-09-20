@@ -14,6 +14,7 @@ namespace AF
         public SwitchEntry switchDependant;
         public bool requiredSwitchValueToDisplayMessage;
 
+
         [Header("Companion")]
         public Companion companionDependant;
 
@@ -57,6 +58,12 @@ namespace AF
         public string animationClip;
 
         DialogueManager dialogueManager;
+
+        [Header("Companion Settings")]
+        public bool shouldCheckIfAnEnemyWasKilledAndCommentOnThat = false;
+
+        [Header("Edge Cases")]
+        public bool isArenaFinalScoreMessage;
 
         private void Awake()
         {
@@ -156,6 +163,47 @@ namespace AF
                     {
                         var idx = Random.Range(0, negativeReputationMessages.Length);
                         displayMessage = negativeReputationMessages[idx];
+                    }
+
+                }
+
+                if (shouldCheckIfAnEnemyWasKilledAndCommentOnThat && Player.instance.lastEnemyKilled != null)
+                {
+
+                    if (character.name == "Alcino" && Player.instance.lastEnemyKilled.alcinoCommentsUponKillingEnemy.localizedTexts.Count() > 0)
+                    {
+                        displayMessage = Player.instance.lastEnemyKilled.alcinoCommentsUponKillingEnemy;
+                    }
+                    else if (character.name == "Hugo" && Player.instance.lastEnemyKilled.hugoCommentsOnKillingEnemy.localizedTexts.Count() > 0)
+                    {
+                        displayMessage = Player.instance.lastEnemyKilled.hugoCommentsOnKillingEnemy;
+                    }
+                    else if (character.name == "Balbino" && Player.instance.lastEnemyKilled.balbinoCommentsOnKillingEnemy.localizedTexts.Count() > 0)
+                    {
+                        displayMessage = Player.instance.lastEnemyKilled.balbinoCommentsOnKillingEnemy;
+                    }
+
+                    Player.instance.lastEnemyKilled = null;
+                }
+
+                LocalizedText messageToShow = displayMessage;
+                if (isArenaFinalScoreMessage)
+                {
+                    var roundManager = FindAnyObjectByType<RoundManager>(FindObjectsInactive.Include);
+                    bool hasWon = roundManager.HasBeatenNewRecord();
+
+                    messageToShow.localizedTexts[0].gameLanguage = GamePreferences.GameLanguage.PORTUGUESE;
+                    messageToShow.localizedTexts[1].gameLanguage = GamePreferences.GameLanguage.ENGLISH;
+
+                    if (hasWon)
+                    {
+                        messageToShow.localizedTexts[0].text = $"Parabéns! Bateste um novo recorde. Aguentaste {roundManager.currentRound} rondas durante um tempo total de ${roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n O teu melhor resultado anterior foi de {(roundManager.recordForBestRound > 0 ? roundManager.recordForBestRound : 0)} rondas e {roundManager.GetFormmatedTimed(roundManager.recordForBestElapsedTime)}.\n Hora de regressar. Lutaste ferozmente!";
+                        messageToShow.localizedTexts[1].text = $"Congratulations! You've beaten a new record. You held your ground for {roundManager.currentRound} rounds during a total time of ${roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n Your best previous result was {(roundManager.recordForBestRound > 0 ? roundManager.recordForBestRound : 0)} rounds and {roundManager.GetFormmatedTimed(roundManager.recordForBestElapsedTime)}.\n Time to return! You fought bravely.";
+                    }
+                    else
+                    {
+                        messageToShow.localizedTexts[0].text = $"Muito bem! Duraste {roundManager.currentRound} rondas durante um tempo total de ${roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n Estás perto de bater o teu melhor resultado, que foi de {(roundManager.recordForBestRound > 0 ? roundManager.recordForBestRound : 0)} rondas e {roundManager.GetFormmatedTimed(roundManager.recordForBestElapsedTime)}.\n Hora de regressar. Lutaste ferozmente!";
+                        messageToShow.localizedTexts[1].text = $"Well done! You held your ground for {roundManager.currentRound} rounds during a total time of ${roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n You came close to beating your best previous result, which was {(roundManager.recordForBestRound > 0 ? roundManager.recordForBestRound : 0)} rounds and {roundManager.GetFormmatedTimed(roundManager.recordForBestElapsedTime)}.\n Time to return! You fought bravely.";
                     }
 
                 }

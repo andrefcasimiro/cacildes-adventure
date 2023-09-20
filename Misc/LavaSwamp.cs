@@ -10,6 +10,7 @@ namespace AF
         public float maxCooldownDamage = 1f;
         float cooldown = Mathf.Infinity;
 
+        public float baseDamage = 0;
         public float fireDamage = 50;
 
         public ParticleSystem fireFx;
@@ -42,12 +43,18 @@ namespace AF
                 finalStatusAmount *= dodgeBonusMultiplier;
             }
 
+            // Apply elemental defense reduction based on weaponElementType
+            float elementalDefense = Mathf.Clamp(other.GetComponent<DefenseStatManager>().GetFireDefense() / 100, 0f, 1f);
+
+            finalStatusAmount = (int)(finalStatusAmount * Mathf.Abs((1 - elementalDefense))); // Subtract elemental defense as a percentage
+
+
             if (playerHealthbox == null)
             {
                 playerHealthbox = FindAnyObjectByType<PlayerHealthbox>(FindObjectsInactive.Include);
             }
 
-            playerHealthbox.TakeEnvironmentalDamage(finalStatusAmount, 1, true, WeaponElementType.Fire);
+            playerHealthbox.TakeEnvironmentalDamage(baseDamage, 1, true, (int)finalStatusAmount, WeaponElementType.Fire);
 
             fireFx.transform.position = other.ClosestPoint(this.transform.position);
             fireFx.Play();

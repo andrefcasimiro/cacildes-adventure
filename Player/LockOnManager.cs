@@ -129,13 +129,18 @@ namespace AF
             yield return new WaitForSeconds(timeBeforeDisengaging);
 
             RaycastHit hit;
-            if (Physics.Linecast(playerHeadRef.transform.position, nearestLockOnTarget.transform.position, out hit))
+
+            if (nearestLockOnTarget != null)
             {
-                if (hit.transform.gameObject.layer == LayerEnvironment || hit.transform.gameObject.layer == LayerDefault)
+                if (Physics.Linecast(playerHeadRef.transform.position, nearestLockOnTarget.transform.position, out hit))
                 {
-                    DisableLockOn();
+                    if (hit.transform.gameObject.layer == LayerEnvironment || hit.transform.gameObject.layer == LayerDefault)
+                    {
+                        DisableLockOn();
+                    }
                 }
             }
+
 
             evaluatingIfShouldDisengage = false;
         }
@@ -210,11 +215,11 @@ namespace AF
             availableTargets.Clear();
 
             float shortestDistance = Mathf.Infinity;
-            Collider[] colliders = Physics.OverlapSphere(playerAnimator.transform.position, 26);
+            LockOnRef[] colliders = FindObjectsByType<LockOnRef>(FindObjectsInactive.Exclude, FindObjectsSortMode.None); //Physics.OverlapSphere(playerAnimator.transform.position, 26);
 
             for (int i = 0; i < colliders.Length; i++)
             {
-                LockOnRef enemy = colliders[i].GetComponent<LockOnRef>();
+                LockOnRef enemy = colliders[i];
 
                 if (enemy != null)
                 {
@@ -241,14 +246,26 @@ namespace AF
                     shortestDistance = distanceFromTarget;
                     if (availableTargets[i].CanLockOn())
                     {
+                        Vector3 start = playerHeadRef.transform.position;
+                        Vector3 direction = availableTargets[i].transform.position - start;
+
+                        // Draw a debug ray from the start position in the specified direction
+                        Debug.DrawRay(start, direction, Color.red);
 
                         RaycastHit hit;
-                        if (Physics.Linecast(playerHeadRef.transform.position, availableTargets[i].transform.position, out hit))
+                        if (Physics.Raycast(start, direction, out hit))
                         {
-                            if (hit.transform.gameObject.layer != LayerEnvironment && hit.transform.gameObject.layer != LayerDefault)
+                            // Check if the hit object has a specific MonoBehaviour component
+                            LockOnRef component = hit.collider.GetComponent<LockOnRef>() ?? hit.collider.GetComponentInChildren<LockOnRef>();
+
+                            if (component != null)
                             {
-                                nearestLockOnTarget = availableTargets[i];
+                                if (component.gameObject == availableTargets[i].gameObject)
+                                {
+                                    nearestLockOnTarget = availableTargets[i];
+                                }
                             }
+                            
                         }
                     }
                 }

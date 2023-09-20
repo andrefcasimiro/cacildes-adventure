@@ -45,6 +45,9 @@ namespace AF
         public string[] meleeLightAttacks;
         public string[] meleeHeavyAttacks;
 
+        [Header("Light Attacks Below 50%")]
+        public string[] meleeLightAttacksForSecondPhase;
+
         [Header("Distance To Player")]
         public float minimumAttackDistanceToPlayer = 0;
 
@@ -63,6 +66,8 @@ namespace AF
         [HideInInspector] public string playerExecutedClip = "";
         
         EnemyManager enemyManager => GetComponent<EnemyManager>();
+
+        public bool isDamagingHimself = false;
 
         public void ForceIntoCombat()
         {

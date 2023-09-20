@@ -60,7 +60,10 @@ namespace AF
                 animator.Play(animationOnMoving);
             }
 
-            navMeshAgent.SetDestination(this.transform.position);
+            if (!navMeshAgent.SetDestination(this.transform.position))
+            {
+                navMeshAgent.ResetPath();
+            }
 
             while (Vector3.Distance(navMeshAgent.transform.position, this.transform.position) > stoppingDistance + navMeshAgent.radius)
             {

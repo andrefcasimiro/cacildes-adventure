@@ -12,6 +12,9 @@ namespace AF
         [Tooltip("If true, will only update switch when the event has stopped running")] public bool queueSwitch = false;
         public bool shouldRefreshEvents = true;
 
+        [Header("For custom invoked events like Roberto questline")]
+        public bool flushQueuedSwitchesRightAfter = false;
+
         public string analyticsMessage;
 
         public override IEnumerator Dispatch()
@@ -33,6 +36,11 @@ namespace AF
             if (!string.IsNullOrEmpty(analyticsMessage))
             {
                 FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
+            }
+
+            if (flushQueuedSwitchesRightAfter)
+            {
+                SwitchManager.instance.UpdateQueuedSwitches();
             }
 
             yield return null;

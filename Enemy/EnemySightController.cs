@@ -14,11 +14,13 @@ namespace AF
 
         PlayerComponentManager playerComponentManager;
         ClimbController playerClimbController;
+        SceneSettings sceneSettings;
 
         private void Start()
         {
             playerComponentManager = enemyManager.player.GetComponent<PlayerComponentManager>();
             playerClimbController = enemyManager.player.GetComponent<ClimbController>();
+            sceneSettings = FindAnyObjectByType<SceneSettings>(FindObjectsInactive.Include);
         }
 
         public bool IsPlayerInSight()
@@ -58,6 +60,11 @@ namespace AF
                 return true;
             }
 
+            if (sceneSettings.isColliseum)
+            {
+                return true;
+            }
+
             if (Vector3.Distance(this.transform.position, enemyManager.player.transform.position) > enemyManager.maximumChaseDistance)
             {
                 return false;
@@ -68,8 +75,6 @@ namespace AF
 
             if (sightCone.playerWithinRange)
             {
-                Debug.DrawLine(enemyEyes, playerEyes, Color.blue);
-
                 RaycastHit hitInfo;
 
                 if (Physics.Linecast(enemyEyes, playerEyes, out hitInfo))

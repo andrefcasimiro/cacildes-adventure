@@ -38,7 +38,7 @@ namespace AF
             var companionInScene = allCompanionsInScene.FirstOrDefault(x => x.companion.companionId == companion.companionId);
             companionInScene.inParty = true;
             companionInScene.gameObject.SetActive(true);
-            companionInScene.SpawnNearPlayer();
+            companionInScene.RespawnNearPlayer();
 
             Soundbank.instance.PlayCompanionJoinParty();
             notificationManager.ShowNotification(companion.character.name + " " + LocalizedTerms.HasJoinedTheParty(), companion.character.avatar);
@@ -165,7 +165,7 @@ namespace AF
                     else
                     {
                         companion.gameObject.SetActive(true);
-                        companion.SpawnNearPlayer();
+                        companion.RespawnNearPlayer();
                     }
                 }
                 else

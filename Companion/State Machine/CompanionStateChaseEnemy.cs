@@ -7,6 +7,8 @@ namespace AF
     {
         CompanionManager companionManager;
 
+        Vector3 previousPosition;
+
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             if (companionManager == null)
@@ -19,13 +21,18 @@ namespace AF
             companionManager.agent.speed = companionManager.runSpeed;
 
             companionManager.agent.isStopped = false;
+
+            companionManager.FaceEnemy();
         }
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (companionManager.currentEnemy == null)
+            companionManager.FaceEnemy();
+
+            if (companionManager.currentEnemy == null || companionManager.currentEnemy.enemyHealthController.currentHealth <= 0)
             {
                 animator.SetBool(companionManager.hashIsChasingEnemy, false);
+                animator.SetBool(companionManager.hashIsCombatting, false);
                 return;
             }
 
@@ -37,7 +44,11 @@ namespace AF
                 return;
             }
 
-            companionManager.agent.SetDestination(companionManager.currentEnemy.transform.position);
+            if (!companionManager.agent.SetDestination(companionManager.currentEnemy.transform.position))
+            {
+                companionManager.agent.ResetPath();
+            }
+
         }
 
     }

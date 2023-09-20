@@ -29,6 +29,8 @@ namespace AF
 
         [Header("Weapon Type Damage")]
         public WeaponTypeBonusTable[] weaponTypeBonusTable;
+
+        [Header("For cases like pierce for skeletons, should absorb damage")]
         public NegativeWeaponTypeBonusTable[] negativeWeaponTypeBonusTable;
 
         [Header("UI Components")]
@@ -37,11 +39,19 @@ namespace AF
         [Header("On Killing Events")]
         public UnityEvent onEnemyDeath;
         public UnityEvent onEnemyDeathAfter1Second;
+        public UnityEvent onEnemyDeathInColliseum;
+
+        [Header("Holy Weapon Stuff")]
+        public bool mustBeKilledWithHolyWeapon;
+        public UnityEvent onKilledWithHolyWeapon;
+        public UnityEvent onKilledWithOtherWeaponOtherThanHoly;
 
         [Header("FX")]
         public Color bloodColor;
 
         [HideInInspector] public List<EnemyHealthHitbox> enemyHealthHitboxes = new();
+
+        public bool ignoreDefense = false;
 
         // Components
         EnemyManager enemyManager => GetComponent<EnemyManager>();
@@ -73,6 +83,9 @@ namespace AF
 
         [Header("For enemies with multiple healthhitboxes")]
         public bool disableHealthhitboxesTemporarilyAfterHit = false;
+
+        [Header("Reputation for Hell Skeletons")]
+        public bool receiveReputationWhileReputationIsNegative = false;
 
         private void Awake()
         {
@@ -201,6 +214,12 @@ namespace AF
             }
         }
 
+        public bool IsBelow50Percent()
+        {
+            var percentage = currentHealth * 100 / GetMaxHealth();
+            return percentage <= 50;
+        }
+
         public void UpdateMaxHealth()
         {
             if (enemyBossController != null)
@@ -238,8 +257,15 @@ namespace AF
                 combatNotificationsController.ShowDamage(Mathf.RoundToInt(damage));
             }
 
-            StartCoroutine(particlePoolManager.DropBloodOnEnemy(transform.position, bloodColor));
+            try
+            {
+                StartCoroutine(particlePoolManager.DropBloodOnEnemy(transform.position, bloodColor));
 
+            }
+            catch
+            {
+
+            }
 
             if (this.currentHealth <= 0)
             {
@@ -292,7 +318,7 @@ namespace AF
                 return;
             }
 
-            if (enemyBossController == null)
+            if (enemyBossController == null && sceneSettings.isColliseum == false)
             {
                 BGMManager.instance.PlayBattleMusic();
             }
@@ -600,8 +626,17 @@ namespace AF
             enemyManager.characterController.detectCollisions = false;
             enemyManager.agent.enabled = false;
 
+            Player.instance.lastEnemyKilled = enemyManager.enemy;
 
             onEnemyDeath?.Invoke();
+
+            if (receiveReputationWhileReputationIsNegative && Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.isHolyWeapon)
+            {
+                if (Player.instance.GetCurrentReputation() < 0)
+                {
+                    FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include).IncreaseReputation(1);
+                }
+            }
 
             StartCoroutine(DieFlow());
         }
@@ -626,6 +661,19 @@ namespace AF
             yield return new WaitForSeconds(0.4f);
     
             yield return DisengageLockOn();
+
+            if (mustBeKilledWithHolyWeapon)
+            {
+                if (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.isHolyWeapon)
+                {
+                    onKilledWithHolyWeapon.Invoke();
+                }
+                else
+                {
+                    onKilledWithOtherWeaponOtherThanHoly.Invoke();
+                }
+            }
+
 
             if (enemyBossController != null && enemyBossController.AllBossesAreDead())
             {
@@ -761,6 +809,11 @@ namespace AF
                 {
                     onEnemyDeathAfter1Second.Invoke();
                 }
+            }
+
+            if (onEnemyDeathInColliseum != null)
+            {
+                onEnemyDeathInColliseum.Invoke();
             }
         }
 

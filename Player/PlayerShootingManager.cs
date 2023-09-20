@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,6 @@ namespace AF
     public class PlayerShootingManager : MonoBehaviour
     {
         Animator animator => GetComponent<Animator>();
-
 
         // Set by the consumed consumable
         [HideInInspector] public Projectile currentProjectile;
@@ -34,6 +34,15 @@ namespace AF
         public AudioClip bowDraw;
         public AudioClip bowReleaseArrow;
 
+        [Header("First Person Options")]
+        public bool isAimingInFirstPersonMode = false;
+        public GameObject playerCamera;
+        public GameObject aimingCamera;
+
+        StarterAssetsInputs starterAssetsInputs;
+
+        ViewAimBow viewAimBow;
+
         private void Start()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
@@ -42,6 +51,38 @@ namespace AF
             bow = Resources.Load<Item>("Items/Key Items/Bow");
 
             lockOnManager = FindObjectOfType<LockOnManager>(true);
+
+            starterAssetsInputs = FindAnyObjectByType<StarterAssetsInputs>(FindObjectsInactive.Include);
+            starterAssetsInputs.onAimInput += () =>
+            {
+                isAimingInFirstPersonMode = !isAimingInFirstPersonMode;
+
+                UpdateIsAiming();
+            };
+
+            viewAimBow = FindAnyObjectByType<ViewAimBow>(FindObjectsInactive.Include);
+        }
+
+        public void UpdateIsAiming()
+        {
+            lockOnManager.DisableLockOn();
+
+            if (isAimingInFirstPersonMode)
+            {
+                aimingCamera.gameObject.SetActive(true);
+                playerCamera.gameObject.SetActive(false);
+
+                Soundbank.instance.PlayUIHover();
+                viewAimBow.gameObject.SetActive(true);
+            }
+            else
+            {
+                aimingCamera.gameObject.SetActive(false);
+                playerCamera.gameObject.SetActive(true);
+
+                Soundbank.instance.PlayUICancel();
+                viewAimBow.gameObject.SetActive(false);
+            }
         }
 
         public void ShootBow(ConsumableProjectile consumableProjectile)
@@ -61,18 +102,25 @@ namespace AF
 
             playerInventory.RemoveItem(consumableProjectile, 1);
 
-            animator.Play("Preparing Arrow");
-
-            if (lockOnManager.nearestLockOnTarget != null)
+            if (isAimingInFirstPersonMode)
             {
-                var rotation = lockOnManager.nearestLockOnTarget.transform.position - transform.position;
-                rotation.y = 0;
 
-                playerComponentManager.DisableCharacterController();
-                this.transform.rotation = Quaternion.LookRotation(rotation);
-                playerComponentManager.EnableCharacterController();
             }
+            else
+            {
 
+                animator.Play("Preparing Arrow");
+
+                if (lockOnManager.nearestLockOnTarget != null)
+                {
+                    var rotation = lockOnManager.nearestLockOnTarget.transform.position - transform.position;
+                    rotation.y = 0;
+
+                    playerComponentManager.DisableCharacterController();
+                    this.transform.rotation = Quaternion.LookRotation(rotation);
+                    playerComponentManager.EnableCharacterController();
+                }
+            }
         }
 
         public void ThrowConsumable(ConsumableProjectile consumableProjectile)
@@ -91,23 +139,29 @@ namespace AF
 
             playerInventory.RemoveItem(consumableProjectile, 1);
 
-            animator.Play("Throwing");
+            if (isAimingInFirstPersonMode)
+            {
+
+            }
+            else
+            {
+                animator.Play("Throwing");
+
+                if (lockOnManager.nearestLockOnTarget != null)
+                {
+                    var rotation = lockOnManager.nearestLockOnTarget.transform.position - transform.position;
+                    rotation.y = 0;
+
+                    playerComponentManager.DisableCharacterController();
+                    this.transform.rotation = Quaternion.LookRotation(rotation);
+                    playerComponentManager.EnableCharacterController();
+                }
+            }
 
             if (currentProjectile.throwSfx != null)
             {
                 playerCombatController.combatAudioSource.PlayOneShot(currentProjectile.throwSfx);
             }
-
-            if (lockOnManager.nearestLockOnTarget != null)
-            {
-                var rotation = lockOnManager.nearestLockOnTarget.transform.position - transform.position;
-                rotation.y = 0;
-
-                playerComponentManager.DisableCharacterController();
-                this.transform.rotation = Quaternion.LookRotation(rotation);
-                playerComponentManager.EnableCharacterController();
-            }
-
         }
 
         public bool IsShooting()
@@ -171,7 +225,18 @@ namespace AF
             if (projectile != null && projectile.useChildren == false)
             {
                 projectile.isFromPlayer = true;
-                projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
+
+                if (isAimingInFirstPersonMode)
+                {
+                    projectile.Shoot(
+                        aimingCamera.transform.forward, false);
+
+                }
+                else
+                {
+                    projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
+                }
+
             } else
             {
                 // Multiple projectiles edge case
@@ -182,9 +247,20 @@ namespace AF
                     if (proj.useChildren) continue;
 
                     proj.isFromPlayer = true;
-                    proj.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
-                }
 
+
+                    if (isAimingInFirstPersonMode)
+                    {
+                        proj.Shoot(
+                            aimingCamera.transform.forward, false);
+
+                    }
+                    else
+                    {
+                        proj.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
+                    }
+
+                }
             }
         }
 
@@ -195,13 +271,25 @@ namespace AF
             Projectile projectile = projectileInstance.GetComponent<Projectile>();
             projectile.isFromPlayer = true;
 
-            if (lockOnManager.nearestLockOnTarget != null)
+            if (isAimingInFirstPersonMode)
             {
                 float dist = Vector3.Distance(lockOnManager.nearestLockOnTarget.transform.position, transform.position);
                 projectile.forwardVelocity *= dist > 1 ? dist : 1f;
+
+                projectile.Shoot(aimingCamera.transform.forward, false);
+            }
+            else
+            {
+                if (lockOnManager.nearestLockOnTarget != null)
+                {
+                    float dist = Vector3.Distance(lockOnManager.nearestLockOnTarget.transform.position, transform.position);
+                    projectile.forwardVelocity *= dist > 1 ? dist : 1f;
+                }
+
+                projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
             }
 
-            projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
+           
         }
         #endregion
 

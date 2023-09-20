@@ -18,21 +18,23 @@ namespace AF
             THIEF_CAVERN = 3,
             SLEPBONE_BOAT = 4,
             BEAR_CAVERN = 5,
-            TUTORIAL = 6,
-            MOUNTAINPASS = 7,
-            SNAILCLIFF = 8,
-            CECILY_TOWN = 9,
-            WEST_BRIDGE = 10,
-            ORC_CAVE = 11,
-            ORC_CAVE_2 = 12,
-            ARUN_VILLAGE = 13,
-            ARUN_TEMPLE_ENTRANCE = 14,
-            ARUN_TEMPLE = 15,
-            SNOWY_MOUNTAINS_OF_BRR = 16,
-            CECILY_TOWN_UPPER = 18,
-            CECILY_TOWN_CASTLE = 19,
-            SNOWY_MOUNTAIN_TEMPLE = 20,
-            DRUIDS_FOREST = 21,
+            MOUNTAINPASS = 6,
+            SNAILCLIFF = 7,
+            UNUSED = 999,
+            CECILY_TOWN = 8,
+            WEST_BRIDGE = 9,
+            ORC_CAVE = 10,
+            ORC_CAVE_2 = 11,
+            ARUN_VILLAGE = 12,
+            ARUN_TEMPLE_ENTRANCE = 13,
+            ARUN_TEMPLE = 14,
+            SNOWY_MOUNTAINS_OF_BRR = 15,
+            CECILY_TOWN_UPPER = 16,
+            CECILY_TOWN_CASTLE = 17,
+            SNOWY_MOUNTAIN_TEMPLE = 18,
+            DRUIDS_FOREST = 19,
+            HELL = 20,
+            COLLISEUM = 22
         }
 
         private void Awake()    
@@ -103,6 +105,8 @@ namespace AF
                 }
 
             }
+
+            Player.instance.lastEnemyKilled = null;
 
             this.spawnGameObjectNameRef = null;
         }

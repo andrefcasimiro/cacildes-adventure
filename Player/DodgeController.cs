@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using StarterAssets;
+using UnityEngine.Animations;
 
 namespace AF
 {
@@ -35,6 +36,13 @@ namespace AF
         float startupDelay = Mathf.Infinity;
 
         public bool hasIframes = false;
+
+        [HideInInspector]
+        public bool canRequestRollAttack = true;
+        public float maxRequestForRollDuration = 0.4f;
+        public float currentRequestForRollDuration = Mathf.Infinity;
+
+        CharacterController characterController => GetComponent<CharacterController>();
 
         private void Awake()
         {
@@ -136,6 +144,32 @@ namespace AF
             return animator.GetBool(hashIsDodging);
         }
 
+        public bool IsRollAttacking()
+        {
+            return animator.GetBool("IsRollAttacking");
+        }
+
+        public bool CanRollAttack()
+        {
+            if (IsRollAttacking())
+            {
+                return false;
+            }
+
+            // Is Backstepping, give slight offset
+            if (_input.move == Vector2.zero && thirdPersonController.skateRotation == false && currentRequestForRollDuration > maxRequestForRollDuration - 0.1f)
+            {
+                return false;
+            }
+
+            if (currentRequestForRollDuration > maxRequestForRollDuration)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Animation Event
         /// </summary>
@@ -146,7 +180,6 @@ namespace AF
 
         void HandleDodge()
         {
-
             if (_input.move == Vector2.zero && thirdPersonController.skateRotation == false)
             {
                 animator.CrossFade(hashBackStep, 0.05f);
@@ -162,8 +195,33 @@ namespace AF
             else
             {
                 animator.CrossFade(hashRoll, 0.05f);
+
+                if (equipmentGraphicsHandler.IsHeavyWeight())
+                {
+                    StartCoroutine(StopHeavyRollRootmotion());
+                }
+                else if (equipmentGraphicsHandler.IsMidWeight())
+                {
+                    StartCoroutine(StopMidRollRootmotion());
+                }
             }
         }
+
+        IEnumerator StopMidRollRootmotion()
+        {
+            yield return new WaitForSeconds(0.75f);
+            animator.applyRootMotion = false;
+        }
+
+        IEnumerator StopHeavyRollRootmotion()
+        {
+            yield return new WaitForSeconds(0.3f);
+            StopIframes();
+
+            yield return new WaitForSeconds(0.3f);
+            animator.applyRootMotion = false;
+        }
+
 
     }
 

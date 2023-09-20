@@ -23,6 +23,8 @@ namespace AF
         [Header("Stats")]
         public float projectileDamage = 50f;
         public int projectilePoiseDamage = 5;
+
+        public int projectileAttackElement = 20;
         public WeaponElementType projectileAttackElementType;
 
         [Header("Status Effects")]
@@ -154,7 +156,7 @@ namespace AF
             }
 
             // Take damage
-            playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage, projectileAttackElementType);
+            playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage, projectileAttackElement, projectileAttackElementType);
 
             // Check if projectile should be destroyed
             if (destroyOnCollision)
@@ -253,6 +255,27 @@ namespace AF
 
                 if (!hasCollidedAlready)
                 {
+                    // Apply elemental defense reduction based on weaponElementType
+                    float elementalDefense = 0f;
+                    switch (projectileAttackElementType)
+                    {
+                        case WeaponElementType.Fire:
+                            elementalDefense = enemyHealthHitbox.enemyManager.enemy.fireDamageBonus * 25 / 100; // Convert to percentage
+                            break;
+                        case WeaponElementType.Frost:
+                            elementalDefense = enemyHealthHitbox.enemyManager.enemy.frostDamageBonus * 25 / 100; // Convert to percentage
+                            break;
+                        case WeaponElementType.Lightning:
+                            elementalDefense = enemyHealthHitbox.enemyManager.enemy.lightningDamageBonus * 25 / 100; // Convert to percentage
+                            break;
+                        case WeaponElementType.Magic:
+                            elementalDefense = enemyHealthHitbox.enemyManager.enemy.magicDamageBonus * 25 / 100; // Convert to percentage
+                            break;
+                    }
+
+                    projectileDamage += (projectileDamage * elementalDefense);
+
+
                     enemyHealthHitbox.enemyManager.enemyHealthController
                         .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
 
@@ -301,7 +324,7 @@ namespace AF
                     return;
                 }
 
-                playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage, projectileAttackElementType);
+                playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage, projectileAttackElement, projectileAttackElementType);
             }
 
             if (destroyOnCollision && hasCollidedAlready)

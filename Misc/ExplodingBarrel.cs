@@ -29,7 +29,15 @@ namespace AF
             if (lockOnRef != null)
             {
                 lockOnRef.gameObject.SetActive(false);
+
+                var lockOnManager = FindAnyObjectByType<LockOnManager>(FindObjectsInactive.Include);
+                bool lockOnRefIsTheSame = lockOnManager.nearestLockOnTarget == lockOnRef;
+                if (lockOnRefIsTheSame)
+                {
+                    lockOnManager.DisableLockOn();
+                }
             }
+
         }
 
     }

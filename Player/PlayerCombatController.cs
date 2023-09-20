@@ -13,6 +13,7 @@ namespace AF
         public readonly int hashHeavyAttack1 = Animator.StringToHash("Heavy Attack A");
         public readonly int hashHeavyAttack2 = Animator.StringToHash("Heavy Attack B");
         public readonly int hashHeavyAttack3 = Animator.StringToHash("Heavy Attack C");
+        public readonly int hashIsRollAttacking = Animator.StringToHash("IsRollAttacking");
         public readonly int hashJumpAttack = Animator.StringToHash("Jump Attack");
         public readonly int hashIsJumpAttacking = Animator.StringToHash("IsJumpAttacking");
         public readonly int hashIsStartingJumpAttack = Animator.StringToHash("IsStartingJumpAttack");
@@ -64,6 +65,7 @@ namespace AF
 
         public bool skipIK = false;
 
+        public bool isDamagingHimself = false;
 
         MenuManager menuManager;
 
@@ -187,6 +189,7 @@ namespace AF
             else
             {
                 animator.Play(hashJumpAttack);
+
             }
 
             animator.SetBool(hashCombatting, true);
@@ -237,6 +240,11 @@ namespace AF
 
         public bool CanLightAttack()
         {
+            if (dodgeController.IsDodging() && dodgeController.CanRollAttack())
+            {
+                animator.SetBool(hashIsRollAttacking, true);
+            }
+
             if (CanAttack() == false)
             {
                 return false;

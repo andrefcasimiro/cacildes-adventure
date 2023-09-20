@@ -8,6 +8,7 @@ namespace AF
         public AudioClip weaponSwingSfx;
         public AudioClip weaponImpactSfx;
 
+        public int weaponElementalDamage = 0;
         public WeaponElementType weaponElementType = WeaponElementType.None;
 
         [Header("Bonus Stats")]
@@ -113,6 +114,12 @@ namespace AF
             }
 
 
+            if (enemy.enemyCombatController.isDamagingHimself)
+            {
+                enemy.enemyHealthController.TakeEnvironmentalDamage(50f);
+            }
+
+
             boxCollider.enabled = true;
 
             if (trailRenderer != null)
@@ -196,29 +203,7 @@ namespace AF
             float damageToReceive = CalculateDamageToReceive(enemy.enemyCombatController.GetCurrentAttack(),
                 defenseStatManager.GetDefenseAbsorption(), healthStatManager.GetMaxHealth());
 
-            // Apply elemental defense reduction based on weaponElementType
-            float elementalDefense = 0f;
-            switch (weaponElementType)
-            {
-                case WeaponElementType.Fire:
-                    elementalDefense = defenseStatManager.GetFireDefense() / 100; // Convert to percentage
-                    break;
-                case WeaponElementType.Frost:
-                    elementalDefense = defenseStatManager.GetFrostDefense() / 100; // Convert to percentage
-                    break;
-                case WeaponElementType.Lightning:
-                    elementalDefense = defenseStatManager.GetLightningDefense() / 100; // Convert to percentage
-                    break;
-                case WeaponElementType.Magic:
-                    elementalDefense = defenseStatManager.GetMagicDefense() / 100; // Convert to percentage
-                    break;
-            }
-
-            // Calculate the final damage to receive, considering elemental defense
-            if (elementalDefense > 0)
-            {
-                damageToReceive = (int)(damageToReceive * (1 - elementalDefense)); // Subtract elemental defense as a percentage
-            }
+            float elementalDamage = Player.instance.CalculateIncomingElementalAttack((int)weaponElementalDamage, weaponElementType, defenseStatManager);
 
             if (!string.IsNullOrEmpty(enemy.enemyCombatController.playerExecutedClip) && !string.IsNullOrEmpty(enemy.enemyCombatController.transitionToExecution))
             {
@@ -238,7 +223,7 @@ namespace AF
             }
 
 
-            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.enemyCombatController.currentAttackPoiseDamage, weaponElementType);
+            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.enemyCombatController.currentAttackPoiseDamage, (int)elementalDamage, weaponElementType);
 
             DisableHitbox();
 

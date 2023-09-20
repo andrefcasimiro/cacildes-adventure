@@ -29,6 +29,8 @@ namespace AF
         public bool increasesSpellDamage = false;
         public float spellDamageMultiplier = 2.15f;
 
+        [Header("Life")]
+        public bool chanceToSurviveDeath = false;
 
         public void OnEquip()
         {

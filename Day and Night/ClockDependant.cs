@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -28,6 +29,13 @@ namespace AF
 
         [Header("Dont run this if Companion is in party")]
         public Companion companion;
+
+        public UnityEvent onConditionMet;
+
+        private void Awake()
+        {
+            transform.GetChild(0).gameObject.SetActive(false);
+        }
 
         private void Start()
         {
@@ -81,6 +89,11 @@ namespace AF
             if (transform.childCount > 0)
             {
                 transform.GetChild(0).gameObject.SetActive(isActive);
+            }
+
+            if (isActive)
+            {
+                onConditionMet.Invoke();
             }
 
         }

@@ -14,6 +14,7 @@ namespace AF
 
         [Header("Agressive By Faction")]
         public FactionName faction = FactionName.NONE;
+        public bool ignoreFactionAndJustCheckForEquippedArmor = false;
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
@@ -31,6 +32,20 @@ namespace AF
 
         public void EvaluateIfAgressive()
         {
+            if (ignoreFactionAndJustCheckForEquippedArmor)
+            {
+                bool isFriendly = IsPlayerDisguisedAsFaction();
+                if (isFriendly)
+                {
+                    TurnFriendly();
+                }
+                else
+                {
+                    TurnAgressive();
+                }
+                return;
+            }
+
             // If doesn't belong to faction, just use the default value of isAgressive
             if (faction == FactionName.NONE)
             {

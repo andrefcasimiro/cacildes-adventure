@@ -54,7 +54,10 @@ namespace AF
                 return;
             }
 
-            BGMManager.instance.PlaySound(onJumpSfx, thirdPersonController.jumpAndDodgeAudiosource);
+            if (thirdPersonController != null)
+            {
+                BGMManager.instance.PlaySound(onJumpSfx, thirdPersonController.jumpAndDodgeAudiosource);
+            }
         }
 
         /// <summary>

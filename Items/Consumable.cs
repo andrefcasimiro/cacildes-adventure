@@ -110,6 +110,12 @@ namespace AF
                 playerInventory.RemoveItem(this, 1);
             }
 
+            StartEffectOnPlayer();
+        }
+
+        public void StartEffectOnPlayer()
+        {
+
             if (restoreHealth)
             {
                 var healthStatManager = FindObjectOfType<HealthStatManager>(true);
@@ -135,7 +141,7 @@ namespace AF
                     staminaStatManager.RestoreStaminaPoints(amountOfStaminaToRestore);
                 }
             }
-        
+
             if (removeNegativeStatus)
             {
                 FindObjectOfType<PlayerStatusManager>(true).RemoveAppliedStatus(Player.instance.appliedStatus.Find(x => x.statusEffect == statusToRemove));

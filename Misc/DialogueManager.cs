@@ -23,6 +23,10 @@ namespace AF
         public SwitchEntry switchEntry;
         public bool switchValue = false;
 
+        public SwitchEntry switchEntry2;
+        public bool switchValue2;
+
+
         [Header("Reputation")]
         public int reputationAmountToIncrease = 0;
         public int reputationAmountToDecrease = 0;
@@ -70,8 +74,19 @@ namespace AF
                 {
                     if (clonedChoice.switchEntry != null)
                     {
+                        bool shouldAdd = false;
                         // Evaluate switch
                         if (SwitchManager.instance.GetSwitchCurrentValue(clonedChoice.switchEntry) == clonedChoice.switchValue)
+                        {
+                            shouldAdd = true;
+                        }
+
+                        if (shouldAdd && clonedChoice.switchEntry2 != null)
+                        {
+                            shouldAdd = SwitchManager.instance.GetSwitchCurrentValue(clonedChoice.switchEntry2) == clonedChoice.switchValue2;
+                        }
+
+                        if (shouldAdd)
                         {
                             uIDocumentDialogueWindow.dialogueChoices.Add(clonedChoice);
                         }

@@ -29,8 +29,10 @@ namespace AF
         Label quickItemName;
         Label consumeActionLabel;
         Label switchItemActionLabel;
+        Label aimActionLabel;
         VisualElement consumeGamepadIcon;
         VisualElement switchItemGamepadIcon;
+        VisualElement aimGamepadIcon;
 
         private void OnEnable()
         {
@@ -49,10 +51,14 @@ namespace AF
 
             consumeActionLabel = root.Q<Label>("ConsumeAction");
             switchItemActionLabel = root.Q<Label>("SwitchAction");
+            aimActionLabel = root.Q<Label>("AimAction");
 
             consumeGamepadIcon = root.Q<VisualElement>("GamepadTriangle");
             switchItemGamepadIcon = root.Q<VisualElement>("GamepadSwitchItem");
+            aimGamepadIcon = root.Q<VisualElement>("GamepadAim");
 
+            aimActionLabel.text = "";
+            aimGamepadIcon.style.display = DisplayStyle.None;
 
             UpdateFavoriteItems();
         }
@@ -113,8 +119,6 @@ namespace AF
 
             itemIcon.style.backgroundImage = new StyleBackground(Player.instance.favoriteItems[0].sprite);
 
-
-
             quickItemName.text = Player.instance.favoriteItems[0].name.GetText();
 
             var favItem = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == Player.instance.favoriteItems[0].name.GetEnglishText());
@@ -139,16 +143,32 @@ namespace AF
             {
                 consumeGamepadIcon.style.display = DisplayStyle.Flex;
                 switchItemGamepadIcon.style.display = DisplayStyle.Flex;
+
+                /*if (favItem.item is ConsumableProjectile)
+                {
+                    switchItemGamepadIcon.style.display = DisplayStyle.Flex;
+                }*/
             }
             else
             {
                 consumeActionLabel.text = "[R] ";
                 switchItemActionLabel.text = isEnglish ? "[Scrollwheel] " : "[Scrollwheel] ";
-            }
+
+                /*if (favItem.item is ConsumableProjectile)
+                {
+                    aimActionLabel.text = "[TAB] ";
+                }*/
+            }   
 
 
             consumeActionLabel.text += isEnglish ? "Use" : "Usar";
             switchItemActionLabel.text += isEnglish ? "Switch" : "Trocar";
+
+            /*
+            if (favItem.item is ConsumableProjectile)
+            {
+                switchItemActionLabel.text += isEnglish ? "Aim" : "Mirar";
+            }*/
 
         }
 

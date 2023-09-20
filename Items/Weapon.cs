@@ -121,6 +121,7 @@ namespace AF
         public GameObject weaponSpecial;
         public LocalizedText weaponSpecialDescription;
         public bool parentWeaponSpecialToPlayer = true;
+        public bool instatiateOnGround = false;
 
         [Header("Weapon Bonus")]
         public int amountOfGoldReceivedPerHit = 0;
@@ -136,6 +137,9 @@ namespace AF
 
         [Header("Shield Piercing")]
         public bool ignoreShields = false;
+
+        [Header("Is Holy?")]
+        public bool isHolyWeapon = false;
 
         public string GetWeaponDisplayName()
         {

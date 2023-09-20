@@ -9,6 +9,7 @@ namespace AF
     {
         EnemyManager enemy;
         PlayerComponentManager playerComponentManager;
+        SceneSettings sceneSettings;
 
         public float chaseSpeedOverride = -1f;
 
@@ -23,6 +24,11 @@ namespace AF
             hasDecidedRunAttack = false;
 
             animator.gameObject.TryGetComponent<EnemyManager>(out enemy);
+
+            if (sceneSettings == null)
+            {
+                sceneSettings = FindAnyObjectByType<SceneSettings>();
+            }
 
             if (enemy == null)
             {
@@ -58,7 +64,7 @@ namespace AF
 
                 enemy.enemyBossController.BeginBossBattle();
             }
-            else
+            else if (sceneSettings.isColliseum == false)
             {
                 BGMManager.instance.PlayBattleMusic();
             }
@@ -155,19 +161,21 @@ namespace AF
             // Change to patrol
             if (distanceBetweenEnemyAndTarget > enemy.maximumChaseDistance || playerComponentManager.IsBusy())
             {
-                animator.SetBool(enemy.hashChasing, false);
-                animator.SetBool(enemy.hashPatrol, true);
-
-                if (enemy.enemyBossController == null)
+                if (enemy.alwaysTrackPlayer == false)
                 {
-                    BGMManager.instance.PlayMapMusicAfterKillingEnemy(enemy);
-                }
+                    animator.SetBool(enemy.hashChasing, false);
+                    animator.SetBool(enemy.hashPatrol, true);
 
-                if (enemy.enemyProjectileController != null)
-                {
-                    enemy.enemyProjectileController.isReadyToShoot = false;
-                }
+                    if (enemy.enemyBossController == null)
+                    {
+                        BGMManager.instance.PlayMapMusicAfterKillingEnemy(enemy);
+                    }
 
+                    if (enemy.enemyProjectileController != null)
+                    {
+                        enemy.enemyProjectileController.isReadyToShoot = false;
+                    }
+                }
             }
             else if (distanceBetweenEnemyAndTarget <= (enemy.agent.stoppingDistance + (focusedOnCompanion ? enemy.enemyTargetController.currentCompanion.agent.stoppingDistance : 0)))
             {

@@ -73,7 +73,7 @@ namespace AF
                 {
                     LookAtPlayer();
                     enemyManager.facePlayer = false;
-                    enemyManager.animator.CrossFade(enemyManager.hashDodgeRight, 0.1f);
+                    enemyManager.animator.Play(enemyManager.hashDodgeRight);
 
                     ActivateDodge();
                 }
@@ -82,7 +82,7 @@ namespace AF
                     LookAtPlayer();
                     // Face playerManager first
                     enemyManager.facePlayer = false;
-                    enemyManager.animator.CrossFade(enemyManager.hashDodgeLeft, 0.1f);
+                    enemyManager.animator.Play(enemyManager.hashDodgeLeft);
 
                     ActivateDodge();
                 }
@@ -96,7 +96,7 @@ namespace AF
 
                 var dice = Random.Range(0, customDodgeClips.Length);
 
-                enemyManager.animator.CrossFade(customDodgeClips[dice], 0.2f);
+                enemyManager.animator.Play(customDodgeClips[dice]);
             }
         }
 

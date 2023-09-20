@@ -147,10 +147,10 @@ namespace AF
                             reputation = 1;
                         }
 
-                        finalPushForce += (reputation / 2);
+                        finalPushForce += (reputation);
                     }
 
-                    other.GetComponent<EnemyManager>().PushEnemy(finalPushForce, ForceMode.Acceleration);
+                    other.GetComponent<EnemyManager>().PushEnemy(finalPushForce * 5, ForceMode.Acceleration);
                 }
 
                 var targetAccessory = Player.instance.equippedAccessories.Find(x => x.spellDamageMultiplier > 0);

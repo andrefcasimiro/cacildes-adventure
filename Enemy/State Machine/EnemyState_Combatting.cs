@@ -199,12 +199,21 @@ namespace AF
 
         bool LightAttackDice()
         {
-            var attacks = enemy.enemyCombatController.meleeLightAttacks.Length > 0 ? enemy.enemyCombatController.meleeLightAttacks : meleeLightAttacks;
+            var attacks = (enemy.enemyCombatController.meleeLightAttacks.Length > 0 ? enemy.enemyCombatController.meleeLightAttacks : meleeLightAttacks).ToList();
+
+            if (enemy.enemyCombatController.meleeLightAttacksForSecondPhase.Length > 0 && enemy.enemyHealthController.IsBelow50Percent())
+            {
+                foreach (string atk in enemy.enemyCombatController.meleeLightAttacksForSecondPhase)
+                {
+                    attacks.Add(atk);
+                }
+            }
+            
             int attackDice = Random.Range(0, 100);
 
-            if (attackDice < enemy.enemyCombatController.lightAttackWeight && attacks.Length > 0)
+            if (attackDice < enemy.enemyCombatController.lightAttackWeight && attacks.Count > 0)
             {
-                int attackClip = Random.Range(0, attacks.Length);
+                int attackClip = Random.Range(0, attacks.Count);
                 animator.Play(attacks[attackClip]);
                 return true;
             }

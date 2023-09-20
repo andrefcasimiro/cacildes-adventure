@@ -102,10 +102,21 @@ namespace AF
 
         private void OnDisable()
         {
+            CleanUpVirtualMouse();
+        }
+
+        private void OnDestroy()
+        {
+            CleanUpVirtualMouse();
+        }
+
+        void CleanUpVirtualMouse()
+        {
             if (virtualMouse != null)
             {
                 InputSystem.RemoveDevice(virtualMouse);
                 InputSystem.onAfterUpdate -= UpdateMotion;
+                virtualMouse = null;
             }
         }
 

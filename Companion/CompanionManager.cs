@@ -67,7 +67,7 @@ namespace AF
         // Components
         Animator animator => GetComponent<Animator>();
         [HideInInspector] public NavMeshAgent agent => GetComponent<NavMeshAgent>();
-        [HideInInspector] public GameObject player;
+         public GameObject player;
         PlayerLevelManager playerLevelManager;
 
         // Internal references
@@ -86,9 +86,13 @@ namespace AF
         float timeInSamePosition = 0f;
         public int maxDistanceToPlayerBeforeRespawning = 15;
 
+
         private void Awake()
         {
-            player = GameObject.FindWithTag("Player");
+            player = FindAnyObjectByType<PlayerCombatController>(FindObjectsInactive.Include).gameObject;
+
+            transform.position = player.transform.position;
+
 
             defaultStoppingDistance = agent.stoppingDistance;
         }
@@ -111,14 +115,6 @@ namespace AF
             CheckIfPlayerIsUnreachable();
         }
 
-        public void SpawnNearPlayer()
-        {
-            // Teleport near player
-            NavMeshHit rightHit;
-            NavMesh.SamplePosition(player.transform.position, out rightHit, 10f, NavMesh.AllAreas);
-            transform.position = rightHit.position;
-        }
-
         #region Combat
         void UpdateAttackCooldown()
         {
@@ -130,14 +126,15 @@ namespace AF
 
         public void FaceEnemy()
         {
-            if (waitingForPlayer || inParty == false)
+            if (waitingForPlayer || inParty == false || currentEnemy == null)
             {
                 return;
             }
 
             var lookRotation = currentEnemy.transform.position - this.transform.position;
             var rotation = Quaternion.LookRotation(lookRotation);
-            this.transform.rotation = rotation;
+
+            transform.rotation = rotation;
         }
 
         public int GetCompanionAttack()
@@ -273,7 +270,13 @@ namespace AF
                 return false;
             }
 
-            return IsEnemyFarAway();
+            // If already chasing
+            if (animator.GetBool(hashIsChasingEnemy))
+            {
+                return false;
+            }
+
+            return Vector3.Distance(transform.position, currentEnemy.transform.position) > agent.stoppingDistance;
         }
 
         public bool IsEnemyFarAway()
@@ -321,13 +324,14 @@ namespace AF
             previousPosition = transform.position;
         }
 
-        void RespawnNearPlayer()
+        public void RespawnNearPlayer()
         {
+            currentEnemy = null;
+
             Transform targetTransform = player.transform;
 
-
             // Teleport near player
-            NavMesh.SamplePosition(targetTransform.position + targetTransform.forward * -1f, out NavMeshHit rightHit, 10f, NavMesh.AllAreas);
+            NavMesh.SamplePosition(targetTransform.position + targetTransform.forward * -2f, out NavMeshHit rightHit, 10f, NavMesh.AllAreas);
 
             if (rightHit.hit)
             {
@@ -343,7 +347,7 @@ namespace AF
 
         public bool ShouldRunToPlayer()
         {
-            if (waitingForPlayer || inParty == false || IsInCombat())
+            if (waitingForPlayer || inParty == false)
             {
                 return false;
             }

@@ -167,7 +167,11 @@ namespace AF
 
         public void RemoveFavoriteItemFromList(Item item)
         {
-            Player.instance.favoriteItems.Remove(item);
+            var idx = Player.instance.favoriteItems.FindIndex(x => x.name.GetEnglishText() == item.name.GetEnglishText());
+            if (idx != -1)
+            {
+                Player.instance.favoriteItems.RemoveAt(idx);
+            }
 
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }

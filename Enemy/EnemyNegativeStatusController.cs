@@ -173,6 +173,8 @@ namespace AF
             Destroy(appliedStatus.fullAmountUIIndicator.gameObject);
 
             this.appliedStatus.Remove(appliedStatus);
+
+            HandleNegativeStatusDeletion(appliedStatus.appliedStatus);
         }
 
         public void ClearAllNegativeStatus()
@@ -220,9 +222,43 @@ namespace AF
             }
 
 
-            if (entry.statusEffect.statAffected == Stat.Stamina)
+            if (entry.statusEffect.damageSelf)
             {
-                return;
+                enemyManager.enemyCombatController.isDamagingHimself = true;
+            }
+
+            if (entry.statusEffect.ignoreDefense)
+            {
+                enemyManager.enemyHealthController.ignoreDefense = true;
+            }
+
+            if (entry.statusEffect.instantDeath)
+            {
+                enemyManager.enemyHealthController.Die();
+            }
+
+            if (entry.statusEffect.slowDownAnimatorSpeedValue > 0f)
+            {
+                enemyManager.animator.speed -= entry.statusEffect.slowDownAnimatorSpeedValue;
+            }
+
+        }
+
+        void HandleNegativeStatusDeletion(AppliedStatus appliedStatus)
+        {
+            if (appliedStatus.statusEffect.damageSelf)
+            {
+                enemyManager.enemyCombatController.isDamagingHimself = false;
+            }
+
+            if (appliedStatus.statusEffect.ignoreDefense)
+            {
+                enemyManager.enemyHealthController.ignoreDefense = false;
+            }
+
+            if (appliedStatus.statusEffect.slowDownAnimatorSpeedValue > 0f)
+            {
+                enemyManager.animator.speed += appliedStatus.statusEffect.slowDownAnimatorSpeedValue;
             }
         }
 

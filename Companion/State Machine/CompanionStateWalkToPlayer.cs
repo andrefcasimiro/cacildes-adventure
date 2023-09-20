@@ -23,6 +23,8 @@ namespace AF
 
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
+            companionManager.agent.isStopped = false;
+
             if (companionManager.ShouldRunToPlayer())
             {
                 animator.SetBool(companionManager.hashRunToPlayer, true);
@@ -31,8 +33,11 @@ namespace AF
             {
                 animator.SetBool(companionManager.hashWalkToPlayer, false);
             }
+            else if (!companionManager.agent.SetDestination(companionManager.player.transform.position))
+            {
+                companionManager.agent.ResetPath();
+            }
 
-            companionManager.agent.SetDestination(companionManager.player.transform.position);
         }
 
     }

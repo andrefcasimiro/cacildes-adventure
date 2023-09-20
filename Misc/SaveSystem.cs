@@ -108,6 +108,11 @@ namespace AF
                 return;
             }
 
+            if (FindAnyObjectByType<SceneSettings>(FindObjectsInactive.Include).isColliseum)
+            {
+                return;
+            }
+
             GameData gameData = new()
             {
                 // Save file stuff
@@ -442,9 +447,11 @@ namespace AF
 
             yield return Player.instance.HandleLoadScene(gameData.currentSceneIndex, false);
 
-            GameObject player = GameObject.FindWithTag("Player");
-            player.gameObject.SetActive(true);
             yield return null;
+
+            GameObject player = FindAnyObjectByType<PlayerCombatController>(FindObjectsInactive.Include).gameObject;
+            player.gameObject.SetActive(true);
+
             player.GetComponent<CharacterController>().enabled = false;
             player.GetComponent<PlayerComponentManager>().UpdatePosition(gameData.playerData.position, gameData.playerData.rotation);
             player.GetComponent<CharacterController>().enabled = true;

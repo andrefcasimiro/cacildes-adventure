@@ -50,6 +50,7 @@ namespace AF
         VisualElement[] tooltipItemInfoChildren;
         // Common
         VisualElement tooltipSpeedPenalty;
+        VisualElement tooltipIsHolyWeapon;
         VisualElement tooltipPoise;
         VisualElement tooltipFire, tooltipFrost, tooltipLightning, tooltipMagic, tooltipPoison, tooltipBleed;
         VisualElement tooltipBlockAbsorption;
@@ -84,6 +85,7 @@ namespace AF
         public const string POISE = "Poise";
         public const string REPUTATION = "Reputation";
         public const string GOLD = "Gold";
+        public const string EQUIP_LOAD = "EquipLoad";
 
         Dictionary<string, Label> statsAndAttributesLabels = new();
 
@@ -174,6 +176,7 @@ namespace AF
             tooltipPhysicalDefense = tooltip.Q("PhysicalDefense");
             tooltipPhysicalDefense = tooltip.Q("PhysicalDefense");
             tooltipSpeedPenalty = tooltip.Q("SpeedPenalty");
+            tooltipIsHolyWeapon = tooltip.Q("IsHolyWeapon");
             tooltipAccessoryProperty = tooltip.Q("AccessoryProperty");
             tooltipConsumableEffect = tooltip.Q("ConsumableEffect");
             tooltipWeaponType = tooltip.Q("WeaponType");
@@ -204,7 +207,7 @@ namespace AF
             #region Stats Logic
 
             var labelNames = new[] { LEVEL, VITALITY, ENDURANCE, STRENGTH, DEXTERITY, INTELLIGENCE,
-                        ATTACK, DEFENSE, DEFENSE_FIRE, DEFENSE_FROST, DEFENSE_LIGHTNING, DEFENSE_MAGIC, POISE, REPUTATION, GOLD
+                        ATTACK, DEFENSE, DEFENSE_FIRE, DEFENSE_FROST, DEFENSE_LIGHTNING, DEFENSE_MAGIC, POISE, EQUIP_LOAD, REPUTATION, GOLD
                 }.ToList();
 
             var attributesContainer = root.Q<VisualElement>("Footer");
@@ -671,8 +674,17 @@ namespace AF
 
                 if (weapon.speedPenalty > 0)
                 {
-                    tooltipSpeedPenalty.Q<Label>().text = $"- {weapon.speedPenalty} {(isEnglish ? "Speed Loss" : "Perda de Velocidade")}";
+                    tooltipSpeedPenalty.Q<Label>().text = $"+ {Math.Round(weapon.speedPenalty * 100, 2)}% {(isEnglish ? "Equip Load" : "Peso")}";
                     tooltipSpeedPenalty.style.display = DisplayStyle.Flex;
+                    tooltipSpeedPenalty.style.opacity = 1;
+                }
+
+
+                if (weapon.isHolyWeapon)
+                {
+                    tooltipIsHolyWeapon.Q<Label>().text = $"{(isEnglish ? "Holy Weapon" : "Arma Abençoada")}";
+                    tooltipIsHolyWeapon.style.display = DisplayStyle.Flex;
+                    tooltipIsHolyWeapon.style.opacity = 1;
                 }
 
                 if (weapon.fireAttack > 0)
@@ -761,6 +773,15 @@ namespace AF
             if (item is Shield shield) {
                 tooltipBlockAbsorption.Q<Label>().text = $"% {shield.defenseAbsorption} {(isEnglish ? "Damage Absorption" : "Absorção de Danos")}";
                 tooltipBlockAbsorption.style.display = DisplayStyle.Flex;
+
+
+                if (shield.speedPenalty > 0)
+                {
+                    tooltipSpeedPenalty.Q<Label>().text = $"+ {Math.Round(shield.speedPenalty * 100, 2)}% {(isEnglish ? "Equip Load" : "Peso")}";
+                    tooltipSpeedPenalty.style.display = DisplayStyle.Flex;
+                    tooltipSpeedPenalty.style.opacity = 1;
+                }
+
             }
 
             #region Armor Logic
@@ -772,8 +793,9 @@ namespace AF
 
                 if (armor.speedPenalty > 0)
                 {
-                    tooltipSpeedPenalty.Q<Label>().text = $"- {armor.speedPenalty} {(isEnglish ? "Speed Loss" : "Perda de Velocidade")}";
+                    tooltipSpeedPenalty.Q<Label>().text = $"+ {Math.Round(armor.speedPenalty * 100, 2)}% {(isEnglish ? "Equip Load" : "Peso")}";
                     tooltipSpeedPenalty.style.display = DisplayStyle.Flex;
+                    tooltipSpeedPenalty.style.opacity = 1;
                 }
 
                 if (armor.fireDefense > 0)
@@ -1032,6 +1054,68 @@ namespace AF
             return 0;
         }
 
+
+        float GetEquipLoadFromItem(Item armorBase)
+        {
+            float currentWeightPenalty = equipmentGraphicsHandler.weightPenalty;
+
+            if (armorBase is Weapon wp)
+            {
+                var speedPenaltyFromItem = Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.speedPenalty : 0;
+                currentWeightPenalty += speedPenaltyFromItem * -1f;
+                if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
+
+                return currentWeightPenalty + wp.speedPenalty * 1f;
+            }
+            if (armorBase is Helmet helmet)
+            {
+                var speedPenaltyFromItem = Player.instance.equippedHelmet != null ? Player.instance.equippedHelmet.speedPenalty : 0;
+                currentWeightPenalty += speedPenaltyFromItem * -1f;
+                if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
+
+                return currentWeightPenalty + helmet.speedPenalty * 1f;
+            }
+
+            if (armorBase is Armor armorItem)
+            {
+                var speedPenaltyFromItem = Player.instance.equippedArmor != null ? Player.instance.equippedArmor.speedPenalty : 0;
+                currentWeightPenalty += speedPenaltyFromItem * -1f;
+                if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
+
+                return currentWeightPenalty + armorItem.speedPenalty * 1f;
+            }
+
+            if (armorBase is Gauntlet gauntlet)
+            {
+                var speedPenaltyFromItem = Player.instance.equippedGauntlets != null ? Player.instance.equippedGauntlets.speedPenalty : 0;
+                currentWeightPenalty += speedPenaltyFromItem * -1f;
+                if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
+
+                return currentWeightPenalty + gauntlet.speedPenalty * 1f;
+            }
+
+            if (armorBase is Legwear legwear)
+            {
+                var speedPenaltyFromItem = Player.instance.equippedLegwear != null ? Player.instance.equippedLegwear.speedPenalty : 0;
+                currentWeightPenalty += speedPenaltyFromItem * -1f;
+                if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
+
+                return currentWeightPenalty + legwear.speedPenalty * 1f;
+            }
+
+            if (armorBase is Accessory acc)
+            {
+                var speedPenaltyFromItem = Player.instance.equippedAccessories.Count > 0 ? Player.instance.equippedAccessories.Sum(x => x.speedPenalty) : 0;
+
+                currentWeightPenalty += speedPenaltyFromItem * -1f;
+                if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
+
+                return currentWeightPenalty + acc.speedPenalty * 1f;
+            }
+
+            return 0f;
+        }
+
         enum AttributeType { VITALITY, ENDURANCE, DEXTERITY, STRENGTH, INTELLIGENCE, REPUTATION };
         int GetAttributeFromEquipment(ArmorBase armorBase, AttributeType attributeType)
         {
@@ -1189,6 +1273,60 @@ namespace AF
             label.style.display = DisplayStyle.Flex;
         }
 
+
+        void UpdateEquipLoadStatLabel(Label label, string labelPrefix, float leftValue, float rightValue)
+        {
+            label.text = labelPrefix;
+
+            var suffix = "";
+
+            if (rightValue >= 0)
+            {
+                if (equipmentGraphicsHandler.IsLightWeightForGivenValue(rightValue))
+                {
+                    suffix = GamePreferences.instance.IsEnglish() ? " (Light)" : " (Leve)";
+                }
+                else if (equipmentGraphicsHandler.IsMidWeightForGivenValue(rightValue))
+                {
+                    suffix = GamePreferences.instance.IsEnglish() ? " (Medium)" : " (Médio)";
+                }
+                else if (equipmentGraphicsHandler.IsHeavyWeightForGivenValue(rightValue))
+                {
+                    suffix = GamePreferences.instance.IsEnglish() ? " (Heavy)" : " (Pesado)";
+                }
+
+                label.text += Math.Round(rightValue * 100, 2) + "%" + suffix;
+
+
+                if (rightValue > leftValue)
+                {
+                    label.style.color = Color.green;
+                }
+                else if (rightValue < leftValue)
+                {
+                    label.style.color = Color.red;
+                }
+
+                return;
+            }
+
+            if (equipmentGraphicsHandler.IsLightWeightForGivenValue(leftValue))
+            {
+                suffix = GamePreferences.instance.IsEnglish() ? " (Light)" : " (Leve)";
+            }
+            else if (equipmentGraphicsHandler.IsMidWeightForGivenValue(leftValue))
+            {
+                suffix = GamePreferences.instance.IsEnglish() ? " (Medium)" : " (Médio)";
+            }
+            else if (equipmentGraphicsHandler.IsHeavyWeightForGivenValue(leftValue))
+            {
+                suffix = GamePreferences.instance.IsEnglish() ? " (Heavy)" : " (Pesado)";
+            }
+
+            label.text += Math.Round(leftValue * 100, 2) + "%" + suffix;
+            label.style.color = Color.white;
+        }
+
         public void DrawStats(Item item)
         {
             bool isEnglish = GamePreferences.instance.IsEnglish();
@@ -1246,6 +1384,10 @@ namespace AF
             int basePoise = playerPoiseController.GetMaxPoise();
             int itemPoise = 0;
 
+            float baseEquipLoad = equipmentGraphicsHandler.GetEquipLoad();
+            float itemEquipLoad = -1f;
+
+
             if (item is ArmorBase armorBase) {
 
                 // EDGE CASDE: If is not accessory that is already equipped
@@ -1257,6 +1399,10 @@ namespace AF
                     itemLightningDefense = GetElementalDefenseFromItem(armorBase, WeaponElementType.Lightning);
                     itemMagicDefense = GetElementalDefenseFromItem(armorBase, WeaponElementType.Magic);
                 }
+
+
+                itemEquipLoad = GetEquipLoadFromItem(armorBase);
+
                 itemPoise = GetPoiseFromItem(armorBase);
                 vitalityFromItem = GetAttributeFromEquipment(armorBase, AttributeType.VITALITY);
                 enduranceFromItem = GetAttributeFromEquipment(armorBase, AttributeType.ENDURANCE);
@@ -1265,13 +1411,20 @@ namespace AF
                 reputationFromItem = GetAttributeFromEquipment(armorBase, AttributeType.REPUTATION);
                 intelligenceFromItem = GetAttributeFromEquipment(armorBase, AttributeType.INTELLIGENCE);
             }
+            else if (item is Weapon weaponItem)
+            {
+                itemEquipLoad = GetEquipLoadFromItem(weaponItem);
+            }
+            else if (item is Shield shield)
+            {
+                itemEquipLoad = GetEquipLoadFromItem(shield);
+            }
 
             UpdateStatLabel(
                 statsAndAttributesLabels[VITALITY],
                 isEnglish ? "Vitality " : "Vitalidade ",
                 baseVitality,
                 vitalityFromItem);
-
 
             UpdateStatLabel(
                 statsAndAttributesLabels[ENDURANCE],
@@ -1334,6 +1487,12 @@ namespace AF
                 isEnglish ? "Poise " : "Postura ",
                 basePoise,
                 itemPoise);
+
+            UpdateEquipLoadStatLabel(
+                statsAndAttributesLabels[EQUIP_LOAD],
+                isEnglish ? "Weight Load " : "Peso ",
+                baseEquipLoad,
+                itemEquipLoad);
             #endregion
         }
         #endregion

@@ -21,7 +21,7 @@ namespace AF
         public void AddNotification(string text, Color color)
         {
             // First, check if combatNotificationEntries contains inactive game objects, which essentialy means we need to clean up the list
-            combatNotificationEntries = combatNotificationEntries.Where(x => x.isActiveAndEnabled).ToList();
+            combatNotificationEntries = combatNotificationEntries.Where(x => x != null && x.transform != null && x.isActiveAndEnabled).ToList();
 
             // Update vertical position of existing elements 
             combatNotificationEntries.ForEach(element =>

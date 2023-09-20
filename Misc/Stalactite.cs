@@ -51,15 +51,24 @@ namespace AF
             if (other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("EnemyHealthHitbox"))
             {
                 return;
-                }
+            }
 
             if (other.gameObject.CompareTag("Player"))
             {
-                playerHealthbox.TakeDamage(damageInflicted, this.transform, null, 5, WeaponElementType.None);
+                playerHealthbox.TakeDamage(damageInflicted, this.transform, null, 5, 0, WeaponElementType.None);
             }
-            Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);
-            ResetStalacites();
 
+            Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);
+
+            StartCoroutine(ResetStalacitesAfterAWhile());
+        }
+
+        IEnumerator ResetStalacitesAfterAWhile()
+        {
+            yield return new WaitForSeconds(3f);
+
+
+            ResetStalacites();
         }
 
         private void ResetStalacites()

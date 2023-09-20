@@ -16,6 +16,12 @@ namespace AF
         public IEnumerator DropBloodOnEnemy(Vector3 origin, Color startColor)
         {
             var blood = bloodPool.Pool.Get();
+
+            if (blood == null)
+            {
+                yield break;
+            }
+
             var main = blood.main;
             main.startColor = startColor;
             blood.transform.position = origin;

@@ -31,8 +31,15 @@ namespace AF
 
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
+        public bool ignoreDefense = false;
+
         public float GetDefenseAbsorption()
         {
+            if (ignoreDefense)
+            {
+                return 0f;
+            }
+
             return (int)(
                 GetCurrentPhysicalDefense()
                 + equipmentGraphicsHandler.equipmentPhysicalDefense // Equipment Bonus

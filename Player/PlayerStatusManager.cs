@@ -117,9 +117,29 @@ namespace AF
             Player.instance.appliedStatus.Remove(appliedStatus);
             uIDocumentStatusEffectV2.RemoveNegativeStatusEntry(appliedStatus.statusEffect);
 
+            HandleNegativeStatusDeletion(appliedStatus);
+        }
+
+        void HandleNegativeStatusDeletion(AppliedStatus appliedStatus)
+        {
             if (appliedStatus.statusEffect.disablePlayerMovement)
             {
                 HandlePlayerComponents(true);
+            }
+
+            if (appliedStatus.statusEffect.damageSelf)
+            {
+                GetComponent<PlayerCombatController>().isDamagingHimself = false;
+            }
+
+            if (appliedStatus.statusEffect.ignoreDefense)
+            {
+                GetComponent<DefenseStatManager>().ignoreDefense = false;
+            }
+
+            if (appliedStatus.statusEffect.slowDownAnimatorSpeedValue > 0f)
+            {
+                GetComponent<Animator>().speed += appliedStatus.statusEffect.slowDownAnimatorSpeedValue;
             }
         }
 
@@ -181,6 +201,26 @@ namespace AF
             if (entry.statusEffect.disablePlayerMovement)
             {
                 HandlePlayerComponents(false);
+            }
+
+            if (entry.statusEffect.damageSelf)
+            {
+                GetComponent<PlayerCombatController>().isDamagingHimself = true;
+            }
+
+            if (entry.statusEffect.ignoreDefense)
+            {
+                GetComponent<DefenseStatManager>().ignoreDefense = true;
+            }
+
+            if (entry.statusEffect.instantDeath)
+            {
+                FindAnyObjectByType<PlayerHealthbox>(FindObjectsInactive.Include).Die();
+            }
+
+            if (entry.statusEffect.slowDownAnimatorSpeedValue > 0f)
+            {
+                GetComponent<Animator>().speed -= entry.statusEffect.slowDownAnimatorSpeedValue;
             }
         }
 

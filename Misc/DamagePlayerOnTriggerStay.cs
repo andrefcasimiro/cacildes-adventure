@@ -19,8 +19,10 @@ namespace AF
         public bool deactivateOnCollision = false;
 
         [Header("Attack Options")]
+        public int elementalDamage = 0;
         public WeaponElementType weaponElementType = WeaponElementType.None;
         public int poiseDamage = 0;
+        public int postureDamage = 0;
         public bool ignoreDodging = false;
         public StatusEffect statusEffect;
         public int statusEffectAmount = 0;
@@ -80,17 +82,10 @@ namespace AF
                             copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetDefenseAbsorption()), 0, 999);
                         }
 
-                        if (weaponElementType == WeaponElementType.Magic)
-                        {
-                            copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetMagicDefense()), 0, 999);
-                        }
 
-                        if (weaponElementType == WeaponElementType.Magic)
-                        {
-                            copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetFireDefense()), 0, 999);
-                        }
+                        var finalElementalDamage = Player.instance.CalculateIncomingElementalAttack((int)elementalDamage, weaponElementType, defenseStatManager);
 
-                        playerHealthbox.TakeEnvironmentalDamage(copiedDamage, poiseDamage, ignoreDodging, weaponElementType);
+                        playerHealthbox.TakeEnvironmentalDamage(copiedDamage, poiseDamage, ignoreDodging, finalElementalDamage, weaponElementType);
                     }
 
                     if (statusEffect != null)
@@ -138,6 +133,11 @@ namespace AF
                         enemyNegativeStatus.InflictStatusEffect(statusEffect, statusEffectAmount);
 
                     }
+                }
+
+                if (postureDamage > 0)
+                {
+                    enemyHealthController.GetComponent<EnemyPostureController>().TakePostureDamage(postureDamage);
                 }
 
 

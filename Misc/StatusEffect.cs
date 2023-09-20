@@ -40,6 +40,11 @@ namespace AF
 
         [Header("Other")]
         public bool disablePlayerMovement = false;
+        public bool damageSelf = false;
+        public bool ignoreDefense = false;
+        public float slowDownAnimatorSpeedValue = -1f;
+        public bool instantDeath = false;
+
 
     }
 }

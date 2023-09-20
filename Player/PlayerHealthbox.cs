@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Services.Analytics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,7 +21,7 @@ namespace AF
         PlayerComponentManager playerComponentManager => GetComponentInParent<PlayerComponentManager>();
         PlayerParryManager playerParryManager => GetComponentInParent<PlayerParryManager>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponentInParent<EquipmentGraphicsHandler>();
-
+        CombatNotificationsController combatNotificationsController => GetComponentInParent<CombatNotificationsController>();
         SceneSettings sceneSettings;
 
         public GameObject shieldWoodImpactFx;
@@ -45,6 +46,8 @@ namespace AF
         public bool fartOnHit = false;
         public DestroyableParticle farting;
 
+        bool hasSurvivedDeath = false;
+
         private void Awake()
         {
              sceneSettings = FindObjectOfType<SceneSettings>(true);
@@ -52,7 +55,7 @@ namespace AF
 
         public void Event_TakeDamage(float damage)
         {
-            TakeEnvironmentalDamage(damage, 0, false, WeaponElementType.None);
+            TakeEnvironmentalDamage(damage, 0, false, 0, WeaponElementType.None);
         }
 
         public void PlayFireFX()
@@ -103,7 +106,7 @@ namespace AF
             lightningFx.Play();
         }
 
-        public void TakeEnvironmentalDamage(float damage, int poiseDamage, bool ignoreDodging, WeaponElementType weaponElementType)
+        public void TakeEnvironmentalDamage(float damage, int poiseDamage, bool ignoreDodging, int elementalDamage, WeaponElementType weaponElementType)
         {
 
             if (Player.instance.currentHealth <= 0)
@@ -124,30 +127,38 @@ namespace AF
             }
 
 
-
-            if (weaponElementType == WeaponElementType.Fire)
+            if (weaponElementType == WeaponElementType.Fire && elementalDamage > 0)
             {
+                combatNotificationsController.ShowFireDamage(Mathf.RoundToInt(elementalDamage));
+
                 PlayFireFX();
             }
-            if (weaponElementType == WeaponElementType.Frost)
+            if (weaponElementType == WeaponElementType.Frost && elementalDamage > 0)
             {
+                combatNotificationsController.ShowFrostDamage(Mathf.RoundToInt(elementalDamage));
+
                 PlayFrostFX();
             }
-            if (weaponElementType == WeaponElementType.Lightning)
+            if (weaponElementType == WeaponElementType.Lightning && elementalDamage > 0)
             {
+                combatNotificationsController.ShowLightningDamage(Mathf.RoundToInt(elementalDamage));
+
                 PlayLightningFX();
             }
-            if (weaponElementType == WeaponElementType.Magic)
+            if (weaponElementType == WeaponElementType.Magic && elementalDamage > 0)
             {
+                combatNotificationsController.ShowMagicDamage(Mathf.RoundToInt(elementalDamage));
+
                 PlayMagicFX();
             }
+            healthStatManager.SubtractAmount(elementalDamage);
 
-            healthStatManager.SubtractAmount(damage);
 
-            if (damageFloatingText != null)
+            if (damage > 0)
             {
-                damageFloatingText.Show(damage);
+                combatNotificationsController.ShowDamage(Mathf.RoundToInt(damage));
             }
+            healthStatManager.SubtractAmount(damage);
 
             if (playerPoiseController.damageParticlePrefab != null)
             {
@@ -176,7 +187,8 @@ namespace AF
             }
         }
 
-        public void TakeDamage(float damage, Transform attackerTransform, AudioClip weaponDamageSfx, int poiseDamage, WeaponElementType weaponElementType)
+        public void TakeDamage(
+            float damage, Transform attackerTransform, AudioClip weaponDamageSfx, int poiseDamage, int elementalDamage, WeaponElementType weaponElementType)
         {
 
             if (fartOnHit)
@@ -261,23 +273,6 @@ namespace AF
                 return;
             }
 
-            if (weaponElementType == WeaponElementType.Fire)
-            {
-                PlayFireFX();
-            }
-            if (weaponElementType == WeaponElementType.Frost)
-            {
-                PlayFrostFX();
-            }
-            if (weaponElementType == WeaponElementType.Lightning)
-            {
-                PlayLightningFX();
-            }
-            if (weaponElementType == WeaponElementType.Magic)
-            {
-                PlayMagicFX();
-            }
-
             if (enemy != null)
             {
                 if (enemy.enemyCombatController.weaponStatusEffect != null)
@@ -286,12 +281,43 @@ namespace AF
                 }
             }
 
-            healthStatManager.SubtractAmount(damage);
 
-            if (damageFloatingText != null)
+            if (damage > 0)
             {
-                damageFloatingText.Show(damage);
+                combatNotificationsController.ShowDamage(Mathf.RoundToInt(damage));
             }
+
+
+            if (weaponElementType == WeaponElementType.Fire && elementalDamage > 0)
+            {
+                combatNotificationsController.ShowFireDamage(Mathf.RoundToInt(elementalDamage));
+
+                PlayFireFX();
+            }
+            if (weaponElementType == WeaponElementType.Frost && elementalDamage > 0)
+            {
+                combatNotificationsController.ShowFrostDamage(Mathf.RoundToInt(elementalDamage));
+
+                PlayFrostFX();
+            }
+            if (weaponElementType == WeaponElementType.Lightning && elementalDamage > 0)
+            {
+                combatNotificationsController.ShowLightningDamage(Mathf.RoundToInt(elementalDamage));
+
+                PlayLightningFX();
+            }
+            if (weaponElementType == WeaponElementType.Magic && elementalDamage > 0)
+            {
+                combatNotificationsController.ShowMagicDamage(Mathf.RoundToInt(elementalDamage));
+
+                PlayMagicFX();
+            }
+
+            Debug.Log("Health before: " + Player.instance.currentHealth);
+            Debug.Log("Damage total: " + damage + elementalDamage);
+            healthStatManager.SubtractAmount(damage + elementalDamage);
+
+            Debug.Log("Health after: " + Player.instance.currentHealth);
 
             if (weaponDamageSfx != null)
             {
@@ -314,13 +340,27 @@ namespace AF
         }
         public void Die()
         {
+            if (hasSurvivedDeath == false && Player.instance.equippedAccessories.FirstOrDefault(x => x.chanceToSurviveDeath))
+            {
+                float chanceToSurvive = Random.Range(0, 100f);
+                if (chanceToSurvive >= 50)
+                {
+                    healthStatManager.RestoreHealthPercentage(15);
+                    hasSurvivedDeath = true;
+                    FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include).ShowNotification(
+                        GamePreferences.instance.IsEnglish()
+                        ? "Crimson Ring has saved you from death"
+                        : "O Anel Escarlate salvou-te da morte", null);
+                    return;
+                }
+            }
+
             if (sceneSettings.isSceneTutorial)
             {
                 sceneSettings.RestartTutorialFromCheckpoint(transform.position);
                 return;
             }
 
-            animator.SetBool("IsCrouched", false);
             animator.SetBool("IsDodging", false);
 
             StartCoroutine(PlayDeathSfx());
@@ -330,12 +370,20 @@ namespace AF
 
             animator.Play(hashDying);
             animator.SetBool("IsDying", true);
+            animator.SetBool("IsCrouched", false);
 
             // Remove active consumables
             playerCombatController.GetComponent<PlayerConsumablesManager>().ClearAllConsumables();
 
 
-            StartCoroutine(ShowGameOverScreen());
+            if (sceneSettings.isColliseum)
+            {
+                FindAnyObjectByType<RoundManager>(FindObjectsInactive.Include).onDeathEvent.Invoke();
+            }
+            else
+            {
+                StartCoroutine(ShowGameOverScreen());
+            }
         }
         
         protected IEnumerator PlayDeathSfx()

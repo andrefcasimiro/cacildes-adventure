@@ -117,6 +117,12 @@ namespace AF
                 return;
             }
 
+            // If event is running
+            if (currentTarget.isRunning)
+            {
+                return;
+            }
+
             bool isActive = false;
 
             // If appear until is after midnight, it may become smaller than appearFrom (i. e. appear from 17 until 4)

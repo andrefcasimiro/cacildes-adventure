@@ -19,6 +19,8 @@ namespace AF
 
         CinemachineImpulseSource impulseSource => GetComponent<CinemachineImpulseSource>();
 
+        public GameObject prefabTest;
+
         private void Awake()
         {
 
@@ -131,11 +133,11 @@ namespace AF
                 return;
             }
 
-            if (enemy.enemyWeaponController.leftHandWeapon != null)
+            if (enemy != null && enemy.enemyWeaponController.leftHandWeapon != null)
             {
                 enemy.enemyWeaponController.ActivateLeftHandHitbox();
             }
-            if (enemy.enemyWeaponController.rightHandWeapon != null)
+            if (enemy != null && enemy.enemyWeaponController.rightHandWeapon != null)
             {
                 enemy.enemyWeaponController.ActivateRightHandHitbox();
             }
@@ -179,6 +181,11 @@ namespace AF
             }
         }
 
+        public void ActivateWeaponSpecial()
+        {
+            ActivateHitboxSpecial();
+        }
+
         public void ActivateHitbox()
         {
             if (playCustomSfxOnAttackAnimation)
@@ -197,8 +204,8 @@ namespace AF
             {
                 companion.ActivateLeftHandHitbox();
             }
-
         }
+
         public void DeactivateHitbox()
         {
             if (enemy != null)
@@ -634,6 +641,12 @@ namespace AF
                     customAudioSource.PlayOneShot(customSfx);
                 }
             }
+        }
+
+        public void LogSomething()
+        {
+            prefabTest.gameObject.GetComponent<ParticleSystem>().Stop();
+            prefabTest.gameObject.GetComponent<ParticleSystem>().Play();
         }
     }
 }

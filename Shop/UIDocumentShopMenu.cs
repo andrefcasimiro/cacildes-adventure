@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Cursor = UnityEngine.Cursor;
 
 namespace AF
 {
@@ -59,6 +60,16 @@ namespace AF
             {
                 ExitShop();
             }
+
+            if (Cursor.visible == false)
+            {
+                cursorManager.ShowCursor();
+            }
+        }
+
+        private void OnDisable()
+        {
+            cursorManager.HideCursor();
         }
 
         void ExitShop()

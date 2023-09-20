@@ -55,5 +55,11 @@ namespace AF
         public int baseGold = 500;
 
         public List<EnemyLoot.DropCurrency> lootTable = new();
+
+
+        [Header("Companions")]
+        public LocalizedText hugoCommentsOnKillingEnemy;
+        public LocalizedText balbinoCommentsOnKillingEnemy;
+        public LocalizedText alcinoCommentsUponKillingEnemy;
     }
 }

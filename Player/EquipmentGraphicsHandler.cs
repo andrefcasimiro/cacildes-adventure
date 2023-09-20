@@ -849,16 +849,28 @@ namespace AF
                 return;
             }
 
-            var instance = Instantiate(Player.instance.equippedWeapon.weaponSpecial, transform.position + transform.up, Quaternion.identity);
+            var targetTransform = transform.position + transform.up;
+            if (Player.instance.equippedWeapon.instatiateOnGround)
+            {
+                targetTransform.y = transform.position.y;
+            }
+            var instance = Instantiate(Player.instance.equippedWeapon.weaponSpecial, targetTransform, Quaternion.identity);
 
             var lookDir = transform.position + transform.forward - instance.transform.position;
             lookDir.y = 0;
             instance.transform.rotation = Quaternion.LookRotation(lookDir);
 
+
             if (Player.instance.equippedWeapon.parentWeaponSpecialToPlayer)
             {
                 instance.transform.parent = this.transform;
             }
+        }
+
+        public void EnableCharacterRotation()
+        {
+            thirdPersonController.canRotateCharacter = true;
+
         }
 
         public void ActivateLeftWeaponHitbox()
@@ -1486,6 +1498,68 @@ namespace AF
 
 
         #endregion
+
+        public float GetHeavyWeightThreshold()
+        {
+
+            return 0.1f + GetStrengthWeightLoadBonus();
+        }
+
+        public float GetMidWeightThreshold()
+        {
+
+            return 0.03f + GetStrengthWeightLoadBonus();
+        }
+
+        float GetStrengthWeightLoadBonus()
+        {
+            float bonus = Player.instance.strength + strengthBonus;
+
+            bonus *= 0.0025f;
+
+            if (bonus > 0f)
+            {
+                return bonus;
+            }
+
+            return 0f;
+        }
+
+        public bool IsLightWeight()
+        {
+            return weightPenalty <= GetMidWeightThreshold();
+        }
+
+        public bool IsMidWeight()
+        {
+            return weightPenalty < GetHeavyWeightThreshold() && weightPenalty > GetMidWeightThreshold();
+        }
+
+        public bool IsHeavyWeight()
+        {
+            return weightPenalty >= GetHeavyWeightThreshold();
+        }
+
+        public bool IsLightWeightForGivenValue(float givenWeightPenalty)
+        {
+            return givenWeightPenalty <= GetMidWeightThreshold();
+        }
+
+        public bool IsMidWeightForGivenValue(float givenWeightPenalty)
+        {
+            return givenWeightPenalty < GetHeavyWeightThreshold() && givenWeightPenalty > GetMidWeightThreshold();
+        }
+
+        public bool IsHeavyWeightForGivenValue(float givenWeightPenalty)
+        {
+            return givenWeightPenalty >= GetHeavyWeightThreshold();
+        }
+
+        public float GetEquipLoad()
+        {
+            return weightPenalty;
+        }
+
 
     }
 }

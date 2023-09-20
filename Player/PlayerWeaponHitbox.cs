@@ -93,6 +93,12 @@ namespace AF
             }
 
             boxCollider.enabled = true;
+        
+        
+            if (playerCombatController.isDamagingHimself)
+            {
+                FindAnyObjectByType<PlayerHealthbox>(FindObjectsInactive.Include).TakeEnvironmentalDamage(50f, 1, true, 0, WeaponElementType.None);
+            }
         }
 
         public void DisableHitbox()

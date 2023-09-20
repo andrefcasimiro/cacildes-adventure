@@ -2,6 +2,7 @@ using System.Collections;
 using StarterAssets;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Cursor = UnityEngine.Cursor;
 
 namespace AF {
 
@@ -39,6 +40,14 @@ namespace AF {
             cursorManager.ShowCursor();
 
             thirdPersonController.LockCameraPosition = true;
+        }
+
+        private void Update()
+        {
+            if (Cursor.visible == false)
+            {
+                cursorManager.ShowCursor();
+            }
         }
 
         private void OnDisable()

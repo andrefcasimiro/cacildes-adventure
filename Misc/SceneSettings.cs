@@ -29,6 +29,9 @@ namespace AF
         public bool isSceneTutorial = false;
         public DestroyableParticle respawnFx;
 
+        [Header("Colliseum")]
+        public bool isColliseum = false;
+
         PlayerComponentManager playerComponentManager;
 
         void Awake()

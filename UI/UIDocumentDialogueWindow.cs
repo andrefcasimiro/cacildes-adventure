@@ -120,6 +120,11 @@ namespace AF
             }
         }
 
+        private void OnDisable()
+        {
+            cursorManager.HideCursor();
+        }
+
         public IEnumerator Typewrite()
         {
             for (int i = 0; i < dialogueText.Length + 1; i++)
