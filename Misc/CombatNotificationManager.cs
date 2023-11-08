@@ -18,7 +18,7 @@ namespace AF
 
         private void Awake()
         {
-            this.combatNotificationEntryPool = new ObjectPool<CombatNotificationEntry>(Create, OnGet, OnRelease, null, maxSize: 5);
+            this.combatNotificationEntryPool = new ObjectPool<CombatNotificationEntry>(Create, OnGet, OnRelease, null, maxSize: 35);
         }
 
         private CombatNotificationEntry Create()
@@ -31,11 +31,22 @@ namespace AF
 
         private void OnGet(CombatNotificationEntry combatNotificationEntry)
         {
+            if (combatNotificationEntry == null)
+            {
+                return;
+            }
+
             combatNotificationEntry.gameObject.SetActive(true);
         }
 
         private void OnRelease(CombatNotificationEntry combatNotificationEntry)
         {
+            if (combatNotificationEntry == null)
+            {
+                return;
+            }
+
+
             combatNotificationEntry.gameObject.SetActive(false);
         }
 

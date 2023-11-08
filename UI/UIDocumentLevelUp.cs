@@ -50,12 +50,18 @@ namespace AF
 
         VisualElement root;
 
+
         void TranslateRoot()
         {
             root.Q<Button>("ButtonExit").text = backToBonfireText.GetText();
             root.Q<Label>("Title").text = levelUpText.GetText();
-            root.Q<Label>("CurrentLevel").text = currentLevelText.GetText();
-            root.Q<Label>("CurrentGoldAndRequired").text = currentAndRequiredGoldText.GetText();
+
+            var currentLevelLabel = root.Q<Label>("CurrentLevel");
+            currentLevelLabel.text = currentLevelText.GetText();
+
+            var currentGoldAndRequiredLabel = root.Q<Label>("CurrentGoldAndRequired");
+            currentGoldAndRequiredLabel.text = currentAndRequiredGoldText.GetText();
+
             root.Q<Label>("MaximumHealthText").text = maximumHealthText.GetText();
             root.Q<Label>("MaximumStaminaText").text = maximumStaminaText.GetText();
             root.Q<Label>("PhysicalAttackPowerLabel").text = physicalAttackPowerText.GetText();
@@ -77,11 +83,19 @@ namespace AF
         private void Awake()
         {
             gameObject.SetActive(false);
+
         }
 
         private void Start()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
+
+        }
+
+        void Close()
+        {
+            uIDocumentBonfireMenu.gameObject.SetActive(true);
+            this.gameObject.SetActive(false);
         }
 
         private void OnEnable()
@@ -106,8 +120,7 @@ namespace AF
 
             root.Q<Button>("ButtonExit").RegisterCallback<ClickEvent>(ev =>
             {
-                uIDocumentBonfireMenu.gameObject.SetActive(true);
-                this.gameObject.SetActive(false);
+                Close();
             });
 
             // Add callbacks
@@ -204,6 +217,8 @@ namespace AF
                 DrawUI(root);
             });
 
+            root.Q<Button>("ConfirmButton").SetEnabled(HasEnoughExperienceForLevelling(virtualGold, GetDesiredLevelsAmount() + 1));
+
             DrawUI(root);
 
             FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
@@ -211,8 +226,19 @@ namespace AF
 
         void DrawUI(VisualElement root)
         {
+
             root.Q<VisualElement>("Level").Q<Label>("Value").text = GetDesiredLevelsAmount() + "";
             root.Q<VisualElement>("Gold").Q<Label>("Value").text = virtualGold + "/" + playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
+
+
+            if (HasEnoughExperienceForLevelling(virtualGold, GetDesiredLevelsAmount() + 1))
+            {
+                root.Q<VisualElement>("Gold").Q<Label>("Value").style.color = Color.green;
+            }
+            else
+            {
+                root.Q<VisualElement>("Gold").Q<Label>("Value").style.color = Color.red;
+            }
 
             root.Q<VisualElement>("MaximumHealth").Q<Label>("Value").text = healthStatManager.GetHealthPointsForGivenVitality(desiredVitality) + "";
             root.Q<VisualElement>("MaximumStamina").Q<Label>("Value").text = staminaStatManager.GetStaminaPointsForGivenEndurance(desiredEndurance) + "";

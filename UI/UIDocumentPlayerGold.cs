@@ -39,8 +39,14 @@ namespace AF
                 particlePoolManager.goldPool.Pool.Release(currentGold);
             }
 
-            Soundbank.instance.PlayCoin();
             currentGold = particlePoolManager.goldPool.Pool.Get();
+
+            
+            if (currentGold == null)
+            {
+                return;
+            }
+
             currentGold.transform.position = origin.position;
             currentGold.Play();
             var m = currentGold.main;

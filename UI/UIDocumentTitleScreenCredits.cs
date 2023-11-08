@@ -6,7 +6,6 @@ namespace AF
     public class UIDocumentTitleScreenCredits : MonoBehaviour
     {
         VisualElement root;
-        MenuManager menuManager;
 
         public Credits credits;
 
@@ -17,9 +16,11 @@ namespace AF
         public LocalizedText creditsText;
         public LocalizedText creditsRequestNoteText;
 
+        [Header("Components")]
+        public UIManager uiManager;
+
         private void Awake()
         {
-            menuManager = FindObjectOfType<MenuManager>(true);
             gameObject.SetActive(false);
         }
 
@@ -58,20 +59,7 @@ namespace AF
                     var sectionEntryClone = sectionEntry.CloneTree();
 
                     var urlButton = sectionEntryClone.Q<Button>("UrlButton");
-                    if (string.IsNullOrEmpty(creditEntry.authorUrl))
-                    {
-                        urlButton.style.display = DisplayStyle.None;
-                    }
-                    else
-                    {
-                        urlButton.style.backgroundImage = new StyleBackground(creditEntry.urlSprite);
-                        urlButton.clicked += () =>
-                        {
-                            Application.OpenURL(creditEntry.authorUrl);
-                        };
-
-                        urlButton.style.display = DisplayStyle.Flex;
-                    }
+                    urlButton.style.display = DisplayStyle.None;
 
                     sectionEntryClone.Q<Label>("Author").text = creditEntry.author;
                     sectionEntryClone.Q<Label>("Description").text = creditEntry.contribution;
@@ -80,7 +68,7 @@ namespace AF
                 }
             }
 
-            menuManager.SetupButton(closeBtn, () =>
+            uiManager.SetupButton(closeBtn, () =>
             {
                 Close();
             });

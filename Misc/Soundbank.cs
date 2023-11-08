@@ -18,6 +18,11 @@ namespace AF
         public AudioClip enemyGuardBreak;
         public AudioClip reputationIncreased;
         public AudioClip reputationDecreased;
+        public AudioClip mainMenuOpen;
+        public AudioClip uiEquip;
+        public AudioClip uiUnequip;
+        public AudioClip uiLockOn;
+        public AudioClip uiLockOnSwitchTarget;
 
         [Header("Movement")]
         public AudioClip cloth;
@@ -37,6 +42,7 @@ namespace AF
         public AudioClip companionJoin;
         public AudioClip companionLeave;
         public AudioClip illusionaryWallSound;
+        public AudioClip uiDialogue;
 
         public static Soundbank instance;
 
@@ -181,6 +187,31 @@ namespace AF
         public void PlayIllusionaryWall()
         {
             BGMManager.instance.PlaySound(illusionaryWallSound, null);
+        }
+
+        public void PlayMainMenuOpen()
+        {
+            BGMManager.instance.PlaySound(mainMenuOpen, null);
+        }
+        public void PlayUIEquip()
+        {
+            BGMManager.instance.PlaySound(uiEquip, null);
+        }
+        public void PlayUIUnequip()
+        {
+            BGMManager.instance.PlaySound(uiUnequip, null);
+        }
+        public void PlayLockOn()
+        {
+            BGMManager.instance.PlaySound(uiLockOn, null);
+        }
+        public void PlayLockOnSwitchTarget()
+        {
+            BGMManager.instance.PlaySound(uiLockOnSwitchTarget, null);
+        }
+        public void PlayUIDialogue()
+        {
+            BGMManager.instance.PlaySound(uiDialogue, null);
         }
 
     }

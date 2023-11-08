@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -243,7 +242,17 @@ namespace AF
 
         bool ShouldReplenish()
         {
+            if (shopEntry == null)
+            {
+                return false;
+            }
+
             var shop = ShopManager.instance.GetShopInstanceByName(shopEntry.name);
+            if (shop == null)
+            {
+                return false;
+            }
+
             var shopRefreshValue = shop != null ? shop.dayThatTradingBegan : -1;
             
             if (shopRefreshValue == -1)

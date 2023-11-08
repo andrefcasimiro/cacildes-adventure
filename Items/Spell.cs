@@ -47,6 +47,7 @@ namespace AF
 
         [Header("Spell Poise")]
         public int spellPoise;
+        public int spellPostureDamage;
 
         [Header("Spell Direction and Reach")]
         public bool rotateToEnemyOnSpellCast = true;
@@ -57,6 +58,9 @@ namespace AF
         public WeaponElementType selfDamageType;
         public StatusEffect selfStatusEffect;
         public float selfStatusEffectAmount = -1f;
+
+        [Header("Healing")]
+        public float healingAmount = -1f;
 
         [Header("Reputation")]
         public bool increaseDamageWithReputation = false;

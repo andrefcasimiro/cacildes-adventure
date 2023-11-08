@@ -1,6 +1,5 @@
 
 using UnityEngine;
-using StarterAssets;
 
 namespace AF
 {
@@ -133,14 +132,14 @@ namespace AF
         public void ExitToTop()
         {
             climbState = ClimbState.EXITING;
-            animator.CrossFade(hashExitToTop, 0.25f);
+            animator.Play(hashExitToTop);
             currentLadder = null;
         }
 
         public void ExitToBottom()
         {
             climbState = ClimbState.EXITING;
-            animator.CrossFade(hashExitToBottom, 0.25f);
+            animator.Play(hashExitToBottom);
             currentLadder = null;
         }
 

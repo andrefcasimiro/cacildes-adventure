@@ -77,6 +77,9 @@ namespace AF
         [Header("FX")]
         public DestroyableParticle puffFx;
 
+        [Header("Achievements")]
+        public Achievement achievement;
+
         private void OnEnable()
         {
             root = uiDocument.rootVisualElement;
@@ -84,11 +87,7 @@ namespace AF
             round = root.Q<Label>("Round");
             counter = root.Q<Label>("Counter");
             bestRound = root.Q<Label>("BestRound");
-
-            if (recordForBestRound <= 0)
-            {
-                bestRound.style.display = DisplayStyle.None;
-            }
+            bestRound.style.display = DisplayStyle.None;
 
             if (playerInventory == null)
             {
@@ -115,7 +114,7 @@ namespace AF
         {
             currentRound++;
 
-            round.text = $"Round {currentRound}";
+            round.text = GamePreferences.instance.IsEnglish() ? $"Round {currentRound}" : $"Ronda {currentRound}";
 
             ResumeTimer();
 
@@ -124,8 +123,20 @@ namespace AF
             root.style.display = DisplayStyle.Flex;
         }
 
+        IEnumerator PlayApplause()
+        {
+            yield return new WaitForSeconds(0.15f);
+
+            BGMManager.instance.PlaySound(roundWinApplause, null);
+        }
+
         public void EndRound()
         {
+            if (currentRound == 15)
+            {
+                achievement.AwardAchievement();
+            }
+
             BGMManager.instance.StopMusicImmediately();
 
             StopTimer();
@@ -134,7 +145,10 @@ namespace AF
 
             nextRoundTrigger.gameObject.SetActive(true);
 
-            BGMManager.instance.PlaySound(roundWinApplause, null);
+            if (Random.Range(0, 1f) >= 0.5f)
+            {
+                StartCoroutine(PlayApplause());
+            }
 
             if (currentRound % 5 == 0 && playerInventory != null)
             {
@@ -142,24 +156,51 @@ namespace AF
                 playerInventory.ReplenishItems();
 
                 Soundbank.instance.PlayItemReceived();
-                notificationManager.ShowNotification("The crowd voted, your items have been replenished. Good luck!", null);
+                notificationManager.ShowNotification(GamePreferences.instance.IsEnglish()
+                    ? "The crowd voted, your items have been replenished. Good luck!"
+                    : "O público votou, os teus itens foram renovados. Boa sorte!"
+                    , null);
             }
-
-            if (currentRound % 3 == 0 && playerInventory != null && Random.Range(0, 100f) > 50f)
+            else if (currentRound % 3 == 0 && playerInventory != null && Random.Range(0, 100f) > 50f)
             {
 
                 playerComponentManager.CurePlayer();
 
                 Soundbank.instance.PlayItemReceived();
-                notificationManager.ShowNotification("The crowd voted, your health was replenished. They wish to see you fight!", null);
+                notificationManager.ShowNotification(GamePreferences.instance.IsEnglish()
+                    ? "The crowd voted, your health was restored. They wish to see you fight!"
+                    : "O público votou, a tua vida foi recuperada. Boa sorte!"
+                    , null);
             }
+        }
+
+        bool isEndingTournament = false;
+        public void CallEndTournament()
+        {
+            if (isEndingTournament)
+            {
+                return;
+            }
+
+            isEndingTournament = true;
+
+            onDeathEvent.Invoke();
         }
 
         public void ExitTournament()
         {
             playerComponentManager.isInBonfire = true;
             playerComponentManager.CurePlayer();
-            TeleportManager.instance.Teleport(sceneToReturnWhenExitingTournament, "A");
+
+            if (Player.instance.isDemo)
+            {
+                TeleportManager.instance.Teleport(TeleportManager.SceneName.PATH_TO_SLEPBONE_PATHWAY, "Path to Slepbone Bonfire Spawnref");
+            }
+            else
+            {
+                TeleportManager.instance.Teleport(sceneToReturnWhenExitingTournament, "A");
+            }
+
         }
 
         void SpawnEnemiesForRound()
@@ -178,11 +219,13 @@ namespace AF
                     stage.stageGameObject.SetActive(false);
                 }
 
+
                 List<Stage> newStages = stages.Where(x => x != currentStage).ToList();
                 var idx = Random.Range(0, newStages.Count);
 
                 currentStage = newStages[idx];
                 newStages[idx].stageGameObject.SetActive(true);
+
             }
 
 
@@ -190,7 +233,10 @@ namespace AF
             {
                 BGMManager.instance.StopAllCoroutines();
 
-                BGMManager.instance.PlayMusic(currentStage.musics[Random.Range(0, currentStage.musics.Length)]);
+                if (currentStage.musics.Length > 0)
+                {
+                    BGMManager.instance.PlayMusic(currentStage.musics[Random.Range(0, currentStage.musics.Length)]);
+                }
             }
 
 
@@ -218,7 +264,7 @@ namespace AF
 
                     availableEnemies.AddRange((IEnumerable<EnemyManager>)(easyEnemies as IEnumerable));
                 }
-                else if (currentRound <= 3)
+                else if (currentRound <= 5)
                 {
                     // In early rounds, add medium enemies to the mix.
                     maxEnemiesToSpawn = 3;
@@ -234,81 +280,81 @@ namespace AF
                 {
                     // As rounds progress, introduce easy bosses or hard enemies.
                     maxEnemiesToSpawn = 4;
-                    minEnemiesToSpawn = 3;
+                    minEnemiesToSpawn = 2;
 
-                    availableEnemies.AddRange((IEnumerable<EnemyManager>)(mediumEnemies as IEnumerable));
+                    var mediumEnemy1 = mediumEnemies[Random.Range(0, mediumEnemies.Count())];
+                    availableEnemies.Add(mediumEnemy1);
+                    var mediumEnemy2 = mediumEnemies[Random.Range(0, mediumEnemies.Count())];
+                    availableEnemies.Add(mediumEnemy2);
 
-                    // Pick either an easy boss or a hard enemy based on probability.
-                    if (Random.Range(0, 1f) >= 0.5f)
-                    {
-                        var randomEasyBossPicked = easyBosses[Random.Range(0, easyBosses.Count())];
-                        availableEnemies.Add(randomEasyBossPicked);
-                    }
-                    else
-                    {
-                        var randomHardEnemyPicked = hardEnemies[Random.Range(0, hardEnemies.Count())];
-                        availableEnemies.Add(randomHardEnemyPicked);
-                    }
+                    var easyBoss1 = easyBosses[Random.Range(0, easyBosses.Count())];
+                    availableEnemies.Add(easyBoss1);
+
+                    var hardEnemy1 = hardEnemies[Random.Range(0, hardEnemies.Count())];
+                    availableEnemies.Add(hardEnemy1);
                 }
                 else if (currentRound <= 15)
                 {
-                    // In mid-game rounds, introduce medium bosses or hard enemies.
-                    maxEnemiesToSpawn = Random.Range(1, 3);
+                    // As rounds progress, introduce easy bosses or hard enemies.
+                    maxEnemiesToSpawn = 2;
                     minEnemiesToSpawn = 1;
 
-                    availableEnemies.AddRange((IEnumerable<EnemyManager>)(hardEnemies as IEnumerable));
+                    var enemy1 = hardEnemies[Random.Range(0, hardEnemies.Count())];
+                    availableEnemies.Add(enemy1);
+                    var enemy2 = hardEnemies[Random.Range(0, hardEnemies.Count())];
+                    availableEnemies.Add(enemy2);
 
-                    // Pick either a medium boss or a hard enemy based on probability.
-                    if (Random.Range(0, 1f) >= 0.5f)
-                    {
-                        var randomMediumBossPicked = mediumBosses[Random.Range(0, mediumBosses.Count())];
-                        availableEnemies.Add(randomMediumBossPicked);
-                    }
-                    else
-                    {
-                        var randomHardEnemyPicked = mediumEnemies[Random.Range(0, mediumEnemies.Count())];
-                        availableEnemies.Add(randomHardEnemyPicked);
-                    }
+                    var enemy3 = mediumBosses[Random.Range(0, mediumBosses.Count())];
+                    availableEnemies.Add(enemy3);
+                    var enemy4 = mediumBosses[Random.Range(0, mediumBosses.Count())];
+                    availableEnemies.Add(enemy4);
+
+                    var enemy5 = hardBosses[Random.Range(0, hardBosses.Count())];
+                    availableEnemies.Add(enemy5);
                 }
                 else if (currentRound <= 25)
                 {
-                    // In late-game rounds, introduce medium bosses or harder bosses.
-                    maxEnemiesToSpawn = Random.Range(1, 3);
+                    // As rounds progress, introduce easy bosses or hard enemies.
+                    maxEnemiesToSpawn = 3;
                     minEnemiesToSpawn = 1;
 
-                    availableEnemies.AddRange((IEnumerable<EnemyManager>)(hardEnemies as IEnumerable));
+                    var enemy1 = hardEnemies[Random.Range(0, hardEnemies.Count())];
+                    availableEnemies.Add(enemy1);
 
-                    // Pick either a medium boss or a harder boss based on probability.
-                    if (Random.Range(0, 1f) >= 0.5f)
-                    {
-                        var randomMediumBossPicked = mediumBosses[Random.Range(0, mediumBosses.Count())];
-                        availableEnemies.Add(randomMediumBossPicked);
-                    }
-                    else
-                    {
-                        var randomHardBossPicked = hardBosses[Random.Range(0, hardBosses.Count())];
-                        availableEnemies.Add(randomHardBossPicked);
-                    }
+                    var enemy3 = mediumBosses[Random.Range(0, mediumBosses.Count())];
+                    availableEnemies.Add(enemy3);
+                    var enemy4 = mediumBosses[Random.Range(0, mediumBosses.Count())];
+                    availableEnemies.Add(enemy4);
+                    var enemy5 = mediumBosses[Random.Range(0, mediumBosses.Count())];
+                    availableEnemies.Add(enemy5);
+
+                    var enemy6 = hardBosses[Random.Range(0, hardBosses.Count())];
+                    availableEnemies.Add(enemy6);
+                    var enemy7 = hardBosses[Random.Range(0, hardBosses.Count())];
+                    availableEnemies.Add(enemy7);
                 }
                 else if (currentRound > 25)
                 {
-                    // In very late rounds, introduce harder bosses.
-                    maxEnemiesToSpawn = Random.Range(1, 3);
+                    // As rounds progress, introduce easy bosses or hard enemies.
+                    maxEnemiesToSpawn = 3;
                     minEnemiesToSpawn = 1;
 
-                    availableEnemies.AddRange((IEnumerable<EnemyManager>)(mediumBosses as IEnumerable));
+                    var enemy1 = hardEnemies[Random.Range(0, hardEnemies.Count())];
+                    availableEnemies.Add(enemy1);
 
-                    // Pick either a hard enemy or a harder boss based on probability.
-                    if (Random.Range(0, 1f) >= 0.5f)
-                    {
-                        var randomHardEnemyPicked = hardEnemies[Random.Range(0, hardEnemies.Count())];
-                        availableEnemies.Add(randomHardEnemyPicked);
-                    }
-                    else
-                    {
-                        var randomHardBossPicked = hardBosses[Random.Range(0, hardBosses.Count())];
-                        availableEnemies.Add(randomHardBossPicked);
-                    }
+                    var enemy3 = mediumBosses[Random.Range(0, mediumBosses.Count())];
+                    availableEnemies.Add(enemy3);
+                    var enemy4 = mediumBosses[Random.Range(0, mediumBosses.Count())];
+                    availableEnemies.Add(enemy4);
+
+                    var enemy5 = hardBosses[Random.Range(0, hardBosses.Count())];
+                    availableEnemies.Add(enemy5);
+                    var enemy6 = hardBosses[Random.Range(0, hardBosses.Count())];
+                    availableEnemies.Add(enemy6);
+                    var enemy7 = hardBosses[Random.Range(0, hardBosses.Count())];
+                    availableEnemies.Add(enemy7);
+                    var enemy8 = hardBosses[Random.Range(0, hardBosses.Count())];
+                    availableEnemies.Add(enemy8);
                 }
             }
 
@@ -327,27 +373,19 @@ namespace AF
 
         void HandleInstatiatedEnemy(EnemyManager choosenEnemyRound)
         {
-            if (choosenEnemyRound.enemyBossController != null)
-            {
-                // Check if we have faced this boss already
-                bool hasFacedBossAlready = choosenEnemyRound.enemyBossController.bossSwitchEntry == null ? false : SwitchManager.instance.GetSwitchCurrentValue(choosenEnemyRound.enemyBossController.bossSwitchEntry);
-
-                if (!hasFacedBossAlready)
-                {
-                    return;
-                }
-            }
-
             EnemyManager choosenEnemyRoundInstance = Instantiate(choosenEnemyRound,
                     spawnRefs[Random.Range(0, spawnRefs.Count())].transform.position,
                     Quaternion.identity);
 
-            var additionalLevels = (int)(currentRound / 5);
+            choosenEnemyRoundInstance.RepositionNavmeshAgent();
+
+            var additionalLevels = (int)(currentRound / 10);
             choosenEnemyRoundInstance.currentLevel += additionalLevels;
 
             if (choosenEnemyRoundInstance.enemyBossController != null)
             {
                 Destroy(choosenEnemyRoundInstance.enemyLoot);
+                choosenEnemyRoundInstance.enemyBossController.bossMusic = null;
             }
 
             if (choosenEnemyRoundInstance.enemySleepController != null)
@@ -356,7 +394,8 @@ namespace AF
                 Destroy(choosenEnemyRoundInstance.enemySleepController);
             }
 
-            choosenEnemyRoundInstance.enemyHealthController.onEnemyDeathInColliseum.AddListener(() => {
+            choosenEnemyRoundInstance.enemyHealthController.onEnemyDeathInColliseum.AddListener(() =>
+            {
                 CheckIfRoundShouldEnd();
             });
 
@@ -412,6 +451,7 @@ namespace AF
             {
                 previousMinute = minutes;
 
+                // Code smell, it's a side effect to a otherwise pure function, but works for now
                 // Time to spawn FX
                 SpawnPowerup();
             }
@@ -424,7 +464,7 @@ namespace AF
             NavMeshSurface navMeshSurface = FindAnyObjectByType<NavMeshSurface>(FindObjectsInactive.Exclude);
 
             ArenaPowerup arenaPowerup = arenaPowerups[Random.Range(0, arenaPowerups.Length)];
-            
+
 
             if (navMeshSurface != null)
             {

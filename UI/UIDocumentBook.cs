@@ -16,11 +16,11 @@ namespace AF
         public LocalizedText closeBookText;
         public LocalizedText tabText;
 
-        StarterAssets.StarterAssetsInputs inputs;
+        StarterAssetsInputs inputs;
 
         private void Awake()
         {
-            inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
+            inputs = FindObjectOfType<StarterAssetsInputs>(true);
 
             this.gameObject.SetActive(false);
         }
@@ -110,7 +110,6 @@ namespace AF
 
         public void ShowNote(string noteTitle, string noteText)
         {
-            Debug.Log("Show note");
             Soundbank.instance.PlayBookFlip();
 
             this.root.Q<VisualElement>("BookFront").style.display = DisplayStyle.None;

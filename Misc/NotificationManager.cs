@@ -1,6 +1,3 @@
-
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -9,7 +6,7 @@ namespace AF
     public class NotificationManager : MonoBehaviour, ISaveable
     {
         public const float MAX_ITEM_DURATION = 4f;
-        public const float MAX_ITEMS_IN_QUEUE = 12f;
+        public const float MAX_ITEMS_IN_QUEUE = 5;
 
         [Header("Icons")]
         public Sprite systemSuccess;
@@ -31,6 +28,9 @@ namespace AF
         VisualElement root;
         VisualElement notificationsPanel;
         float timePassed = 0f;
+
+        [Header("Achievements")]
+        public Achievement negativeReputationAchievement;
 
         private void Start()
         {
@@ -99,6 +99,11 @@ namespace AF
         public void DecreaseReputation(int value)
         {
             Player.instance.currentReputation -= value;
+
+            if (Player.instance.currentReputation <= -25f)
+            {
+                negativeReputationAchievement.AwardAchievement();
+            }
 
             Soundbank.instance.PlayReputationDecreased();
             ShowNotification(LocalizedTerms.ReputationDecreased(value), reputationDecreaseSprite);

@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
-using StarterAssets;
 using UnityEngine.Events;
 using System.Linq;
 
 namespace AF
 {
-    public class ReplenishableItemPickup : VariableListener, IClockListener, IEventNavigatorCapturable
+    public class ReplenishableItemPickup : VariableListener, IClockListener, IEventNavigatorCapturable, ISaveable
     {
         [System.Serializable]
         public class ReplenishableItemEntry
@@ -48,10 +47,10 @@ namespace AF
 
         private void Awake()
         {
-             inputs = FindObjectOfType<StarterAssetsInputs>(true);
-             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
-             uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
-             playerInventory = FindObjectOfType<PlayerInventory>(true);
+            inputs = FindObjectOfType<StarterAssetsInputs>(true);
+            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+            uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
+            playerInventory = FindObjectOfType<PlayerInventory>(true);
             equipmentGraphicsHandler = playerInventory.GetComponent<EquipmentGraphicsHandler>();
         }
 
@@ -129,18 +128,19 @@ namespace AF
                 return;
             }
 
-            uIDocumentKeyPrompt.key = "E";
+            string key = "E";
+            string actionName = "";
 
             if (isStealing)
             {
-                uIDocumentKeyPrompt.action = LocalizedTerms.GetStealChance(GetStealChance());
+                actionName = LocalizedTerms.GetStealChance(GetStealChance());
             }
             else
             {
-                uIDocumentKeyPrompt.action = LocalizedTerms.GetActionText(action);
+                actionName = LocalizedTerms.GetActionText(action);
             }
 
-            uIDocumentKeyPrompt.gameObject.SetActive(true);
+            uIDocumentKeyPrompt.DisplayPrompt(key, actionName);
         }
 
         float GetStealChance()
@@ -167,7 +167,9 @@ namespace AF
                     // Get All items Price
 
                     var itemsPrice = item != null ? item.value : replenishableItemEntries.Sum(x => x.item.value);
-                    
+
+                    playerInventory.playerAchievementsManager.achievementForStealing.AwardAchievement();
+
                     if (Player.instance.currentGold >= itemsPrice)
                     {
                         FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice);
@@ -238,6 +240,17 @@ namespace AF
 
             // Record the day that the item was picked
             VariableManager.instance.UpdateVariable(variableEntry, Player.instance.daysPassed);
+        }
+
+
+        public void OnGameLoaded(GameData gameData)
+        {
+            Refresh();
+        }
+
+        public void OnReleased()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

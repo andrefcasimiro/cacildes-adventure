@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
-using StarterAssets;
 using System.Linq;
 
 namespace AF
@@ -18,34 +17,30 @@ namespace AF
         // This gives good values, similar to Dark Souls
 
         [Header("Scaling Multipliers")]
-        public float E = 1f;
-        public float D = 1.05f;
-        public float C = 1.2f;
-        public float B = 1.5f;
-        public float A = 1.8f;
-        public float S = 2f;
-        
+        public float E = 0.25f;
+        public float D = 1f;
+        public float C = 1.3f;
+        public float B = 1.65f;
+        public float A = 1.95f;
+        public float S = 2.25f;
+
         private Dictionary<string, float> scalingDictionary = new Dictionary<string, float>();
 
         [Header("Status attack bonus")]
         [Tooltip("Increased by buffs like potions, or equipment like accessories")]
         public float physicalAttackBonus = 0f;
-        
+
         [Header("Physical Attack")]
         public int basePhysicalAttack = 100;
         public float levelMultiplier = 3.25f;
 
         public float jumpAttackMultiplier = 2.25f;
 
-        ThirdPersonController thirdPersonController;
+        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
+        DodgeController dodgeController => GetComponent<DodgeController>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
         HealthStatManager healthStatManager => GetComponent<HealthStatManager>();
-
-        private void Awake()
-        {
-             thirdPersonController = FindObjectOfType<ThirdPersonController>(true);
-        }
 
         private void Start()
         {
@@ -82,6 +77,11 @@ namespace AF
                 value = Mathf.FloorToInt(value * jumpAttackMultiplier);
             }
 
+            if (dodgeController.IsRollAttacking())
+            {
+                value += dodgeController.dodgeAttackBonus;
+            }
+
             return (int)Mathf.Round(
                 Mathf.Ceil(
                     value
@@ -116,7 +116,7 @@ namespace AF
 
             var weaponToCompareAttack = GetWeaponAttack(weaponToCompare);
             var currentWeaponAttack = GetWeaponAttack(Player.instance.equippedWeapon);
-            
+
             if (weaponToCompareAttack > currentWeaponAttack)
             {
                 return 1;
@@ -132,11 +132,17 @@ namespace AF
 
         public int GetWeaponAttack(Weapon weapon)
         {
+
+            float strengthBonusFromWeapon = GetStrengthBonusFromWeapon(weapon);
+            float dexterityBonus = GetDexterityBonusFromWeapon(weapon);
+            float intelligenceBonus = GetIntelligenceBonusFromWeapon(weapon);
+
             var value = (int)(
                 GetCurrentPhysicalAttack()
                 + weapon.GetWeaponAttack()
                 + GetStrengthBonusFromWeapon(weapon)
                 + GetDexterityBonusFromWeapon(weapon)
+                + GetIntelligenceBonusFromWeapon(weapon)
             );
 
 
@@ -149,6 +155,14 @@ namespace AF
             if (IsJumpAttacking())
             {
                 value = Mathf.FloorToInt(value * jumpAttackMultiplier);
+
+
+                if (Player.instance.equippedAccessories.Count > 0)
+                {
+                    var attackBonuses = Player.instance.equippedAccessories.Sum(x => x.jumpAttackBonus);
+                    value += attackBonuses;
+                }
+
             }
 
             if (weapon.halveDamage)
@@ -187,12 +201,17 @@ namespace AF
 
         public int GetStrengthBonusFromWeapon(Weapon weapon)
         {
-            return (int)(Mathf.Ceil((Player.instance.strength * this.levelMultiplier * this.scalingDictionary[weapon.strengthScaling.ToString()])));
+            return (int)(Mathf.Ceil(((Player.instance.strength + equipmentGraphicsHandler.strengthBonus) * this.levelMultiplier * this.scalingDictionary[weapon.strengthScaling.ToString()])));
         }
 
         public float GetDexterityBonusFromWeapon(Weapon weapon)
         {
-            return (int)(Mathf.Ceil((Player.instance.dexterity * this.levelMultiplier * this.scalingDictionary[weapon.dexterityScaling.ToString()])));
+            return (int)(Mathf.Ceil(((Player.instance.dexterity + equipmentGraphicsHandler.dexterityBonus) * this.levelMultiplier * this.scalingDictionary[weapon.dexterityScaling.ToString()])));
+        }
+
+        public float GetIntelligenceBonusFromWeapon(Weapon weapon)
+        {
+            return (int)(Mathf.Ceil(((Player.instance.intelligence + equipmentGraphicsHandler.intelligenceBonus) * this.levelMultiplier * this.scalingDictionary[weapon.intelligenceScaling.ToString()])));
         }
 
         #endregion

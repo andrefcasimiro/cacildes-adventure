@@ -1,209 +1,81 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using StarterAssets;
-using UnityEngine.Animations;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
     public class DodgeController : MonoBehaviour
     {
+        // Animation hash values
         public readonly int hashRoll = Animator.StringToHash("Roll");
         public readonly int hashCrouchRoll = Animator.StringToHash("Dodge Crouch");
-        public readonly int hashDodgeRight = Animator.StringToHash("Dodge Right");
-        public readonly int hashDodgeLeft = Animator.StringToHash("Dodge Left");
         public readonly int hashBackStep = Animator.StringToHash("BackStep");
         public readonly int hashIsDodging = Animator.StringToHash("IsDodging");
 
-        private Animator animator => GetComponent<Animator>();
-        private StarterAssetsInputs _input => GetComponent<StarterAssetsInputs>();
-        private ClimbController climbController => GetComponent<ClimbController>();
-        private PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
-        private ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
-        private FootstepListener footstepListener => GetComponent<FootstepListener>();
-        private EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
-        private StaminaStatManager staminaStatManager => GetComponent<StaminaStatManager>();
-        PlayerShootingManager playerShootingManager => GetComponent<PlayerShootingManager>();
+        [Header("Components")]
+        public Animator animator;
+        public StarterAssetsInputs starterAssetsInputs;
+        public ClimbController climbController;
+        public PlayerCombatController playerCombatController;
+        public ThirdPersonController thirdPersonController;
+        public EquipmentGraphicsHandler equipmentGraphicsHandler;
+        public StaminaStatManager staminaStatManager;
+        public PlayerShootingManager playerShootingManager;
 
-        private MenuManager menuManager;
-
-        private LockOnManager lockOnManager;
-
-        [Header("Stamina")]
+        [Header("Stamina Settings")]
         public int dodgeCost = 15;
 
-        float maxStartupDelay = 0.25f;
-        float startupDelay = Mathf.Infinity;
-
+        [Header("In-game flags")]
         public bool hasIframes = false;
 
-        [HideInInspector]
-        public bool canRequestRollAttack = true;
         public float maxRequestForRollDuration = 0.4f;
-        public float currentRequestForRollDuration = Mathf.Infinity;
+        [HideInInspector] public float currentRequestForRollDuration = Mathf.Infinity;
 
-        CharacterController characterController => GetComponent<CharacterController>();
+        [Header("Dodge Attacks")]
+        public int dodgeAttackBonus = 30;
 
-        private void Awake()
+        #region Input System
+        public void OnDodge(InputValue inputValue)
         {
-            lockOnManager = FindObjectOfType<LockOnManager>(true);
-            menuManager = FindObjectOfType<MenuManager>(true);
-        }
-
-        private void OnEnable()
-        {
-            startupDelay = 0f;
-        }
-        
-        private void Update()
-        {
-            if (startupDelay < maxStartupDelay)
+            if (inputValue.isPressed && CanDodge() && !IsDodging())
             {
-                startupDelay += Time.deltaTime;
-            }
-
-            if (_input.dodge)
-            {
-                _input.dodge = false;
-
-                if (CanDodge())
-                {
-                    if (!IsDodging())
-                    {
-                        staminaStatManager.DecreaseStamina(dodgeCost);
-
-                        HandleDodge();
-                    }
-
-                }
+                staminaStatManager.DecreaseStamina(dodgeCost);
+                Tick();
             }
         }
+        #endregion
 
-        private void OnTriggerStay(Collider other)
+        #region Handlers
+        void Tick()
         {
-            if (!IsDodging())
+            if (ShouldBackstep())
             {
+                animator.Play(hashBackStep);
                 return;
             }
 
-            if (other.gameObject.CompareTag("Wood"))
-            {
-                var destroyable = other.GetComponent<Destroyable>();
-                if (destroyable != null)
-                {
-                    destroyable.DestroyObject(other.ClosestPointOnBounds(destroyable.transform.position));
-                }
-            }
-        }
-
-        private bool CanDodge()
-        {
-            if (playerShootingManager.IsShooting())
-            {
-                return false;
-            }
-
-            if (startupDelay < maxStartupDelay)
-            {
-                return false;
-            }
-
-            if (climbController.climbState != ClimbController.ClimbState.NONE)
-            {
-                return false;
-            }
-
-            if (playerCombatController.isCombatting)
-            {
-                return false;
-            }
-
-            if (!thirdPersonController.Grounded)
-            {
-                return false;
-            }
-
-            if (!thirdPersonController.canMove)
-            {
-                return false;
-            }
-
-            if (!staminaStatManager.HasEnoughStaminaForAction(dodgeCost))
-            {
-                //BGMManager.instance.PlayInsufficientStamina();
-                return false;
-            }
-
-
-
-            return true;
-        }
-
-        public bool IsDodging()
-        {
-            return animator.GetBool(hashIsDodging);
-        }
-
-        public bool IsRollAttacking()
-        {
-            return animator.GetBool("IsRollAttacking");
-        }
-
-        public bool CanRollAttack()
-        {
-            if (IsRollAttacking())
-            {
-                return false;
-            }
-
-            // Is Backstepping, give slight offset
-            if (_input.move == Vector2.zero && thirdPersonController.skateRotation == false && currentRequestForRollDuration > maxRequestForRollDuration - 0.1f)
-            {
-                return false;
-            }
-
-            if (currentRequestForRollDuration > maxRequestForRollDuration)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Animation Event
-        /// </summary>
-        public void StopIframes()
-        {
-            hasIframes = false;
+            HandleDodge();
         }
 
         void HandleDodge()
         {
-            if (_input.move == Vector2.zero && thirdPersonController.skateRotation == false)
-            {
-                animator.CrossFade(hashBackStep, 0.05f);
-                return;
-            }
-
             hasIframes = true;
 
             if (thirdPersonController.skateRotation)
             {
                 animator.Play(hashCrouchRoll);
+                return;
             }
-            else
-            {
-                animator.CrossFade(hashRoll, 0.05f);
 
-                if (equipmentGraphicsHandler.IsHeavyWeight())
-                {
-                    StartCoroutine(StopHeavyRollRootmotion());
-                }
-                else if (equipmentGraphicsHandler.IsMidWeight())
-                {
-                    StartCoroutine(StopMidRollRootmotion());
-                }
+            animator.Play(hashRoll);
+
+            if (equipmentGraphicsHandler.IsHeavyWeight())
+            {
+                StartCoroutine(StopHeavyRollRootmotion());
+            }
+            else if (equipmentGraphicsHandler.IsMidWeight())
+            {
+                StartCoroutine(StopMidRollRootmotion());
             }
         }
 
@@ -221,8 +93,101 @@ namespace AF
             yield return new WaitForSeconds(0.3f);
             animator.applyRootMotion = false;
         }
+        #endregion
+
+        #region Booleans
+        public bool ShouldBackstep()
+        {
+            return starterAssetsInputs.move == Vector2.zero && thirdPersonController.skateRotation == false;
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            if (!IsDodging())
+            {
+                return;
+            }
+
+            if (other.CompareTag("Wood") && other.TryGetComponent<Destroyable>(out var destroyable))
+            {
+                destroyable.DestroyObject(other.ClosestPointOnBounds(destroyable.transform.position));
+            }
+        }
+
+        public bool CanRollAttack()
+        {
+            if (IsRollAttacking())
+            {
+                return false;
+            }
+
+            if (
+                starterAssetsInputs.move == Vector2.zero
+                && thirdPersonController.skateRotation == false
+                // Is Backstepping, give slight offset
+                && currentRequestForRollDuration > maxRequestForRollDuration - 0.1f)
+            {
+                return false;
+            }
+
+            if (currentRequestForRollDuration > maxRequestForRollDuration)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool CanDodge()
+        {
+            if (playerShootingManager.IsShooting())
+            {
+                return false;
+            }
+
+            if (climbController.climbState != ClimbController.ClimbState.NONE)
+            {
+                return false;
+            }
+
+            if (playerCombatController.isCombatting)
+            {
+                return false;
+            }
+
+            if (!thirdPersonController.Grounded || !thirdPersonController.canMove)
+            {
+                return false;
+            }
+
+            if (!staminaStatManager.HasEnoughStaminaForAction(dodgeCost))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool IsDodging()
+        {
+            return animator.GetBool(hashIsDodging);
+        }
+
+        public bool IsRollAttacking()
+        {
+            return animator.GetBool("IsRollAttacking");
+        }
+        #endregion
 
 
+        #region Animation Events
+        /// <summary>
+        /// Animation Event
+        /// </summary>
+        public void StopIframes()
+        {
+            hasIframes = false;
+        }
+        #endregion
     }
-
 }

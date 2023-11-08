@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using StarterAssets;
 
 namespace AF
 {
@@ -18,6 +17,16 @@ namespace AF
 
         CharacterController characterController => GetComponent<CharacterController>();
 
+        // Cache
+        int nothingLayer;
+        int enemyLayer;
+
+        private void Start()
+        {
+            nothingLayer = LayerMask.GetMask("Nothing");
+            enemyLayer = LayerMask.GetMask("Enemy");
+        }
+
         public bool PlayerMovementIsEnabled()
         {
             return thirdPersonController.enabled;
@@ -30,7 +39,7 @@ namespace AF
             playerCombatController.enabled = true;
             dodgeController.enabled = true;
             playerParryManager.enabled = true;
-        } 
+        }
 
         public void DisableComponents()
         {
@@ -94,10 +103,27 @@ namespace AF
 
             // Restore original fall damage tracking state
             thirdPersonController.trackFallDamage = originalTrackFallDamage;
- 
+
             thirdPersonController.fallDamageInitialized = true;
         }
 
+        public void EnableCollisionWithEnemies()
+        {
+            if (characterController.excludeLayers != nothingLayer)
+            {
+                characterController.excludeLayers = nothingLayer;
+            }
+        }
+
+        public void DisableCollisionWithEnemies()
+        {
+            characterController.excludeLayers = enemyLayer;
+        }
+
+        public void TeleportPlayer(Transform target)
+        {
+            UpdatePosition(target.position, target.rotation);
+        }
     }
 
 }

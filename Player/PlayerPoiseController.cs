@@ -1,5 +1,4 @@
-﻿using StarterAssets;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace AF
@@ -14,6 +13,7 @@ namespace AF
 
         [Header("Posture")]
         public int unarmedPoiseHits = 1;
+        public int poiseBonus = 0;
         int currentPoiseHitCount = 0;
         float timerBeforeReset;
         public float maxTimeBeforeReset = 15f;
@@ -103,7 +103,7 @@ namespace AF
             characterController.detectCollisions = false;
             characterController.slopeLimit = 0;
             characterController.stepOffset = 0;
-            characterController.enabled = false;
+            //characterController.enabled = false;
             if (damageParticlePrefab != null)
             {
                 Instantiate(damageParticlePrefab, transform.position, Quaternion.identity);
@@ -146,11 +146,13 @@ namespace AF
 
             playerComponentManager.EnableCharacterController();
             playerComponentManager.EnableComponents();
-            isStunned = false;
             characterController.detectCollisions = true;
 
             characterController.slopeLimit = characterSlopeLimit;
             characterController.stepOffset = characterStepOffset;
+
+            yield return new WaitForSeconds(0.25f);
+            isStunned = false;
         }
 
         public IEnumerator PlayHurtSfx()
@@ -162,7 +164,7 @@ namespace AF
 
         public int GetMaxPoise()
         {
-            return unarmedPoiseHits + equipmentGraphicsHandler.equipmentPoise;
+            return unarmedPoiseHits + equipmentGraphicsHandler.equipmentPoise + poiseBonus;
         }
 
         public bool IsTakingDamage()

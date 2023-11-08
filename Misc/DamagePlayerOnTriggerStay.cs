@@ -28,6 +28,9 @@ namespace AF
         public int statusEffectAmount = 0;
         public bool takeArmorInConsideration = false;
 
+        [Header("Player Options")]
+        public bool damageScalesWithIntelligence = false;
+
         DefenseStatManager defenseStatManager;
 
         [Header("Damage Enemies Instead?")]
@@ -117,6 +120,16 @@ namespace AF
 
                         if (copiedDamage > 0)
                         {
+
+                            if (damageScalesWithIntelligence)
+                            {
+                            Debug.Log("copeid damage " + copiedDamage);
+                            Debug.Log(" Player.instance.GetCurrentInteligence()" + Player.instance.GetCurrentInteligence());
+
+                            copiedDamage = Player.instance.CalculateSpellValue(copiedDamage, Player.instance.GetCurrentInteligence());
+                            }
+
+                        Debug.Log("copied damage: " + copiedDamage);
                             enemyHealthController.TakeEnvironmentalDamage(copiedDamage);
                         }
 

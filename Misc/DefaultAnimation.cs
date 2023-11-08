@@ -77,7 +77,7 @@ namespace AF
                 drinkGraphic.gameObject.SetActive(true);
             }
 
-            animator.CrossFade(drinkAnimation, 0.1f);
+            animator.Play(drinkAnimation);
 
             StartCoroutine(HideDrink());
         }
@@ -91,7 +91,7 @@ namespace AF
                 drinkGraphic.gameObject.SetActive(false);
             }
 
-            animator.CrossFade(animationName, 0.1f);
+            animator.Play(animationName);
         }
 
     }

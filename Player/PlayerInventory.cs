@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +37,12 @@ namespace AF
 
         ViewClockMenu viewClockMenu;
 
+        [SerializeField] private UIManager uIManager;
+        [SerializeField] private MenuManager menuManager;
+
+        [Header("Components")]
+        public PlayerAchievementsManager playerAchievementsManager;
+
         private void Awake()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
@@ -61,11 +66,41 @@ namespace AF
             favoriteItemsManager.UpdateFavoriteItems();
         }
 
+        void HandleItemAchievements(Item item)
+        {
+            if (item is Weapon)
+            {
+                int numberOfWeapons = Player.instance.ownedItems.Count(x => x.item is Weapon);
+
+                if (numberOfWeapons <= 0)
+                {
+                    playerAchievementsManager.achievementOnAcquiringFirstWeapon.AwardAchievement();
+                }
+                else if (numberOfWeapons == 10)
+                {
+                    playerAchievementsManager.achievementOnAcquiringTenWeapons.AwardAchievement();
+                }
+            }
+            else if (item is Spell)
+            {
+                int numberOfSpells = Player.instance.ownedItems.Count(x => x.item is Spell);
+
+                if (numberOfSpells <= 0)
+                {
+                    playerAchievementsManager.achievementOnAcquiringFirstSpell.AwardAchievement();
+                }
+            }
+        }
+
         public void AddItem(Item item, int quantity)
         {
-            Player.ItemEntry itemEntry = new Player.ItemEntry();
-            itemEntry.item = item;
-            itemEntry.amount = quantity;
+            HandleItemAchievements(item);
+
+            Player.ItemEntry itemEntry = new()
+            {
+                item = item,
+                amount = quantity
+            };
 
             var idx = Player.instance.ownedItems.FindIndex(x => x.item.name.GetEnglishText() == item.name.GetEnglishText());
             if (idx != -1)
@@ -347,6 +382,11 @@ namespace AF
                 return;
             }
 
+            if (playerComponentManager.isInBonfire)
+            {
+                return;
+            }
+
             if (Player.instance.currentHealth <= 0)
             {
                 return;
@@ -354,6 +394,11 @@ namespace AF
 
 
             this.currentConsumedItem = consumable;
+
+            if (consumable.isAlcoholic)
+            {
+                playerAchievementsManager.achievementForDrinkingFirstAlcoholicBeverage.AwardAchievement();
+            }
 
             if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.DRINK)
             {
@@ -365,6 +410,19 @@ namespace AF
             }
             else if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.CLOCK)
             {
+
+                if (menuManager.IsMenuOpen())
+                {
+                    menuManager.CloseMenu();
+                }
+
+                if (uIManager.CanShowGUI() == false)
+                {
+                    uIManager.ShowCanNotAccessGUIAtThisTime();
+                    return;
+                }
+
+
                 // Find Clock
                 viewClockMenu.gameObject.SetActive(true);
                 return;

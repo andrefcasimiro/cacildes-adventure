@@ -20,6 +20,8 @@ namespace AF
 
         ParticlePoolManager particlePoolManager;
 
+        PlayerAchievementsManager playerAchievementsManager;
+
         private void Awake()
         {
             particlePoolManager = FindAnyObjectByType<ParticlePoolManager>(FindObjectsInactive.Include);
@@ -27,6 +29,11 @@ namespace AF
 
         private void Start()
         {
+            if (enemyManager.player != null)
+            {
+                playerAchievementsManager = enemyManager.player.GetComponent<PlayerAchievementsManager>();
+            }
+
             InitializePostureHUD();
         }
 
@@ -104,6 +111,10 @@ namespace AF
         {
 
             var particle = particlePoolManager.stunnedFxPool.Pool.Get();
+            if (particle == null)
+            {
+                yield break;
+            }
 
             particle.transform.position = this.transform.position;
             particle.transform.rotation = Quaternion.identity;
@@ -124,6 +135,11 @@ namespace AF
 
         void BreakPosture()
         {
+            if (playerAchievementsManager != null)
+            {
+                playerAchievementsManager.achievementForBreakingEnemyStance.AwardAchievement();
+            }
+
             currentPostureDamage = 0f;
 
             Soundbank.instance.PlayEnemyGuardBreak();

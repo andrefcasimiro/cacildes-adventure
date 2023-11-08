@@ -35,7 +35,7 @@ namespace AF
 
         [Header("UI Components")]
         public UnityEngine.UI.Slider healthBarSlider;
-        
+
         [Header("On Killing Events")]
         public UnityEvent onEnemyDeath;
         public UnityEvent onEnemyDeathAfter1Second;
@@ -176,15 +176,15 @@ namespace AF
 
             if (Player.instance.companions.Count == 1)
             {
-                baseHealth = (int)(baseHealth * 1.05f);
+                baseHealth = (int)(baseHealth * 1.025f);
             }
             else if (Player.instance.companions.Count == 2)
             {
-                baseHealth = (int)(baseHealth * 1.25f);
+                baseHealth = (int)(baseHealth * 1.1f);
             }
             else if (Player.instance.companions.Count > 2)
             {
-                baseHealth = (int)(baseHealth * 1.5f);
+                baseHealth = (int)(baseHealth * 1.2f);
             }
 
             if (enemyManager.healthReducingFactor > 1)
@@ -336,7 +336,7 @@ namespace AF
                 return;
             }
 
-            enemyManager.PushEnemy(weapon != null ? (int)weapon.pushForce : 1f, ForceMode.Impulse);;
+            enemyManager.PushEnemy(weapon != null ? (int)weapon.pushForce : 1f, ForceMode.Impulse); ;
 
 
             if (enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.CanBlock())
@@ -410,6 +410,27 @@ namespace AF
                 appliedDamage *= playerParryManager.counterAttackMultiplier; // More attack power from counter attack
             }
 
+            if (weapon != null)
+            {
+
+                if (weaponTypeBonusTable.Length > 0 && weapon != null)
+                {
+                    var weaponTypeBonus = weaponTypeBonusTable.FirstOrDefault(entry => entry.weaponAttackType == weapon.weaponAttackType);
+                    if (weaponTypeBonus != null && weaponTypeBonus.damageBonusMultiplier > 0)
+                    {
+                        appliedDamage = appliedDamage * weaponTypeBonus.damageBonusMultiplier;
+                    }
+                }
+                if (negativeWeaponTypeBonusTable.Length > 0 && weapon != null)
+                {
+                    var weaponTypeBonus = negativeWeaponTypeBonusTable.FirstOrDefault(entry => entry.weaponAttackType == weapon.weaponAttackType);
+                    if (weaponTypeBonus != null && weaponTypeBonus.negativeDamageBonusMultiplier > 0)
+                    {
+                        appliedDamage = appliedDamage * weaponTypeBonus.negativeDamageBonusMultiplier;
+                    }
+                }
+            }
+
             // Raw damage to display without elemental and status bonuses
             var displayedDamage = Mathf.RoundToInt(appliedDamage);
 
@@ -462,22 +483,6 @@ namespace AF
                     }
                 }
 
-                if (weaponTypeBonusTable.Length > 0 && weapon != null)
-                {
-                    var weaponTypeBonus = weaponTypeBonusTable.FirstOrDefault(entry => entry.weaponAttackType == weapon.weaponAttackType);
-                    if (weaponTypeBonus != null)
-                    {
-                        appliedDamage = (int)(appliedDamage * weaponTypeBonus.damageBonusMultiplier);
-                    }
-                }
-                if (negativeWeaponTypeBonusTable.Length > 0 && weapon != null)
-                {
-                    var weaponTypeBonus = negativeWeaponTypeBonusTable.FirstOrDefault(entry => entry.weaponAttackType == weapon.weaponAttackType);
-                    if (weaponTypeBonus != null)
-                    {
-                        appliedDamage = (int)(appliedDamage * weaponTypeBonus.negativeDamageBonusMultiplier);
-                    }
-                }
 
             }
 
@@ -529,14 +534,14 @@ namespace AF
                 int finalWeaponPostureDamage = Mathf.RoundToInt(scaleFactor * 12f);
 
                 var hasBrokePosture = enemyManager.enemyPostureController.TakePostureDamage(finalWeaponPostureDamage);
-            
+
                 if (hasBrokePosture)
                 {
                     return;
                 }
             }
 
-            enemyManager.enemyPoiseController.IncreasePoiseDamage(weapon != null ? (weapon.poiseDamageBonus * (isHeavyAttacking ? 2 : 1 )) : 1);
+            enemyManager.enemyPoiseController.IncreasePoiseDamage(weapon != null ? (weapon.poiseDamageBonus * (isHeavyAttacking ? 2 : 1)) : 1);
         }
 
         IEnumerator ReenableHealthHitboxes()
@@ -623,7 +628,7 @@ namespace AF
 
         public void Die()
         {
-            enemyManager.characterController.detectCollisions = false;
+            enemyManager.characterController.excludeLayers = LayerMask.GetMask("TempCast");
             enemyManager.agent.enabled = false;
 
             Player.instance.lastEnemyKilled = enemyManager.enemy;
@@ -659,7 +664,7 @@ namespace AF
             yield return PlayDeathSfx();
 
             yield return new WaitForSeconds(0.4f);
-    
+
             yield return DisengageLockOn();
 
             if (mustBeKilledWithHolyWeapon)
@@ -674,6 +679,7 @@ namespace AF
                 }
             }
 
+            BGMManager.instance.PlayMapMusicAfterKillingEnemy(enemyManager);
 
             if (enemyBossController != null && enemyBossController.AllBossesAreDead())
             {
@@ -757,8 +763,6 @@ namespace AF
 
             enemyManager.enemyPostureController.postureBarSlider.gameObject.SetActive(false);
             enemyManager.enemyPostureController.stunnedParticle.SetActive(false);
-
-            BGMManager.instance.PlayMapMusicAfterKillingEnemy(enemyManager);
 
 
             if (enemyPushableOnDeath != null)

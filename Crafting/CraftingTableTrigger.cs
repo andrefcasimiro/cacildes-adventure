@@ -1,5 +1,4 @@
 using UnityEngine;
-using StarterAssets;
 
 namespace AF
 {
@@ -15,31 +14,31 @@ namespace AF
         private void Awake()
         {
 
-             inputs = FindObjectOfType<StarterAssetsInputs>(true);
-             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
-             alchemyCraftScreen = FindObjectOfType<UIDocumentAlchemyCraftScreen>(true);
-             blacksmithScreen = FindObjectOfType<UIDocumentBlacksmithScreen>(true);
+            inputs = FindObjectOfType<StarterAssetsInputs>(true);
+            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+            alchemyCraftScreen = FindObjectOfType<UIDocumentAlchemyCraftScreen>(true);
+            blacksmithScreen = FindObjectOfType<UIDocumentBlacksmithScreen>(true);
 
         }
 
         public void OnCaptured()
         {
-            uIDocumentKeyPrompt.key = "E";
-
+            string key = "E";
+            string action = "";
             if (craftActivity == UIDocumentAlchemyCraftScreen.CraftActivity.ALCHEMY)
             {
-                uIDocumentKeyPrompt.action = LocalizedTerms.UseAlchemyTable();
+                action = LocalizedTerms.UseAlchemyTable();
             }
             else if (craftActivity == UIDocumentAlchemyCraftScreen.CraftActivity.COOKING)
             {
-                uIDocumentKeyPrompt.action = LocalizedTerms.Cook();
+                action = LocalizedTerms.Cook();
             }
             else if (craftActivity == UIDocumentAlchemyCraftScreen.CraftActivity.BLACKSMITH)
             {
-                uIDocumentKeyPrompt.action = LocalizedTerms.UseBlacksmithAnvil();
+                action = LocalizedTerms.UseBlacksmithAnvil();
             }
 
-            uIDocumentKeyPrompt.gameObject.SetActive(true);
+            uIDocumentKeyPrompt.DisplayPrompt(key, action);
         }
 
         public void OnInvoked()
@@ -57,6 +56,11 @@ namespace AF
 
             alchemyCraftScreen.craftActivity = craftActivity;
             alchemyCraftScreen.gameObject.SetActive(true);
+        }
+
+        public void OnReleased()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

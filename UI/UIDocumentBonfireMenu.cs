@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -35,6 +34,8 @@ namespace AF
         public Item blacksmithKit;
         public Item alchemyKit;
 
+
+
         private void Awake()
         {
             cursorManager = FindAnyObjectByType<CursorManager>(FindObjectsInactive.Include);
@@ -49,6 +50,7 @@ namespace AF
         {
             originalDaySpeed = Player.instance.daySpeed;
             gameObject.SetActive(false);
+
         }
 
         // THIS RUNS ONCE ON START. Maybe move gameObjectSetActive to Awake
@@ -86,12 +88,12 @@ namespace AF
             passTimeButton.text = passTimeText.GetText();
             travelButton.text = travelText.GetText();
             upgradeWeapons.text = GamePreferences.instance.IsEnglish() ? "Upgrade Weapons" : "Melhorar Armas";
-            brewPotions.text = GamePreferences.instance.IsEnglish() ? "Brew Potions" : "Criar Poções";
+            brewPotions.text = GamePreferences.instance.IsEnglish() ? "Brew Potions" : "Criar PoÃ§Ãµes";
             travelButton.text = travelText.GetText();
             exitBonfireButton.text = exitBonfireText.GetText();
 
 
-            root.Q<Label>("CurrentGoldAndRequiredLabel").text = GamePreferences.instance.IsEnglish() ? "Your gold / Amount for next level" : "Moedas / Necessárias para próx. nível";
+            root.Q<Label>("CurrentGoldAndRequiredLabel").text = GamePreferences.instance.IsEnglish() ? "Your gold / Amount for next level" : "Moedas / NecessÃ¡rias para prÃ³x. nÃ­vel";
             root.Q<Label>("GoldAndRequiredFornextLevel").text = Player.instance.currentGold + " / " + playerLevelManager.GetRequiredExperienceForNextLevel();
 
             levelUpButton.RegisterCallback<ClickEvent>(ev =>
@@ -136,16 +138,36 @@ namespace AF
 
             exitBonfireButton.RegisterCallback<ClickEvent>(ev =>
             {
-                Player.instance.daySpeed = originalDaySpeed;
-
-                bonfire.ExitBonfire();
-                cursorManager.HideCursor();
-
-                thirdPersonController.LockCameraPosition = false;
+                ExitBonfire();
             });
             #endregion
 
             cursorManager.ShowCursor();
+        }
+
+        void ExitBonfire()
+        {
+
+            Player.instance.daySpeed = originalDaySpeed;
+
+            bonfire.ExitBonfire();
+            StartCoroutine(DisableCursor());
+
+            thirdPersonController.LockCameraPosition = false;
+        }
+
+        private void Update()
+        {
+            if (UnityEngine.Cursor.visible == false)
+            {
+                cursorManager.ShowCursor();
+            }
+        }
+
+        IEnumerator DisableCursor()
+        {
+            yield return new WaitForSeconds(1f);
+            cursorManager.HideCursor();
         }
 
         IEnumerator MoveTime()

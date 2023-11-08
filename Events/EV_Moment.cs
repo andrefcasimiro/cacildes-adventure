@@ -66,10 +66,18 @@ namespace AF
         // Components
         DialogueManager dialogueManager;
 
+        Vector3 originalDesiredCameraPosition;
+        Quaternion originalDesiredCameraRotatin;
 
         private void Awake()
         {
             dialogueManager = FindObjectOfType<DialogueManager>(true);
+
+            if (desiredCamera != null)
+            {
+                this.originalDesiredCameraPosition = desiredCamera.transform.position;
+                this.originalDesiredCameraRotatin = desiredCamera.transform.rotation;
+            }
         }
 
         public override IEnumerator Dispatch()
@@ -151,6 +159,11 @@ namespace AF
                 {
                     currentCam.Priority = 1;
                 }
+
+
+                desiredCamera.transform.position = originalDesiredCameraPosition;
+                desiredCamera.transform.rotation = originalDesiredCameraRotatin;
+
                 desiredCamera.Priority = 999;
             }
             else if (usePlayerCameraBefore)
@@ -167,7 +180,7 @@ namespace AF
             // Animator Logic
             if (animator != null && !string.IsNullOrEmpty(animationClip))
             {
-                animator.CrossFade(animationClip, 0.2f);
+                animator.Play(animationClip);
             }
 
             // Event logic
@@ -183,7 +196,7 @@ namespace AF
             }
 
 
-            yield return dialogueManager.ShowDialogueWithChoices(character, message, choices, 0.05f, false);
+            yield return dialogueManager.ShowDialogueWithChoices(character, message, choices, 0.05f, false, null, null);
 
             yield return EndMoment();
         }
@@ -194,7 +207,7 @@ namespace AF
 
             if (!string.IsNullOrEmpty(animationClip))
             {
-                animator.CrossFade("NoGesture", 0.2f);
+                animator.Play("NoGesture");
             }
 
 

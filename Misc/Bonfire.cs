@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections;
 using UnityEngine;
 
@@ -19,6 +18,8 @@ namespace AF
         PlayerComponentManager playerComponentManager;
         PlayerInventory playerInventory;
 
+        private Animator playerAnimator;
+        
         public bool canBeTravelledTo = true;
 
         CursorManager cursorManager;
@@ -32,12 +33,14 @@ namespace AF
         private void Start()
         {
             playerInventory = FindObjectOfType<PlayerInventory>(true);
-            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
-            thirdPersonController = FindAnyObjectByType<ThirdPersonController>(FindObjectsInactive.Include);
+            playerComponentManager = playerInventory.GetComponent<PlayerComponentManager>();
+            thirdPersonController = playerComponentManager.GetComponent<ThirdPersonController>();
+            playerAnimator = playerComponentManager.GetComponent<Animator>();
         }
 
         public void ActivateBonfire()
         {
+            playerAnimator.Play("Idle Walk Run Blend");
             playerInventory.ReplenishItems();
 
             // Cure playerManager

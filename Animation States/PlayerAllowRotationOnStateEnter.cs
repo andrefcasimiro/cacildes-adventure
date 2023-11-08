@@ -4,13 +4,13 @@ namespace AF
 {
     public class PlayerAllowRotationOnStateEnter : StateMachineBehaviour
     {
-        StarterAssets.ThirdPersonController thirdPersonController;
+        ThirdPersonController thirdPersonController;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
             if (thirdPersonController == null)
             {
-                thirdPersonController = animator.GetComponent<StarterAssets.ThirdPersonController>();
+                thirdPersonController = animator.GetComponent<ThirdPersonController>();
             }
 
             thirdPersonController.canRotateCharacter = true;

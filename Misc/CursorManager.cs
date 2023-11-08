@@ -1,16 +1,14 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace AF
 {
     public class CursorManager : MonoBehaviour
     {
-        GamepadCursor gamepadCursor;
-
         private void Awake()
         {
-            gamepadCursor = FindObjectOfType<GamepadCursor>(true);
+            // Hide Cursor By Default On Every Scene
+            HideCursor();
         }
 
         public void ShowCursor()
@@ -18,8 +16,6 @@ namespace AF
             if (Gamepad.current != null)
             {
                 Cursor.visible = false;
-
-                gamepadCursor.gameObject.SetActive(true);
             }
             else
             {
@@ -31,14 +27,8 @@ namespace AF
 
         public void HideCursor()
         {
-            if (Gamepad.current != null)
-            {
-                gamepadCursor.gameObject.SetActive(false);
-            }
-
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
-
     }
 }

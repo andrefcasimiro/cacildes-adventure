@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace AF
 {
-    [CreateAssetMenu(menuName = "Data / New Quest")]
 
     public class Quest : ScriptableObject
     {
@@ -13,7 +12,8 @@ namespace AF
     }
 
     [System.Serializable]
-    public class QuestEntry {
+    public class QuestEntry
+    {
         public LocalizedText objective;
         public SwitchEntry[] isCompleted;
         public Texture2D icon;

@@ -91,7 +91,10 @@ namespace AF
         {
             player = FindAnyObjectByType<PlayerCombatController>(FindObjectsInactive.Include).gameObject;
 
-            transform.position = player.transform.position;
+            if (inParty && waitingForPlayer == false)
+            {
+                transform.position = player.transform.position;
+            }
 
 
             defaultStoppingDistance = agent.stoppingDistance;
@@ -108,11 +111,14 @@ namespace AF
 
         private void Update()
         {
-            UpdateAttackCooldown();
+            if (inParty && waitingForPlayer == false)
+            {
+                UpdateAttackCooldown();
 
-            UpdateInjuredCooldown();
+                UpdateInjuredCooldown();
 
-            CheckIfPlayerIsUnreachable();
+                CheckIfPlayerIsUnreachable();
+            }
         }
 
         #region Combat
@@ -327,6 +333,11 @@ namespace AF
         public void RespawnNearPlayer()
         {
             currentEnemy = null;
+
+            if (player == null)
+            {
+                player = FindAnyObjectByType<PlayerCombatController>(FindObjectsInactive.Include).gameObject;
+            }
 
             Transform targetTransform = player.transform;
 

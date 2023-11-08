@@ -65,11 +65,14 @@ namespace AF
 
             goldToReceive += bonusGold;
 
+
+            GetLoot();
+
+            yield return new WaitForSeconds(0.2f);
+
             uIDocumentPlayerGold.PlayCoinsFX(transform);
             uIDocumentPlayerGold.NotifyGold(goldToReceive);
             Player.instance.currentGold += (int)goldToReceive;
-
-            GetLoot();
         }
 
         private void GetLoot()

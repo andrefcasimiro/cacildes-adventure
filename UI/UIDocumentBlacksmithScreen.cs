@@ -27,7 +27,7 @@ namespace AF
         [HideInInspector] public VisualElement root;
 
         NotificationManager notificationManager;
-        MenuManager menuManager;
+        public UIManager uiManager;
         PlayerInventory playerInventory;
         CursorManager cursorManager;
 
@@ -35,9 +35,8 @@ namespace AF
 
         private void Awake()
         {
-             notificationManager = FindObjectOfType<NotificationManager>(true);
-             menuManager = FindObjectOfType<MenuManager>(true);
-             playerInventory = FindObjectOfType<PlayerInventory>(true);
+            notificationManager = FindObjectOfType<NotificationManager>(true);
+            playerInventory = FindObjectOfType<PlayerInventory>(true);
             cursorManager = FindObjectOfType<CursorManager>(true);
 
             this.gameObject.SetActive(false);
@@ -96,7 +95,7 @@ namespace AF
             root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
 
             var buttonExit = root.Q<Button>("ButtonExit");
-            menuManager.SetupButton(buttonExit, () =>
+            uiManager.SetupButton(buttonExit, () =>
             {
                 Close();
             });
@@ -184,7 +183,7 @@ namespace AF
                     craftBtn.style.opacity = 0.25f;
                 }
 
-                menuManager.SetupButton(craftBtn, () =>
+                uiManager.SetupButton(craftBtn, () =>
                 {
                     if (!CanImproveWeapon(wp))
                     {
@@ -192,6 +191,10 @@ namespace AF
                         notificationManager.ShowNotification(missingIngredientsMessage.GetText(), notificationManager.alchemyLackOfIngredients);
                         return;
                     }
+
+                    playerInventory.playerAchievementsManager.achievementForUpgradingFirstWeapon.AwardAchievement();
+
+                    SteamAPI.instance.SetAchievementProgress(SteamAPI.AchievementName.WEAPONSMITH, 1);
 
                     Soundbank.instance.PlayCraftSuccess();
 

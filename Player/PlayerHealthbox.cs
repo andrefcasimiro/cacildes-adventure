@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Services.Analytics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -48,9 +47,15 @@ namespace AF
 
         bool hasSurvivedDeath = false;
 
+        [Header("Consumable Effects")]
+        public bool isImmuneToFireDamage = false;
+
+        [Header("Components")]
+        public PlayerAchievementsManager playerAchievementsManager;
+
         private void Awake()
         {
-             sceneSettings = FindObjectOfType<SceneSettings>(true);
+            sceneSettings = FindObjectOfType<SceneSettings>(true);
         }
 
         public void Event_TakeDamage(float damage)
@@ -126,12 +131,20 @@ namespace AF
                 return;
             }
 
+            Player.instance.playerWasHit = true;
 
             if (weaponElementType == WeaponElementType.Fire && elementalDamage > 0)
             {
-                combatNotificationsController.ShowFireDamage(Mathf.RoundToInt(elementalDamage));
+                if (isImmuneToFireDamage)
+                {
+                    elementalDamage = 0;
+                }
+                else
+                {
+                    combatNotificationsController.ShowFireDamage(Mathf.RoundToInt(elementalDamage));
 
-                PlayFireFX();
+                    PlayFireFX();
+                }
             }
             if (weaponElementType == WeaponElementType.Frost && elementalDamage > 0)
             {
@@ -172,13 +185,6 @@ namespace AF
 
             if (Player.instance.currentHealth <= 0)
             {
-                // Track player death
-                /*AnalyticsService.Instance.CustomData("player_killed_by_environment",
-                new Dictionary<string, object>()
-                {
-                                            { "killed_at", SceneManager.GetActiveScene().name },
-                });*/
-
                 Die();
             }
             else if (poiseDamage > 0)
@@ -281,18 +287,23 @@ namespace AF
                 }
             }
 
-
             if (damage > 0)
             {
                 combatNotificationsController.ShowDamage(Mathf.RoundToInt(damage));
             }
 
-
             if (weaponElementType == WeaponElementType.Fire && elementalDamage > 0)
             {
-                combatNotificationsController.ShowFireDamage(Mathf.RoundToInt(elementalDamage));
+                if (isImmuneToFireDamage)
+                {
+                    elementalDamage = 0;
+                }
+                else
+                {
+                    combatNotificationsController.ShowFireDamage(Mathf.RoundToInt(elementalDamage));
 
-                PlayFireFX();
+                    PlayFireFX();
+                }
             }
             if (weaponElementType == WeaponElementType.Frost && elementalDamage > 0)
             {
@@ -313,11 +324,10 @@ namespace AF
                 PlayMagicFX();
             }
 
-            Debug.Log("Health before: " + Player.instance.currentHealth);
-            Debug.Log("Damage total: " + damage + elementalDamage);
-            healthStatManager.SubtractAmount(damage + elementalDamage);
 
-            Debug.Log("Health after: " + Player.instance.currentHealth);
+            Player.instance.playerWasHit = true;
+
+            healthStatManager.SubtractAmount(damage + elementalDamage);
 
             if (weaponDamageSfx != null)
             {
@@ -338,6 +348,7 @@ namespace AF
                 playerPoiseController.IncreasePoiseDamage(poiseDamage);
             }
         }
+
         public void Die()
         {
             if (hasSurvivedDeath == false && Player.instance.equippedAccessories.FirstOrDefault(x => x.chanceToSurviveDeath))
@@ -361,7 +372,16 @@ namespace AF
                 return;
             }
 
+            playerAchievementsManager.achievementForDyingFirstTime.AwardAchievement();
+
+            Player.instance.memorizePlayerDeath = true;
+
+            Player.instance.currentHealth = 0;
             animator.SetBool("IsDodging", false);
+
+
+            // Clear all negative statuses
+            playerStatusManager.RemoveAllStatus();
 
             StartCoroutine(PlayDeathSfx());
 
@@ -378,20 +398,20 @@ namespace AF
 
             if (sceneSettings.isColliseum)
             {
-                FindAnyObjectByType<RoundManager>(FindObjectsInactive.Include).onDeathEvent.Invoke();
+                FindAnyObjectByType<RoundManager>(FindObjectsInactive.Include).CallEndTournament();
             }
             else
             {
                 StartCoroutine(ShowGameOverScreen());
             }
         }
-        
+
         protected IEnumerator PlayDeathSfx()
         {
             yield return new WaitForSeconds(0.1f);
             BGMManager.instance.PlaySound(deathGruntSfx, playerCombatController.combatAudioSource);
         }
-        
+
         IEnumerator ShowGameOverScreen()
         {
             yield return new WaitForSeconds(2f);

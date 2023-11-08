@@ -223,12 +223,20 @@ namespace AF
 
         bool HeavyAttackDice()
         {
-            var attacks = enemy.enemyCombatController.meleeHeavyAttacks.Length > 0 ? enemy.enemyCombatController.meleeHeavyAttacks : meleeHeavyAttacks;
+            var attacks = (enemy.enemyCombatController.meleeHeavyAttacks.Length > 0 ? enemy.enemyCombatController.meleeHeavyAttacks : meleeHeavyAttacks).ToList();
             int attackDice = Random.Range(0, 100);
 
-            if (attackDice < enemy.enemyCombatController.lightAttackWeight && attacks.Length > 0)
+            if (enemy.enemyCombatController.meleeLightAttacksForSecondPhase.Length > 0 && enemy.enemyHealthController.IsBelow50Percent())
             {
-                int attackClip = Random.Range(0, attacks.Length);
+                foreach (string atk in enemy.enemyCombatController.meleeLightAttacksForSecondPhase)
+                {
+                    attacks.Add(atk);
+                }
+            }
+
+            if (attackDice < enemy.enemyCombatController.lightAttackWeight && attacks.Count > 0)
+            {
+                int attackClip = Random.Range(0, attacks.Count);
                 animator.Play(attacks[attackClip]);
                 return true;
             }

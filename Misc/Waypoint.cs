@@ -46,7 +46,7 @@ namespace AF
                 this.navMeshAgent.speed = navMeshAgentSpeed;
             }
 
-            animator.CrossFade(animationOnMoving, crossFadeTime);
+            animator.Play(animationOnMoving);
 
 
             navMeshAgent.SetDestination(this.transform.position);
@@ -88,7 +88,7 @@ namespace AF
                     yield return null;
                 }
 
-                animator.CrossFade(animationOnWaypointStay, crossFadeTime);
+                animator.Play(animationOnWaypointStay);
 
                 yield return new WaitForSeconds(crossFadeTime);
 

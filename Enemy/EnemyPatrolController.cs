@@ -32,7 +32,7 @@ namespace AF
 
         public void GotoNextPoint()
         {
-            if (waypoints.Count <= 0)
+            if (waypoints == null || waypoints.Count <= 0)
             {
                 return;
             }

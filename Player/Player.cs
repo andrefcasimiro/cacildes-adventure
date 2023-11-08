@@ -45,7 +45,7 @@ namespace AF
 
         public static Player instance;
 
-        [HideInInspector] public bool hasShownTitleScreen = false;
+        public bool isDemo = false;
 
         [Header("World")]
         [Range(0, 24)] public float timeOfDay;
@@ -98,12 +98,21 @@ namespace AF
         public List<string> unlockedBonfires = new();
         public bool unlockAllBonfires = false;
 
+        [Header("In Game Stats")]
+        public bool playerHasDied = false;
+        public bool playerWasHit = false;
+        public bool memorizePlayerDeath = false;
+        public bool memorizePlayerWasHit = false;
+
         public string currentObjective = "";
 
         public List<SerializedCompanion> companions = new List<SerializedCompanion>();
 
         // For companion comments
         public Enemy lastEnemyKilled;
+
+        // Scene References
+        EquipmentGraphicsHandler equipmentGraphicsHandler;
 
         private void Awake()
         {
@@ -197,7 +206,7 @@ namespace AF
         }
 
         // TODO: Remove on build
-       private void Update()
+        private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
@@ -234,6 +243,10 @@ namespace AF
 
         public void OnGameLoaded(GameData gameData)
         {
+            playerHasDied = playerHasDied || gameData.playerHasDied;
+
+            playerWasHit = memorizePlayerWasHit || gameData.playerWasHit;
+
             PlayerData playerData = gameData.playerData;
 
             // Bonfires
@@ -263,7 +276,7 @@ namespace AF
                 var spells = Resources.LoadAll<Spell>("Items/Spells");
                 var weapons = Resources.LoadAll<Weapon>("Items/Weapons");
                 var keyItems = Resources.LoadAll<Item>("Items/Key Items");
-                var upgradeMaterials = Resources.LoadAll<UpgradeMaterial>("Items/Upgrade Materials");
+                var upgradeMaterials = Resources.LoadAll<UpgradeMaterial>("Upgrade Materials");
 
                 foreach (var serializedItem in gameData.items)
                 {
@@ -475,6 +488,8 @@ namespace AF
 
             this.currentObjective = gameData.currentObjective;
 
+            GamePreferences.instance.UpdateGraphics();
+            GamePreferences.instance.UpdateAudio();
         }
 
         #region Accessories Logic
@@ -528,8 +543,6 @@ namespace AF
 
             this.currentReputation = 1;
 
-            this.hasShownTitleScreen = false;
-
             this.ownedItems.Clear();
             this.favoriteItems.Clear();
 
@@ -569,34 +582,32 @@ namespace AF
             FindObjectOfType<UIDocumentLoadingScreen>(true).gameObject.SetActive(true);
             FindObjectOfType<UIDocumentLoadingScreen>(true).UpdateLoadingBar(0f);
 
-            StartCoroutine(HandleLoadScene(sceneIndex, deactivateLoadingScreenWhenFinished));
+            StartCoroutine(HandleLoadScene(sceneIndex, deactivateLoadingScreenWhenFinished, null));
         }
 
-        public IEnumerator HandleLoadScene(int sceneIndex, bool deactivateLoadingScreenWhenFinished)
+        public IEnumerator HandleLoadScene(int sceneIndex, bool deactivateLoadingScreenWhenFinished, GameData gameData)
         {
-            FindObjectOfType<UIDocumentLoadingScreen>(true).gameObject.SetActive(true);
-            FindObjectOfType<UIDocumentLoadingScreen>(true).UpdateLoadingBar(0f);
+            var loadingScreen = FindAnyObjectByType<UIDocumentLoadingScreen>(FindObjectsInactive.Include);
 
+            loadingScreen.gameObject.SetActive(true);
+            loadingScreen.UpdateLoadingBar(0f);
 
-            // Load scene first
+            // Async load scene first
             var loadingSceneAsync = SceneManager.LoadSceneAsync(sceneIndex);
             loadingSceneAsync.allowSceneActivation = true;
 
-            UIDocumentLoadingScreen uIDocumentLoadingScreen = FindAnyObjectByType<UIDocumentLoadingScreen>(FindObjectsInactive.Include);
-            uIDocumentLoadingScreen.gameObject.SetActive(true);
-
-            while (loadingSceneAsync.progress < 0.9)
+            while (loadingSceneAsync.isDone == false)
             {
                 float progress = Mathf.Clamp01(loadingSceneAsync.progress / 0.9f) * 100;
 
                 // activate loading screen between scenes
-                if (uIDocumentLoadingScreen == null)
+                if (loadingScreen == null)
                 {
-                    uIDocumentLoadingScreen = FindAnyObjectByType<UIDocumentLoadingScreen>(FindObjectsInactive.Include);
-                    uIDocumentLoadingScreen.gameObject.SetActive(true);
+                    loadingScreen = FindAnyObjectByType<UIDocumentLoadingScreen>(FindObjectsInactive.Include);
+                    loadingScreen.gameObject.SetActive(true);
                 }
 
-                uIDocumentLoadingScreen.UpdateLoadingBar(progress);
+                loadingScreen.UpdateLoadingBar(progress);
 
                 yield return null;
             }
@@ -610,6 +621,11 @@ namespace AF
             }
 
             yield return null;
+
+            if (gameData != null)
+            {
+                SaveSystem.instance.FinishLoad(gameData);
+            }
         }
 
         public IEnumerator HideLoadingScreen()
@@ -627,15 +643,34 @@ namespace AF
         #region Reputation
         public int GetCurrentReputation()
         {
-            return Player.instance.currentReputation + FindObjectOfType<EquipmentGraphicsHandler>(true).reputationBonus;
+            CheckForEquipmentGraphicsHandlerReference();
+
+            return Player.instance.currentReputation + equipmentGraphicsHandler.reputationBonus;
         }
         #endregion
+
+        #region Spells
+        public int GetCurrentInteligence()
+        {
+            CheckForEquipmentGraphicsHandlerReference();
+
+            return Player.instance.intelligence + equipmentGraphicsHandler.intelligenceBonus;
+        }
+        #endregion
+
+        void CheckForEquipmentGraphicsHandlerReference()
+        {
+            if (equipmentGraphicsHandler == null)
+            {
+                equipmentGraphicsHandler = FindAnyObjectByType<EquipmentGraphicsHandler>(FindObjectsInactive.Include);
+            }
+        }
 
         #region AI Formulas
 
         public int CalculateAIHealth(int baseValue, int currentLevel)
         {
-            return baseValue + Mathf.RoundToInt(baseValue * Mathf.Pow(1.1f, currentLevel));
+            return baseValue + Mathf.RoundToInt((baseValue / 4) * Mathf.Pow(1.025f, currentLevel));
         }
 
         public int CalculateAIAttack(int baseValue, int currentLevel)
@@ -650,15 +685,21 @@ namespace AF
 
         public int CalculateAIGenericValue(int baseValue, int currentLevel)
         {
-            return baseValue + Mathf.RoundToInt(baseValue * Mathf.Pow(1.05f, currentLevel));
+            return baseValue + Mathf.RoundToInt((baseValue / 2) * Mathf.Pow(1.05f, currentLevel));
         }
 
-        public int CalculateSpellValue(int baseValue, int currentInteligence)
+        public int CalculateSpellValue(int baseValue, int currentIntelligence)
         {
-            return baseValue + (Mathf.RoundToInt((baseValue / 2) * Mathf.Pow(1.015f, currentInteligence)) / 4);
+            if (currentIntelligence <= 1)
+            {
+                currentIntelligence = 0;
+            }
+
+            return baseValue + Mathf.RoundToInt((baseValue / 4) * Mathf.Pow(1.04f, currentIntelligence));
+
         }
         #endregion
-    
+
         public int CalculateIncomingElementalAttack(int damageToReceive, WeaponElementType weaponElementType, DefenseStatManager defenseStatManager)
         {
             // Apply elemental defense reduction based on weaponElementType

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
+using System;
 
 namespace AF
 {
@@ -34,15 +35,30 @@ namespace AF
         {
             EventPage previousEventPage = null;
 
-            // Deactivate all event pages
-            foreach (EventPage evt in transform.GetComponentsInChildren<EventPage>(true))
+            try
             {
-                if (evt.gameObject.activeSelf)
-                {
-                    previousEventPage = evt;
-                }
 
-                evt.gameObject.SetActive(false);
+                if (transform != null && transform.childCount > 0) {
+                    // Deactivate all event pages
+                    foreach (EventPage evt in transform.GetComponentsInChildren<EventPage>(true))
+                    {
+                        if (evt.gameObject.activeSelf)
+                        {
+                            previousEventPage = evt;
+                        }
+
+                        evt.gameObject.SetActive(false);
+                    }
+
+                } else
+                {
+                    Debug.Log("Transform child count is zero for:" + this.gameObject.name);
+                }
+                
+            } catch (Exception e)
+            {
+                Debug.Log("Exception occurred in event: " + this.gameObject.name);
+                Debug.Log("Exception:" + e.Message);
             }
 
             // Find last event page where all switch conditions are met
@@ -87,10 +103,18 @@ namespace AF
                     {
                         Transform previousEventPageTargetGraphic = previousEventPage.GetComponentInChildren<Animator>().transform;
 
-                        Transform targetGraphic = target.GetComponentInChildren<Animator>().transform;
+                        Animator targetGraphic = target.GetComponentInChildren<Animator>();
 
-                        targetGraphic.transform.position = previousEventPageTargetGraphic.transform.position;
-                        targetGraphic.transform.rotation = previousEventPageTargetGraphic.transform.rotation;
+                        if (targetGraphic != null)
+                        {
+                            Transform targetGraphicTransform = targetGraphic.transform;
+
+                            if (targetGraphicTransform != null)
+                            {
+                                targetGraphic.transform.position = previousEventPageTargetGraphic.transform.position;
+                                targetGraphic.transform.rotation = previousEventPageTargetGraphic.transform.rotation;
+                            }
+                        }
                     }
 
                     moveRoute.animator = target.GetComponentInChildren<Animator>();
@@ -148,7 +172,7 @@ namespace AF
 
         public void OnGameLoaded(GameData gameData)
         {
-            OnHourChanged();
+            RefreshEventPages();
         }
     }
 

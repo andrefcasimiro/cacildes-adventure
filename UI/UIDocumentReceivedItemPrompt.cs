@@ -1,10 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using StarterAssets;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using System.Linq;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -31,6 +31,8 @@ namespace AF
         public VisualTreeAsset receivedItemPrefab;
 
         public List<ItemsReceived> itemsUI = new List<ItemsReceived>();
+
+        public UnityEvent onConfirmEvent;
 
         private void Awake()
         {
@@ -100,6 +102,15 @@ namespace AF
 
                 }
 
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (onConfirmEvent != null)
+            {
+                onConfirmEvent?.Invoke();
+                onConfirmEvent?.RemoveAllListeners();
             }
         }
 

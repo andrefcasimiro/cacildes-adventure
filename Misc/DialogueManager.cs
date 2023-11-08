@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.Video;
 
 namespace AF
 {
@@ -36,15 +37,15 @@ namespace AF
     public class DialogueManager : MonoBehaviour
     {
         UIDocumentDialogueWindow uIDocumentDialogueWindow;
-        StarterAssets.StarterAssetsInputs inputs;
+        StarterAssetsInputs inputs;
 
         private void Awake()
         {
             uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
-            inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
+            inputs = FindObjectOfType<StarterAssetsInputs>(true);
         }
 
-        public IEnumerator ShowDialogueWithChoices(Character character, LocalizedText message, List<DialogueChoice> dialogueChoices, float textDelay, bool showHint)
+        public IEnumerator ShowDialogueWithChoices(Character character, LocalizedText message, List<DialogueChoice> dialogueChoices, float textDelay, bool showHint, Texture2D image, VideoPlayer video)
         {
             uIDocumentDialogueWindow.gameObject.SetActive(false);
 
@@ -62,6 +63,24 @@ namespace AF
                 uIDocumentDialogueWindow.actorName = "";
                 uIDocumentDialogueWindow.actorTitle = "";
                 uIDocumentDialogueWindow.actorAvatar = null;
+            }
+
+            if (image != null)
+            {
+                uIDocumentDialogueWindow.image = image;
+            }
+            else
+            {
+                uIDocumentDialogueWindow.image = null;
+            }
+
+            if (video != null)
+            {
+                uIDocumentDialogueWindow.video = video;
+            }
+            else
+            {
+                uIDocumentDialogueWindow.video = null;
             }
 
             uIDocumentDialogueWindow.dialogueText = message.GetText();
@@ -123,7 +142,7 @@ namespace AF
                 () => inputs.interact == true
                 || Gamepad.current != null && (Gamepad.current.buttonWest.isPressed || Gamepad.current.buttonSouth.isPressed));
 
-            if (dialogueChoices.Count > 0)
+            if (dialogueChoices != null && dialogueChoices.Count > 0)
             {
                 yield return uIDocumentDialogueWindow.ShowChoices();
             }

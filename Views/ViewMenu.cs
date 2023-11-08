@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
+using DG.Tweening;
 
 namespace AF
 {
@@ -19,7 +20,16 @@ namespace AF
         Button exitButton;
 
         // Components
-        MenuManager menuManager;
+        protected MenuManager menuManager;
+        public CursorManager cursorManager;
+
+        private void OnApplicationFocus(bool focus)
+        {
+            if (focus && root != null)
+            {
+                root.Focus();
+            }
+        }
 
         protected virtual void OnEnable()
         {
@@ -49,24 +59,55 @@ namespace AF
 
         }
 
-        private void OnDisable()
+
+        private void Update()
         {
+            if (UnityEngine.Cursor.visible == false)
+            {
+                cursorManager.ShowCursor();
+            }
         }
-
-
+         
         void SetupRefs()
         {
             menuManager = menuManager != null ? menuManager : FindAnyObjectByType<MenuManager>(FindObjectsInactive.Include);
             root = GetComponent<UIDocument>().rootVisualElement;
+            root.Focus();
+
+
+            if (root != null && menuManager.hasPlayedFadeIn == false)
+            {
+                menuManager.hasPlayedFadeIn = true;
+
+                Soundbank.instance.PlayMainMenuOpen();
+
+                DOTween.To(
+                      () => root.contentContainer.style.opacity.value,
+                      (value) => root.contentContainer.style.opacity = value,
+                      1,
+                      .25f
+                );
+
+            }
+
 
             equipmentButton = root.Q<Button>(EQUIPMENT_BUTTON);
-            equipmentButton.clicked += () => { menuManager.SetMenuView(ActiveMenu.EQUIPMENT); };
+            equipmentButton.clicked += () => {
+                Soundbank.instance.PlayUIHover();
+                menuManager.SetMenuView(ActiveMenu.EQUIPMENT); 
+            };
 
             objectivesButton = root.Q<Button>(OBJECTIVES_BUTTON);
-            objectivesButton.clicked += () => { menuManager.SetMenuView(ActiveMenu.OBJECTIVES); };
+            objectivesButton.clicked += () => {
+                Soundbank.instance.PlayUIHover();
+                menuManager.SetMenuView(ActiveMenu.OBJECTIVES); 
+            };
 
             optionsButton = root.Q<Button>(OPTIONS_BUTTON);
-            optionsButton.clicked += () => { menuManager.SetMenuView(ActiveMenu.OPTIONS); };
+            optionsButton.clicked += () => {
+                Soundbank.instance.PlayUIHover();
+                menuManager.SetMenuView(ActiveMenu.OPTIONS); 
+            };
 
             exitButton = root.Q<Button>(EXIT_BUTTON);
 

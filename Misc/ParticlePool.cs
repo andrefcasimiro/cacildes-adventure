@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.Rendering.VirtualTexturing;
 
 namespace AF
 {
@@ -28,6 +29,11 @@ namespace AF
         {
             ParticleSystem particle = Instantiate(particlePrefab); // Instantiate a new ParticleSystem instance
 
+            if (particle == null)
+            {
+                return null;
+            }
+
             particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
             var main = particle.main;
@@ -42,12 +48,20 @@ namespace AF
         // Called when an item is returned to the pool using Release
         void OnReturnedToPool(ParticleSystem system)
         {
+            if (system == null)
+            {
+                return;
+            }
             system.gameObject.SetActive(false);
         }
 
         // Called when an item is taken from the pool using Get
         void OnTakeFromPool(ParticleSystem system)
         {
+            if (system == null)
+            {
+                return;
+            }
             system.gameObject.SetActive(true);
         }
 
@@ -55,6 +69,10 @@ namespace AF
         // We can control what the destroy behavior does, here we destroy the GameObject.
         void OnDestroyPoolObject(ParticleSystem system)
         {
+            if (system == null)
+            {
+                return;
+            }
             Destroy(system.gameObject);
         }
     }

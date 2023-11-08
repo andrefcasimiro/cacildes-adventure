@@ -166,6 +166,11 @@ namespace AF
                 sceneSettings = FindFirstObjectByType<SceneSettings>(FindObjectsInactive.Include);
             }
 
+            if (sceneSettings == null)
+            {
+                return;
+            }
+
             // Play map music
             sceneSettings.HandleSceneSound();
         }

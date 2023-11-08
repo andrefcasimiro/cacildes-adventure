@@ -43,7 +43,7 @@ namespace AF
         public Material nightSky;
 
         [Header("UI")]
-        UIDocumentPlayerHUDV2 uIDocumentPlayerHUDV2;
+        public UIDocumentPlayerHUDV2 uIDocumentPlayerHUDV2;
 
         public Sprite dawnSprite;
         public Sprite daySprite;
@@ -52,7 +52,7 @@ namespace AF
         [HideInInspector] public IMGUIContainer dayNightIcon;
         [HideInInspector] public Label dayNightText;
 
-        SceneSettings sceneSettings;
+        public SceneSettings sceneSettings;
 
         IEnumerable<IClockListener> iClockListenersInScene;
 
@@ -60,10 +60,7 @@ namespace AF
 
         private void Awake()
         {
-            sceneSettings = FindObjectOfType<SceneSettings>(true);
-
-            this.iClockListenersInScene = FindObjectsOfType<MonoBehaviour>(true).OfType<IClockListener>();
-            uIDocumentPlayerHUDV2 = FindObjectOfType<UIDocumentPlayerHUDV2>(true);
+            iClockListenersInScene = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None).OfType<IClockListener>();
         }
 
         private void Start()
@@ -76,6 +73,10 @@ namespace AF
             RenderSettings.fogDensity = fogDensity;
         }
 
+        public void SetHour(int hour)
+        {
+            SetTimeOfDay(hour, 0);
+        }
 
         public void SetTimeOfDay(int hours, int minutes)
         {
@@ -87,7 +88,7 @@ namespace AF
         {
             var oldHour = Mathf.Round(timeOfDay);
             timeOfDay = newValue;
-         
+
             if (Player.instance != null)
             {
                 Player.instance.timeOfDay = newValue;
@@ -102,7 +103,8 @@ namespace AF
             }
         }
 
-        public void NotifyClockListeners() {
+        public void NotifyClockListeners()
+        {
             foreach (IClockListener iClockListener in iClockListenersInScene)
             {
                 iClockListener.OnHourChanged();
@@ -121,30 +123,30 @@ namespace AF
                 }
             }
 
-                if (Application.isPlaying)
+            if (Application.isPlaying)
+            {
+
+                var newTimeOfDayValue = timeOfDay;
+
+                if (TimePassageAllowed() && tick)
                 {
-
-                    var newTimeOfDayValue = timeOfDay;
-
-                    if (TimePassageAllowed() && tick)
-                    {
-                        newTimeOfDayValue += ((Time.deltaTime * Player.instance.daySpeed));
-                    }
-
-                    var copy = newTimeOfDayValue;
-                    copy %= 25;
-
-                    newTimeOfDayValue %= 24; // Clamp between 0 - 24
-
-                    if (copy >= 24 && newTimeOfDayValue >= 0 && newTimeOfDayValue < 23)
-                    {
-                        Player.instance.daysPassed++;
-                    }
-
-
-                    _SetInternalTimeOfDay(newTimeOfDayValue);
-
+                    newTimeOfDayValue += ((Time.deltaTime * Player.instance.daySpeed));
                 }
+
+                var copy = newTimeOfDayValue;
+                copy %= 25;
+
+                newTimeOfDayValue %= 24; // Clamp between 0 - 24
+
+                if (copy >= 24 && newTimeOfDayValue >= 0 && newTimeOfDayValue < 23)
+                {
+                    Player.instance.daysPassed++;
+                }
+
+
+                _SetInternalTimeOfDay(newTimeOfDayValue);
+
+            }
 
 
             if (canUpdateLighting)
@@ -167,7 +169,7 @@ namespace AF
             {
                 return;
             }
-                
+
             var hour = (int)(timeOfDay);
             var minutes = Mathf.Abs(hour - timeOfDay) * 60;
             minutes = (int)System.Math.Round(minutes, 2);
@@ -260,15 +262,16 @@ namespace AF
 
         private void OnValidate()
         {
-           if (directionalLight != null)
+            if (directionalLight != null)
             {
                 return;
             }
 
-           if (RenderSettings.sun != null) {
+            if (RenderSettings.sun != null)
+            {
                 directionalLight = RenderSettings.sun;
             }
-           else
+            else
             {
                 Light[] lights = FindObjectsOfType<Light>();
                 foreach (Light light in lights)

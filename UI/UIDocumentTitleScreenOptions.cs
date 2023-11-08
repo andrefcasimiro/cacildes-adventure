@@ -6,7 +6,6 @@ namespace AF
     public class UIDocumentTitleScreenOptions : MonoBehaviour
     {
         VisualElement root => GetComponent<UIDocument>().rootVisualElement;
-        MenuManager menuManager;
         UIDocumentTitleScreen uIDocumentTitleScreen;
 
         [Header("Localization")]
@@ -14,10 +13,11 @@ namespace AF
 
         ViewComponent_GameSettings viewComponent_GameSettings => GetComponent<ViewComponent_GameSettings>();
 
+        [Header("Components")]
+        public UIManager uiManager;
 
         private void Awake()
         {
-            menuManager = FindAnyObjectByType<MenuManager>(FindObjectsInactive.Include);
             uIDocumentTitleScreen = FindAnyObjectByType<UIDocumentTitleScreen>(FindObjectsInactive.Include);
 
             gameObject.SetActive(false);
@@ -32,7 +32,7 @@ namespace AF
                 Close();
             });
 
-            menuManager.SetupButton(root.Q<Button>("CloseBtn"), () =>
+            uiManager.SetupButton(root.Q<Button>("CloseBtn"), () =>
             {
                 Close();
             });

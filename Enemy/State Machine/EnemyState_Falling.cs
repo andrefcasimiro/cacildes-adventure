@@ -20,11 +20,11 @@ namespace AF
             enemy.BeginFall();
         }
 
-        public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+        public override void OnStateUpdate(Animator enemy, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (enemy.enemyHealthController.currentHealth > 0)
+            if (this.enemy.enemyHealthController.currentHealth > 0)
             {
-                enemy.characterController.Move(animator.transform.forward * -1f * 2f * Time.deltaTime);
+                this.enemy.characterController.Move(-1f * 2f * Time.deltaTime * enemy.transform.forward);
             }
         }
 

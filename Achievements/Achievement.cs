@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using Steamworks;
 using UnityEngine;
 
 namespace AF
@@ -8,11 +8,23 @@ namespace AF
     public class Achievement : ScriptableObject
     {
 
-        public LocalizedText achievementName;
+        [TextArea] public string description;
 
-        public LocalizedText description;
+        public void AwardAchievement()
+        {
+            if (!SteamManager.Initialized)
+            {
+                return;
+            }
 
-        public Texture2D icon;
+            SteamUserStats.GetAchievement(name, out bool achievementCompleted);
+            if (achievementCompleted)
+            {
+                return;
+            }
 
+            SteamUserStats.SetAchievement(name);
+            SteamUserStats.StoreStats();
+        }
     }
 }

@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -46,7 +45,7 @@ namespace AF
             inputs = FindObjectOfType<StarterAssetsInputs>(true);
             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
             playerShootingManager = FindObjectOfType<PlayerShootingManager>(true);
-            
+
             ladderBottom = transform.position.y;
             ladderTop = transform.position.y + boxCollider.bounds.extents.y * 2;
 
@@ -77,7 +76,7 @@ namespace AF
                 return;
             }
 
-            if ( player.climbState != ClimbController.ClimbState.NONE)
+            if (player.climbState != ClimbController.ClimbState.NONE)
             {
                 return;
             }
@@ -87,9 +86,7 @@ namespace AF
                 return;
             }
 
-            uIDocumentKeyPrompt.key = "E";
-            uIDocumentKeyPrompt.action = LocalizedTerms.UseLadder();
-            uIDocumentKeyPrompt.gameObject.SetActive(true);
+            uIDocumentKeyPrompt.DisplayPrompt("E", LocalizedTerms.UseLadder());
         }
 
         public void OnInvoked()
@@ -187,6 +184,11 @@ namespace AF
             yield return new WaitForSeconds(2.5f);
 
             onEndClimb.Invoke();
+        }
+
+        public void OnReleased()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace AF
 {
     public class SaveInput : MonoBehaviour
     {
-        public StarterAssets.StarterAssetsInputs inputs;
+        public StarterAssetsInputs inputs;
 
         MenuManager menuManager;
 

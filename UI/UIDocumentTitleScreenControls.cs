@@ -10,13 +10,14 @@ namespace AF
 
         UIControlsLocalization uIControlsLocalization => GetComponent<UIControlsLocalization>();
 
-        MenuManager menuManager;
         UIDocumentTitleScreen uIDocumentTitleScreen;
+
+        [Header("Components")]
+        public UIManager uiManager;
 
         private void Awake()
         {
-             menuManager = FindObjectOfType<MenuManager>(true);
-             uIDocumentTitleScreen = FindObjectOfType<UIDocumentTitleScreen>(true);
+            uIDocumentTitleScreen = FindObjectOfType<UIDocumentTitleScreen>(true);
 
             gameObject.SetActive(false);
         }
@@ -39,7 +40,7 @@ namespace AF
         {
             var closeBtn = root.Q<Button>("CloseBtn");
 
-            menuManager.SetupButton(closeBtn, () =>
+            uiManager.SetupButton(closeBtn, () =>
             {
                 Close();
             });

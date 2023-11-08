@@ -23,6 +23,8 @@ namespace AF
 
         GenericTrigger genericTrigger;
 
+        public UnityEvent onFailEvent;
+
         private void Awake()
         {
             genericTrigger = GetComponentInChildren<GenericTrigger>(true);
@@ -57,6 +59,8 @@ namespace AF
             {
                 // Incorrect order
                 pillarPuzzleManager.ResetPuzzle();
+
+                onFailEvent?.Invoke();
 
                 StartCoroutine(ResetStateAfterFailure());
             }

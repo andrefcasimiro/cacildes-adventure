@@ -16,13 +16,12 @@ namespace AF
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
-                    return "Regeneração de vida";
+                    return "RegeneraÃ§Ã£o de vida";
                 }
 
                 return "Health regeneration over time";
             }
-
-            if (consumablePropertyName == Consumable.ConsumablePropertyName.JUMP_HEIGHT)
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.JUMP_HEIGHT)
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
@@ -31,8 +30,7 @@ namespace AF
 
                 return "Increased jump height";
             }
-
-            if (consumablePropertyName == Consumable.ConsumablePropertyName.PHYSICAL_ATTACK_BONUS)
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.PHYSICAL_ATTACK_BONUS)
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
@@ -41,28 +39,25 @@ namespace AF
 
                 return "Increased physical attack";
             }
-
-            if (consumablePropertyName == Consumable.ConsumablePropertyName.STAMINA_REGENERATION_RATE)
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.STAMINA_REGENERATION_RATE)
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
-                    return "Regeneração de stamina mais rápida";
+                    return "RegeneraÃ§Ã£o de stamina mais rÃ¡pida";
                 }
 
                 return "Faster stamina regeneration";
             }
-
-            if (consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.SLOWER_STAMINA_REGENERATION_RATE)
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
-                    return "Regeneração de stamina mais lenta";
+                    return "RegeneraÃ§Ã£o de stamina mais lenta";
                 }
 
                 return "Slower stamina regeneration";
             }
-
-            if (consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
@@ -71,8 +66,7 @@ namespace AF
 
                 return "Increased Stats";
             }
-
-            if (consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
@@ -81,35 +75,95 @@ namespace AF
 
                 return "Increased Dexterity";
             }
-
-            if (consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
-                    return "Aumento de Força";
+                    return "Aumento de ForÃ§a";
                 }
 
                 return "Increased Strength";
             }
-
-            if (consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
-                    return "Invencível";
+                    return "InvencÃ­vel";
                 }
 
                 return "Invencibility";
             }
-
-            if (consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
             {
                 if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
                 {
-                    return "Flatulência";
+                    return "FlatulÃªncia";
                 }
 
                 return "Flatulence";
+            }
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FIRE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Imune a fogo";
+                }
+
+                return "Immune to fire damage";
+            }
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FIRE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Imune a fogo";
+                }
+
+                return "Immune to fire damage";
+            }
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_POISON)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Imune a veneno";
+                }
+
+                return "Immune to poison";
+            }
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FROSTBITE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Imune a hipotermia";
+                }
+
+                return "Immune to frostbite";
+            }
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FEAR)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Imune a medo";
+                }
+
+                return "Immune to fear";
+            }
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.INCREASES_POISE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Mais Postura";
+                }
+
+                return "More Poise";
+            }
+            else if (consumablePropertyName == Consumable.ConsumablePropertyName.INTELLIGENCE_INCREASE)
+            {
+                if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
+                {
+                    return "Aumento de InteligÃªncia";
+                }
+
+                return "Increased Intelligence";
             }
 
             return "";
@@ -121,7 +175,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Esta pessoa está ocupada.",
+                GamePreferences.GameLanguage.PORTUGUESE => "Esta pessoa estÃ¡ ocupada.",
                 _ => "This person is busy.",
             };
         }
@@ -141,7 +195,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "juntou-se à equipa!",
+                GamePreferences.GameLanguage.PORTUGUESE => "juntou-se Ã  equipa!",
                 _ => "has joined the party!",
             };
         }
@@ -246,7 +300,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Voltar atrás",
+                GamePreferences.GameLanguage.PORTUGUESE => "Voltar atrÃ¡s",
                 _ => "Go Back",
             };
         }
@@ -363,7 +417,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Próximo",
+                GamePreferences.GameLanguage.PORTUGUESE => "PrÃ³ximo",
                 _ => "Next",
             };
         }
@@ -401,7 +455,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Inteligência",
+                GamePreferences.GameLanguage.PORTUGUESE => "InteligÃªncia",
                 _ => "Intelligence",
             };
         }
@@ -410,7 +464,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Resistência",
+                GamePreferences.GameLanguage.PORTUGUESE => "ResistÃªncia",
                 _ => "Endurance",
             };
         }
@@ -419,7 +473,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Força",
+                GamePreferences.GameLanguage.PORTUGUESE => "ForÃ§a",
                 _ => "Strength",
             };
         }
@@ -447,7 +501,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputação subiu +" + amount + " pontos! Reputação atual: " + Player.instance.GetCurrentReputation(),
+                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputaÃ§Ã£o subiu +" + amount + " pontos! ReputaÃ§Ã£o atual: " + Player.instance.GetCurrentReputation(),
                 _ => "Your reputation increased +" + amount + " points! Current reputation: " + Player.instance.GetCurrentReputation(),
             };
         }
@@ -456,7 +510,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputação desceu -" + amount + " pontos! Reputação atual: " + Player.instance.GetCurrentReputation(),
+                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputaÃ§Ã£o desceu -" + amount + " pontos! ReputaÃ§Ã£o atual: " + Player.instance.GetCurrentReputation(),
                 _ => "Your reputation decreased -" + amount + " points! Current reputation: " + Player.instance.GetCurrentReputation(),
             };
         }
@@ -465,7 +519,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Reputação insuficiente para entrar nesta casa",
+                GamePreferences.GameLanguage.PORTUGUESE => "ReputaÃ§Ã£o insuficiente para entrar nesta casa",
                 _ => "Insufficient reputation to enter this house",
             };
         }
@@ -474,7 +528,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Reputação",
+                GamePreferences.GameLanguage.PORTUGUESE => "ReputaÃ§Ã£o",
                 _ => "Reputation",
             };
         }
@@ -519,7 +573,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Defesa Mágica",
+                GamePreferences.GameLanguage.PORTUGUESE => "Defesa MÃ¡gica",
                 _ => "Magic Defense",
             };
         }
@@ -528,7 +582,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Defesa Física",
+                GamePreferences.GameLanguage.PORTUGUESE => "Defesa FÃ­sica",
                 _ => "Physical Defense",
             };
         }
@@ -564,7 +618,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Bónus Postura",
+                GamePreferences.GameLanguage.PORTUGUESE => "BÃ³nus Postura",
                 _ => "Poise Bonus",
             };
         }
@@ -573,7 +627,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Resistência",
+                GamePreferences.GameLanguage.PORTUGUESE => "ResistÃªncia",
                 _ => "Resistence",
             };
         }
@@ -582,7 +636,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Absorção de Dano",
+                GamePreferences.GameLanguage.PORTUGUESE => "AbsorÃ§Ã£o de Dano",
                 _ => "DEF Absorption",
             };
         }
@@ -627,7 +681,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Acessório",
+                GamePreferences.GameLanguage.PORTUGUESE => "AcessÃ³rio",
                 _ => "Accessory",
             };
         }
@@ -667,7 +721,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Absorção de ATQ do Inimigo",
+                GamePreferences.GameLanguage.PORTUGUESE => "AbsorÃ§Ã£o de ATQ do Inimigo",
                 _ => "Enemy ATK Absorption",
             };
         }
@@ -676,7 +730,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Absorção de ATQ",
+                GamePreferences.GameLanguage.PORTUGUESE => "AbsorÃ§Ã£o de ATQ",
                 _ => "ATK Absorption",
             };
         }
@@ -685,7 +739,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "destruído",
+                GamePreferences.GameLanguage.PORTUGUESE => "destruÃ­do",
                 _ => "destroyed",
             };
         }
@@ -694,7 +748,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "foi destruído ao desequipar",
+                GamePreferences.GameLanguage.PORTUGUESE => "foi destruÃ­do ao desequipar",
                 _ => "was destroyed by unequiping it",
             };
         }
@@ -721,7 +775,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Bónus",
+                GamePreferences.GameLanguage.PORTUGUESE => "BÃ³nus",
                 _ => "Buildup",
             };
         }
@@ -730,7 +784,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Bónus Gelo",
+                GamePreferences.GameLanguage.PORTUGUESE => "BÃ³nus Gelo",
                 _ => "Frost Bonus",
             };
         }
@@ -739,7 +793,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Bónus Relâmpago",
+                GamePreferences.GameLanguage.PORTUGUESE => "BÃ³nus RelÃ¢mpago",
                 _ => "Lightning Bonus",
             };
         }
@@ -748,7 +802,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Bónus de Magia",
+                GamePreferences.GameLanguage.PORTUGUESE => "BÃ³nus de Magia",
                 _ => "Magic Bonus",
             };
         }
@@ -757,7 +811,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Bónus Fogo",
+                GamePreferences.GameLanguage.PORTUGUESE => "BÃ³nus Fogo",
                 _ => "Fire Bonus",
             };
         }
@@ -775,7 +829,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Dano Físico",
+                GamePreferences.GameLanguage.PORTUGUESE => "Dano FÃ­sico",
                 _ => "Physical Damage",
             };
         }
@@ -815,7 +869,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Consumíveis",
+                GamePreferences.GameLanguage.PORTUGUESE => "ConsumÃ­veis",
                 _ => "Consumables",
             };
         }
@@ -842,7 +896,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Minérios",
+                GamePreferences.GameLanguage.PORTUGUESE => "MinÃ©rios",
                 _ => "Ores",
             };
         }
@@ -883,7 +937,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Nível",
+                GamePreferences.GameLanguage.PORTUGUESE => "NÃ­vel",
                 _ => "Level",
             };
         }
@@ -967,7 +1021,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Não podes consumir itens neste momento",
+                GamePreferences.GameLanguage.PORTUGUESE => "NÃ£o podes consumir itens neste momento",
                 _ => "Can't consume item at this time",
             };
         }
@@ -983,7 +1037,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Não podes disparar o arco neste momento",
+                GamePreferences.GameLanguage.PORTUGUESE => "NÃ£o podes disparar o arco neste momento",
                 _ => "Can't shoot arrows at this time",
             };
         }
@@ -991,7 +1045,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Um arco é necessário para disparar flechas",
+                GamePreferences.GameLanguage.PORTUGUESE => "Ã‰ necessÃ¡rio um arco para disparar flechas",
                 _ => "Bow required for shooting arrows",
             };
         }
@@ -999,7 +1053,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Cacildes subiu de nível!",
+                GamePreferences.GameLanguage.PORTUGUESE => "Cacildes subiu de nÃ­vel!",
                 _ => "Cacildes leveled up!",
             };
         }
@@ -1038,7 +1092,7 @@ namespace AF
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "Ataque Crítico",
+                GamePreferences.GameLanguage.PORTUGUESE => "Ataque CrÃ­tico",
                 _ => "Critical Attack",
             };
         }

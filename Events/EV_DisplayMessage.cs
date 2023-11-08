@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Video;
 
 namespace AF
 {
@@ -65,6 +66,12 @@ namespace AF
         [Header("Edge Cases")]
         public bool isArenaFinalScoreMessage;
 
+        [Header("Show Image")]
+        public Texture2D image;
+
+        [Header("Show Video")]
+        public VideoPlayer video;
+
         private void Awake()
         {
              dialogueManager = FindObjectOfType<DialogueManager>(true);
@@ -125,7 +132,7 @@ namespace AF
 
                 if (!string.IsNullOrEmpty(animationClip))
                 {
-                    animator.CrossFade(animationClip, 0.2f);
+                    animator.Play(animationClip);
                 }
 
                 List<LocalizedText> randomMessagesTable = randomMessages.ToList();
@@ -190,31 +197,26 @@ namespace AF
                 if (isArenaFinalScoreMessage)
                 {
                     var roundManager = FindAnyObjectByType<RoundManager>(FindObjectsInactive.Include);
-                    bool hasWon = roundManager.HasBeatenNewRecord();
+                    bool hasWon = true;
 
                     messageToShow.localizedTexts[0].gameLanguage = GamePreferences.GameLanguage.PORTUGUESE;
                     messageToShow.localizedTexts[1].gameLanguage = GamePreferences.GameLanguage.ENGLISH;
 
                     if (hasWon)
                     {
-                        messageToShow.localizedTexts[0].text = $"Parabéns! Bateste um novo recorde. Aguentaste {roundManager.currentRound} rondas durante um tempo total de ${roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n O teu melhor resultado anterior foi de {(roundManager.recordForBestRound > 0 ? roundManager.recordForBestRound : 0)} rondas e {roundManager.GetFormmatedTimed(roundManager.recordForBestElapsedTime)}.\n Hora de regressar. Lutaste ferozmente!";
-                        messageToShow.localizedTexts[1].text = $"Congratulations! You've beaten a new record. You held your ground for {roundManager.currentRound} rounds during a total time of ${roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n Your best previous result was {(roundManager.recordForBestRound > 0 ? roundManager.recordForBestRound : 0)} rounds and {roundManager.GetFormmatedTimed(roundManager.recordForBestElapsedTime)}.\n Time to return! You fought bravely.";
-                    }
-                    else
-                    {
-                        messageToShow.localizedTexts[0].text = $"Muito bem! Duraste {roundManager.currentRound} rondas durante um tempo total de ${roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n Estás perto de bater o teu melhor resultado, que foi de {(roundManager.recordForBestRound > 0 ? roundManager.recordForBestRound : 0)} rondas e {roundManager.GetFormmatedTimed(roundManager.recordForBestElapsedTime)}.\n Hora de regressar. Lutaste ferozmente!";
-                        messageToShow.localizedTexts[1].text = $"Well done! You held your ground for {roundManager.currentRound} rounds during a total time of ${roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n You came close to beating your best previous result, which was {(roundManager.recordForBestRound > 0 ? roundManager.recordForBestRound : 0)} rounds and {roundManager.GetFormmatedTimed(roundManager.recordForBestElapsedTime)}.\n Time to return! You fought bravely.";
+                        messageToShow.localizedTexts[0].text = $"Parabéns! Bateste um novo recorde. Aguentaste {roundManager.currentRound} rondas durante um tempo total de {roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n Lutaste ferozmente, e agora é hora de voltar!";
+                        messageToShow.localizedTexts[1].text = $"Congratulations! You've beaten a new record. You held your ground for {roundManager.currentRound} rounds during a total time of {roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n You fought bravely and now is time to return.";
                     }
 
                 }
 
                 yield return dialogueManager.ShowDialogueWithChoices(
-                    character, displayMessage, choices, textDelay, showHint);
+                    character, displayMessage, choices, textDelay, showHint, image, video);
 
 
                 if (!string.IsNullOrEmpty(animationClip))
                 {
-                    animator.CrossFade("NoGesture", 0.2f);
+                    animator.Play("NoGesture");
                 }
             }
         }

@@ -105,6 +105,7 @@ namespace AF
                 {
                     enemy.agent.SetDestination(enemy.player.transform.position);
                 }
+
             }
 
             Vector3 targetPosition;

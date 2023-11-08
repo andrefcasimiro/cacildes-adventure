@@ -66,35 +66,14 @@ namespace AF
                 }
             }
 
-            if (isTitleScreen && Player.instance.hasShownTitleScreen == false)
-            {
-                cursorManager.ShowCursor();
-            }
-            else
-            {
-                StartCoroutine(HideCursorAfterLoadingScene());
-            }
+
 
             GamePreferences.instance.UpdateGraphics();
-        }
-
-        IEnumerator HideCursorAfterLoadingScene()
-        {
-            yield return new WaitForSeconds(.2f);
-
-            cursorManager.HideCursor();
         }
 
         #region Scene Music & Ambience
         public void HandleSceneSound()
         {
-            // Don't change map music if a combat is on going
-            var allEnemies = FindObjectsOfType<EnemyManager>(true);
-            if (allEnemies != null && allEnemies.Length > 0 && allEnemies.FirstOrDefault(x => x.enemyCombatController.IsInCombat()))
-            {
-                return;
-            }
-
             EvaluateMusic();
             EvaluateAmbience();
         }
@@ -111,14 +90,14 @@ namespace AF
                 return;
             }
 
-            if (CanPlayDaySfx(dayMusic))
+            if (dayMusic != null && CanPlayDaySfx(dayMusic))
             {
                 if (IsPlayingSameMusicTrack(dayMusic.name) == false)
                 {
                     BGMManager.instance.PlayMusic(dayMusic);
                 }
             }
-            else if (CanPlayNightSfx(nightMusic))
+            else if (nightMusic != null && CanPlayNightSfx(nightMusic))
             {
                 if (IsPlayingSameMusicTrack(nightMusic.name) == false)
                 {
@@ -135,14 +114,14 @@ namespace AF
                 return;
             }
 
-            if (CanPlayDaySfx(dayAmbience))
+            if (dayAmbience != null && CanPlayDaySfx(dayAmbience))
             {
                 if (IsPlayingSameAmbienceTrack(dayAmbience.name) == false)
                 {
                     BGMManager.instance.PlayAmbience(dayAmbience);
                 }
             }
-            else if (CanPlayNightSfx(nightAmbience))
+            else if (nightAmbience != null && CanPlayNightSfx(nightAmbience))
             {
                 if (IsPlayingSameAmbienceTrack(nightAmbience.name) == false)
                 {

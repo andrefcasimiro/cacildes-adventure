@@ -40,6 +40,16 @@ namespace AF
             NO_DAMAGE_FOR_X_SECONDS,
 
             FART_ON_HIT,
+
+            IMMUNE_TO_FIRE,
+
+            IMMUNE_TO_POISON,
+
+            IMMUNE_TO_FROSTBITE,
+
+            IMMUNE_TO_FEAR,
+
+            INCREASES_POISE,
         }
 
         [System.Serializable]
@@ -85,6 +95,8 @@ namespace AF
 
         public bool notStackable = false;
         public bool shouldNotRemoveOnUse = false;
+
+        public bool isAlcoholic = false;
 
         public ConsumableEffect[] consumableEffects;
 
@@ -151,7 +163,9 @@ namespace AF
             {
                 float maxAmountBeforeSuffering = FindObjectOfType<DefenseStatManager>(true).GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusToApply);
 
-                FindObjectOfType<PlayerStatusManager>(true).InflictStatusEffect(statusToApply, maxAmountBeforeSuffering, true);
+                var playerStatusManager = FindAnyObjectByType<PlayerStatusManager>(FindObjectsInactive.Include);
+
+                playerStatusManager.InflictStatusEffect(statusToApply, maxAmountBeforeSuffering, true);
             }
 
             var playerConsumablesManager = FindObjectOfType<PlayerConsumablesManager>(true);

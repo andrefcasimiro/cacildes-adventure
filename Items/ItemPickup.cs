@@ -1,5 +1,4 @@
 using UnityEngine;
-using StarterAssets;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using System;
@@ -8,7 +7,7 @@ using System.Linq;
 
 namespace AF
 {
-    public class ItemPickup : SwitchListener, IEventNavigatorCapturable
+    public class ItemPickup : SwitchListener, IEventNavigatorCapturable, ISaveable
     {
         public Item item;
 
@@ -20,6 +19,7 @@ namespace AF
         public int gold = -1;
 
         public UnityEvent onPickupEvent;
+        public UnityEvent onPickupAfterConfirming;
 
         StarterAssetsInputs inputs;
         UIDocumentKeyPrompt uIDocumentKeyPrompt;
@@ -39,14 +39,13 @@ namespace AF
         [Range(0, 100f)]
         public float chanceToSteal = 50;
         public bool isStealingButGetsItemAnyway = false;
-        
 
         private void Awake()
         {
-             inputs = FindObjectOfType<StarterAssetsInputs>(true);
-             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
-             uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
-             playerInventory = FindObjectOfType<PlayerInventory>(true);
+            inputs = FindObjectOfType<StarterAssetsInputs>(true);
+            uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+            uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
+            playerInventory = FindObjectOfType<PlayerInventory>(true);
         }
 
         private void Start()
@@ -61,17 +60,19 @@ namespace AF
 
         public void OnCaptured()
         {
-            uIDocumentKeyPrompt.key = "E";
+            string key = "E";
+            string action = "";
 
             if (isStealing)
             {
-                uIDocumentKeyPrompt.action = LocalizedTerms.GetStealChance(GetStealChance());
+                action = LocalizedTerms.GetStealChance(GetStealChance());
             }
             else
             {
-                uIDocumentKeyPrompt.action = LocalizedTerms.PickupItem();
+                action = LocalizedTerms.PickupItem();
             }
-            uIDocumentKeyPrompt.gameObject.SetActive(true);
+
+            uIDocumentKeyPrompt.DisplayPrompt(key, action);
         }
 
         float GetStealChance()
@@ -95,6 +96,9 @@ namespace AF
 
                     var itemsPrice = item != null ? item.value : items.Sum(x => x.value);
 
+                    playerInventory.playerAchievementsManager.achievementForStealing.AwardAchievement();
+
+
                     if (Player.instance.currentGold >= itemsPrice)
                     {
                         FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice);
@@ -111,7 +115,6 @@ namespace AF
 
                         // Lose reputation instead
                         FindObjectOfType<NotificationManager>(true).DecreaseReputation(1);
-
                     }
 
                     return;
@@ -183,6 +186,14 @@ namespace AF
                 Soundbank.instance.PlayItemReceived();
             }
 
+            if (onPickupAfterConfirming != null)
+            {
+                uIDocumentReceivedItemPrompt.onConfirmEvent.AddListener(() =>
+                {
+                    onPickupAfterConfirming.Invoke();
+                });
+            }
+
             if (switchEntry == null)
             {
                 return;
@@ -201,6 +212,21 @@ namespace AF
                 FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
             }
 
+        }
+
+        public void OnGameLoaded(GameData gameData)
+        {
+            if (GetComponentInParent<DynamicChest>() != null)
+            {
+                return;
+            }
+
+            Refresh();
+        }
+
+        public void OnReleased()
+        {
+            throw new NotImplementedException();
         }
     }
 }

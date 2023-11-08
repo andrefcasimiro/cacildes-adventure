@@ -1,104 +1,34 @@
-using StarterAssets;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 namespace AF
 {
     public class TitleScreenManager : MonoBehaviour
     {
-        public readonly int hashIsSleeping = Animator.StringToHash("IsSleeping");
+        [Header("Events")]
+        public UnityEvent onAwake_Event;
+        public UnityEvent onPlayerBeginsGame_Event;
+        public UnityEvent ifPlayerHasSeenTitleScreen_Event;
 
-        PlayerComponentManager playerComponentManager;
-        Animator playerAnimator;
-
-        public Transform playerSleepTransform;
-        public Transform playerAwakeTransform;
-
-        public int gameStartHour = 11;
-
-        CursorManager cursorManager;
-
-
-        private void Awake()
-        {
-            cursorManager = FindObjectOfType<CursorManager>(true);
-
-        }
+        [Header("Game Session")]
+        public GameSession gameSession;
 
         private void Start()
         {
-            if (Player.instance.hasShownTitleScreen)
+            if (gameSession.hasShownTitleScreen)
             {
+                ifPlayerHasSeenTitleScreen_Event?.Invoke();
                 gameObject.SetActive(false);
                 return;
             }
 
-            cursorManager.ShowCursor();
-
-            FindObjectOfType<UIBlackCanvas>(true).gameObject.SetActive(true);
-
-            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
-
-            playerComponentManager.DisableCharacterController();
-            playerComponentManager.DisableComponents();
-
-            playerAnimator = playerComponentManager.GetComponent<Animator>();
-            playerAnimator.transform.position = playerSleepTransform.position;
-            playerAnimator.transform.rotation = playerSleepTransform.rotation;
-
-            playerAnimator.SetBool(hashIsSleeping, true);
-
-            FindObjectOfType<UIBlackCanvas>(true).StartFade();
-
-            StartCoroutine(SetTimeOfDay());
-        }
-
-        IEnumerator SetTimeOfDay()
-        {
-            yield return new WaitForSeconds(0.1f);
-
-            FindObjectOfType<DayNightManager>(true).SetTimeOfDay(gameStartHour, 0);
+            onAwake_Event?.Invoke();
         }
 
         public void StartGame()
         {
-            Player.instance.hasShownTitleScreen = true;
-
-            StartCoroutine(OnGameStart());
-        }
-
-        public IEnumerator OnGameStart()
-        {
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
-
-            cursorManager.HideCursor();
-
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
-
-            EventBase[] events = GetComponents<EventBase>();
-
-            foreach (EventBase ev in events)
-            {
-                if (ev != null)
-                {
-                    yield return StartCoroutine(ev.Dispatch());
-                }
-            }
-
-            playerAnimator.SetBool(hashIsSleeping, false);
-            playerAnimator.transform.position = playerAwakeTransform.position;
-            playerComponentManager.EnableCharacterController();
-            playerComponentManager.EnableComponents();
-
-            // Save game
-            yield return new WaitForEndOfFrame();
-            
-            SaveSystem.instance.SaveGameData("autoSave");
-
-            yield return new WaitForEndOfFrame();
-
+            gameSession.hasShownTitleScreen = true;
+            onPlayerBeginsGame_Event?.Invoke();
             gameObject.SetActive(false);
         }
     }

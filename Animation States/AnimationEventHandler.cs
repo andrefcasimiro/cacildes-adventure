@@ -148,13 +148,25 @@ namespace AF
                 {
                     companion.ActivateLeftWeaponHitbox();
                 }
-                if (companion.rightWeapon != null)
+                else if (companion.rightWeapon != null)
                 {
                     companion.ActivateRightWeaponHitbox();
                 }
             }
-
         }
+
+        public void DualHitStart()
+        {
+            if (enemy != null && enemy.enemyWeaponController.leftHandWeapon != null)
+            {
+                enemy.enemyWeaponController.ActivateLeftHandHitbox();
+            }
+            if (enemy != null && enemy.enemyWeaponController.rightHandWeapon != null)
+            {
+                enemy.enemyWeaponController.ActivateRightHandHitbox();
+            }
+        }
+
         public void HitEnd()
         {
             if (enemy != null)

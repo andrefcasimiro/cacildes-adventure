@@ -1,98 +1,64 @@
-using System.Linq;
 using UnityEngine;
 
 namespace AF
 {
     public class EventNavigator : MonoBehaviour
     {
+        [Header("Layer Options")]
         public LayerMask eventNavigatorCapturableLayer;
+
+        [Header("Settings")]
         public int raycastDistance = 5;
-        public float distanceToTriggerEventNavigator = 2f;
 
-        UIDocumentKeyPrompt documentKeyPrompt;
-        StarterAssets.StarterAssetsInputs inputs;
-        RaycastHit HitInfo;
+        [Header("Components")]
+        public Transform playerTransform;
+        public UIManager uiManager;
 
-        PlayerCombatController playerCombatController;
-
+        // Internal
         IEventNavigatorCapturable currentTarget;
 
-        private void Awake()
+        public void OnInteract()
         {
-            playerCombatController = FindObjectOfType<PlayerCombatController>(true);
-
-             documentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
-             inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
-        }
-
-        void HandleTarget()
-        {
-            if (inputs.interact)
-            {
-                if (documentKeyPrompt.isActiveAndEnabled)
-                {
-                    documentKeyPrompt.gameObject.SetActive(false);
-                }
-
-                // If Is Event Page, Dont Run If Another Event Is Running...
-                if (HitInfo.transform.GetComponent<EventPage>() != null && FindObjectsOfType<EventPage>().FirstOrDefault(x => x.isRunning) != null)
-                {
-                    return;
-                }
-
-                currentTarget.OnInvoked();
-            }
-            // Evaluate if prompt is inactive
-            else if (documentKeyPrompt.gameObject.activeSelf == false)
-            {
-                // If close, show notification
-                /*if (Vector3.Angle(HitInfo.transform.position - playerComponentManager.transform.position, playerComponentManager.transform.forward) <= 50)
-                {
-                    currentTarget.OnCaptured();
-                }*/
-
-                currentTarget.OnCaptured();
-            }
+            currentTarget?.OnInvoked();
         }
 
         private void Update()
         {
-            if (currentTarget == null && documentKeyPrompt.isActiveAndEnabled)
-            {
-                documentKeyPrompt.gameObject.SetActive(false);
-            }
+            bool hitSomething = Physics.Raycast(
+                Camera.main.transform.position,
+                Camera.main.transform.forward, out var hitInfo, raycastDistance, eventNavigatorCapturableLayer);
 
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out HitInfo, raycastDistance, eventNavigatorCapturableLayer))
+            if (hitSomething)
             {
-                IEventNavigatorCapturable eventNavigatorCapturable = HitInfo.collider.GetComponent<IEventNavigatorCapturable>();
-                eventNavigatorCapturable ??= HitInfo.collider.GetComponentInParent<IEventNavigatorCapturable>();
-                eventNavigatorCapturable ??= HitInfo.collider.GetComponentInChildren<IEventNavigatorCapturable>();
+                var eventNavigatorCapturable = hitInfo.collider.GetComponent<IEventNavigatorCapturable>();
 
-                if (eventNavigatorCapturable != null && eventNavigatorCapturable != currentTarget)
+                if (eventNavigatorCapturable != currentTarget)
                 {
-                    var hitPosition = HitInfo.transform.position;
-                    hitPosition.y = playerCombatController.transform.position.y;
-                    Vector3 dist = hitPosition - playerCombatController.transform.position;
-                    float angle = Vector3.Angle(dist.normalized, playerCombatController.transform.forward);
-                    
+                    var hitPosition = hitInfo.transform.position;
+                    hitPosition.y = playerTransform.transform.position.y;
+                    Vector3 dist = hitPosition - playerTransform.transform.position;
+                    float angle = Vector3.Angle(dist.normalized, playerTransform.transform.forward);
+
                     if (angle / 2 <= 50)
                     {
                         currentTarget = eventNavigatorCapturable;
+
+                        if (uiManager.CanShowGUI())
+                        {
+                            currentTarget.OnCaptured();
+                        }
                     }
                 }
             }
             else
             {
+                if (currentTarget != null)
+                {
+                    currentTarget?.OnReleased();
+                }
+
                 currentTarget = null;
             }
-
-
-            if (currentTarget != null)
-            {
-                HandleTarget();
-                return;
-            }
-
         }
     }
 }

@@ -38,7 +38,16 @@ namespace AF
                 return "";
             }
 
-            return localizedTextsDictionary[GamePreferences.instance.gameLanguage];
+            if (localizedTextsDictionary.TryGetValue(GamePreferences.instance.gameLanguage, out string text))
+            {
+                return text;
+            }
+            else
+            {
+                Debug.Log("Key not found: for " + this);
+                // Key not found, return a default value or an empty string as needed.
+                return "";
+            }
         }
 
         public string GetEnglishText()

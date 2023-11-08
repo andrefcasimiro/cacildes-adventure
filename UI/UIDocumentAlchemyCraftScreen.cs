@@ -39,18 +39,17 @@ namespace AF
 
         UIDocument uIDocument => GetComponent<UIDocument>();
         [HideInInspector] public VisualElement root;
-        
+
         NotificationManager notificationManager;
-        MenuManager menuManager;
+        public UIManager uiManager;
         PlayerInventory playerInventory;
 
         [HideInInspector] public bool returnToBonfire = false;
 
         private void Awake()
         {
-             notificationManager = FindObjectOfType<NotificationManager>(true);
-             menuManager = FindObjectOfType<MenuManager>(true);
-             playerInventory = FindObjectOfType<PlayerInventory>(true);
+            notificationManager = FindObjectOfType<NotificationManager>(true);
+            playerInventory = FindObjectOfType<PlayerInventory>(true);
             cursorManager = FindObjectOfType<CursorManager>(true);
 
             this.gameObject.SetActive(false);
@@ -77,6 +76,11 @@ namespace AF
 
         private void Update()
         {
+            if (UnityEngine.Cursor.visible == false)
+            {
+                cursorManager.ShowCursor();
+            }
+
             if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Tab) || Gamepad.current != null && Gamepad.current.buttonEast.IsPressed())
             {
                 Close();
@@ -85,12 +89,11 @@ namespace AF
 
         private void OnDisable()
         {
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
+            cursorManager.HideCursor();
         }
 
         void Close()
         {
-
             if (returnToBonfire)
             {
                 FindAnyObjectByType<UIDocumentBonfireMenu>(FindObjectsInactive.Include).gameObject.SetActive(true);
@@ -113,7 +116,7 @@ namespace AF
             root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
 
             var buttonExit = root.Q<Button>("ButtonExit");
-            menuManager.SetupButton(buttonExit, () =>
+            uiManager.SetupButton(buttonExit, () =>
             {
                 Close();
             });
@@ -169,7 +172,7 @@ namespace AF
                     craftBtn.style.opacity = 0.25f;
                 }
 
-                menuManager.SetupButton(craftBtn, () =>
+                uiManager.SetupButton(craftBtn, () =>
                 {
                     if (craftBtn.enabledSelf == false)
                     {
@@ -197,6 +200,16 @@ namespace AF
                     }
                     else
                     {
+                        if (craftActivity == CraftActivity.COOKING)
+                        {
+                            playerInventory.playerAchievementsManager.achievementForCookingFirstMeal.AwardAchievement();
+                        }
+                        else if (craftActivity == CraftActivity.ALCHEMY)
+                        {
+                            playerInventory.playerAchievementsManager.achievementForBrewingFirstPotion.AwardAchievement();
+                        }
+
+
                         Soundbank.instance.PlayCraftSuccess();
                         playerInventory.AddItem(recipe.resultingItem, 1);
                         notificationManager.ShowNotification(receivedMessage.GetText() + " " + recipe.resultingItem.name.GetText(), recipe.resultingItem.sprite);

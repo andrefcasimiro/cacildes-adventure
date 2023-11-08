@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using DG.Tweening;
 
 namespace AF
 {
@@ -8,20 +9,25 @@ namespace AF
     {
         public UIDocument uiDocument => GetComponent<UIDocument>();
 
-        public string key = "E";
-        public string action = "Pick Item";
-        [HideInInspector] public string eventUuid = "";
-
-        VisualElement root;
-
         private void Awake()
         {
             gameObject.SetActive(false);
         }
 
-        private void OnEnable()
+        public void DisplayPrompt(string key, string action)
         {
-            root = uiDocument.rootVisualElement;
+            this.gameObject.SetActive(true);
+
+            VisualElement root = uiDocument.rootVisualElement;
+
+            Soundbank.instance.PlayUIHover();
+
+            DOTween.To(
+                  () => root.contentContainer.style.opacity.value,
+                  (value) => root.contentContainer.style.opacity = value,
+                  1,
+                  .25f
+            );
 
             if (Gamepad.current != null)
             {
@@ -36,11 +42,6 @@ namespace AF
             }
 
             root.Q<Label>("InputText").text = action;
-        }
-
-        private void OnDisable()
-        {
-            action = "";
         }
     }
 }

@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
 using System.Linq;
+using DG.Tweening;
+using System;
+using System.IO;
+using UnityEngine.Video;
 
 namespace AF
 {
@@ -34,7 +38,6 @@ namespace AF
         [HideInInspector] public float textDelay = 0.5f;
         [HideInInspector] public bool showHint = false;
 
-        MenuManager menuManager;
 
         DialogueManager dialogueManager;
 
@@ -42,22 +45,52 @@ namespace AF
 
         CursorManager cursorManager;
 
+        public GameObject videoCanvasManager;
+
+        [Header("Show Image")]
+        public Texture2D image;
+
+        [Header("Show Video")]
+        public VideoPlayer video;
+
+        [Header("Components")]
+        public UIManager uiManager;
+
         private void Awake()
         {
-             menuManager = FindObjectOfType<MenuManager>(true);
             dialogueManager = FindObjectOfType<DialogueManager>(true);
             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
             cursorManager = FindObjectOfType<CursorManager>(true);
 
-            this.gameObject.SetActive(false);         
+            this.gameObject.SetActive(false);
         }
- 
+
         private void OnEnable()
         {
             hasFinishedTypewriter = false;
 
             this.root = uiDocument.rootVisualElement;
-            
+
+            Soundbank.instance.PlayUIDialogue();
+
+            DOTween.To(
+                  () => root.contentContainer.style.opacity.value,
+                  (value) => root.contentContainer.style.opacity = value,
+                  1,
+                  .05f
+            );
+
+            // Set the starting position below the screen
+            Vector3 startPosition = new Vector3(root.contentContainer.transform.position.x, root.contentContainer.transform.position.y - 10, root.contentContainer.transform.position.z);
+
+            // Set the ending position (original position)
+            Vector3 endPosition = root.contentContainer.transform.position;
+
+            // Tween the position from the starting position to the ending position
+            DOTween.To(() => startPosition, position => root.contentContainer.transform.position = position, endPosition, 0.5f);
+
+            this.root.Q<VisualElement>("ImageContainer").style.display = DisplayStyle.None;
+
             this.dialogueChoicePanel = this.root.Q<VisualElement>("ChoiceContainer");
             dialogueChoicePanel.Clear();
             dialogueChoicePanel.style.display = DisplayStyle.None;
@@ -72,10 +105,29 @@ namespace AF
                 this.root.Q<Label>("HintMessageText").text = pressKeyToContinueText.GetText();
                 this.root.Q<VisualElement>("HintMessage").style.display = Gamepad.current != null ? DisplayStyle.None : DisplayStyle.Flex;
                 this.root.Q<VisualElement>("HintMessageGamePad").style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
+
+                if (Gamepad.current != null)
+                {
+                    this.root.Q<Label>("HintMessageTextGamepad").text = GamePreferences.instance.IsEnglish() ? "Press to continue" : "Pressiona para continuar";
+                }
+
             }
 
             this.root.Q<VisualElement>("Hint").style.display = showHint ? DisplayStyle.Flex : DisplayStyle.None;
             #endregion
+
+
+            this.root.Q<Label>("HintMessageText").text = pressKeyToContinueText.GetText();
+            this.root.Q<IMGUIContainer>("GamepadIcon").style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (Gamepad.current != null)
+            {
+                this.root.Q<Label>("PressToContinue").text = GamePreferences.instance.IsEnglish() ? "Speed up / Continue" : "Acelerar / Continuar";
+            }
+            else
+            {
+                this.root.Q<Label>("PressToContinue").text = GamePreferences.instance.IsEnglish() ? "E) Speed up / Continue" : "E) Acelerar / Continuar";
+            }
 
             if (string.IsNullOrEmpty(actorName) == false)
             {
@@ -109,8 +161,31 @@ namespace AF
                 actorSprite.style.display = DisplayStyle.None;
             }
 
+
+            if (image != null)
+            {
+                this.root.Q<VisualElement>("ImageContainer").style.display = DisplayStyle.Flex;
+                this.root.Q<VisualElement>("ImageContainer").Q<IMGUIContainer>().style.backgroundImage = new StyleBackground(image);
+                this.root.Q<VisualElement>("ImageContainer").Q<IMGUIContainer>().style.width = image.width / 2;
+                this.root.Q<VisualElement>("ImageContainer").Q<IMGUIContainer>().style.height = image.height / 2;
+            }
+
+            if (video != null)
+            {
+                video.gameObject.SetActive(true);
+
+                CanvasGroup canvasGroup = videoCanvasManager.GetComponent<CanvasGroup>();
+                canvasGroup.alpha = 0f;
+
+                videoCanvasManager.gameObject.SetActive(true);
+                canvasGroup.DOFade(1f, 0.5f);
+
+
+            }
+
             StartCoroutine(Typewrite());
         }
+
 
         private void Update()
         {
@@ -122,6 +197,14 @@ namespace AF
 
         private void OnDisable()
         {
+            videoCanvasManager.SetActive(false);
+
+            if (video != null)
+            {
+                video.gameObject.SetActive(false);
+                video = null;
+            }
+
             cursorManager.HideCursor();
         }
 
@@ -170,7 +253,7 @@ namespace AF
                     var newDialogueChoiceItem = dialogueChoiceItem.CloneTree();
                     newDialogueChoiceItem.Q<Button>().text = EvaluateDialogueChoiceText(dialogueChoice.choiceText.GetText());
 
-                    menuManager.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
+                    uiManager.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
                     {
                         selectedChoice = dialogueChoice;
                     });
@@ -187,7 +270,11 @@ namespace AF
                 playerComponentManager.DisableCharacterController();
                 playerComponentManager.DisableComponents();
 
+                playerComponentManager.GetComponent<ThirdPersonController>().LockCameraPosition = true;
+
                 yield return new WaitUntil(() => selectedChoice != null);
+
+                playerComponentManager.GetComponent<ThirdPersonController>().LockCameraPosition = false;
 
                 #region Reputation on response
                 if (selectedChoice.reputationAmountToIncrease != 0 || selectedChoice.reputationAmountToDecrease != 0)
@@ -232,8 +319,8 @@ namespace AF
                 }
                 else if (selectedChoice.response.localizedTexts.Count() > 0)
                 {
-                    yield return dialogueManager.ShowDialogueWithChoices(selectedChoice.replier, selectedChoice.response, new List<DialogueChoice>(), 0.05f, false);
-                
+                    yield return dialogueManager.ShowDialogueWithChoices(selectedChoice.replier, selectedChoice.response, new List<DialogueChoice>(), 0.05f, false, null, null);
+
                     if (selectedChoice.onResponseFinished != null)
                     {
                         selectedChoice.onResponseFinished.Invoke();

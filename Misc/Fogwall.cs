@@ -5,14 +5,17 @@ using UnityEngine;
 namespace AF
 {
 
-    public class Fogwall : MonoBehaviour
+    public class Fogwall : MonoBehaviour, ISaveable
     {
-
         private void Start()
         {
             this.gameObject.SetActive(false);
         }
 
+        public void OnGameLoaded(GameData gameData)
+        {
+            this.gameObject.SetActive(false);
+        }
     }
 
 }

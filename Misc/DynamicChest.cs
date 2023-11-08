@@ -21,10 +21,10 @@ namespace AF
         public float rotationSpeed = 20;
         public float maxRotation = -105f;
 
-        private void Awake()
+        private void Start()
         {
-            itemPickupTrigger.gameObject.SetActive(false);
             EvaluateIfShouldOpenLid();
+            itemPickupTrigger.gameObject.SetActive(false);
         }
 
         private void _OpenChest()
@@ -79,6 +79,7 @@ namespace AF
         {
             EvaluateIfShouldOpenLid();
         }
+
     }
 
 }

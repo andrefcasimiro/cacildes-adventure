@@ -1,10 +1,10 @@
 using System.Collections;
-using StarterAssets;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Cursor = UnityEngine.Cursor;
 
-namespace AF {
+namespace AF
+{
 
     public class ViewClockMenu : MonoBehaviour
     {
@@ -22,6 +22,11 @@ namespace AF {
 
         Button passTimeButton, rest1HourButton, cancelButton;
 
+        public StarterAssetsInputs starterAssetsInputs;
+
+        [Header("Achievements")]
+        public Achievement achievementForPassingTime;
+
         private void Awake()
         {
             dayNightManager = FindAnyObjectByType<DayNightManager>(FindObjectsInactive.Include);
@@ -33,17 +38,51 @@ namespace AF {
             this.gameObject.SetActive(false);
         }
 
+        private void Start()
+        {
+            starterAssetsInputs.onMenuInput += () =>
+            {
+                Close();
+            };
+
+            starterAssetsInputs.onTabInput += () =>
+            {
+                Close();
+            };
+
+        }
+
+        void Close()
+        {
+
+            if (isPassingTime)
+            {
+                return;
+            }
+
+            this.gameObject.SetActive(false);
+        }
+
         protected virtual void OnEnable()
         {
+            thirdPersonController.LockCameraPosition = true;
+
             DrawUI();
 
             cursorManager.ShowCursor();
-
-            thirdPersonController.LockCameraPosition = true;
         }
 
         private void Update()
         {
+            if (isPassingTime == false)
+            {
+                thirdPersonController.LockCameraPosition = true;
+            }
+            else
+            {
+                thirdPersonController.LockCameraPosition = false;
+            }
+
             if (Cursor.visible == false)
             {
                 cursorManager.ShowCursor();
@@ -53,51 +92,58 @@ namespace AF {
         private void OnDisable()
         {
             cursorManager.HideCursor();
+            thirdPersonController.LockCameraPosition = false;
         }
 
         void DrawUI()
         {
             root = GetComponent<UIDocument>().rootVisualElement;
+            this.root.style.display = DisplayStyle.Flex;
 
             bool isEnglish = GamePreferences.instance.IsEnglish();
 
-            root.Q<RadioButton>("0").RegisterValueChangedCallback(newValue =>
+            thirdPersonController.GetComponent<PlayerCombatController>().enabled = false;
+
+            root.Q<RadioButton>("0").RegisterCallback<ClickEvent>(newValue =>
             {
-                currentHour = 0;
+                UpdateCurrentHour(0);
             });
-            root.Q<RadioButton>("3").RegisterValueChangedCallback(newValue =>
+            root.Q<RadioButton>("3").RegisterCallback<ClickEvent>(newValue =>
             {
-                currentHour = 3;
+                UpdateCurrentHour(3);
             });
-            root.Q<RadioButton>("6").RegisterValueChangedCallback(newValue =>
+            root.Q<RadioButton>("6").RegisterCallback<ClickEvent>(newValue =>
             {
-                currentHour = 6;
+                UpdateCurrentHour(6);
             });
-            root.Q<RadioButton>("9").RegisterValueChangedCallback(newValue =>
+            root.Q<RadioButton>("9").RegisterCallback<ClickEvent>(newValue =>
             {
-                currentHour = 9;
+                UpdateCurrentHour(9);
             });
-            root.Q<RadioButton>("12").RegisterValueChangedCallback(newValue =>
+            root.Q<RadioButton>("12").RegisterCallback<ClickEvent>(newValue =>
             {
-                currentHour = 12;
+                UpdateCurrentHour(12);
             });
-            root.Q<RadioButton>("15").RegisterValueChangedCallback(newValue =>
+            root.Q<RadioButton>("15").RegisterCallback<ClickEvent>(newValue =>
             {
-                currentHour = 15;
+                UpdateCurrentHour(15);
             });
-            root.Q<RadioButton>("18").RegisterValueChangedCallback(newValue =>
+            root.Q<RadioButton>("18").RegisterCallback<ClickEvent>(newValue =>
             {
-                currentHour = 18;
+                UpdateCurrentHour(18);
             });
-            root.Q<RadioButton>("21").RegisterValueChangedCallback(newValue =>
+            root.Q<RadioButton>("21").RegisterCallback<ClickEvent>(newValue =>
             {
-                currentHour = 21;
+                UpdateCurrentHour(21);
             });
 
             passTimeButton = root.Q<Button>("PassTime");
             passTimeButton.text = isEnglish ? "Confirm" : "Confirmar";
             passTimeButton.SetEnabled(true);
-            passTimeButton.clicked += HandleTimePassage;
+            passTimeButton.clicked += () =>
+            {
+                HandleTimePassage();
+            };
 
             rest1HourButton = root.Q<Button>("Rest1Hour");
             rest1HourButton.text = isEnglish ? "Wait 1 Hour" : "Esperar 1 Hora";
@@ -114,6 +160,8 @@ namespace AF {
                     return;
                 }
 
+                thirdPersonController.GetComponent<PlayerCombatController>().enabled = true;
+
                 this.gameObject.SetActive(false);
                 thirdPersonController.LockCameraPosition = false;
             };
@@ -125,6 +173,11 @@ namespace AF {
 
         }
 
+        void UpdateCurrentHour(int currentHour)
+        {
+            this.currentHour = currentHour;
+        }
+
         void HandleTimePassage()
         {
             if (isPassingTime)
@@ -132,20 +185,28 @@ namespace AF {
                 return;
             }
 
+            achievementForPassingTime.AwardAchievement();
+
             StartCoroutine(MoveTime(currentHour));
         }
 
-        void Wait1Hour() {
+        void Wait1Hour()
+        {
 
-            if (isPassingTime) {
+            if (isPassingTime)
+            {
                 return;
             }
+
+            achievementForPassingTime.AwardAchievement();
 
             StartCoroutine(MoveTime((int)Player.instance.timeOfDay + 1));
         }
 
         IEnumerator MoveTime(int desiredTime)
         {
+            thirdPersonController.GetComponent<PlayerCombatController>().enabled = true;
+
             cancelButton.SetEnabled(false);
             passTimeButton.SetEnabled(false);
             rest1HourButton.SetEnabled(false);
@@ -153,6 +214,8 @@ namespace AF {
             passTimeButton.style.visibility = Visibility.Hidden;
             rest1HourButton.style.visibility = Visibility.Hidden;
 
+
+            this.root.style.display = DisplayStyle.None;
 
             var originalDaySpeed = Player.instance.daySpeed;
 
@@ -177,7 +240,10 @@ namespace AF {
 
                 Player.instance.daySpeed = 3;
 
-                yield return new WaitUntil(() => Mathf.FloorToInt(Player.instance.timeOfDay) == Mathf.FloorToInt(targetHour));
+                yield return new WaitUntil(() =>
+                {
+                    return Mathf.FloorToInt(Player.instance.timeOfDay) == Mathf.FloorToInt(targetHour);
+                });
 
             }
 
@@ -185,7 +251,6 @@ namespace AF {
 
             dayNightManager.tick = dayNightManager.TimePassageAllowed();
             sceneSettings.isInterior = isInteriorOriginal;
-
 
             isPassingTime = false;
 

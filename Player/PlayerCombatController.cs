@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using StarterAssets;
 
 namespace AF
 {
@@ -68,6 +67,8 @@ namespace AF
         public bool isDamagingHimself = false;
 
         MenuManager menuManager;
+
+        PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
 
         private void Start()
         {
@@ -175,21 +176,20 @@ namespace AF
 
                 if (lightAttackComboIndex == 0)
                 {
-                    animator.CrossFade(hashLightAttack1, 0.05f);
+                    animator.Play(hashLightAttack1);
                 }
                 else if (lightAttackComboIndex == 1)
                 {
-                    animator.CrossFade(hashLightAttack2, 0.05f);
+                    animator.Play(hashLightAttack2);
                 }
                 else
                 {
-                    animator.CrossFade(hashLightAttack3, 0.05f);
+                    animator.Play(hashLightAttack3);
                 }
             }
             else
             {
-                animator.Play(hashJumpAttack);
-
+                HandleJumpAttack();
             }
 
             animator.SetBool(hashCombatting, true);
@@ -198,6 +198,12 @@ namespace AF
 
             lightAttackComboIndex++;
             timeSinceLastLightAttack = 0f;
+        }
+
+        void HandleJumpAttack()
+        {
+            animator.Play(hashJumpAttack);
+            playerComponentManager.DisableCollisionWithEnemies();
         }
 
         public void HandleHeavyAttack()
@@ -218,15 +224,15 @@ namespace AF
 
             if (heavyAttackComboIndex == 0)
             {
-                animator.CrossFade(hashHeavyAttack1, 0.05f);
+                animator.Play(hashHeavyAttack1);
             }
             else if (heavyAttackComboIndex == 1)
             {
-                animator.CrossFade(hashHeavyAttack2, 0.05f);
+                animator.Play(hashHeavyAttack2);
             }
             else
             {
-                animator.CrossFade(hashHeavyAttack3, 0.05f);
+                animator.Play(hashHeavyAttack3);
             }
 
             animator.SetBool(hashCombatting, true);

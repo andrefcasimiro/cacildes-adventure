@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections;
 using UnityEngine;
 
@@ -10,9 +9,21 @@ namespace AF
         public Cinemachine.CinemachineVirtualCamera desiredCamera;
         public int priority = 0;
 
+        Vector3 originalPosition;
+        Quaternion originalRotation;
+
+        private void Awake()
+        {
+            this.originalPosition = desiredCamera.transform.position;
+            this.originalRotation = desiredCamera.transform.rotation;
+        }
+
         public override IEnumerator Dispatch()
         {
             desiredCamera.Priority = priority;
+            desiredCamera.transform.position = originalPosition;
+            desiredCamera.transform.rotation = originalRotation;
+
             yield return null;
         }
     }

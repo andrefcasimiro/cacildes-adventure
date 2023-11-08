@@ -91,6 +91,7 @@ namespace AF
         [Header("Scaling")]
         public Scaling strengthScaling = Scaling.E;
         public Scaling dexterityScaling = Scaling.E;
+        public Scaling intelligenceScaling = Scaling.E;
 
         [Header("Visual")]
         public GameObject graphic;
@@ -153,7 +154,9 @@ namespace AF
 
         public int CalculateValue(int baseValue, int currentLevel)
         {
-            var baseAttack = baseValue + (int)(currentLevel * attackMultiplierPerLevel);
+            var levelAttackBonus = (int)(currentLevel * attackMultiplierPerLevel);
+
+            var baseAttack = baseValue + levelAttackBonus;
             var bonusAttack = (baseValue / Mathf.Clamp(10 - currentLevel, 1, 10));
             return (int)(baseAttack + bonusAttack);
         }

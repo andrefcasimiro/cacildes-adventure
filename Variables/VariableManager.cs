@@ -53,7 +53,15 @@ namespace AF
 
         public void UpdateVariable(VariableEntry variableToUpdate, int nextValue)
         {
-            variableEntryInstances.Find(variableEntryInstance => variableEntryInstance.variableEntry == variableToUpdate).currentValue = nextValue;
+            var idx = variableEntryInstances.FindIndex(variableEntryInstance => variableEntryInstance.variableEntry == variableToUpdate);
+
+            if (idx == -1)
+            {
+                Debug.LogError("Could not find variable: " + variableToUpdate.name);
+                return;
+            }
+
+            variableEntryInstances[idx].currentValue = nextValue;
 
             var sceneVariableListeners = FindObjectsOfType<VariableListener>(true);
             foreach (var sceneVariableListener in sceneVariableListeners)
@@ -72,6 +80,16 @@ namespace AF
                 variableEntryInstance => variableEntryInstance.variableEntry == variableEntry);
 
             return targetVariable == null ? -1 : targetVariable.currentValue;
+        }
+
+        public void ResetVariables()
+        {
+            if (variableEntryInstances.Count <= 0) { return; }    
+
+            foreach (VariableEntryInstance variableEntryInstance in variableEntryInstances)
+            {
+                variableEntryInstance.currentValue = -1;
+            }
         }
 
         public void OnGameLoaded(GameData gameData)

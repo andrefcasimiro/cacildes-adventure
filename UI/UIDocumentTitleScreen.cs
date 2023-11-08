@@ -5,123 +5,102 @@ namespace AF
 {
     public class UIDocumentTitleScreen : MonoBehaviour
     {
-        [Header("Localization")]
-        public LocalizedText gameTitle;
-        public LocalizedText newGameText;
-        public LocalizedText loadGameText;
-        public LocalizedText playTutorialText;
-        public LocalizedText optionsText;
-        public LocalizedText controlsText;
-        public LocalizedText creditsText;
-        public LocalizedText exitGameText;
-
         UIDocument document => GetComponent<UIDocument>();
-        TitleScreenManager titleScreenManager => GetComponentInParent<TitleScreenManager>();
-        MenuManager menuManager;
 
-        CursorManager cursorManager;
+        [Header("Components")]
+        public TitleScreenManager titleScreenManager;
+        public CursorManager cursorManager;
+        public UIDocumentTitleScreenLoadMenu uIDocumentTitleScreenLoadMenu;
+        public UIDocumentTitleScreenCredits uIDocumentTitleScreenCredits;
+        public UIDocumentTitleScreenOptions uIDocumentTitleScreenOptions;
+        public UIDocumentTitleScreenControls uIDocumentTitleScreenControls;
+        public UIManager uiManager;
 
-        private void Awake()
-        {
-            cursorManager = FindObjectOfType<CursorManager>(true);
-            menuManager = FindObjectOfType<MenuManager>(true);
+        [Header("Game Session")]
+        public GameSession gameSession;
 
-            cursorManager.ShowCursor();
-        }
-
-        private void Start()
-        {
-            if (Player.instance.hasShownTitleScreen == false)
-            {
-                FindObjectOfType<UIDocumentPlayerHUDV2>(true).gameObject.SetActive(false);
-            }
-        }
-
+        VisualElement root;
 
         private void OnEnable()
         {
-            var root = document.rootVisualElement;
+            root = document.rootVisualElement;
 
-            root.Q<Label>("Version").text = Application.version;
+            var versionLabel = root.Q<Label>("Version");
+            versionLabel.text = Application.version;
 
-            root.Q<Label>("GameTitle").text = gameTitle.GetText();
-            root.Q<Button>("NewGameButton").text = newGameText.GetText();
-            root.Q<Button>("ContinueButton").text = loadGameText.GetText();
-            root.Q<Button>("PlayTutorialButton").text = playTutorialText.GetText();
-            root.Q<Button>("OptionsButton").text = optionsText.GetText();
-            root.Q<Button>("ControlsButton").text = controlsText.GetText();
-            root.Q<Button>("CreditsButton").text = creditsText.GetText();
-            root.Q<Button>("ExitButton").text = exitGameText.GetText();
-            
-            menuManager.SetupButton(
-                root.Q<Button>("NewGameButton"),
-                () =>
-                {
-                    FindObjectOfType<UIDocumentPlayerHUDV2>(true).gameObject.SetActive(true);
+            Button newGameButton = root.Q<Button>("NewGameButton");
 
-                    titleScreenManager.StartGame();
+            Button continueButton = root.Q<Button>("ContinueButton");
+            Button playTutorialButton = root.Q<Button>("PlayTutorialButton");
+            Button optionsButton = root.Q<Button>("OptionsButton");
+            Button controlsButton = root.Q<Button>("ControlsButton");
+            Button creditsButton = root.Q<Button>("CreditsButton");
+            Button exitButton = root.Q<Button>("ExitButton");
+            Button btnTwitter = root.Q<Button>("btnTwitter");
+            Button btnDiscord = root.Q<Button>("btnDiscord");
 
-                    gameObject.SetActive(false);
-                });
-            menuManager.SetupButton(
-                root.Q<Button>("ContinueButton"),
-                () =>
-                {
-                    FindObjectOfType<UIDocumentTitleScreenLoadMenu>(true).gameObject.SetActive(true);
-                    gameObject.SetActive(false);
-                });
-            menuManager.SetupButton(
-                root.Q<Button>("PlayTutorialButton"),
-                () =>
-                {
-                    Player.instance.LoadScene(6, true);
-                });
-            menuManager.SetupButton(
-                root.Q<Button>("CreditsButton"),
-                () =>
-                {
-                    FindObjectOfType<UIDocumentTitleScreenCredits>(true).gameObject.SetActive(true);
-                    gameObject.SetActive(false);
-                });
-            menuManager.SetupButton(
-                root.Q<Button>("OptionsButton"),
-                () =>
-                {
-                    FindObjectOfType<UIDocumentTitleScreenOptions>(true).gameObject.SetActive(true);
-                    gameObject.SetActive(false);
-                });
-            menuManager.SetupButton(
-                root.Q<Button>("ControlsButton"),
-                () =>
-                {
-                    FindObjectOfType<UIDocumentTitleScreenControls>(true).gameObject.SetActive(true);
-                    gameObject.SetActive(false);
-                });
-            menuManager.SetupButton(
-                root.Q<Button>("ExitButton"),
-                () =>
-                {
-                    Application.Quit();
-                });
-            menuManager.SetupButton(
-                root.Q<Button>("btnBlogger"),
-                () =>
-                {
-                    Application.OpenURL("https://rmvxace.blogspot.com/");
-                });
-            menuManager.SetupButton(
-                root.Q<Button>("btnItchio"),
-                () =>
-                {
-                    Application.OpenURL("https://andrefcasimiro.itch.io/cacildes-adventure");
-                });
-            menuManager.SetupButton(
-                root.Q<Button>("btnTwitter"),
-                () =>
-                {
-                    Application.OpenURL("https://twitter.com/CacildesGame");
-                });
+            uiManager.SetupButton(newGameButton, () =>
+            {
+                titleScreenManager.StartGame();
+                gameObject.SetActive(false);
+            });
 
+            uiManager.SetupButton(continueButton, () =>
+            {
+                uIDocumentTitleScreenLoadMenu.gameObject.SetActive(true);
+                gameObject.SetActive(false);
+            });
+
+            uiManager.SetupButton(playTutorialButton, () =>
+            {
+                Player.instance.LoadScene(6, true);
+            });
+
+            uiManager.SetupButton(creditsButton, () =>
+            {
+                uIDocumentTitleScreenCredits.gameObject.SetActive(true);
+                gameObject.SetActive(false);
+            });
+
+            uiManager.SetupButton(optionsButton, () =>
+            {
+                uIDocumentTitleScreenOptions.gameObject.SetActive(true);
+                gameObject.SetActive(false);
+            });
+
+            uiManager.SetupButton(controlsButton, () =>
+            {
+                uIDocumentTitleScreenControls.gameObject.SetActive(true);
+                gameObject.SetActive(false);
+            });
+
+            uiManager.SetupButton(exitButton, () =>
+            {
+                Application.Quit();
+            });
+
+            uiManager.SetupButton(btnTwitter, () =>
+            {
+                Application.OpenURL("https://twitter.com/CacildesGame");
+            });
+
+            uiManager.SetupButton(btnDiscord, () =>
+            {
+                Application.OpenURL("https://discord.gg/JwnZMc27D2");
+            });
+
+
+            cursorManager.ShowCursor();
+
+            // Delay the focus until the next frame, required as an hack for now
+            Invoke(nameof(GiveFocus), 0f);
+        }
+
+        void GiveFocus()
+        {
+            Button newGameButton = root.Q<Button>("NewGameButton");
+
+            newGameButton.Focus();
         }
     }
 }

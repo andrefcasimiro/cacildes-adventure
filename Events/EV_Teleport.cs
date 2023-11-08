@@ -1,5 +1,7 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 namespace AF
 {
@@ -11,6 +13,17 @@ namespace AF
         [Header("Conditions")]
         public SwitchEntry switchEntry;
         public bool switchValue;
+
+        [Header("Feature Flag - Check if is demo!!")]
+        public bool deactivateIfIsDemo = false;
+
+        [Header("Demo Edge Case")]
+        DialogueManager dialogueManager;
+        public LocalizedText demoLocalizedText;
+
+        [Header("Audio Clips")]
+        public AudioSource audioSource;
+        public AudioClip audioClip;
 
         public override IEnumerator Dispatch()
         {
@@ -29,6 +42,19 @@ namespace AF
                 }
             }
 
+            if (deactivateIfIsDemo && Player.instance.isDemo)
+            {
+                if (dialogueManager == null)
+                {
+                    dialogueManager = FindAnyObjectByType<DialogueManager>(FindObjectsInactive.Include);
+                }
+
+                yield return dialogueManager.ShowDialogueWithChoices(
+                    null, demoLocalizedText, new List<DialogueChoice>(), 0.05f, false, null, null);
+
+                yield break;
+            }
+
             if (skip == false)
             {
                 yield return StartCoroutine(Teleport());
@@ -37,6 +63,11 @@ namespace AF
 
         private IEnumerator Teleport()
         {
+            if (audioClip != null && audioSource  != null)
+            {
+                audioSource.PlayOneShot(audioClip);
+            }
+
             FindObjectOfType<UIDocumentLoadingScreen>(true).gameObject.SetActive(true);
             FindObjectOfType<UIDocumentLoadingScreen>(true).UpdateLoadingBar(0f);
             yield return null;

@@ -77,11 +77,6 @@ namespace AF
             var switchIndex = switchEntryInstances.FindIndex(switchEntry => switchEntry.switchEntry == switchEntryToUpdate);
 
             switchEntryInstances[switchIndex].currentValue = nextValue;
-
-            if (nextValue == true)
-            {
-                HandleObjectiveUpdate(switchIndex);
-            }
         }
         
         public void UpdateSwitch(SwitchEntry switchEntry, bool nextValue, SwitchListener switchListenerToIgnore)
@@ -192,6 +187,16 @@ namespace AF
         #endregion
 
         #region Serialization
+        public void ResetSwitches()
+        {
+            if (switchEntryInstances.Count <= 0) { return; }    
+
+            foreach (SwitchEntryInstance switchEntryInstance in switchEntryInstances)
+            {
+                switchEntryInstance.currentValue = false;
+            }
+        }
+
         public void OnGameLoaded(GameData gameData)
         {
             if (gameData.switches.Length <= 0)

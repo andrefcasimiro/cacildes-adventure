@@ -16,7 +16,7 @@ namespace AF
         public const float EMPTY_STAMINA_REGENERATION_DELAY = 0.5f;
         public bool shouldRegenerateStamina = false;
 
-        StarterAssets.StarterAssetsInputs inputs;
+        StarterAssetsInputs inputs;
 
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
@@ -24,7 +24,7 @@ namespace AF
 
         private void Awake()
         {
-            inputs = FindObjectOfType<StarterAssets.StarterAssetsInputs>(true);
+            inputs = FindObjectOfType<StarterAssetsInputs>(true);
         }
 
         private void Start()
@@ -37,7 +37,7 @@ namespace AF
 
         public int GetMaxStamina()
         {
-            return baseStamina + (int)(Mathf.Ceil(Player.instance.endurance * levelMultiplier)) + (int)(equipmentGraphicsHandler.enduranceBonus * levelMultiplier);
+            return baseStamina + (int)(Mathf.RoundToInt((Player.instance.endurance + equipmentGraphicsHandler.enduranceBonus) * levelMultiplier));
         }
 
         public void DecreaseStamina(float amount)
@@ -77,7 +77,6 @@ namespace AF
             {
                 finalRegenerationRate = finalRegenerationRate / 4;
             }
-
             Player.instance.currentStamina += Mathf.Clamp(finalRegenerationRate * Time.deltaTime, 0f, GetMaxStamina());
 
             if (Player.instance.currentStamina >= GetMaxStamina())

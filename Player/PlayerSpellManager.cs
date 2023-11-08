@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -188,6 +187,11 @@ namespace AF
 
         void EvaluateSpellCastEffects(Spell currentSpell)
         {
+            if (currentSpell.healingAmount != -1)
+            {
+                playerHealthbox.GetComponent<HealthStatManager>().RestoreHealthPoints(currentSpell.healingAmount + Player.instance.GetCurrentReputation() * 10);
+            }
+
             if (currentSpell.selfDamageAmount != -1)
             {
                 playerHealthbox.TakeEnvironmentalDamage(currentSpell.selfDamageAmount, 0, true, 0, currentSpell.selfDamageType);

@@ -99,7 +99,7 @@ namespace AF
             agent.updateRotation = false;
             StopAllCoroutines();
 
-            animator.CrossFade(interactWithPlayerAnimation, 0.1f);
+            animator.Play(interactWithPlayerAnimation);
             agent.isStopped = true;
         }
 
@@ -119,7 +119,7 @@ namespace AF
 
             if (string.IsNullOrEmpty(animationBeforeInterruption) == false)
             {
-                animator.CrossFade(animationBeforeInterruption, .1f);
+                animator.Play(animationBeforeInterruption);
                 animationBeforeInterruption = "";
             }
             agent.updateRotation = true;

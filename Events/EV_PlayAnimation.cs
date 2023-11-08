@@ -16,7 +16,7 @@ namespace AF
         {
             yield return null;
 
-            animator.CrossFade(animationName, crossFadeTime);
+            animator.Play(animationName);
 
             yield return null;
 

@@ -1,10 +1,8 @@
 using UnityEngine;
-using StarterAssets;
 using UnityEngine.Events;
 
 namespace AF
 {
-
     public class GenericTrigger : MonoBehaviour, IEventNavigatorCapturable
     {
         StarterAssetsInputs inputs;
@@ -21,7 +19,7 @@ namespace AF
         [Tooltip("When we don't want to deactivate the trigger on input, but we also dont want it to register more inputs")]
         public bool triggerOnlyOnce = false;
         bool hasTriggered = false;
-        
+
         private void Awake()
         {
             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
@@ -35,9 +33,7 @@ namespace AF
                 return;
             }
 
-            uIDocumentKeyPrompt.key = "E";
-            uIDocumentKeyPrompt.action = actionName.GetText();
-            uIDocumentKeyPrompt.gameObject.SetActive(true);
+            uIDocumentKeyPrompt.DisplayPrompt("E", actionName.GetText());
         }
 
         public void OnInvoked()
@@ -69,6 +65,10 @@ namespace AF
             }
         }
 
+        public void OnReleased()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
 }

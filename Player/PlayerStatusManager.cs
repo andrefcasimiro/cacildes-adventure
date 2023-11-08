@@ -1,6 +1,6 @@
-using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AF
@@ -14,6 +14,11 @@ namespace AF
         PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
         ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
         UIDocumentStatusEffectV2 uIDocumentStatusEffectV2;
+
+        [Header("Status Consumable Protections")]
+        public bool immuneToPoison = false;
+        public bool immuneToFrostbite = false;
+        public bool immuneToFear = false;
 
         private void Awake()
         {
@@ -30,6 +35,21 @@ namespace AF
 
         public void InflictStatusEffect(StatusEffect statusEffect, float amount, bool hasReachedFullAmount)
         {
+            if (immuneToPoison && statusEffect.name.GetEnglishText() == "Poison")
+            {
+                return;
+            }
+
+            if (immuneToFear && statusEffect.name.GetEnglishText() == "Fear")
+            {
+                return;
+            }
+
+            if (immuneToFrostbite && statusEffect.name.GetEnglishText() == "Frostbite")
+            {
+                return;
+            }
+
             var idx = Player.instance.appliedStatus.FindIndex(x => x.statusEffect == statusEffect);
             if (idx != -1)
             {
@@ -72,7 +92,7 @@ namespace AF
         {
             List<AppliedStatus> statusToDelete = new List<AppliedStatus>();
 
-            foreach (var entry in Player.instance.appliedStatus)
+            foreach (var entry in Player.instance.appliedStatus.ToList())
             {
                 var negativeStatusEntry = defenseStatManager.negativeStatusResistances.Find(x => x.statusEffect == entry.statusEffect);
                 var decreaseRateWithDamage = 1f;

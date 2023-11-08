@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
@@ -13,7 +11,7 @@ namespace AF
 
         public int GetMaxHealth()
         {
-            return baseHealth + (int)(Mathf.Ceil(Player.instance.vitality * levelMultiplier)) + (int)(equipmentGraphicsHandler.vitalityBonus * levelMultiplier);
+            return baseHealth + (int)(Mathf.RoundToInt((Player.instance.vitality + equipmentGraphicsHandler.vitalityBonus) * levelMultiplier));
         }
 
         public void SubtractAmount(float amount)

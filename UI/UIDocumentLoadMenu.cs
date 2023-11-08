@@ -9,24 +9,18 @@ namespace AF
     {
         public VisualTreeAsset loadButtonEntryPrefab;
 
-        MenuManager menuManager;
 
         [Header("Localization")]
         public LocalizedText openSavesFolderText;
         public LocalizedText loadText;
         public LocalizedText deleteText;
 
-        private void Awake()
-        {
-            menuManager = FindObjectOfType<MenuManager>(true);
-        }
+        [Header("Components")]
+        public UIManager uIManager;
 
         private void OnEnable()
         {
             var root = GetComponent<UIDocument>().rootVisualElement;
-            menuManager.SetupNavMenu(root);
-            menuManager.SetActiveMenu(root, "ButtonLoad");
-            menuManager.TranslateNavbar(root);
 
             DrawUI(root, true);
         }
@@ -49,7 +43,6 @@ namespace AF
             targetRoot.Q<ScrollView>().Clear();
             targetRoot.Q<VisualElement>("SaveGameItemPreview").style.opacity = 0;
 
-            menuManager = FindObjectOfType<MenuManager>(true);
 
             foreach (var saveFileEntry in saveFiles)
             {
@@ -57,7 +50,7 @@ namespace AF
 
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 
-                btn.Q<Label>("Name").text = saveFileEntry.sceneName + " / " +LocalizedTerms.Level()+ " " + saveFileEntry.level + "";
+                btn.Q<Label>("Name").text = saveFileEntry.sceneName + " / " + LocalizedTerms.Level() + " " + saveFileEntry.level + "";
                 btn.Q<Label>("Value").text = System.DateTime.Parse(saveFileEntry.creationDate).ToString();
                 btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
 
@@ -68,12 +61,15 @@ namespace AF
 
                 deleteBtn.style.display = showDeleteButton ? DisplayStyle.Flex : DisplayStyle.None;
 
-                menuManager.SetupButton(loadBtn, () =>
+                uIManager.SetupButton(loadBtn, () =>
                 {
                     SaveSystem.instance.LoadGameData(saveFileEntry.fileFullPath);
+
+                    var menuManager = FindObjectOfType<MenuManager>(true);
+
                     menuManager.CloseMenu();
                 });
-                menuManager.SetupButton(deleteBtn, () =>
+                uIManager.SetupButton(deleteBtn, () =>
                 {
                     SaveSystem.instance.DeleteSaveFile(saveFileEntry.fileFullPath, saveFileEntry.fileFullPath.Replace("json", "jpg"));
                     DrawUI(targetRoot, showDeleteButton);

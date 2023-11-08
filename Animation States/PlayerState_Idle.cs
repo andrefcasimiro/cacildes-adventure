@@ -1,4 +1,3 @@
-using StarterAssets;
 using UnityEngine;
 
 namespace AF
@@ -10,6 +9,7 @@ namespace AF
         DodgeController dodgeController;
 
         CharacterController characterController;
+        PlayerComponentManager playerComponentManager;
         ThirdPersonController thirdPersonController;
 
         PlayerCombatController combatController;
@@ -49,6 +49,15 @@ namespace AF
             if (combatController == null)
             {
                 combatController = animator.GetComponent<PlayerCombatController>();
+            }
+
+            if (playerComponentManager == null)
+            {
+                playerComponentManager = animator.GetComponent<PlayerComponentManager>();
+            }
+            else
+            {
+                playerComponentManager.EnableCollisionWithEnemies();
             }
 
             combatController.skipIK = false;

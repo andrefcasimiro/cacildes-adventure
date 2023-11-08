@@ -85,8 +85,9 @@ namespace AF
         public bool canFall = true;
         public float distToGround = 0.1f;
         float lastGroundedPositionY;
-        float minimumFallHeightToTakeDamage = 1f;
+        float minimumFallHeightToTakeDamage = .75f;
         float damageMultiplierPerMeter = 65f;
+        bool hasTakenFallDamage = false;
 
         [Header("Audio Sources")]
         public AudioSource combatAudioSource;
@@ -146,6 +147,9 @@ namespace AF
         [HideInInspector] public float attackReducingFactor = 1;
         [HideInInspector] public float healthReducingFactor = 1;
 
+        [Header("Invalid Path Options")]
+        public bool avoidInvalidPathsAlways = false;
+
         private void Awake()
         {
             player = GameObject.FindWithTag("Player");
@@ -176,7 +180,7 @@ namespace AF
 
             if (canFall == false)
             {
-                animator.SetBool("IsGrounded", true);
+                animator.SetBool(hashIsGrounded, true);
             }
         }
 
@@ -192,14 +196,14 @@ namespace AF
             {
                 var animSpeed = Mathf.Clamp(animatorSpeed - 0.1f, 0.75f, Mathf.Infinity);
                 animator.speed = animSpeed;
-                attackReducingFactor = 4;
+                attackReducingFactor = 3f;
                 healthReducingFactor = 1.5f;
             }
             else if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.MEDIUM)
             {
                 animator.speed = defaultAnimatorSpeed;
-                attackReducingFactor = 2;
-                healthReducingFactor = 1;
+                attackReducingFactor = 1.5f;
+                healthReducingFactor = 1.1f;
             }
             else
             {
@@ -224,14 +228,16 @@ namespace AF
                 {
                     if (enemyPostureController == null || enemyPostureController.IsStunned() == false)
                     {
-                        characterController.Move(new Vector3(0.0f, -4.5f, 0.0f) * Time.deltaTime);
+                        BeginFall();
 
-                        animator.SetBool("IsGrounded", CheckEnemyGrounded());
+                        characterController.Move(new Vector3(0.0f, -9f, 0.0f) * Time.deltaTime);
+
+                        animator.SetBool(hashIsGrounded, CheckEnemyGrounded());
                     }
                 }
                 else
                 {
-                    animator.SetBool("IsGrounded", true);
+                    animator.SetBool(hashIsGrounded, true);
                 }
             }
 
@@ -271,7 +277,7 @@ namespace AF
             Ray groundRay = new Ray(transform.position, Vector3.down);
 
             // Set the maximum distance the ray can travel
-            float maxDistance = 2f;
+            float maxDistance = 1f;
 
             // Create a RaycastHit variable to store the information about the hit
             RaycastHit hit;
@@ -329,10 +335,13 @@ namespace AF
             slamDirection.y = 0;
 
             // Calculate the push force value, taking weight into account
-            var pushForceValue = pushForce * (5f - (float)enemy.weight) * 3.5f;
+            var pushForceValue = pushForce * (5f - (float)enemy.weight) * 2.5f;
 
-            // Ensure the push force is not negative
-            pushForceValue = Mathf.Max(pushForceValue, 1f);
+            // Ensure the push force is not negative if initial push force given was positive
+            if (pushForce >= 0)
+            {
+                pushForceValue = Mathf.Max(pushForceValue, 1f);
+            }
 
             Vector3 targetPos = (pushForceValue) * slamDirection;
 
@@ -350,16 +359,16 @@ namespace AF
         public void BeginFall()
         {
             lastGroundedPositionY = transform.position.y;
+            hasTakenFallDamage = false;
         }
         public void StopFall()
         {
             var currentFallHeight = Mathf.Abs(lastGroundedPositionY - transform.position.y);
 
             // Takes fall damage?
-            if (currentFallHeight > minimumFallHeightToTakeDamage && canFall
-            // Just to have something that ensures this only triggers once
-                && agent.enabled == false)
+            if (currentFallHeight > minimumFallHeightToTakeDamage && canFall && !hasTakenFallDamage)
             {
+                hasTakenFallDamage = true;
                 enemyHealthController.TakeEnvironmentalDamage(
                     Mathf.RoundToInt(currentFallHeight * damageMultiplierPerMeter));
             }
@@ -374,11 +383,15 @@ namespace AF
                 targetPosition = hit.position;
             }
 
+            agent.updatePosition = false;
+
             // Disable the character controller temporarily to avoid conflicts
             characterController.enabled = false;
 
             // Teleport the agent to the target position smoothly
-            agent.Warp(targetPosition);
+            transform.position = targetPosition;
+            agent.Warp(transform.position);
+
             agent.updatePosition = true;
 
             // Re-enable the character controller
@@ -399,7 +412,7 @@ namespace AF
             enemyHealthController.currentHealth = enemyHealthController.GetMaxHealth();
             enemyHealthController.EnableHealthHitboxes();
             enemyHealthController.InitializeEnemyHUD();
-            
+
             if (customReviveTransformRef != null)
             {
                 transform.position = customReviveTransformRef.transform.position;
@@ -427,8 +440,8 @@ namespace AF
                 animator.Play(hashIdle);
             }
 
-                // Remove all negative status
-                enemyNegativeStatusController.ClearAllNegativeStatus();
+            // Remove all negative status
+            enemyNegativeStatusController.ClearAllNegativeStatus();
 
             if (enemyPostureController != null)
             {
@@ -451,7 +464,7 @@ namespace AF
 
             onRevive.Invoke();
 
-            characterController.detectCollisions = true;
+            characterController.excludeLayers = LayerMask.GetMask("Nothing");
         }
 
         public bool PlayerIsBehind()
@@ -502,7 +515,5 @@ namespace AF
         {
             return agent.enabled && agent.isOnNavMesh;
         }
-
-
     }
 }

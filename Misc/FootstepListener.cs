@@ -1,5 +1,4 @@
 using UnityEngine;
-using StarterAssets;
 
 namespace AF
 {

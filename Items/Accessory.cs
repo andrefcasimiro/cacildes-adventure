@@ -13,6 +13,7 @@ namespace AF
         public int healthBonus = 0;
         public int staminaBonus = 0;
         public int physicalAttackBonus = 0;
+        public int jumpAttackBonus = 0;
 
         [Header("Destroy On Equip Edge Case")]
         public bool destroyOnUnequip = false;

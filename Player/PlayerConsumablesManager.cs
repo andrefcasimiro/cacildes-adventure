@@ -12,8 +12,12 @@ namespace AF
         StaminaStatManager staminaStatManager => GetComponent<StaminaStatManager>();
         PlayerHealthbox playerHealthbox => GetComponentInChildren<PlayerHealthbox>();
         AttackStatManager attackStatManager => GetComponent<AttackStatManager>();
-        StarterAssets.ThirdPersonController thirdPersonController => GetComponent<StarterAssets.ThirdPersonController>();
+        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+
+        [Header("Components")]
+        public PlayerStatusManager playerStatusManager;
+        public PlayerPoiseController playerPoiseController;
 
         bool isPassingTime = false;
 
@@ -148,6 +152,26 @@ namespace AF
             {
                 playerHealthbox.fartOnHit = false;
             }
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FIRE)
+            {
+                playerHealthbox.isImmuneToFireDamage = false;
+            }
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_POISON)
+            {
+                playerStatusManager.immuneToPoison = false;
+            }
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FEAR)
+            {
+                playerStatusManager.immuneToFear = false;
+            }
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FROSTBITE)
+            {
+                playerStatusManager.immuneToFrostbite = false;
+            }
+            else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.INCREASES_POISE)
+            {
+                playerPoiseController.poiseBonus -= (int)consumableToDelete.consumableEffect.value;
+            }
 
         }
 
@@ -212,6 +236,10 @@ namespace AF
                 {
                     illusionaryWall.hasBeenHit = true;
                 }
+                foreach (var veilPiercerActivable in FindObjectsByType<VeilPiercerActivable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                {
+                    veilPiercerActivable.gameObject.SetActive(false);
+                }
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.FART_ON_HIT)
             {
@@ -237,6 +265,27 @@ namespace AF
 
                 favoriteItemsManager.UpdateFavoriteItems();
             }
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FIRE)
+            {
+                playerHealthbox.isImmuneToFireDamage = true;
+            }
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_POISON)
+            {
+                playerStatusManager.immuneToPoison = true;
+            }
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FEAR)
+            {
+                playerStatusManager.immuneToFear = true;
+            }
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FROSTBITE)
+            {
+                playerStatusManager.immuneToFrostbite = true;
+            }
+            else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.INCREASES_POISE)
+            {
+                playerPoiseController.poiseBonus += (int)entry.consumableEffect.value;
+            }
+
         }
 
 

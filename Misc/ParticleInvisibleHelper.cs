@@ -9,11 +9,21 @@ namespace AF
 
         void OnBecameVisible()
         {
+            if (particleSystem == null)
+            {
+                return;
+            }
+
             particleSystem.Play();
         }
 
         void OnBecameInvisible()
         {
+            if (particleSystem == null)
+            {
+                return;
+            }
+
             particleSystem.Stop();
 
             particleSystem.Play();

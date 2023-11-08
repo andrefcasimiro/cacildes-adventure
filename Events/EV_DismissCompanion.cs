@@ -1,7 +1,4 @@
 ﻿using System.Collections;
-using UnityEngine;
-using System.Collections.Generic;
-using Unity.Burst.CompilerServices;
 
 namespace AF
 {

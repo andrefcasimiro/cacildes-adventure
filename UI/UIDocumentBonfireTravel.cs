@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,11 +34,22 @@ namespace AF
             cursorManager = FindAnyObjectByType<CursorManager>(FindObjectsInactive.Include);
             thirdPersonController = FindAnyObjectByType<ThirdPersonController>(FindObjectsInactive.Include);
 
+
             gameObject.SetActive(false);
         }
 
         private void Start()
         {
+
+        }
+
+        void Close()
+        {
+
+            thirdPersonController.LockCameraPosition = false;
+
+            uIDocumentBonfireMenu.gameObject.SetActive(true);
+            this.gameObject.SetActive(false);
         }
 
         private void OnEnable()
@@ -48,10 +58,7 @@ namespace AF
 
             root.Q<Button>("CloseBtn").RegisterCallback<ClickEvent>(ev =>
             {
-                thirdPersonController.LockCameraPosition = false;
-
-                uIDocumentBonfireMenu.gameObject.SetActive(true);
-                this.gameObject.SetActive(false);
+                Close();
             });
 
 

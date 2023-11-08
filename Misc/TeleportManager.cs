@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections;
 using UnityEngine;
 
@@ -34,7 +33,7 @@ namespace AF
             SNOWY_MOUNTAIN_TEMPLE = 18,
             DRUIDS_FOREST = 19,
             HELL = 20,
-            COLLISEUM = 22
+            COLLISEUM = 6 //22 for production
         }
 
         private void Awake()    

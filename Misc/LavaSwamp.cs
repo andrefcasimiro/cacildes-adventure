@@ -1,11 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AF
 {
     public class LavaSwamp : MonoBehaviour
     {
+        [Header("Enemies to ignore")]
+        public Enemy[] enemiesToIgnore;
+
         [Header("Status Effect")]
         public float maxCooldownDamage = 1f;
         float cooldown = Mathf.Infinity;
@@ -32,6 +36,24 @@ namespace AF
                 return;
             }
 
+            if (other.gameObject.CompareTag("Enemy"))
+            {
+                EnemyManager enemyManager = other.GetComponent<EnemyManager>();
+
+                if (enemyManager != null)
+                {
+                    if (enemiesToIgnore.Contains(enemyManager.enemy))
+                    {
+                        return;
+                    }
+
+                    var enemyFireDamage = enemyManager.enemy.fireDamageBonus * fireDamage;
+                    enemyManager.enemyHealthController.TakeEnvironmentalDamage(enemyFireDamage);
+                }
+
+                return;
+            }
+
             if (!other.gameObject.CompareTag("Player"))
             {
                 return;
@@ -54,7 +76,7 @@ namespace AF
                 playerHealthbox = FindAnyObjectByType<PlayerHealthbox>(FindObjectsInactive.Include);
             }
 
-            playerHealthbox.TakeEnvironmentalDamage(baseDamage, 1, true, (int)finalStatusAmount, WeaponElementType.Fire);
+            playerHealthbox.TakeEnvironmentalDamage(baseDamage, playerHealthbox.isImmuneToFireDamage ? 0 : 1, true, (int)finalStatusAmount, WeaponElementType.Fire);
 
             fireFx.transform.position = other.ClosestPoint(this.transform.position);
             fireFx.Play();

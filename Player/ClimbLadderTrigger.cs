@@ -1,5 +1,4 @@
 using UnityEngine;
-using StarterAssets;
 
 namespace AF
 {
@@ -60,7 +59,7 @@ namespace AF
             }
 
             climbController = other.gameObject.GetComponent<ClimbController>();
-            if (climbController!= null && climbController.climbState != ClimbController.ClimbState.NONE)
+            if (climbController != null && climbController.climbState != ClimbController.ClimbState.NONE)
             {
                 return;
             }
@@ -70,9 +69,7 @@ namespace AF
                 return;
             }
 
-            uIDocumentKeyPrompt.key = "E";
-            uIDocumentKeyPrompt.action = LocalizedTerms.UseLadder();
-            uIDocumentKeyPrompt.gameObject.SetActive(true);
+            uIDocumentKeyPrompt.DisplayPrompt("E", LocalizedTerms.UseLadder());
         }
 
         public void OnInvoked()
@@ -127,6 +124,11 @@ namespace AF
                     climbController.ExitToBottom();
                 }
             }
+        }
+
+        public void OnReleased()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -132,8 +132,11 @@ namespace AF
 
         public void DisableHitbox()
         {
-            // Disable Tracking
-            enemy.facePlayer = false;
+            if (enemy != null)
+            {
+                // Disable Tracking
+                enemy.facePlayer = false;
+            }
 
             boxCollider.enabled = false;
 
@@ -193,7 +196,7 @@ namespace AF
                 int playerParryBonus = (int)playerParryManager.GetComponent<EquipmentGraphicsHandler>().parryPostureDamageBonus;
                 if (playerParryBonus > 0)
                 {
-                    parryDamage = enemy.enemy.postureDamagePerParry + playerParryBonus;
+                    parryDamage = enemy.enemy.postureDamagePerParry + playerParryBonus + playerParryManager.BASE_PARRY_DAMAGE;
                 }
 
                 enemy.enemyPostureController.TakePostureDamage(parryDamage);

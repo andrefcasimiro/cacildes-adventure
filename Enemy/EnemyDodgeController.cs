@@ -105,7 +105,6 @@ namespace AF
             if (enemyManager.enemy.dodgeSfx != null && enemyManager.combatAudioSource != null)
             {
                 BGMManager.instance.PlaySoundWithPitchVariation(enemyManager.enemy.dodgeSfx, enemyManager.combatAudioSource);
-                Debug.Log("Playing DODGE");
             }
 
             enemyManager.enemyHealthController.DisableHealthHitboxes();

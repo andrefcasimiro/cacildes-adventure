@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using StarterAssets;
 using JetBrains.Annotations;
 using UnityEditor.Rendering;
 
@@ -9,6 +8,8 @@ namespace AF
 {
     public class PlayerParryManager : MonoBehaviour
     {
+        public int BASE_PARRY_DAMAGE = 30;
+
         public readonly int hashIsBlocking = Animator.StringToHash("IsBlocking");
         public readonly int hashIsTakingBlockHit = Animator.StringToHash("IsTakingBlockHit");
 

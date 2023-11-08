@@ -30,6 +30,11 @@ namespace AF
             });
 
             var instance = combatNotificationManager.GetInstance();
+            if (instance == null)
+            {
+                return;
+            }
+
             instance.transform.position = notificationRootTransform.transform.position;
             instance.transform.SetParent(notificationRootTransform);
             instance.currentDuration = 0f;

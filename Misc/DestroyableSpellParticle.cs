@@ -21,6 +21,7 @@ namespace AF
         public float maxTimeBetweenDamage = 0.1f;
 
         public int pushForce = 0;
+        public bool isPullForce = false;
 
         private void OnParticleCollision(GameObject other)
         {
@@ -71,14 +72,12 @@ namespace AF
                 return;
             }
 
-
-            enemyHealthController = other.GetComponent<EnemyHealthController>();
-            if (enemyHealthController == null)
+            if (!other.TryGetComponent<EnemyHealthController>(out enemyHealthController))
             {
                 enemyHealthController = other.GetComponentInParent<EnemyHealthController>();
             }
 
-            if (enemyHealthController != null)
+            if (enemyHealthController != null && enemyHealthController.currentHealth > 0)
             {
                 if (collideOnlyOnce == true && enemiesHit.Contains(enemyHealthController))
                 {
@@ -134,9 +133,15 @@ namespace AF
                     damage += (reputation * 2.25f);
                 }
 
+                if (spell.spellPostureDamage > 0)
+                {
+                    enemyHealthController.GetComponent<EnemyPostureController>().TakePostureDamage(spell.spellPostureDamage);
+                }
+
                 if (pushForce != 0)
                 {
-                    var finalPushForce = Player.instance.CalculateSpellValue(pushForce, intelligenceBonus + Player.instance.intelligence);
+                    var finalPushForce = pushForce + Player.instance.CalculateSpellValue(pushForce, intelligenceBonus + Player.instance.intelligence);
+
 
                     if (spell.increaseDamageWithReputation)
                     {
@@ -150,10 +155,23 @@ namespace AF
                         finalPushForce += (reputation);
                     }
 
-                    other.GetComponent<EnemyManager>().PushEnemy(finalPushForce * 5, ForceMode.Acceleration);
+                    int roundedValue = finalPushForce;
+                    if (isPullForce)
+                    {
+                        roundedValue *= -1;
+                    }
+                    else
+                    {
+                        roundedValue = Mathf.RoundToInt(finalPushForce / 10);
+                    }
+
+                    if (other.TryGetComponent<EnemyManager>(out var enemyManager))
+                    {
+                        enemyManager.PushEnemy(roundedValue, ForceMode.Acceleration);
+                    }
                 }
 
-                var targetAccessory = Player.instance.equippedAccessories.Find(x => x.spellDamageMultiplier > 0);
+                var targetAccessory = Player.instance.equippedAccessories.Find(x => x.increasesSpellDamage && x.spellDamageMultiplier > 0);
                 if (targetAccessory != null)
                 {
                     damage = (int)(damage * targetAccessory.spellDamageMultiplier);
@@ -170,9 +188,10 @@ namespace AF
 
                 if (spell.statusEffectInflict != null)
                 {
-                    var enemyStatus = other.GetComponent<EnemyNegativeStatusController>();
-
-                    enemyStatus.InflictStatusEffect(spell.statusEffectInflict, spell.statusEffectInflictAmount);
+                    if (other.TryGetComponent<EnemyNegativeStatusController>(out var enemyStatus))
+                    {
+                        enemyStatus.InflictStatusEffect(spell.statusEffectInflict, spell.statusEffectInflictAmount);
+                    }
                 }
 
                 if (collideOnlyOnce == false)

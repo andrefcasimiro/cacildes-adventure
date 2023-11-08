@@ -1,7 +1,3 @@
-using JetBrains.Annotations;
-using StarterAssets;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -39,9 +35,11 @@ namespace AF
         public GameObject playerCamera;
         public GameObject aimingCamera;
 
-        StarterAssetsInputs starterAssetsInputs;
-
-        ViewAimBow viewAimBow;
+        [Header("Stamina Cost")]
+        public int minimumStaminaToShoot = 10;
+        StaminaStatManager staminaStatManager => GetComponent<StaminaStatManager>();
+        [Header("Achievements")]
+        public Achievement achievementOnShootingBowForFirstTime;
 
         private void Start()
         {
@@ -52,37 +50,7 @@ namespace AF
 
             lockOnManager = FindObjectOfType<LockOnManager>(true);
 
-            starterAssetsInputs = FindAnyObjectByType<StarterAssetsInputs>(FindObjectsInactive.Include);
-            starterAssetsInputs.onAimInput += () =>
-            {
-                isAimingInFirstPersonMode = !isAimingInFirstPersonMode;
 
-                UpdateIsAiming();
-            };
-
-            viewAimBow = FindAnyObjectByType<ViewAimBow>(FindObjectsInactive.Include);
-        }
-
-        public void UpdateIsAiming()
-        {
-            lockOnManager.DisableLockOn();
-
-            if (isAimingInFirstPersonMode)
-            {
-                aimingCamera.gameObject.SetActive(true);
-                playerCamera.gameObject.SetActive(false);
-
-                Soundbank.instance.PlayUIHover();
-                viewAimBow.gameObject.SetActive(true);
-            }
-            else
-            {
-                aimingCamera.gameObject.SetActive(false);
-                playerCamera.gameObject.SetActive(true);
-
-                Soundbank.instance.PlayUICancel();
-                viewAimBow.gameObject.SetActive(false);
-            }
         }
 
         public void ShootBow(ConsumableProjectile consumableProjectile)
@@ -98,9 +66,16 @@ namespace AF
                 return;
             }
 
+            achievementOnShootingBowForFirstTime.AwardAchievement();
+
             this.currentProjectile = consumableProjectile.projectile;
 
             playerInventory.RemoveItem(consumableProjectile, 1);
+
+            if (!IsShooting())
+            {
+                staminaStatManager.DecreaseStamina(minimumStaminaToShoot);
+            }
 
             if (isAimingInFirstPersonMode)
             {
@@ -171,6 +146,11 @@ namespace AF
 
         bool CanShoot()
         {
+            if (Player.instance.currentStamina < minimumStaminaToShoot)
+            {
+                return false;
+            }
+
             if (playerCombatController.isCombatting)
             {
                 notificationManager.ShowNotification(LocalizedTerms.CantShootArrowsAtThisTime(), notificationManager.systemError);
@@ -193,6 +173,8 @@ namespace AF
                 notificationManager.ShowNotification(LocalizedTerms.CantShootArrowsAtThisTime(), notificationManager.systemError);
                 return false;
             }
+
+
 
             // If player is on the ground for being stunned
             if (animator.GetBool("IsStunned"))
@@ -220,8 +202,8 @@ namespace AF
             GameObject projectileInstance = Instantiate(currentProjectile.gameObject, projectileSpawnPointRef.position, transform.rotation);
 
             Projectile projectile = projectileInstance.GetComponent<Projectile>();
-            
-            
+
+
             if (projectile != null && projectile.useChildren == false)
             {
                 projectile.isFromPlayer = true;
@@ -237,7 +219,8 @@ namespace AF
                     projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
                 }
 
-            } else
+            }
+            else
             {
                 // Multiple projectiles edge case
                 var projectiles = projectileInstance.GetComponentsInChildren<Projectile>();
@@ -288,8 +271,6 @@ namespace AF
 
                 projectile.Shoot(lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform.position : this.transform.position + this.transform.forward * 10f, lockOnManager.nearestLockOnTarget != null);
             }
-
-           
         }
         #endregion
 

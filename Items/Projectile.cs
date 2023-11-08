@@ -57,6 +57,13 @@ namespace AF
         [Header("Triple Arrows Edge Case")]
         public bool useChildren = false;
 
+        [Header("Fire traps edge cases")]
+        public bool collideOnlyWithEnemies = false;
+
+        [Header("Confetti Traps")]
+        public bool isConfettiTrap = false;
+        public StatusEffect[] possibleStatusEffects;
+
         private void Start()
         {
             hasCollidedAlready = false;
@@ -152,8 +159,17 @@ namespace AF
             if (playerParrymanager.IsBlocking() && Vector3.Angle(transform.forward, playerParrymanager.transform.forward * -1) <= 90f)
             {
                 Instantiate(Player.instance.equippedShield.blockFx, other.transform.position, Quaternion.identity);
-
             }
+
+            if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.EASY)
+            {
+                projectileDamage = (int)(projectileDamage / 3);
+            }
+            else if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.MEDIUM)
+            {
+                projectileDamage = (int)(projectileDamage / 2);
+            }
+
 
             // Take damage
             playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage, projectileAttackElement, projectileAttackElementType);
@@ -169,8 +185,158 @@ namespace AF
             }
         }
 
+        void EvaluateConfettiTrap(EnemyManager enemyManager)
+        {
+            var dice = Random.Range(0f, 100);
+            // Elemental Damage
+            if (dice <= 25)
+            {
+                // Elemental Sutff going on
+                var randomElementDice = Random.Range(0, 1f);
+                WeaponElementType randomElement = WeaponElementType.None;
+
+                if (randomElementDice <= .25f)
+                {
+                    randomElement = WeaponElementType.Fire;
+                }
+                else if (randomElementDice <= 0.5f)
+                {
+                    randomElement = WeaponElementType.Frost;
+                }
+                else if (randomElementDice <= 0.75f)
+                {
+                    randomElement = WeaponElementType.Magic;
+                }
+                else
+                {
+                    randomElement = WeaponElementType.Lightning;
+                }
+
+                var elementalDefense = 1f;
+                switch (randomElement)
+                {
+                    case WeaponElementType.Fire:
+                        elementalDefense = enemyManager.enemy.fireDamageBonus * 25 / 100; // Convert to percentage
+                        break;
+                    case WeaponElementType.Frost:
+                        elementalDefense = enemyManager.enemy.frostDamageBonus * 25 / 100; // Convert to percentage
+                        break;
+                    case WeaponElementType.Lightning:
+                        elementalDefense = enemyManager.enemy.lightningDamageBonus * 25 / 100; // Convert to percentage
+                        break;
+                    case WeaponElementType.Magic:
+                        elementalDefense = enemyManager.enemy.magicDamageBonus * 25 / 100; // Convert to percentage
+                        break;
+                }
+                projectileDamage += (projectileDamage * elementalDefense);
+
+                enemyManager.enemyHealthController
+                    .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
+            }
+            else if (dice <= 50)
+            {
+                var statusEffectToApply = possibleStatusEffects[Random.Range(0, possibleStatusEffects.Length)];
+                if (statusEffectToApply != null && enemyManager.enemyNegativeStatusController != null)
+                {
+                    enemyManager.enemyNegativeStatusController.InflictStatusEffect(statusEffectToApply, Random.Range(25f, 50f));
+                }
+            }
+            else if (dice <= 75)
+            {
+                enemyManager.PushEnemy(Random.Range(2, 8), ForceMode.Impulse);
+            }
+            else if (dice <= 85)
+            {
+                enemyManager.enemyHealthController.RestoreHealthPercentage(100);
+            }
+            else if (dice <= 95)
+            {
+                enemyManager.enemyHealthController.TakeEnvironmentalDamage(9999999);
+            }
+            else
+            {
+                enemyManager.enemyHealthController.TakeEnvironmentalDamage(25);
+            }
+        }
+
         private void OnTriggerEnter(Collider other)
         {
+            if (collideOnlyWithEnemies)
+            {
+                if (!other.gameObject.CompareTag("Enemy"))
+                {
+                    return;
+                }
+
+                EnemyManager enemyManager = other.gameObject.GetComponent<EnemyManager>();
+                if (enemyManager == null)
+                {
+                    enemyManager = other.GetComponentInParent<EnemyManager>();
+                }
+
+                if (enemyManager == null)
+                {
+                    return;
+                }
+                
+                if (!hasCollidedAlready)
+                {
+
+                    if (particleFx != null)
+                    {
+                        particleFx.gameObject.SetActive(false);
+                    }
+
+                    if (particleOnHitFx != null && hasCollidedAlready == false)
+                    {
+                        Instantiate(particleOnHitFx, other.ClosestPointOnBounds(transform.position), Quaternion.identity);
+                    }
+
+
+                    hasCollidedAlready = true;
+
+                    if (isConfettiTrap)
+                    {
+                        EvaluateConfettiTrap(enemyManager);
+
+                        Destroy(this.gameObject);
+                        return;
+                    }
+
+                    // Apply elemental defense reduction based on weaponElementType
+                    float elementalDefense = 0f;
+                    switch (projectileAttackElementType)
+                    {
+                        case WeaponElementType.Fire:
+                            elementalDefense = enemyManager.enemy.fireDamageBonus * 25 / 100; // Convert to percentage
+                            break;
+                        case WeaponElementType.Frost:
+                            elementalDefense = enemyManager.enemy.frostDamageBonus * 25 / 100; // Convert to percentage
+                            break;
+                        case WeaponElementType.Lightning:
+                            elementalDefense = enemyManager.enemy.lightningDamageBonus * 25 / 100; // Convert to percentage
+                            break;
+                        case WeaponElementType.Magic:
+                            elementalDefense = enemyManager.enemy.magicDamageBonus * 25 / 100; // Convert to percentage
+                            break;
+                    }
+
+                    projectileDamage += (projectileDamage * elementalDefense);
+
+
+                    enemyManager.enemyHealthController
+                        .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
+
+                    enemyManager.PushEnemy(projectilePushForce, ForceMode.Impulse);
+
+                    if (statusEffectToApply != null && enemyManager.enemyNegativeStatusController != null)
+                    {
+                        enemyManager.enemyNegativeStatusController.InflictStatusEffect(statusEffectToApply, amountOfStatusEffectToApply);
+                    }
+                }
+
+                return;
+            }
 
 
             if (other.CompareTag("Explodable"))

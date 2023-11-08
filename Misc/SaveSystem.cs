@@ -18,14 +18,6 @@ namespace AF
     {
         public static SaveSystem instance;
 
-        public AudioClip saveSfx;
-        public AudioClip saveErrorSfx;
-
-        public string QUICK_SAVE_FILE_NAME = "quicksave";
-        public string SAVE_FILE_NAME = "save_game_";
-
-        public int MAX_SAVE_FILES_ALLOWED = 15;
-
         public DateTime sessionStartDateTime;
 
         double totalPlayTimeInSeconds;
@@ -33,6 +25,8 @@ namespace AF
         public bool loadingFromGameOver = false;
 
         ScreenshotCaptureManager screenshotCaptureManager;
+
+        bool isLoading = false;
 
         private void Awake()
         {
@@ -115,6 +109,9 @@ namespace AF
 
             GameData gameData = new()
             {
+                playerHasDied = Player.instance.memorizePlayerDeath || Player.instance.playerHasDied,
+                playerWasHit = Player.instance.memorizePlayerWasHit || Player.instance.playerWasHit,
+
                 // Save file stuff
                 isQuickSave = saveGameName.ToLower().Contains("quicksave"),
                 saveFileCreationDate = DateTime.Now.ToString(),
@@ -151,7 +148,7 @@ namespace AF
                 dexterity = Player.instance.dexterity,
                 intelligence = Player.instance.intelligence,
 
-          }; 
+            };
 
             gameData.playerData = playerData;
 
@@ -243,7 +240,7 @@ namespace AF
                 {
                     uuid = _variable.variableEntry.name,
                     variableName = _variable.variableEntry.name,
-                    value = _variable.variableEntry.value
+                    value = _variable.currentValue
                 };
                 variables.Add(serializableVariable);
             }
@@ -310,7 +307,7 @@ namespace AF
             List<SerializableFaction> factionsToSave = new();
             foreach (var factionEntry in FactionManager.instance.factionEntriesDictionary)
             {
-                factionsToSave.Add(new(){  factionName = factionEntry.Key, playerReputationWithinFaction = factionEntry.Value.currentPlayerAffinityWithFaction });
+                factionsToSave.Add(new() { factionName = factionEntry.Key, playerReputationWithinFaction = factionEntry.Value.currentPlayerAffinityWithFaction });
             }
             gameData.factions = factionsToSave.ToArray();
 
@@ -319,8 +316,10 @@ namespace AF
             List<SerializableShops> shopsToSave = new();
             foreach (var shopEntry in ShopManager.instance.characterShopInstances)
             {
-                SerializableShopItem[] itemsBoughtFromPlayer = shopEntry.boughtItemsFromPlayer.Select(item => {
-                    return new SerializableShopItem() {
+                SerializableShopItem[] itemsBoughtFromPlayer = shopEntry.boughtItemsFromPlayer.Select(item =>
+                {
+                    return new SerializableShopItem()
+                    {
                         itemName = item.item.name.GetEnglishText(),
                         itemCount = item.quantity,
                         priceModifier = item.priceModifier,
@@ -328,8 +327,10 @@ namespace AF
                     };
                 }).ToArray();
 
-                SerializableShopItem[] boughtItemsByPlayerThatDoNotRestock = shopEntry.boughtItemsByPlayerThatDoNotRestock.Select(item => {
-                    return new SerializableShopItem() {
+                SerializableShopItem[] boughtItemsByPlayerThatDoNotRestock = shopEntry.boughtItemsByPlayerThatDoNotRestock.Select(item =>
+                {
+                    return new SerializableShopItem()
+                    {
                         itemName = item.item.name.GetEnglishText(),
                         itemCount = item.quantity,
                         priceModifier = item.priceModifier,
@@ -337,8 +338,10 @@ namespace AF
                     };
                 }).ToArray();
 
-                SerializableShopItem[] stockItems = shopEntry.itemStock.Select(item => {
-                    return new SerializableShopItem() {
+                SerializableShopItem[] stockItems = shopEntry.itemStock.Select(item =>
+                {
+                    return new SerializableShopItem()
+                    {
                         itemName = item.item.name.GetEnglishText(),
                         itemCount = item.quantity,
                         priceModifier = item.priceModifier,
@@ -383,6 +386,13 @@ namespace AF
         #region Load
         public void LoadGameData(string filePath)
         {
+            if (isLoading)
+            {
+                return;
+            }
+
+            isLoading = true;
+
             GameData gameData = GetGameData(filePath);
 
             StartCoroutine(CallLoad(gameData));
@@ -398,7 +408,7 @@ namespace AF
             foreach (var file in files)
             {
                 var thisFileWriteTime = File.GetLastWriteTime(file);
-                
+
                 if (targetFileDateTime.CompareTo(thisFileWriteTime) < 0)
                 {
                     targetFile = file;
@@ -439,18 +449,28 @@ namespace AF
 
         IEnumerator CallLoad(GameData gameData)
         {
-            // If loading game, make sure we never show the title screen again
-            if (Player.instance.hasShownTitleScreen == false)
-            {
-                Player.instance.hasShownTitleScreen = true;
-            }
+            // Mark all switches as false for a fresh state
+            SwitchManager.instance.ResetSwitches();
 
-            yield return Player.instance.HandleLoadScene(gameData.currentSceneIndex, false);
+            // Mark all variables as false for a fresh state
+            VariableManager.instance.ResetVariables();
 
+            yield return Player.instance.HandleLoadScene(gameData.currentSceneIndex, false, gameData);
+        }
+
+        public void FinishLoad(GameData gameData)
+        {
+            StartCoroutine(_FinishLoad(gameData));
+        }
+
+        IEnumerator _FinishLoad(GameData gameData)
+        {
             yield return null;
 
             GameObject player = FindAnyObjectByType<PlayerCombatController>(FindObjectsInactive.Include).gameObject;
+
             player.gameObject.SetActive(true);
+
 
             player.GetComponent<CharacterController>().enabled = false;
             player.GetComponent<PlayerComponentManager>().UpdatePosition(gameData.playerData.position, gameData.playerData.rotation);
@@ -464,6 +484,9 @@ namespace AF
 
             // Update Switch Manager first
             SwitchManager.instance.OnGameLoaded(gameData);
+
+            // Then varaibles
+            VariableManager.instance.OnGameLoaded(gameData);
 
             var saveables = FindObjectsOfType<MonoBehaviour>(true).OfType<ISaveable>();
 
@@ -481,7 +504,9 @@ namespace AF
             yield return Player.instance.HideLoadingScreen();
 
             loadingFromGameOver = false;
+            isLoading = false;
         }
+
         #endregion
 
         #region Delete
@@ -585,7 +610,7 @@ namespace AF
         public Texture2D screenshot;
         public string currentObjective;
     }
-    
+
     [System.Serializable]
     public class LostCoins
     {
@@ -597,7 +622,8 @@ namespace AF
     }
 
     [System.Serializable]
-    public class SerializedCompanion {
+    public class SerializedCompanion
+    {
         public string companionId;
 
         public bool isWaitingForPlayer;
@@ -627,6 +653,9 @@ namespace AF
     [System.Serializable]
     public class GameData
     {
+        public bool playerHasDied;
+        public bool playerWasHit;
+
         public bool isQuickSave;
 
         public double gameTime;

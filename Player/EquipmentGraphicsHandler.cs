@@ -45,7 +45,7 @@ namespace AF
 
         public GameObject bow;
 
-        StarterAssets.ThirdPersonController thirdPersonController => GetComponent<StarterAssets.ThirdPersonController>();
+        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
 
         LockOnManager lockOnManager;
@@ -1502,13 +1502,13 @@ namespace AF
         public float GetHeavyWeightThreshold()
         {
 
-            return 0.1f + GetStrengthWeightLoadBonus();
+            return 0.135f + GetStrengthWeightLoadBonus();
         }
 
         public float GetMidWeightThreshold()
         {
 
-            return 0.03f + GetStrengthWeightLoadBonus();
+            return 0.05f + GetStrengthWeightLoadBonus();
         }
 
         float GetStrengthWeightLoadBonus()

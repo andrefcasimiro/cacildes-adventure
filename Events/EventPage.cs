@@ -1,4 +1,3 @@
-using StarterAssets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +10,7 @@ namespace AF
         ON_KEY_PRESS,
         ON_PLAYER_TOUCH,
         NO_TRIGGER,
+        AUTOMATIC,
     }
 
     [System.Serializable]
@@ -77,9 +77,9 @@ namespace AF
         private void Awake()
         {
 
-             dayNightManager = FindObjectOfType<DayNightManager>(true);
-             uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
-             documentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+            dayNightManager = FindObjectOfType<DayNightManager>(true);
+            uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
+            documentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
 
 
             useTimeOfDay = appearFrom != 00.00f || appearUntil != 24.00f;
@@ -105,6 +105,11 @@ namespace AF
         private void Start()
         {
             originalTransform = this.transform;
+
+            if (eventTrigger == EventTrigger.AUTOMATIC)
+            {
+                _ForceBeginEvent();
+            }
         }
 
         private void Update()
@@ -158,6 +163,12 @@ namespace AF
             {
                 dayNightManager.tick = false;
             }
+
+            _ForceBeginEvent();
+        }
+
+        public void _ForceBeginEvent()
+        {
 
             if (this.isActiveAndEnabled)
             {
@@ -267,6 +278,7 @@ namespace AF
 
             if (uIDocumentDialogueWindow.isActiveAndEnabled)
             {
+                Debug.Log("Can not run event");
                 return false;
             }
 
@@ -288,20 +300,18 @@ namespace AF
                 return;
             }
 
-            documentKeyPrompt.key = "E";
-
+            string key = "E";
+            string action = "";
             if (localizedAction != LocalizedTerms.LocalizedAction.NONE)
             {
-                documentKeyPrompt.action = LocalizedTerms.GetActionText(localizedAction);
+                action = LocalizedTerms.GetActionText(localizedAction);
             }
             else
             {
-                documentKeyPrompt.action = notificationText.GetText();
+                action = notificationText.GetText();
             }
 
-            documentKeyPrompt.eventUuid = gameObject.name;
-            documentKeyPrompt.gameObject.SetActive(true);
-
+            documentKeyPrompt.DisplayPrompt(key, action);
         }
 
         public void OnInvoked()
@@ -325,6 +335,11 @@ namespace AF
         private void OnDisable()
         {
             isRunning = false;
+        }
+
+        public void OnReleased()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

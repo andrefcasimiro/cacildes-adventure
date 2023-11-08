@@ -10,24 +10,27 @@ namespace AF
     {
         UIDocumentPlayerHUDV2 uIDocumentPlayerHUDV2;
 
-        public StarterAssets.StarterAssetsInputs inputs;
+        public StarterAssetsInputs inputs;
 
         PlayerSpellManager playerSpellManager => GetComponent<PlayerSpellManager>();
 
         MenuManager menuManager;
 
-
         float inputDelayForSwitchingFavItems = Mathf.Infinity;
         float maxInputDelayForSwitchingFavItems = 0.1f;
 
+        [Header("Game Session")]
+        public GameSession gameSession;
+
         private void Awake()
         {
-             menuManager = FindObjectOfType<MenuManager>(true);
         }
 
         // Start is called before the first frame update
         void Start()
         {
+            menuManager = FindObjectOfType<MenuManager>(true);
+
             uIDocumentPlayerHUDV2 = FindObjectOfType<UIDocumentPlayerHUDV2>(true);
         }
 
@@ -35,7 +38,6 @@ namespace AF
         void Update()
         {
             // Dont allow consuming items when menu is opened, we might be searching in the textbox using the 'R' or 'Q' key
-
 
             if (inputDelayForSwitchingFavItems < maxInputDelayForSwitchingFavItems)
             {
@@ -46,12 +48,10 @@ namespace AF
             {
                 inputs.consumeFavoriteItem = false;
 
-                if (menuManager.IsMenuOpen())
+                if (CanUseFavoriteMenu())
                 {
-                    return;
+                    ConsumeFavoriteItem();
                 }
-
-                ConsumeFavoriteItem();
             }
             else if (inputs.switchFavoriteItemNext || inputs.switchFavoriteItemBack)
             {
@@ -60,21 +60,30 @@ namespace AF
                 inputs.switchFavoriteItemNext = false;
                 inputs.switchFavoriteItemBack = false;
 
-                if (inputDelayForSwitchingFavItems < maxInputDelayForSwitchingFavItems)
+                if (inputDelayForSwitchingFavItems >= maxInputDelayForSwitchingFavItems && CanUseFavoriteMenu())
                 {
-                    return;
+                    SwitchFavoriteItemsOrder(direction);
+
+                    Soundbank.instance.PlayQuickItemSwitch();
+                    inputDelayForSwitchingFavItems = 0;
                 }
-
-                if (menuManager.IsMenuOpen())
-                {
-                    return;
-                }
-
-                SwitchFavoriteItemsOrder(direction);
-
-                Soundbank.instance.PlayQuickItemSwitch();
-                inputDelayForSwitchingFavItems = 0;
             }
+        }
+
+        bool CanUseFavoriteMenu()
+        {
+            if (menuManager.IsMenuOpen())
+            {
+                return false;
+            }
+
+
+            if (gameSession.hasShownTitleScreen == false)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public void ConsumeFavoriteItem()
@@ -187,7 +196,8 @@ namespace AF
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }
 
-        public bool IsItemFavorited(Item item) {
+        public bool IsItemFavorited(Item item)
+        {
             return Player.instance.favoriteItems.FirstOrDefault(x => x.name.GetEnglishText() == item.name.GetEnglishText()) != null;
         }
     }

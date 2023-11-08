@@ -58,7 +58,7 @@ namespace AF
         VisualElement tooltipPhysicalAttack;
         VisualElement tooltipWeaponType;
         VisualElement tooltipWeaponSpecial;
-        VisualElement tooltipWeaponStrengthScaling, tooltipWeaponDexterityScaling;
+        VisualElement tooltipWeaponStrengthScaling, tooltipWeaponDexterityScaling, tooltipWeaponIntelligenceScaling;
         // Armor
         VisualElement tooltipPhysicalDefense;
         VisualElement tooltipAccessoryProperty;
@@ -115,6 +115,13 @@ namespace AF
         // BLEED COLOR: FF0910
         // POISON COLOR: AB44FF
 
+        private void OnApplicationFocus(bool focusStatus) {
+            if (this.root != null)
+            {
+                this.root.Focus();
+            }
+        }
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -122,6 +129,7 @@ namespace AF
             SetupRefs();
 
             RedrawUI();
+
         }
 
         #region Refs
@@ -159,6 +167,9 @@ namespace AF
                     this.activeTab = (EquipmentMenuTab)Array.IndexOf(menuButtons, button);
                     activeButton = button;
 
+
+                    Soundbank.instance.PlayUIHover();
+
                     RedrawUI();
                 };
             }
@@ -183,6 +194,7 @@ namespace AF
             tooltipWeaponSpecial = tooltip.Q("WeaponSpecial");
             tooltipWeaponStrengthScaling = tooltip.Q("StrengthScaling");
             tooltipWeaponDexterityScaling = tooltip.Q("DexterityScaling");
+            tooltipWeaponIntelligenceScaling = tooltip.Q("IntelligenceScaling");
             tooltipBlockAbsorption = tooltip.Q("BlockAbsorption");
             tooltipBleed = tooltip.Q("Bleed");
             tooltipPoison = tooltip.Q("Poison");
@@ -230,11 +242,13 @@ namespace AF
                 favoriteItemsManager = attackStatManager.GetComponent<FavoriteItemsManager>();
             }
             #endregion
+
         }
         #endregion
 
         void RedrawUI()
         {
+
             foreach (var button in menuButtons)
             {
                 button.RemoveFromClassList("active");
@@ -301,7 +315,7 @@ namespace AF
             }
             else if (tabToPreview == EquipmentMenuTab.OTHER_ITEMS)
             {
-                menuLabel.text = isEnglish ? "All Items" : "Todos os itens";
+                menuLabel.text = isEnglish ? "Misc. Items" : "Outros itens";
             }
         }
 
@@ -310,51 +324,51 @@ namespace AF
         {
             if (activeTab == EquipmentMenuTab.WEAPON)
             {
-                PopulateScrollView<Weapon>();
+                PopulateScrollView<Weapon>(false);
             }
             else if (activeTab == EquipmentMenuTab.SHIELD)
             {
-                PopulateScrollView<Shield>();
+                PopulateScrollView<Shield>(false);
             }
             else if (activeTab == EquipmentMenuTab.ARROW)
             {
-                PopulateScrollView<ConsumableProjectile>();
+                PopulateScrollView<ConsumableProjectile>(false);
             }
             else if (activeTab == EquipmentMenuTab.SPELL)
             {
-                PopulateScrollView<Spell>();
+                PopulateScrollView<Spell>(false);
             }
             else if (activeTab == EquipmentMenuTab.HELMET)
             {
-                PopulateScrollView<Helmet>();
+                PopulateScrollView<Helmet>(false);
             }
             else if (activeTab == EquipmentMenuTab.ARMOR)
             {
-                PopulateScrollView<Armor>();
+                PopulateScrollView<Armor>(false);
             }
             else if (activeTab == EquipmentMenuTab.GAUNTLET)
             {
-                PopulateScrollView<Gauntlet>();
+                PopulateScrollView<Gauntlet>(false);
             }
             else if (activeTab == EquipmentMenuTab.BOOTS)
             {
-                PopulateScrollView<Legwear>();
+                PopulateScrollView<Legwear>(false);
             }
             else if (activeTab == EquipmentMenuTab.ACCESSORIES)
             {
-                PopulateScrollView<Accessory>();
+                PopulateScrollView<Accessory>(false);
             }
             else if (activeTab == EquipmentMenuTab.CONSUMABLES)
             {
-                PopulateScrollView<Consumable>();
+                PopulateScrollView<Consumable>(false);
             }
             else if (activeTab == EquipmentMenuTab.OTHER_ITEMS)
             {
-                PopulateScrollView<Item>();
+                PopulateScrollView<Item>(true);
             }
         }
 
-        void PopulateScrollView<T>() where T : Item
+        void PopulateScrollView<T>(bool showOnlyKeyItems) where T : Item
         {
             this.itemsScrollView.Clear();
 
@@ -367,12 +381,17 @@ namespace AF
             bool isGauntlet = typeof(T) == typeof(Gauntlet);
             bool isLegwear = typeof(T) == typeof(Legwear);
             bool isAccessory = typeof(T) == typeof(Accessory);
+
+            #region Unequip Button
             if (isWeapon || isShield || isHelmet || isArmor || isGauntlet || isLegwear || isAccessory)
             {
                 var instance = itemButtonPrefab.CloneTree();
                 instance.Q<VisualElement>("Sprite").style.display = DisplayStyle.None;
                 instance.Q<Label>("ItemName").text = isEnglish ? "Unequip" : "Desequipar";
-                instance.Q<Button>().clicked += () =>
+
+                instance.Q<Button>("UseItemButton").style.display = DisplayStyle.None;
+
+                instance.Q<Button>("EquipButton").clicked += () =>
                 {
                     if (isWeapon)
                     {
@@ -409,6 +428,9 @@ namespace AF
                         instance.Q<Label>("ItemName").text += " " + (isEnglish ? " All" : "Tudo");
                     }
 
+
+                    Soundbank.instance.PlayUIUnequip();
+
                     RedrawUI();
                 };
 
@@ -416,6 +438,7 @@ namespace AF
                 instance.Q("Favorite").style.display = DisplayStyle.None;
                 this.itemsScrollView.Add(instance);
             }
+            #endregion
 
 
             foreach (var item in Player.instance.ownedItems)
@@ -423,6 +446,15 @@ namespace AF
                 if (item.item is not T typedItem)
                 {
                     continue;
+                }
+
+                if (showOnlyKeyItems)
+                {
+                    if (item.item is Weapon || item.item is Shield || item.item is Helmet || item.item is Armor || item.item is Gauntlet || item.item is Legwear
+                        || item.item is Accessory || item.item is Consumable || item.item is Spell)
+                    {
+                        continue;
+                    }
                 }
 
                 var instance = itemButtonPrefab.CloneTree();
@@ -435,34 +467,32 @@ namespace AF
 
                 if (item.item is Weapon weapon)
                 {
-                    itemIsEquipped = Player.instance.equippedWeapon != null && Player.instance.equippedWeapon == weapon;
+                    itemIsEquipped = Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.name.GetEnglishText() == weapon.name.GetEnglishText();
 
                     if (weapon.level > 1)
                     {
                         itemName.text += " +" + weapon.level;
-
                     }
-
                 }
                 else if (item.item is Shield shield)
                 {
-                    itemIsEquipped = Player.instance.equippedShield != null && Player.instance.equippedShield == shield;
+                    itemIsEquipped = Player.instance.equippedShield != null && Player.instance.equippedShield.name.GetEnglishText() == shield.name.GetEnglishText();
                 }
                 else if (item.item is Helmet helmet)
                 {
-                    itemIsEquipped = Player.instance.equippedHelmet != null && Player.instance.equippedHelmet == helmet;
+                    itemIsEquipped = Player.instance.equippedHelmet != null && Player.instance.equippedHelmet.name.GetEnglishText() == helmet.name.GetEnglishText();
                 }
                 else if (item.item is Armor armor)
                 {
-                    itemIsEquipped = Player.instance.equippedArmor != null && Player.instance.equippedArmor == armor;
+                    itemIsEquipped = Player.instance.equippedArmor != null && Player.instance.equippedArmor.name.GetEnglishText() == armor.name.GetEnglishText();
                 }
                 else if (item.item is Gauntlet gauntlet)
                 {
-                    itemIsEquipped = Player.instance.equippedGauntlets != null && Player.instance.equippedGauntlets == gauntlet;
+                    itemIsEquipped = Player.instance.equippedGauntlets != null && Player.instance.equippedGauntlets.name.GetEnglishText() == gauntlet.name.GetEnglishText();
                 }
                 else if (item.item is Legwear legwear)
                 {
-                    itemIsEquipped = Player.instance.equippedLegwear != null && Player.instance.equippedLegwear == legwear;
+                    itemIsEquipped = Player.instance.equippedLegwear != null && Player.instance.equippedLegwear.name.GetEnglishText() == legwear.name.GetEnglishText();
                 }
                 else if (item.item is Accessory accessory)
                 {
@@ -476,7 +506,7 @@ namespace AF
                 if (itemIsEquipped)
                 {
                     instance.style.opacity = 1.5f;
-                    itemName.text += isEnglish ? " (Equipped)" : " (Equipado)";
+                    itemName.text += GamePreferences.instance.IsEnglish() ? " (Equipped)" : " (Equipado)";
                 }
                 #endregion
 
@@ -494,7 +524,7 @@ namespace AF
                 #endregion
 
                 #region onClick
-                var btn = instance.Q<Button>();
+                var btn = instance.Q<Button>("EquipButton");
                 btn.clicked += () =>
                 {
                     if (item.item is Weapon weapon)
@@ -502,10 +532,14 @@ namespace AF
                         if (Player.instance.equippedWeapon == weapon)
                         {
                             equipmentGraphicsHandler.UnequipWeapon();
+                            Soundbank.instance.PlayUIUnequip();
+
                         }
                         else
                         {
                             equipmentGraphicsHandler.EquipWeapon(weapon);
+
+                            Soundbank.instance.PlayUIEquip();
                         }
 
                     }
@@ -513,11 +547,14 @@ namespace AF
                     {
                         if (Player.instance.equippedShield == shield)
                         {
+                            Soundbank.instance.PlayUIUnequip();
                             equipmentGraphicsHandler.UnequipShield();
                         }
                         else
                         {
                             equipmentGraphicsHandler.EquipShield(shield);
+                            Soundbank.instance.PlayUIEquip();
+
                         }
 
                     }
@@ -525,11 +562,14 @@ namespace AF
                     {
                         if (Player.instance.equippedHelmet == helmet)
                         {
+                            Soundbank.instance.PlayUIUnequip();
                             equipmentGraphicsHandler.UnequipHelmet();
                         }
                         else
                         {
                             equipmentGraphicsHandler.EquipHelmet(helmet);
+                            Soundbank.instance.PlayUIEquip();
+
                         }
 
                     }
@@ -537,33 +577,42 @@ namespace AF
                     {
                         if (Player.instance.equippedArmor == armor)
                         {
+                            Soundbank.instance.PlayUIUnequip();
                             equipmentGraphicsHandler.UnequipArmor();
                         }
                         else
                         {
                             equipmentGraphicsHandler.EquipArmor(armor);
+                            Soundbank.instance.PlayUIEquip();
+
                         }
                     }
                     else if (item.item is Gauntlet gauntlet)
                     {
                         if (Player.instance.equippedGauntlets == gauntlet)
                         {
+                            Soundbank.instance.PlayUIUnequip();
                             equipmentGraphicsHandler.UnequipGauntlet();
                         }
                         else
                         {
                             equipmentGraphicsHandler.EquipGauntlet(gauntlet);
+                            Soundbank.instance.PlayUIEquip();
+
                         }
                     }
                     else if (item.item is Legwear legwear)
                     {
                         if (Player.instance.equippedLegwear == legwear)
                         {
+                            Soundbank.instance.PlayUIUnequip();
                             equipmentGraphicsHandler.UnequipLegwear();
                         }
                         else
                         {
                             equipmentGraphicsHandler.EquipLegwear(legwear);
+                            Soundbank.instance.PlayUIEquip();
+
                         }
 
                     }
@@ -571,11 +620,14 @@ namespace AF
                     {
                         if (Player.instance.GetEquippedAccessoryIndex(accessory) != -1)
                         {
+                            Soundbank.instance.PlayUIUnequip();
                             equipmentGraphicsHandler.OnUnequipAccessoryCheckIfAccessoryWasDestroyedPermanently(accessory);
                         }
                         else
                         {
                             equipmentGraphicsHandler.EquipAccessory(accessory);
+                            Soundbank.instance.PlayUIEquip();
+
                         }
 
                     }
@@ -584,10 +636,15 @@ namespace AF
                         if (favoriteItemsManager.IsItemFavorited(item.item))
                         {
                             favoriteItemsManager.RemoveFavoriteItemFromList(item.item);
+
+                            Soundbank.instance.PlayUIUnequip();
+
                         }
                         else
                         {
                             favoriteItemsManager.AddFavoriteItemToList(item.item);
+                            Soundbank.instance.PlayUIEquip();
+
                         }
                     }
 
@@ -623,6 +680,29 @@ namespace AF
 
                 #endregion
 
+                #region Use Item Button Logic
+                if (item.item is Consumable consumable)
+                {
+                    var useItemButton = instance.Q<Button>("UseItemButton");
+
+
+                    useItemButton.Q<Label>().text = GamePreferences.instance.IsEnglish() ? "Use" : "Usar";
+                    useItemButton.style.display = DisplayStyle.Flex;
+
+                    useItemButton.clicked += () =>
+                    {
+                        consumable.OnConsume();
+
+                        menuManager.CloseMenu();
+
+                        cursorManager.HideCursor();
+                    };
+                }
+                else
+                {
+                    instance.Q<Button>("UseItemButton").style.display = DisplayStyle.None;
+                }
+                #endregion
 
                 if (!itemIsEquipped && isAccessory && equipmentGraphicsHandler.CanEquipMoreAccessories())
                 {
@@ -645,9 +725,11 @@ namespace AF
             }
 
             tooltipItemSprite.style.backgroundImage = new StyleBackground(item.sprite);
-            tooltipItemDescription.text = item.name.GetEnglishText().ToUpper() + " \n" + '"' + item.description.GetEnglishText() + '"';
 
             bool isEnglish = GamePreferences.instance.IsEnglish();
+
+            tooltipItemDescription.text = item.name.GetText().ToUpper() + " \n" + '"' + item.description.GetText() + '"';
+
 
             #region Weapon Tooltip Logic
 
@@ -657,7 +739,8 @@ namespace AF
                 var attack = attackStatManager.GetWeaponAttack(weapon);
                 var strengthAttackBonus = attackStatManager.GetStrengthBonusFromWeapon(weapon);
                 var dexterityAttackBonus = attackStatManager.GetDexterityBonusFromWeapon(weapon);
-                attack = (int)(attack - strengthAttackBonus - dexterityAttackBonus);
+                var intelligenceAttackBonus = attackStatManager.GetIntelligenceBonusFromWeapon(weapon);
+                attack = (int)(attack - strengthAttackBonus - dexterityAttackBonus - intelligenceAttackBonus);
 
                 if (weapon.halveDamage) {
                     attack = (int)(attack / 2);
@@ -745,6 +828,13 @@ namespace AF
                     : $"+{dexterityAttackBonus} Ataque [{weapon.dexterityScaling}] (Bónus de Destreza)";
                 tooltipWeaponDexterityScaling.Q<Label>().text = dexterityScaling;
                 tooltipWeaponDexterityScaling.style.display = DisplayStyle.Flex;
+
+                string intelligenceScaling = isEnglish
+                    ? $"+{intelligenceAttackBonus} Attack [{weapon.intelligenceScaling}] (Intelligence Scaling)"
+                    : $"+{intelligenceAttackBonus} Ataque [{weapon.intelligenceScaling}] (Bónus de Inteligência)";
+                        tooltipWeaponIntelligenceScaling.Q<Label>().text = intelligenceScaling;
+                        tooltipWeaponIntelligenceScaling.style.display = DisplayStyle.Flex;
+
 
                 if (weapon.statusEffects != null && weapon.statusEffects.Length > 0)
                 {
@@ -876,7 +966,7 @@ namespace AF
                 }
                 if (armor.reputationBonus != 0)
                 {
-                    tooltipReputationBonus.Q<Label>().text = (armor.reputationBonus > 0 ? "+" : "-") + armor.reputationBonus + " " + (isEnglish ? "Reputation" : "Reputação");
+                    tooltipReputationBonus.Q<Label>().text = (armor.reputationBonus > 0 ? "+" : "") + armor.reputationBonus + " " + (isEnglish ? "Reputation" : "Reputação");
                     tooltipReputationBonus.style.display = DisplayStyle.Flex;
                 }
 
@@ -889,7 +979,7 @@ namespace AF
                 tooltipAccessoryProperty.style.display = DisplayStyle.Flex;
             }
 
-            if (item is Consumable consumable)
+            if (item is Consumable consumable && item is not ConsumableProjectile)
             {
                 tooltipConsumableEffect.Q<Label>().text = consumable.shortDescription.GetText();
                 tooltipConsumableEffect.style.display = DisplayStyle.Flex;
@@ -1067,7 +1157,15 @@ namespace AF
 
                 return currentWeightPenalty + wp.speedPenalty * 1f;
             }
-            if (armorBase is Helmet helmet)
+            else if (armorBase is Shield shield)
+            {
+                var speedPenaltyFromItem = Player.instance.equippedShield != null ? Player.instance.equippedShield.speedPenalty : 0;
+                currentWeightPenalty += speedPenaltyFromItem * -1f;
+                if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
+
+                return currentWeightPenalty + shield.speedPenalty * 1f;
+            }
+            else if (armorBase is Helmet helmet)
             {
                 var speedPenaltyFromItem = Player.instance.equippedHelmet != null ? Player.instance.equippedHelmet.speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
@@ -1075,8 +1173,7 @@ namespace AF
 
                 return currentWeightPenalty + helmet.speedPenalty * 1f;
             }
-
-            if (armorBase is Armor armorItem)
+            else if (armorBase is Armor armorItem)
             {
                 var speedPenaltyFromItem = Player.instance.equippedArmor != null ? Player.instance.equippedArmor.speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
@@ -1084,8 +1181,7 @@ namespace AF
 
                 return currentWeightPenalty + armorItem.speedPenalty * 1f;
             }
-
-            if (armorBase is Gauntlet gauntlet)
+            else if (armorBase is Gauntlet gauntlet)
             {
                 var speedPenaltyFromItem = Player.instance.equippedGauntlets != null ? Player.instance.equippedGauntlets.speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
@@ -1093,8 +1189,7 @@ namespace AF
 
                 return currentWeightPenalty + gauntlet.speedPenalty * 1f;
             }
-
-            if (armorBase is Legwear legwear)
+            else if (armorBase is Legwear legwear)
             {
                 var speedPenaltyFromItem = Player.instance.equippedLegwear != null ? Player.instance.equippedLegwear.speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
@@ -1102,8 +1197,7 @@ namespace AF
 
                 return currentWeightPenalty + legwear.speedPenalty * 1f;
             }
-
-            if (armorBase is Accessory acc)
+            else if (armorBase is Accessory acc)
             {
                 var speedPenaltyFromItem = Player.instance.equippedAccessories.Count > 0 ? Player.instance.equippedAccessories.Sum(x => x.speedPenalty) : 0;
 

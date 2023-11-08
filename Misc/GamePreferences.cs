@@ -126,7 +126,7 @@ namespace AF
 
             if (Application.systemLanguage == SystemLanguage.Portuguese)
             {
-                SetGameLanguage(GameLanguage.PORTUGUESE);
+                SetGameLanguage(GameLanguage.ENGLISH);
                 return;
             }
 
@@ -216,7 +216,7 @@ namespace AF
                     postProcessVolume.profile.GetSetting<Bloom>().active = true;
                 }
 
-                if (graphicsQuality == GraphicsQuality.GOOD )
+                if (graphicsQuality == GraphicsQuality.GOOD)
                 {
                     postProcessLayer.antialiasingMode = PostProcessLayer.Antialiasing.SubpixelMorphologicalAntialiasing;
                 }
@@ -256,14 +256,29 @@ namespace AF
             {
                 BGMManager.instance.bgmAudioSource.volume = PlayerPrefs.GetFloat("musicVolume");
             }
+            else
+            {
+                BGMManager.instance.bgmAudioSource.volume = 1f;
+            }
+
             if (PlayerPrefs.HasKey("ambienceVolume"))
             {
                 BGMManager.instance.ambienceAudioSource.volume = PlayerPrefs.GetFloat("ambienceVolume");
             }
+            else
+            {
+                BGMManager.instance.ambienceAudioSource.volume = 1f;
+            }
+
             if (PlayerPrefs.HasKey("sfxVolume"))
             {
                 BGMManager.instance.sfxAudioSource.volume = PlayerPrefs.GetFloat("sfxVolume");
             }
+            else
+            {
+                BGMManager.instance.sfxAudioSource.volume = 1f;
+            }
+
         }
 
         public float GetCurrentMusicVolume()

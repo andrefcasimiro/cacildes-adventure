@@ -106,7 +106,7 @@ namespace AF
         public bool AllBossesAreDead()
         {
             var bossIsDead = GetComponent<EnemyHealthController>().currentHealth <= 0;
-        
+
             if (partner == null)
             {
                 return bossIsDead;

@@ -7,12 +7,14 @@ namespace AF
     {
         public bool syncCharacterController = true;
 
+        public bool doNotDisableAgent = false;
+
         private void OnAnimatorMove()
         {
             if (animator.applyRootMotion == false) { return; }
             bool agentIsEnabled = enemy.agent.isActiveAndEnabled;
 
-            if (agentIsEnabled)
+            if (agentIsEnabled && doNotDisableAgent == false)
             {
                 enemy.agent.enabled = false;
             }

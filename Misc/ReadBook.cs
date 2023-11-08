@@ -20,6 +20,7 @@ namespace AF
 
         [Header("Events")]
         public UnityEvent onRead;
+        public UnityEvent onCloseBook;
 
         [Header("Switch")]
         public bool updateSwitchUponReading = false;
@@ -33,11 +34,15 @@ namespace AF
         UIDocumentBook uIDocumentBook;
         PlayerComponentManager playerComponentManager;
 
+        [Header("Achievements")]
+        // Depecrated
+        public SteamAPI.AchievementName achievementName = SteamAPI.AchievementName.NONE;
+
         private void Awake()
         {
-             documentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
-             uIDocumentBook = FindObjectOfType<UIDocumentBook>(true);
-             playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
+            documentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
+            uIDocumentBook = FindObjectOfType<UIDocumentBook>(true);
+            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
         }
 
         private void Update()
@@ -59,17 +64,7 @@ namespace AF
 
             if (IsNote())
             {
-                if (readForward)
-                {
-                    page = Mathf.Clamp(page == -1 ? 0 : page + 2, 0, notePages.Length % 2 == 0 ? notePages.Length : notePages.Length + 1);
-                }
-                else
-                {
-
-                    page = Mathf.Clamp(page - 2, 0, notePages.Length % 2 == 0 ? notePages.Length : notePages.Length + 1);
-                }
-
-                if (notePages[page] != null)
+                if (notePages[0] != null)
                 {
                     uIDocumentBook.ShowNote(page == 0 ? noteTitle.GetText() : "", notePages[page].GetText());
                 }
@@ -83,8 +78,8 @@ namespace AF
             }
             else
             {
-                
-                page = Mathf.Clamp(page - 2, -1, book.bookPages.Length % 2 == 0 ? book.bookPages.Length  : book.bookPages.Length + 1);
+
+                page = Mathf.Clamp(page - 2, -1, book.bookPages.Length % 2 == 0 ? book.bookPages.Length : book.bookPages.Length + 1);
             }
 
             if (page == -1)
@@ -95,7 +90,8 @@ namespace AF
             {
                 uIDocumentBook.ShowBack(book);
             }
-            else {
+            else
+            {
                 if (page + 1 > book.bookPages.Length - 1)
                 {
                     uIDocumentBook.ShowSinglePage(book.bookPages[page], false);
@@ -164,13 +160,15 @@ namespace AF
 
         public void CloseBook()
         {
+            onCloseBook?.Invoke();
+
             playerComponentManager.EnableCharacterController();
             playerComponentManager.EnableComponents();
             uIDocumentBook.readBook = null;
 
             uIDocumentBook.gameObject.SetActive(false);
         }
-        
+
         public bool IsReading()
         {
             return uIDocumentBook.readBook != null;
@@ -188,8 +186,6 @@ namespace AF
                 return;
             }
 
-            documentKeyPrompt.key = "E";
-
             string title;
             if (IsNote())
             {
@@ -200,8 +196,7 @@ namespace AF
                 title = book.bookTitle.GetText();
             }
 
-            documentKeyPrompt.action = LocalizedTerms.Read() + " '" + title + "'";
-            documentKeyPrompt.gameObject.SetActive(true);
+            documentKeyPrompt.DisplayPrompt("E", LocalizedTerms.Read() + " '" + title + "'");
         }
 
         public void OnInvoked()
@@ -213,6 +208,11 @@ namespace AF
 
             Read();
             documentKeyPrompt.gameObject.SetActive(false);
+        }
+
+        public void OnReleased()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

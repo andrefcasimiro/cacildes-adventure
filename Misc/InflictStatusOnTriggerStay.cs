@@ -24,6 +24,11 @@ namespace AF
             {
                 if (other.CompareTag("Player"))
                 {
+                    if (Player.instance.currentHealth <= 0)
+                    {
+                        return;
+                    }
+
                     playerStatusManager.InflictStatusEffect(statusEffect, amount * Time.deltaTime, false);
                 }
                 else if (detectEnemies)
@@ -32,6 +37,11 @@ namespace AF
 
                     if (enemy != null && enemy.enemyNegativeStatusController != null)
                     {
+                        if (enemy.enemyHealthController.currentHealth <= 0)
+                        {
+                            return;
+                        }
+
                         enemy.enemyNegativeStatusController.InflictStatusEffect(statusEffect, amount * Time.deltaTime);
                     }
                 }

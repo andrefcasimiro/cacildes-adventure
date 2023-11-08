@@ -19,7 +19,7 @@ namespace AF
         [Header("Graphic Settings")]
         public float healthContainerBaseWidth = 185;
         public float staminaContainerBaseWidth = 150;
-        public float containerMultiplierPerLevel = 1.5f;
+        float _containerMultiplierPerLevel = 6.5f;
 
         HealthStatManager healthStatManager;
         StaminaStatManager staminaStatManager;
@@ -74,8 +74,8 @@ namespace AF
 
         private void Update()
         {
-            healthContainer.style.width = healthContainerBaseWidth + ((Player.instance.vitality + equipmentGraphicsHandler.vitalityBonus) * containerMultiplierPerLevel);
-            staminaContainer.style.width = staminaContainerBaseWidth + ((Player.instance.endurance + equipmentGraphicsHandler.enduranceBonus) * containerMultiplierPerLevel);
+            healthContainer.style.width = healthContainerBaseWidth + ((Player.instance.vitality + equipmentGraphicsHandler.vitalityBonus) * _containerMultiplierPerLevel);
+            staminaContainer.style.width = staminaContainerBaseWidth + ((Player.instance.endurance + equipmentGraphicsHandler.enduranceBonus) * _containerMultiplierPerLevel);
 
             float healthPercentage = Mathf.Clamp(
                 (Player.instance.currentHealth * 100) / healthStatManager.GetMaxHealth(),

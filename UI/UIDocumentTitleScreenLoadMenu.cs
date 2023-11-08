@@ -8,13 +8,14 @@ namespace AF
     {
         VisualElement root;
         public VisualTreeAsset loadButtonEntryPrefab;
-        MenuManager menuManager;
         UIDocumentLoadMenu uIDocumentLoadMenu;
         UIDocumentTitleScreen uIDocumentTitleScreen;
 
+        [Header("Components")]
+        public UIManager uiManager;
+
         private void Awake()
         {
-            menuManager = FindObjectOfType<MenuManager>(true);
             uIDocumentLoadMenu = FindObjectOfType<UIDocumentLoadMenu>(true);
             uIDocumentTitleScreen = FindObjectOfType<UIDocumentTitleScreen>(true);
 
@@ -37,12 +38,12 @@ namespace AF
         {
             uIDocumentLoadMenu.DrawUI(root, true);
 
-            menuManager.SetupButton(root.Q<Button>("CloseBtn"), () =>
+            uiManager.SetupButton(root.Q<Button>("CloseBtn"), () =>
             {
                 Close();
             });
 
-            menuManager.SetupButton(root.Q<Button>("ButtonOpenSaveFolder"), () =>
+            uiManager.SetupButton(root.Q<Button>("ButtonOpenSaveFolder"), () =>
             {
                 string path = System.IO.Path.Combine(Application.persistentDataPath);
                 var itemPath = path.Replace(@"/", @"\");   // explorer doesn't like front slashes
@@ -52,9 +53,12 @@ namespace AF
 
         void Close()
         {
-            uIDocumentTitleScreen.gameObject.SetActive(true);
+            if (uIDocumentTitleScreen != null)
+            {
+                uIDocumentTitleScreen.gameObject.SetActive(true);
+            }
+
             gameObject.SetActive(false);
         }
-
     }
 }
