@@ -28,7 +28,7 @@ namespace AF
         public bool requiredSwitch2Value;
         public UnityEvent onNotMeetingRequirements;
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
 
             Evaluate();

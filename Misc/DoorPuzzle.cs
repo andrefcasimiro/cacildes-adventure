@@ -17,7 +17,7 @@ namespace AF
 
         private void Awake()
         {
-             notificationManager =  FindObjectOfType<NotificationManager>(true);
+            notificationManager = FindObjectOfType<NotificationManager>(true);
         }
 
         private void Start()
@@ -25,7 +25,7 @@ namespace AF
             Refresh();
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             Refresh();
         }

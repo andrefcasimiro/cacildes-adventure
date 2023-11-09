@@ -12,7 +12,7 @@ namespace AF
             this.gameObject.SetActive(false);
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             this.gameObject.SetActive(false);
         }

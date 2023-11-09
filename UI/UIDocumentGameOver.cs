@@ -40,8 +40,8 @@ namespace AF
         IEnumerator Reload()
         {
             yield return new WaitForSeconds(4f);
-            SaveSystem.instance.loadingFromGameOver = true;
-            SaveSystem.instance.LoadLastSavedGame();
+            //            SaveSystem.instance.loadingFromGameOver = true;
+            //            SaveSystem.instance.LoadLastSavedGame();
         }
     }
 }

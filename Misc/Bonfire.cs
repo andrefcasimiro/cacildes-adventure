@@ -8,7 +8,7 @@ namespace AF
         [Header("UI")]
         public UIDocumentBonfireMenu uiDocumentBonfireMenu;
         public LocalizedText bonfireName;
-        
+
         public GenericTrigger bonfireTrigger;
         public Transform playerTransformRef;
 
@@ -19,7 +19,7 @@ namespace AF
         PlayerInventory playerInventory;
 
         private Animator playerAnimator;
-        
+
         public bool canBeTravelledTo = true;
 
         CursorManager cursorManager;
@@ -86,7 +86,7 @@ namespace AF
         public void ExitBonfire()
         {
             // Save Game
-            SaveSystem.instance.SaveGameData(bonfireName.GetText());
+            // SaveSystem.instance.SaveGameData(); //bonfireName.GetText());
 
             uiDocumentBonfireMenu.gameObject.SetActive(false);
 

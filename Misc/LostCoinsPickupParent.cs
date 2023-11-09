@@ -12,7 +12,7 @@ namespace AF
             LostCoinsManager.instance.ActivateLostCoinsPickupInMap();
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             LostCoinsManager.instance.ActivateLostCoinsPickupInMap();
         }

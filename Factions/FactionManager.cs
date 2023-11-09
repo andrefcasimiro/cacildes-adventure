@@ -16,7 +16,8 @@ namespace AF
     }
 
     [System.Serializable]
-    public class FactionEntry {
+    public class FactionEntry
+    {
         public FactionName factionName;
         public bool factionIsGood = true; // If false, faction will use a negative reputation system
         public int minimumRequiredReputationToInteract = 0;
@@ -45,7 +46,7 @@ namespace AF
             }
 
             factionEntriesDictionary.Clear();
-            foreach(var factionEntry in factionEntries)
+            foreach (var factionEntry in factionEntries)
             {
                 factionEntriesDictionary.Add(factionEntry.factionName.ToString(), factionEntry);
             }
@@ -90,14 +91,9 @@ namespace AF
             return factionEntry.currentPlayerAffinityWithFaction >= 0;
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
-            foreach(var savedFaction in gameData.factions)
-            {
-                factionEntriesDictionary[savedFaction.factionName].currentPlayerAffinityWithFaction = savedFaction.playerReputationWithinFaction;
-            }
 
-            ReevaluateAllEnemiesInScene();
         }
     }
 }

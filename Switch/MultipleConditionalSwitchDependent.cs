@@ -20,7 +20,7 @@ public class MultipleConditionalSwitchDependent : MonoBehaviour, ISaveable
         Refresh();
     }
 
-    public void OnGameLoaded(GameData gameData)
+    public void OnGameLoaded(object gameData)
     {
         Refresh();
     }

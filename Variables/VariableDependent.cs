@@ -6,10 +6,10 @@ public class VariableDependent : VariableListener, ISaveable
 
     private void Start()
     {
-        Refresh();   
+        Refresh();
     }
 
-    public void OnGameLoaded(GameData gameData)
+    public void OnGameLoaded(object gameData)
     {
         Refresh();
     }

@@ -21,7 +21,7 @@ namespace AF.Pickups
         public string key = "E";
         public string action = "Pickup";
 
-        private void OnEnable()
+        public void OnEnable()
         {
             if (pickupDatabase.Contains(monoBehaviourID.ID))
             {

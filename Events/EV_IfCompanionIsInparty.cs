@@ -10,7 +10,7 @@ namespace AF
         public override IEnumerator Dispatch()
         {
 
-            var companionInstance = Player.instance.companions.FirstOrDefault(c => c.companionId == companion.companionId);
+            object companionInstance = null; //Player.instance.companions.FirstOrDefault(c => c.companionId == companion.companionId);
             bool companionIsInParty = companionInstance != null;
             yield return DispatchConditionResults(companionIsInParty);
         }

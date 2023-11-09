@@ -11,7 +11,7 @@ namespace AF
     {
         public static LostCoinsManager instance;
 
-        public LostCoins lostCoins;
+        public object lostCoins;
 
         private void Awake()
         {
@@ -30,7 +30,7 @@ namespace AF
         /// </summary>
         public void SetCoinsToRecover(Transform deathTransform)
         {
-            if (this.lostCoins != null && this.lostCoins.amount > 0)
+            /*if (this.lostCoins != null && this.lostCoins.amount > 0)
             {
                 // Lose coins forever
                 this.lostCoins = null;
@@ -58,10 +58,12 @@ namespace AF
             lostCoins.sceneIndex = SceneManager.GetActiveScene().buildIndex;
 
             this.lostCoins = lostCoins;
+            */
         }
 
         public void ActivateLostCoinsPickupInMap()
         {
+            /*
             if (lostCoins == null)
             {
                 return;
@@ -79,6 +81,8 @@ namespace AF
             activateLostCoinsPickup.transform.position = lostCoins.position;
             activateLostCoinsPickup.amount = lostCoins.amount;
             activateLostCoinsPickup.gameObject.SetActive(true);
+
+            */
         }
 
         public void CollectLostCoins(int amount)

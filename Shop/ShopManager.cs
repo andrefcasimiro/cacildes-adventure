@@ -61,7 +61,8 @@ namespace AF
                 List<ShopItem> newDefaultStocksItems = new();
                 foreach (var s in shopEntry.itemStock)
                 {
-                    newDefaultStocksItems.Add(new ShopItem(){
+                    newDefaultStocksItems.Add(new ShopItem()
+                    {
                         item = s.item,
                         quantity = s.quantity,
                         priceModifier = s.priceModifier,
@@ -75,7 +76,7 @@ namespace AF
                     dayThatTradingBegan = -1,
                     itemStock = newDefaultStocksItems,
                     boughtItemsFromPlayer = new List<ShopItem>(),
-                    boughtItemsByPlayerThatDoNotRestock = new (),
+                    boughtItemsByPlayerThatDoNotRestock = new(),
                     requiredItemForDiscounts = shopEntry.requiredItemForDiscounts,
                     discountGivenByItemInInventory = shopEntry.discountGivenByItemInInventory,
                 }); ;
@@ -207,8 +208,13 @@ namespace AF
             }
             else
             {
-                this.characterShopInstances[idx].boughtItemsFromPlayer.Add(new() {
-                    item = itemToSell, quantity = 1, priceModifier = 0, isRestockable = false });
+                this.characterShopInstances[idx].boughtItemsFromPlayer.Add(new()
+                {
+                    item = itemToSell,
+                    quantity = 1,
+                    priceModifier = 0,
+                    isRestockable = false
+                });
             }
 
             // Give coin to player
@@ -254,7 +260,7 @@ namespace AF
             return finalPrice;
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             Dictionary<string, Item> itemsTable = new();
 
@@ -269,6 +275,7 @@ namespace AF
                 return;
             }
 
+            /*
             foreach (var savedShop in gameData.shops)
             {
                 var idx = this.characterShopInstances.FindIndex(shop => shop.name == savedShop.shopName);
@@ -291,7 +298,8 @@ namespace AF
                     }
                     else
                     {
-                        itemStock.Add(new ShopItem() {
+                        itemStock.Add(new ShopItem()
+                        {
                             item = itemsTable[savedItemStock.itemName],
                             quantity = savedItemStock.itemCount,
                             priceModifier = savedItemStock.priceModifier,
@@ -311,7 +319,8 @@ namespace AF
                     }
                     else
                     {
-                        itemsBoughtFromPlayer.Add(new ShopItem() {
+                        itemsBoughtFromPlayer.Add(new ShopItem()
+                        {
                             item = itemsTable[savedItemBoughtFromPlayer.itemName],
                             quantity = savedItemBoughtFromPlayer.itemCount,
                             priceModifier = savedItemBoughtFromPlayer.priceModifier,
@@ -332,7 +341,8 @@ namespace AF
                     }
                     else
                     {
-                        boughtItemsByPlayerThatDoNotRestock.Add(new ShopItem() {
+                        boughtItemsByPlayerThatDoNotRestock.Add(new ShopItem()
+                        {
                             item = itemsTable[boughtItemByPlayerThatDoesNotRestock.itemName],
                             quantity = boughtItemByPlayerThatDoesNotRestock.itemCount,
                             priceModifier = boughtItemByPlayerThatDoesNotRestock.priceModifier,
@@ -342,7 +352,7 @@ namespace AF
                 }
                 this.characterShopInstances[idx].boughtItemsByPlayerThatDoNotRestock = boughtItemsByPlayerThatDoNotRestock;
 
-            }
+            }*/
         }
     }
 }

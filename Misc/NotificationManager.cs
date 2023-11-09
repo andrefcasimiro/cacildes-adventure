@@ -109,7 +109,7 @@ namespace AF
             ShowNotification(LocalizedTerms.ReputationDecreased(value), reputationDecreaseSprite);
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             this.notificationsPanel.Clear();
         }

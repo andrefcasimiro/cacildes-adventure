@@ -78,7 +78,7 @@ namespace AF
             }
             else
             {
-                isActive = Player.instance.timeOfDay >=  startHour && Player.instance.timeOfDay <= endHour;
+                isActive = Player.instance.timeOfDay >= startHour && Player.instance.timeOfDay <= endHour;
             }
 
             if (clockDependency == ClockDependency.OUTSIDE_RANGE)
@@ -98,14 +98,14 @@ namespace AF
 
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             OnHourChanged();
         }
 
         bool CompanionInParty()
         {
-            return companion != null && Player.instance.companions.Exists(c => c.companionId == companion.companionId);
+            return false; // companion != null && Player.instance.companions.Exists(c => c.companionId == companion.companionId);
         }
     }
 

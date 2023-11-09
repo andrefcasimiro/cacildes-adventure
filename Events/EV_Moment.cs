@@ -92,22 +92,23 @@ namespace AF
 
             if (companion != null)
             {
-                var desiredCompanion = Player.instance.companions.FirstOrDefault(x => x.companionId == companion.companionId);
+                //var desiredCompanion = Player.instance.companions.FirstOrDefault(x => x.companionId == companion.companionId);
 
-                if (desiredCompanion == null || desiredCompanion.isWaitingForPlayer)
-                {
-                    yield break;
-                }
+                /*
+                                if (desiredCompanion == null || desiredCompanion.isWaitingForPlayer)
+                                {
+                                    yield break;
+                                }
 
-                if (companion2 != null)
-                {
-                    var desiredCompanion2 = Player.instance.companions.FirstOrDefault(x => x.companionId == companion2.companionId);
+                                if (companion2 != null)
+                                {
+                                    var desiredCompanion2 = Player.instance.companions.FirstOrDefault(x => x.companionId == companion2.companionId);
 
-                    if (desiredCompanion2 == null || desiredCompanion2.isWaitingForPlayer)
-                    {
-                        yield break;
-                    }
-                }
+                                    if (desiredCompanion2 == null || desiredCompanion2.isWaitingForPlayer)
+                                    {
+                                        yield break;
+                                    }
+                                }*/
             }
 
             // Conditions have been met, run moment

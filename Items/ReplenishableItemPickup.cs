@@ -243,7 +243,7 @@ namespace AF
         }
 
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             Refresh();
         }

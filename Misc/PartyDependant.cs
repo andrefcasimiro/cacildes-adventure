@@ -17,7 +17,7 @@ namespace AF
 
         public void Reevaluate()
         {
-            if (requireInParty && Player.instance.companions.Exists(x => x.companionId == companion.companionId))
+            /*if (requireInParty && Player.instance.companions.Exists(x => x.companionId == companion.companionId))
             {
                 this.gameObject.transform.GetChild(0).gameObject.SetActive(true);
                 return;
@@ -27,12 +27,12 @@ namespace AF
             {
                 this.gameObject.transform.GetChild(0).gameObject.SetActive(true);
                 return;
-            }
+            }*/
 
             this.gameObject.transform.GetChild(0).gameObject.SetActive(false);
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             Reevaluate();
         }

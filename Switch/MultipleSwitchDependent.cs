@@ -17,7 +17,7 @@ public class MultipleSwitchDependent : MonoBehaviour, ISaveable
         Refresh();
     }
 
-    public void OnGameLoaded(GameData gameData)
+    public void OnGameLoaded(object gamedata)
     {
         Refresh();
     }

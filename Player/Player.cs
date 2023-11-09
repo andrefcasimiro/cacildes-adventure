@@ -106,7 +106,7 @@ namespace AF
 
         public string currentObjective = "";
 
-        public List<SerializedCompanion> companions = new List<SerializedCompanion>();
+        public List<object> companions = new List<object>();
 
         // For companion comments
         public Enemy lastEnemyKilled;
@@ -241,8 +241,9 @@ namespace AF
             this.unlockedBonfires.Add(bonfireName);
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
+            /*
             playerHasDied = playerHasDied || gameData.playerHasDied;
 
             playerWasHit = memorizePlayerWasHit || gameData.playerWasHit;
@@ -490,6 +491,8 @@ namespace AF
 
             GamePreferences.instance.UpdateGraphics();
             GamePreferences.instance.UpdateAudio();
+
+            */
         }
 
         #region Accessories Logic
@@ -585,7 +588,7 @@ namespace AF
             StartCoroutine(HandleLoadScene(sceneIndex, deactivateLoadingScreenWhenFinished, null));
         }
 
-        public IEnumerator HandleLoadScene(int sceneIndex, bool deactivateLoadingScreenWhenFinished, GameData gameData)
+        public IEnumerator HandleLoadScene(int sceneIndex, bool deactivateLoadingScreenWhenFinished, object gameData)
         {
             var loadingScreen = FindAnyObjectByType<UIDocumentLoadingScreen>(FindObjectsInactive.Include);
 
@@ -624,7 +627,7 @@ namespace AF
 
             if (gameData != null)
             {
-                SaveSystem.instance.FinishLoad(gameData);
+                //SaveSystem.instance.FinishLoad(gameData);
             }
         }
 

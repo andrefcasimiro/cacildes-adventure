@@ -19,7 +19,7 @@ namespace AF
         {
             public SwitchEntry[] requiredSwitches;
         }
-        
+
         [HideInInspector] public Transform leftHand;
         [HideInInspector] public Transform rightHand;
 
@@ -34,7 +34,7 @@ namespace AF
         public GameObject leftWeaponGraphic;
         public GameObject rightWeaponGraphic;
         public GameObject shieldGraphic;
-        
+
         public GameObject leftWeaponGraphicBack;
         public GameObject leftWeaponGraphicHolster;
         public GameObject rightWeaponGraphicHolster;
@@ -55,7 +55,7 @@ namespace AF
         public int equipmentPoise = 0;
         public float equipmentPhysicalDefense = 0;
         public List<ArmorBase.StatusEffectResistance> statusEffectResistances = new List<ArmorBase.StatusEffectResistance>();
-        
+
         public int vitalityBonus = 0;
         public int enduranceBonus = 0;
         public int strengthBonus = 0;
@@ -344,7 +344,7 @@ namespace AF
             Player.instance.equippedShield = shieldToEquip;
 
             shieldGraphic = Instantiate(shieldToEquip.graphic, rightHand);
-            
+
             if (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.hideShield)
             {
                 shieldGraphic.SetActive(false);
@@ -575,7 +575,7 @@ namespace AF
                 {
                     BGMManager.instance.PlaySound(unequipedAccessory.onUnequipDestroySoundclip, null);
                 }
-                SaveSystem.instance.SaveGameData("item_destroyed");
+                //                SaveSystem.instance.SaveGameData(); //"item_destroyed");
 
                 return true;
             }
@@ -633,7 +633,7 @@ namespace AF
 
             RecalculateEquipmentBonus();
         }
-#endregion
+        #endregion
 
         public void UnequipWeapon()
         {
@@ -697,7 +697,7 @@ namespace AF
             }
 
             Player.instance.equippedAccessories.RemoveAt(idx);
-            
+
             RecalculateEquipmentBonus();
         }
 
@@ -1078,10 +1078,9 @@ namespace AF
         #endregion
 
         #region Serialization
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
-            PlayerEquipmentData playerEquipmentData = gameData.playerEquipmentData;
-
+            /*
             if (!String.IsNullOrEmpty(playerEquipmentData.weaponName))
             {
                 var weaponFileName = playerEquipmentData.weaponName;
@@ -1182,7 +1181,7 @@ namespace AF
                 {
                     UnequipAccessory(equippedAcc);
                 }
-            }
+            }*/
 
         }
 
@@ -1435,7 +1434,7 @@ namespace AF
                 this.magicDefenseBonus += Player.instance.equippedLegwear.magicDefense;
                 this.reputationBonus += Player.instance.equippedLegwear.reputationBonus;
             }
-            if (Player.instance.equippedAccessories.Count> 0)
+            if (Player.instance.equippedAccessories.Count > 0)
             {
                 foreach (var acc in Player.instance.equippedAccessories)
                 {

@@ -15,7 +15,7 @@ namespace AF
     public class SwitchManager : MonoBehaviour, ISaveable
     {
         public List<SwitchEntryInstance> switchEntryInstances = new();
-        
+
         // Event specific switch updates that are put in a queue on purpose (for when we don't want to update them immediately)
         [HideInInspector] public List<SwitchEntryInstance> queueSwitchUpdates = new List<SwitchEntryInstance>();
 
@@ -78,7 +78,7 @@ namespace AF
 
             switchEntryInstances[switchIndex].currentValue = nextValue;
         }
-        
+
         public void UpdateSwitch(SwitchEntry switchEntry, bool nextValue, SwitchListener switchListenerToIgnore)
         {
             var switchIndex = switchEntryInstances.FindIndex(x => x.switchEntry == switchEntry);
@@ -189,7 +189,7 @@ namespace AF
         #region Serialization
         public void ResetSwitches()
         {
-            if (switchEntryInstances.Count <= 0) { return; }    
+            if (switchEntryInstances.Count <= 0) { return; }
 
             foreach (SwitchEntryInstance switchEntryInstance in switchEntryInstances)
             {
@@ -197,8 +197,9 @@ namespace AF
             }
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
+            /*
             if (gameData.switches.Length <= 0)
             {
                 return;
@@ -214,7 +215,7 @@ namespace AF
                 }
 
                 UpdateSwitchWithoutRefreshingEvents(switchEntryInstances[switchIndex].switchEntry, savedSwitch.value);
-            }
+            }*/
         }
         #endregion
     }

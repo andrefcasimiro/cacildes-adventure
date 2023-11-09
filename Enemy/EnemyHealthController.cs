@@ -743,7 +743,7 @@ namespace AF
                     }
 
                     // Save game
-                    SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
+                    // SaveSystem.instance.SaveGameData();//SceneManager.GetActiveScene().name);
                 }
             }
         }

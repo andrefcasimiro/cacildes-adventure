@@ -27,81 +27,11 @@ namespace AF
 
         public void DrawUI(VisualElement targetRoot, bool showDeleteButton)
         {
-            List<SaveFileEntry> saveFiles = SaveSystem.instance.GetSaveFiles();
-
-            if (saveFiles.Count > 0)
-            {
-                saveFiles.Sort((a, b) =>
-                {
-                    var aDate = DateTime.Parse(a.creationDate);
-                    var bDate = DateTime.Parse(b.creationDate);
-
-                    return bDate.CompareTo(aDate);
-                });
-            }
-
-            targetRoot.Q<ScrollView>().Clear();
-            targetRoot.Q<VisualElement>("SaveGameItemPreview").style.opacity = 0;
-
-
-            foreach (var saveFileEntry in saveFiles)
-            {
-                var btn = loadButtonEntryPrefab.CloneTree();
-
-                btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
-
-                btn.Q<Label>("Name").text = saveFileEntry.sceneName + " / " + LocalizedTerms.Level() + " " + saveFileEntry.level + "";
-                btn.Q<Label>("Value").text = System.DateTime.Parse(saveFileEntry.creationDate).ToString();
-                btn.Q<IMGUIContainer>("Icon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
-
-                var loadBtn = btn.Q<Button>("LoadButton");
-                loadBtn.text = loadText.GetText();
-                var deleteBtn = btn.Q<Button>("DeleteButton");
-                deleteBtn.text = deleteText.GetText();
-
-                deleteBtn.style.display = showDeleteButton ? DisplayStyle.Flex : DisplayStyle.None;
-
-                uIManager.SetupButton(loadBtn, () =>
-                {
-                    SaveSystem.instance.LoadGameData(saveFileEntry.fileFullPath);
-
-                    var menuManager = FindObjectOfType<MenuManager>(true);
-
-                    menuManager.CloseMenu();
-                });
-                uIManager.SetupButton(deleteBtn, () =>
-                {
-                    SaveSystem.instance.DeleteSaveFile(saveFileEntry.fileFullPath, saveFileEntry.fileFullPath.Replace("json", "jpg"));
-                    DrawUI(targetRoot, showDeleteButton);
-                });
-
-                // Gamepad
-                btn.RegisterCallback<FocusInEvent>(ev =>
-                {
-                    ShowLoadInfo(targetRoot, saveFileEntry);
-                });
-                btn.RegisterCallback<FocusOutEvent>(ev =>
-                {
-                    targetRoot.Q<VisualElement>("SaveGameItemPreview").style.opacity = 0;
-                });
-
-                // Mouse
-                btn.Q<VisualElement>("SavedGameEntry").RegisterCallback<MouseEnterEvent>(ev =>
-                {
-                    ShowLoadInfo(targetRoot, saveFileEntry);
-                });
-                btn.Q<VisualElement>("SavedGameEntry").RegisterCallback<MouseLeaveEvent>(ev =>
-                {
-                    targetRoot.Q<VisualElement>("SaveGameItemPreview").style.opacity = 0;
-                });
-
-                targetRoot.Q<ScrollView>().Add(btn);
-            }
         }
 
-        void ShowLoadInfo(VisualElement root, SaveFileEntry saveFileEntry)
+        void ShowLoadInfo(VisualElement root, object saveFileEntry)
         {
-            root.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
+            /*root.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(saveFileEntry.screenshot);
             root.Q<Label>("Title").text = saveFileEntry.sceneName + " / Level " + saveFileEntry.level;
             root.Q<Label>("SubTitle").text = LocalizedTerms.SavedAt() + ": " + DateTime.Parse(saveFileEntry.creationDate).ToString();
 
@@ -109,7 +39,7 @@ namespace AF
             root.Q<Label>("Description").text = LocalizedTerms.TotalPlayTime() + ": " + totalGameTime.Hours + "h " + totalGameTime.Minutes + "m " + totalGameTime.Seconds + "s";
             root.Q<Label>("CurrentObjectiveText").text = ""; //+ saveFileEntry.currentObjective;
 
-            root.Q<VisualElement>("SaveGameItemPreview").style.opacity = 1;
+            root.Q<VisualElement>("SaveGameItemPreview").style.opacity = 1;*/
         }
     }
 }

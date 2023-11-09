@@ -204,7 +204,7 @@ namespace AF
             if (gold != -1)
             {
                 // Save Game to prevent us from dying and picking money infinitely
-                SaveSystem.instance.SaveGameData(SceneManager.GetActiveScene().name);
+                // SaveSystem.instance.SaveGameData(); //SceneManager.GetActiveScene().name);
             }
 
             if (!string.IsNullOrEmpty(analyticsMessage))
@@ -214,7 +214,7 @@ namespace AF
 
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             if (GetComponentInParent<DynamicChest>() != null)
             {

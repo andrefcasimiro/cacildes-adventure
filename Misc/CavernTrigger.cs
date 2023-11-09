@@ -31,8 +31,8 @@ namespace AF
 
         private void Awake()
         {
-             sceneSettings = FindObjectOfType<SceneSettings>(true);
-             dayNightManager = FindObjectOfType<DayNightManager>(true);
+            sceneSettings = FindObjectOfType<SceneSettings>(true);
+            dayNightManager = FindObjectOfType<DayNightManager>(true);
         }
 
         private void Start()
@@ -103,7 +103,7 @@ namespace AF
             }
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             if (IsPointWithinCollider(GetComponent<Collider>(), GameObject.FindWithTag("Player").transform.position))
             {

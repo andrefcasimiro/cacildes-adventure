@@ -7,7 +7,8 @@ using UnityEngine.Video;
 namespace AF
 {
     [System.Serializable]
-    public class SwitchRandomMessages {
+    public class SwitchRandomMessages
+    {
 
         public LocalizedText message;
 
@@ -74,7 +75,7 @@ namespace AF
 
         private void Awake()
         {
-             dialogueManager = FindObjectOfType<DialogueManager>(true);
+            dialogueManager = FindObjectOfType<DialogueManager>(true);
 
             if (isCompanion)
             {
@@ -104,7 +105,7 @@ namespace AF
             {
                 // If depends on variable, evaluate value:
                 var variableValue = VariableManager.instance.GetVariableValue(variableEntry);
-                
+
                 if (
                     mustEqualVariableValue && variableValue == requiredVariableValue
                     || mustEqualVariableValue == false && variableValue != requiredVariableValue)
@@ -147,7 +148,7 @@ namespace AF
                         //  then check if an additional companion is required
                         if (shouldAdd && switchRandomMessage.companionDependant != null)
                         {
-                            shouldAdd = Player.instance.companions.Exists(x => x.companionId == switchRandomMessage.companionDependant.companionId);
+                            // shouldAdd = Player.instance.companions.Exists(x => x.companionId == switchRandomMessage.companionDependant.companionId);
                         }
 
                         if (shouldAdd)
@@ -158,13 +159,13 @@ namespace AF
                 }
 
                 var displayMessage = message;
-                
+
                 if (randomMessagesTable.Count > 0)
                 {
                     var idx = Random.Range(0, randomMessagesTable.Count);
                     displayMessage = randomMessagesTable[idx];
                 }
-                else if (negativeReputationMessages!= null && negativeReputationMessages.Length > 0)
+                else if (negativeReputationMessages != null && negativeReputationMessages.Length > 0)
                 {
                     if (Player.instance.GetCurrentReputation() < 0)
                     {
@@ -232,7 +233,7 @@ namespace AF
 
             var npcLookPos = player.transform.position - characterTransform.transform.position;
             npcLookPos.y = 0;
-                
+
             characterTransform.transform.rotation = Quaternion.LookRotation(npcLookPos);
         }
     }

@@ -9,7 +9,7 @@ public class SwitchDependent : SwitchListener, ISaveable
         Refresh();
     }
 
-    public void OnGameLoaded(GameData gameData)
+    public void OnGameLoaded(object gameData)
     {
         Refresh();
     }

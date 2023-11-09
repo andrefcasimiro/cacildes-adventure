@@ -84,7 +84,7 @@ namespace AF
 
         public void ResetVariables()
         {
-            if (variableEntryInstances.Count <= 0) { return; }    
+            if (variableEntryInstances.Count <= 0) { return; }
 
             foreach (VariableEntryInstance variableEntryInstance in variableEntryInstances)
             {
@@ -92,8 +92,9 @@ namespace AF
             }
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
+            /*
             if (gameData.variables.Length <= 0) { return; }
 
             foreach (SerializableVariable savedVariable in gameData.variables)
@@ -106,7 +107,7 @@ namespace AF
                 }
 
                 UpdateVariable(variableEntryInstances[variableIndex].variableEntry, savedVariable.value);
-            }
+            }*/
         }
     }
 }

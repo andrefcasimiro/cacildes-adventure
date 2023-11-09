@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UIElements;
-using static AF.SaveSystem;
 
 namespace AF
 {

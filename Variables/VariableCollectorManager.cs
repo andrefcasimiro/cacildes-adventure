@@ -27,7 +27,8 @@ namespace AF
             notificationManager = FindObjectOfType<NotificationManager>(true);
         }
 
-        private void Start() {        
+        private void Start()
+        {
             CheckIfMinigameWasComplete();
         }
 
@@ -68,7 +69,7 @@ namespace AF
             }
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             CheckIfMinigameWasComplete();
         }

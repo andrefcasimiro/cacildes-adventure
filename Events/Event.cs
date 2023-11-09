@@ -38,7 +38,8 @@ namespace AF
             try
             {
 
-                if (transform != null && transform.childCount > 0) {
+                if (transform != null && transform.childCount > 0)
+                {
                     // Deactivate all event pages
                     foreach (EventPage evt in transform.GetComponentsInChildren<EventPage>(true))
                     {
@@ -50,12 +51,14 @@ namespace AF
                         evt.gameObject.SetActive(false);
                     }
 
-                } else
+                }
+                else
                 {
                     Debug.Log("Transform child count is zero for:" + this.gameObject.name);
                 }
-                
-            } catch (Exception e)
+
+            }
+            catch (Exception e)
             {
                 Debug.Log("Exception occurred in event: " + this.gameObject.name);
                 Debug.Log("Exception:" + e.Message);
@@ -170,7 +173,7 @@ namespace AF
             }
         }
 
-        public void OnGameLoaded(GameData gameData)
+        public void OnGameLoaded(object gameData)
         {
             RefreshEventPages();
         }
