@@ -4,16 +4,16 @@ namespace AF
 {
     public class PlayerDeactivateWeaponHitboxes : StateMachineBehaviour
     {
-        EquipmentGraphicsHandler equipmentGraphicsHandler;
+        PlayerManager playerManager;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (equipmentGraphicsHandler == null)
+            if (playerManager == null)
             {
-                equipmentGraphicsHandler = animator.GetComponent<EquipmentGraphicsHandler>();
+                playerManager = animator.GetComponent<PlayerManager>();
             }
 
-            equipmentGraphicsHandler.DeactivateAllHitboxes();
+            playerManager.equipmentGraphicsHandler.DeactivateAllHitboxes();
         }
     }
 }

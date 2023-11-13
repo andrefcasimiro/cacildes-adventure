@@ -34,6 +34,8 @@ namespace AF
 
         public static FactionManager instance;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
         private void Awake()
         {
             if (instance != null && instance != this)
@@ -58,8 +60,8 @@ namespace AF
             FactionEntry factionEntry = factionEntriesDictionary[factionName.ToString()];
 
             return (factionEntry.factionIsGood
-                ? Player.instance.GetCurrentReputation() >= factionEntry.minimumRequiredReputationToInteract
-                : Player.instance.GetCurrentReputation() <= factionEntry.minimumRequiredReputationToInteract) && HasGoodOrNeutralRelationshipWithFaction(factionEntry);
+                ? playerStatsDatabase.GetCurrentReputation() >= factionEntry.minimumRequiredReputationToInteract
+                : playerStatsDatabase.GetCurrentReputation() <= factionEntry.minimumRequiredReputationToInteract) && HasGoodOrNeutralRelationshipWithFaction(factionEntry);
         }
 
 

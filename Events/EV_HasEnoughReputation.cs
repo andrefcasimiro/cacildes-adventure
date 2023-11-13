@@ -15,28 +15,31 @@ namespace AF
 
         public int value = 0;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         public override IEnumerator Dispatch()
         {
             bool finalValue = false;
             if (equal)
             {
-                finalValue = Player.instance.GetCurrentReputation() == value;
+                finalValue = playerStatsDatabase.GetCurrentReputation() == value;
             }
             else if (greaterOrEqualThan)
             {
-                finalValue = Player.instance.GetCurrentReputation() >= value;
+                finalValue = playerStatsDatabase.GetCurrentReputation() >= value;
             }
             else if (greaterThan)
             {
-                finalValue = Player.instance.GetCurrentReputation() > value;
+                finalValue = playerStatsDatabase.GetCurrentReputation() > value;
             }
             else if (lessThan)
             {
-                finalValue = Player.instance.GetCurrentReputation() < value;
+                finalValue = playerStatsDatabase.GetCurrentReputation() < value;
             }
             else if (lessOrEqualThan)
             {
-                finalValue = Player.instance.GetCurrentReputation() <= value;
+                finalValue = playerStatsDatabase.GetCurrentReputation() <= value;
             }
 
             yield return DispatchConditionResults(finalValue);

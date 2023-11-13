@@ -2,7 +2,8 @@ namespace AF
 {
     public static class LocalizedTerms
     {
-        public enum LocalizedAction {
+        public enum LocalizedAction
+        {
             NONE,
             PICKUP_ITEM,
             TALK,
@@ -340,7 +341,7 @@ namespace AF
                 _ => "Read",
             };
         }
-            
+
         public static string LearnedRecipe()
         {
             return GamePreferences.instance.gameLanguage switch
@@ -497,21 +498,21 @@ namespace AF
         }
 
 
-        public static string ReputationIncreased(int amount)
+        public static string ReputationIncreased(int amount, int currentReputation)
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputação subiu +" + amount + " pontos! Reputação atual: " + Player.instance.GetCurrentReputation(),
-                _ => "Your reputation increased +" + amount + " points! Current reputation: " + Player.instance.GetCurrentReputation(),
+                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputação subiu +" + amount + " pontos! Reputação atual: " + currentReputation,
+                _ => "Your reputation increased +" + amount + " points! Current reputation: " + currentReputation,
             };
         }
 
-        public static string ReputationDecreased(int amount)
+        public static string ReputationDecreased(int amount, int currentReputation)
         {
             return GamePreferences.instance.gameLanguage switch
             {
-                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputação desceu -" + amount + " pontos! Reputação atual: " + Player.instance.GetCurrentReputation(),
-                _ => "Your reputation decreased -" + amount + " points! Current reputation: " + Player.instance.GetCurrentReputation(),
+                GamePreferences.GameLanguage.PORTUGUESE => "A tua reputação desceu -" + amount + " pontos! Reputação atual: " + currentReputation,
+                _ => "Your reputation decreased -" + amount + " points! Current reputation: " + currentReputation,
             };
         }
 

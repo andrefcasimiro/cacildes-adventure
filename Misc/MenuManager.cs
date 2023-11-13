@@ -1,3 +1,4 @@
+using AF.UI.EquipmentMenu;
 using UnityEngine;
 
 namespace AF

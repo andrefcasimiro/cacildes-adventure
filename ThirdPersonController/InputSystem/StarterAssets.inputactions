@@ -114,7 +114,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "SwitchFavoriteItemNext",
+                    "name": "SwitchSpell",
                     "type": "Button",
                     "id": "b07b4731-0ab0-4b08-bcf1-72e3ff072903",
                     "expectedControlType": "Button",
@@ -123,9 +123,27 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "SwitchFavoriteItemBack",
+                    "name": "SwitchConsumable",
                     "type": "Button",
                     "id": "97a247b0-e614-4b2c-af77-d09803ecde2a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "SwitchWeapon",
+                    "type": "Button",
+                    "id": "e21eeddf-c3c9-4a8c-9530-bed7697d26d1",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "SwitchShield",
+                    "type": "Button",
+                    "id": "02c2fb91-d01e-4507-b160-283a87d179fe",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -495,7 +513,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchFavoriteItemNext",
+                    "action": "SwitchSpell",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -506,7 +524,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchFavoriteItemNext",
+                    "action": "SwitchSpell",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -517,7 +535,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchFavoriteItemNext",
+                    "action": "SwitchSpell",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -528,7 +546,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchFavoriteItemNext",
+                    "action": "SwitchSpell",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -583,7 +601,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchFavoriteItemBack",
+                    "action": "SwitchConsumable",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -594,7 +612,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchFavoriteItemBack",
+                    "action": "SwitchConsumable",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -605,7 +623,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchFavoriteItemBack",
+                    "action": "SwitchConsumable",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -616,7 +634,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SwitchFavoriteItemBack",
+                    "action": "SwitchConsumable",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -650,6 +668,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "Tab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ab920d79-4772-4754-b422-19a1c2c67d5e",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchWeapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "534e0987-50ed-4212-a421-ad7138c94867",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchWeapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ae368de7-395e-4dd9-87bd-eaf3f0c83d93",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchShield",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9a784e9a-a4b1-4429-9829-4018bae3f557",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchShield",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

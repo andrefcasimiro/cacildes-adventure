@@ -32,7 +32,7 @@ namespace AF
                 Close();
             });
 
-            uiManager.SetupButton(root.Q<Button>("CloseBtn"), () =>
+            UIUtils.SetupButton(root.Q<Button>("CloseBtn"), () =>
             {
                 Close();
             });

@@ -1,5 +1,7 @@
+using AF.Events;
+using AF.Stats;
+using TigerForge;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -21,44 +23,50 @@ namespace AF
         public float staminaContainerBaseWidth = 150;
         float _containerMultiplierPerLevel = 6.5f;
 
-        HealthStatManager healthStatManager;
-        StaminaStatManager staminaStatManager;
-        EquipmentGraphicsHandler equipmentGraphicsHandler;
-
-        IMGUIContainer itemIcon;
         Label quickItemName;
-        Label consumeActionLabel;
-        Label switchItemActionLabel;
-        Label aimActionLabel;
-        VisualElement consumeGamepadIcon;
-        VisualElement switchItemGamepadIcon;
-        VisualElement aimGamepadIcon;
+
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
+
+        [Header("Databases")]
+        public EquipmentDatabase equipmentDatabase;
+        public PlayerStatsDatabase playerStatsDatabase;
+
+        [Header("Unequipped Textures")]
+        public Texture2D unequippedSpellSlot;
+        public Texture2D unequippedWeaponSlot;
+        public Texture2D unequippedConsumableSlot;
+        public Texture2D unequippedShieldSlot;
+
+        [Header("Components")]
+        public HealthStatManager healthStatManager;
+        public StaminaStatManager staminaStatManager;
+        public EquipmentGraphicsHandler equipmentGraphicsHandler;
+
+        IMGUIContainer spellSlotContainer, consumableSlotContainer, weaponSlotContainer, shieldSlotContainer;
+
+
+        private void Awake()
+        {
+            EventManager.StartListening(
+                EventMessages.ON_EQUIPMENT_CHANGED,
+                UpdateFavoriteItems);
+        }
 
         private void OnEnable()
         {
-            healthStatManager = FindObjectOfType<HealthStatManager>(true);
-            staminaStatManager = FindObjectOfType<StaminaStatManager>(true);
-            equipmentGraphicsHandler = FindObjectOfType<EquipmentGraphicsHandler>(true);
-
             this.root = this.uIDocument.rootVisualElement;
             healthContainer = root.Q<VisualElement>("Health");
             healthFill = root.Q<VisualElement>("HealthFill");
             staminaContainer = root.Q<VisualElement>("Stamina");
             staminaFill = root.Q<VisualElement>("StaminaFill");
 
-            itemIcon = root.Q<IMGUIContainer>("ItemIcon");
             quickItemName = root.Q<Label>("QuickItemName");
 
-            consumeActionLabel = root.Q<Label>("ConsumeAction");
-            switchItemActionLabel = root.Q<Label>("SwitchAction");
-            aimActionLabel = root.Q<Label>("AimAction");
-
-            consumeGamepadIcon = root.Q<VisualElement>("GamepadTriangle");
-            switchItemGamepadIcon = root.Q<VisualElement>("GamepadSwitchItem");
-            aimGamepadIcon = root.Q<VisualElement>("GamepadAim");
-
-            aimActionLabel.text = "";
-            aimGamepadIcon.style.display = DisplayStyle.None;
+            spellSlotContainer = root.Q<IMGUIContainer>("SpellSlot");
+            consumableSlotContainer = root.Q<IMGUIContainer>("ConsumableSlot");
+            weaponSlotContainer = root.Q<IMGUIContainer>("WeaponSlot");
+            shieldSlotContainer = root.Q<IMGUIContainer>("ShieldSlot");
 
             UpdateFavoriteItems();
         }
@@ -74,8 +82,10 @@ namespace AF
 
         private void Update()
         {
-            healthContainer.style.width = healthContainerBaseWidth + ((Player.instance.vitality + equipmentGraphicsHandler.vitalityBonus) * _containerMultiplierPerLevel);
-            staminaContainer.style.width = staminaContainerBaseWidth + ((Player.instance.endurance + equipmentGraphicsHandler.enduranceBonus) * _containerMultiplierPerLevel);
+            healthContainer.style.width = healthContainerBaseWidth +
+                ((playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus) * _containerMultiplierPerLevel);
+            staminaContainer.style.width = staminaContainerBaseWidth + ((
+                playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * _containerMultiplierPerLevel);
 
             float healthPercentage = Mathf.Clamp(
                 (Player.instance.currentHealth * 100) / healthStatManager.GetMaxHealth(),
@@ -88,7 +98,7 @@ namespace AF
 
 
             float staminaPercentage = Mathf.Clamp(
-                (Player.instance.currentStamina * 100) / staminaStatManager.GetMaxStamina(),
+                (playerStatsDatabase.currentStamina * 100) / staminaStatManager.GetMaxStamina(),
                 0,
                 100
             );
@@ -104,71 +114,41 @@ namespace AF
                 return;
             }
 
-            itemIcon.style.backgroundImage = null;
-
             quickItemName.text = "";
 
+            quickItemName.text = equipmentDatabase.GetCurrentConsumable() != null ?
+                equipmentDatabase.GetCurrentConsumable().name.GetEnglishText()
+                : "";
 
-            consumeGamepadIcon.style.display = DisplayStyle.None;
-            switchItemGamepadIcon.style.display = DisplayStyle.None;
-
-            consumeActionLabel.text = "";
-            switchItemActionLabel.text = "";
-
-            if (Player.instance == null || Player.instance.favoriteItems == null || Player.instance.favoriteItems.Count <= 0) { return; }
-
-            itemIcon.style.backgroundImage = new StyleBackground(Player.instance.favoriteItems[0].sprite);
-
-            quickItemName.text = Player.instance.favoriteItems[0].name.GetText();
-
-            var favItem = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == Player.instance.favoriteItems[0].name.GetEnglishText());
-
-            if (favItem != null)
+            if (equipmentDatabase.GetCurrentConsumable() != null)
             {
-                if (favItem.item is Consumable c && c.notStackable == false)
+                /*if (equipmentDatabase.currentConsumable is Consumable c && c.notStackable == false)
                 {
-                    quickItemName.text += " (" + favItem.amount.ToString() + ")";
+                    quickItemName.text += " (" + equipmentDatabase.amount.ToString() + ")";
                 }
                 else if (favItem.item is Spell s)
                 {
                     var spellName = favItem.item.name.GetEnglishText();
 
                     quickItemName.text += " (" + (favItem.amount).ToString() + ")";
-                }
-            }
-
-            var isEnglish = GamePreferences.instance.IsEnglish();
-
-            if (Gamepad.current != null)
-            {
-                consumeGamepadIcon.style.display = DisplayStyle.Flex;
-                switchItemGamepadIcon.style.display = DisplayStyle.Flex;
-
-                /*if (favItem.item is ConsumableProjectile)
-                {
-                    switchItemGamepadIcon.style.display = DisplayStyle.Flex;
                 }*/
             }
-            else
-            {
-                consumeActionLabel.text = "[R] ";
-                switchItemActionLabel.text = isEnglish ? "[Scrollwheel] " : "[Scrollwheel] ";
 
-                /*if (favItem.item is ConsumableProjectile)
-                {
-                    aimActionLabel.text = "[TAB] ";
-                }*/
-            }   
+            spellSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentSpell() != null
+                ? new StyleBackground(equipmentDatabase.GetCurrentSpell().sprite)
+                : new StyleBackground(unequippedSpellSlot);
 
+            shieldSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentShield() != null
+                ? new StyleBackground(equipmentDatabase.GetCurrentShield().sprite)
+                : new StyleBackground(unequippedShieldSlot);
 
-            consumeActionLabel.text += isEnglish ? "Use" : "Usar";
-            switchItemActionLabel.text += isEnglish ? "Switch" : "Trocar";
+            weaponSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentWeapon() != null
+                ? new StyleBackground(equipmentDatabase.GetCurrentWeapon().sprite)
+                : new StyleBackground(unequippedWeaponSlot);
 
-            /*
-            if (favItem.item is ConsumableProjectile)
-            {
-                switchItemActionLabel.text += isEnglish ? "Aim" : "Mirar";
-            }*/
+            consumableSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentConsumable() != null
+                ? new StyleBackground(equipmentDatabase.GetCurrentConsumable().sprite)
+                : new StyleBackground(unequippedConsumableSlot);
 
         }
 

@@ -15,6 +15,8 @@ namespace AF
 
         NotificationManager notificationManager;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
         private void Awake()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
@@ -31,7 +33,7 @@ namespace AF
             }
             else if (requireBadReputation)
             {
-                shouldOpen = Player.instance.GetCurrentReputation() < 0;
+                shouldOpen = playerStatsDatabase.GetCurrentReputation() < 0;
 
                 if (!shouldOpen)
                 {
@@ -40,7 +42,7 @@ namespace AF
             }
             else if (requireGoodOrNeutralReputation)
             {
-                shouldOpen = Player.instance.GetCurrentReputation() >= 0;
+                shouldOpen = playerStatsDatabase.GetCurrentReputation() >= 0;
 
                 if (!shouldOpen)
                 {

@@ -5,16 +5,16 @@ namespace AF
     public class PlayerState_ForceHideShieldOnStateEnter : StateMachineBehaviour
     {
 
-        EquipmentGraphicsHandler equipmentGraphicsHandler;
+        PlayerManager playerManager;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (equipmentGraphicsHandler == null)
+            if (playerManager == null)
             {
-                equipmentGraphicsHandler = animator.GetComponent<EquipmentGraphicsHandler>();
+                animator.TryGetComponent(out playerManager);
             }
 
-            equipmentGraphicsHandler.ForceHideShield();
+            playerManager.equipmentGraphicsHandler.ForceHideShield();
         }
     }
 }

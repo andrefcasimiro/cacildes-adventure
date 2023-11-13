@@ -32,6 +32,9 @@ namespace AF
         [Header("Achievements")]
         public Achievement negativeReputationAchievement;
 
+        [Header("Database")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         private void Start()
         {
             this.root = uiDocumentNotificationUI.rootVisualElement;
@@ -92,7 +95,7 @@ namespace AF
             Player.instance.currentReputation += value;
 
             Soundbank.instance.PlayReputationIncreased();
-            ShowNotification(LocalizedTerms.ReputationIncreased(value), reputationIncreaseSprite);
+            ShowNotification(LocalizedTerms.ReputationIncreased(value, playerStatsDatabase.GetCurrentReputation()), reputationIncreaseSprite);
         }
 
         // TODO: This should be on a proper class
@@ -106,7 +109,7 @@ namespace AF
             }
 
             Soundbank.instance.PlayReputationDecreased();
-            ShowNotification(LocalizedTerms.ReputationDecreased(value), reputationDecreaseSprite);
+            ShowNotification(LocalizedTerms.ReputationDecreased(value, playerStatsDatabase.GetCurrentReputation()), reputationDecreaseSprite);
         }
 
         public void OnGameLoaded(object gameData)

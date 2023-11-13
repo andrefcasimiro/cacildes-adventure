@@ -33,6 +33,10 @@ namespace AF
 
         PlayerInventory playerInventory;
 
+
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         public void Awake()
         {
 
@@ -228,7 +232,7 @@ namespace AF
 
         public int GetItemToBuyPrice(ShopItem shopItem, ShopEntryInstance shopEntryInstance)
         {
-            var finalPrice = (int)Mathf.Abs(Mathf.Round((shopItem.item.value + shopItem.priceModifier) - (Player.instance.GetCurrentReputation() * REPUTATION_MODIFIER)));
+            var finalPrice = (int)Mathf.Abs(Mathf.Round((shopItem.item.value + shopItem.priceModifier) - (playerStatsDatabase.GetCurrentReputation() * REPUTATION_MODIFIER)));
 
 
             if (finalPrice <= 0)
@@ -250,7 +254,7 @@ namespace AF
 
         public int GetItemToSellPrice(Item itemToSell)
         {
-            var finalPrice = (int)Mathf.Abs(Mathf.Round((itemToSell.value) + (Player.instance.GetCurrentReputation() * REPUTATION_MODIFIER)));
+            var finalPrice = (int)Mathf.Abs(Mathf.Round((itemToSell.value) + (playerStatsDatabase.GetCurrentReputation() * REPUTATION_MODIFIER)));
 
             if (finalPrice <= 0)
             {

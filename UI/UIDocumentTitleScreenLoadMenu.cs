@@ -38,12 +38,12 @@ namespace AF
         {
             uIDocumentLoadMenu.DrawUI(root, true);
 
-            uiManager.SetupButton(root.Q<Button>("CloseBtn"), () =>
+            UIUtils.SetupButton(root.Q<Button>("CloseBtn"), () =>
             {
                 Close();
             });
 
-            uiManager.SetupButton(root.Q<Button>("ButtonOpenSaveFolder"), () =>
+            UIUtils.SetupButton(root.Q<Button>("ButtonOpenSaveFolder"), () =>
             {
                 string path = System.IO.Path.Combine(Application.persistentDataPath);
                 var itemPath = path.Replace(@"/", @"\");   // explorer doesn't like front slashes

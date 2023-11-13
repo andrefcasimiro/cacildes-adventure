@@ -5,23 +5,22 @@ namespace AF
 
     public class PlayerShowWeaponsOnStateEnter : StateMachineBehaviour
     {
-        EquipmentGraphicsHandler equipmentGraphicsHandler;
+        PlayerManager playerManager;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (equipmentGraphicsHandler == null)
+            if (playerManager == null)
             {
-                equipmentGraphicsHandler = animator.GetComponent<EquipmentGraphicsHandler>();
+                animator.TryGetComponent(out playerManager);
             }
-
             // If blocking with shield, skip show weapons
-            if (equipmentGraphicsHandler.shieldGraphic != null
-                && equipmentGraphicsHandler.shieldGraphic.gameObject.activeSelf && animator.GetBool("IsBlocking"))
+            if (playerManager.equipmentGraphicsHandler.shieldGraphic != null
+                && playerManager.equipmentGraphicsHandler.shieldGraphic.gameObject.activeSelf && animator.GetBool("IsBlocking"))
             {
                 return;
             }
 
-            equipmentGraphicsHandler.ShowWeapons();
+            playerManager.equipmentGraphicsHandler.ShowWeapons();
         }
     }
 

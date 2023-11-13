@@ -6,25 +6,25 @@ namespace AF
     {
         public bool shouldHideShield = false;
 
-        EquipmentGraphicsHandler equipmentGraphicsHandler;
+        PlayerManager playerManager;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (equipmentGraphicsHandler == null)
+            if (playerManager == null)
             {
-                equipmentGraphicsHandler = animator.GetComponent<EquipmentGraphicsHandler>();
+                playerManager = animator.GetComponent<PlayerManager>();
             }
 
             if (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.hideShield)
             {
                 if (shouldHideShield)
                 {
-                    equipmentGraphicsHandler.HideShield();
+                    playerManager.equipmentGraphicsHandler.HideShield();
                     return;
                 }
             }
 
-            equipmentGraphicsHandler.ShowShield();
+            playerManager.equipmentGraphicsHandler.ShowShield();
         }
     }
 }

@@ -39,52 +39,52 @@ namespace AF
             Button btnTwitter = root.Q<Button>("btnTwitter");
             Button btnDiscord = root.Q<Button>("btnDiscord");
 
-            uiManager.SetupButton(newGameButton, () =>
+            UIUtils.SetupButton(newGameButton, () =>
             {
                 titleScreenManager.StartGame();
                 gameObject.SetActive(false);
             });
 
-            uiManager.SetupButton(continueButton, () =>
+            UIUtils.SetupButton(continueButton, () =>
             {
                 uIDocumentTitleScreenLoadMenu.gameObject.SetActive(true);
                 gameObject.SetActive(false);
             });
 
-            uiManager.SetupButton(playTutorialButton, () =>
+            UIUtils.SetupButton(playTutorialButton, () =>
             {
                 Player.instance.LoadScene(6, true);
             });
 
-            uiManager.SetupButton(creditsButton, () =>
+            UIUtils.SetupButton(creditsButton, () =>
             {
                 uIDocumentTitleScreenCredits.gameObject.SetActive(true);
                 gameObject.SetActive(false);
             });
 
-            uiManager.SetupButton(optionsButton, () =>
+            UIUtils.SetupButton(optionsButton, () =>
             {
                 uIDocumentTitleScreenOptions.gameObject.SetActive(true);
                 gameObject.SetActive(false);
             });
 
-            uiManager.SetupButton(controlsButton, () =>
+            UIUtils.SetupButton(controlsButton, () =>
             {
                 uIDocumentTitleScreenControls.gameObject.SetActive(true);
                 gameObject.SetActive(false);
             });
 
-            uiManager.SetupButton(exitButton, () =>
+            UIUtils.SetupButton(exitButton, () =>
             {
                 Application.Quit();
             });
 
-            uiManager.SetupButton(btnTwitter, () =>
+            UIUtils.SetupButton(btnTwitter, () =>
             {
                 Application.OpenURL("https://twitter.com/CacildesGame");
             });
 
-            uiManager.SetupButton(btnDiscord, () =>
+            UIUtils.SetupButton(btnDiscord, () =>
             {
                 Application.OpenURL("https://discord.gg/JwnZMc27D2");
             });

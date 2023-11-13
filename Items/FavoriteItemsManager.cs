@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using TigerForge;
+using AF.Events;
 
 namespace AF
 {
@@ -22,9 +24,9 @@ namespace AF
         [Header("Game Session")]
         public GameSession gameSession;
 
-        private void Awake()
-        {
-        }
+        [Header("Databases")]
+        public EquipmentDatabase equipmentDatabase;
+
 
         // Start is called before the first frame update
         void Start()
@@ -51,21 +53,6 @@ namespace AF
                 if (CanUseFavoriteMenu())
                 {
                     ConsumeFavoriteItem();
-                }
-            }
-            else if (inputs.switchFavoriteItemNext || inputs.switchFavoriteItemBack)
-            {
-
-                int direction = inputs.switchFavoriteItemNext == true ? 1 : 0;
-                inputs.switchFavoriteItemNext = false;
-                inputs.switchFavoriteItemBack = false;
-
-                if (inputDelayForSwitchingFavItems >= maxInputDelayForSwitchingFavItems && CanUseFavoriteMenu())
-                {
-                    SwitchFavoriteItemsOrder(direction);
-
-                    Soundbank.instance.PlayQuickItemSwitch();
-                    inputDelayForSwitchingFavItems = 0;
                 }
             }
         }
@@ -96,7 +83,7 @@ namespace AF
 
                 if (itemEntry.amount <= 1 && itemEntry.item.lostUponUse)
                 {
-                    RemoveFavoriteItemFromList(currentItem);
+                    equipmentDatabase.UnequipConsumable(equipmentDatabase.currentConsumableIndex);
                 }
 
                 Consumable consumableItem = currentItem as Consumable;
@@ -113,12 +100,36 @@ namespace AF
                         playerSpellManager.PrepareSpell(spell);
                     }
                 }
-
-
-
             }
 
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
+        }
+
+        public void OnSwitchWeapon()
+        {
+            equipmentDatabase.SwitchToNextWeapon();
+
+            UpdateFavoriteItems();
+        }
+        public void OnSwitchShield()
+        {
+            equipmentDatabase.SwitchToNextShield();
+
+            UpdateFavoriteItems();
+
+        }
+        public void OnSwitchConsumable()
+        {
+            equipmentDatabase.SwitchToNextConsumable();
+
+            UpdateFavoriteItems();
+
+        }
+        public void OnSwitchSpell()
+        {
+            equipmentDatabase.SwitchToNextSpell();
+
+            UpdateFavoriteItems();
         }
 
         public void SwitchFavoriteItemsOrder(int direction)
@@ -174,20 +185,14 @@ namespace AF
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }
 
-        public void RemoveFavoriteItemFromList(Item item)
+        public void RemoveFavoriteItemFromList(int slotIndex)
         {
-            var idx = Player.instance.favoriteItems.FindIndex(x => x.name.GetEnglishText() == item.name.GetEnglishText());
-            if (idx != -1)
-            {
-                Player.instance.favoriteItems.RemoveAt(idx);
-            }
-
+            equipmentDatabase.UnequipConsumable(slotIndex);
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }
-        public void AddFavoriteItemToList(Item item)
+        public void AddFavoriteItemToList(Item item, int slotIndex)
         {
-            Player.instance.favoriteItems.Add(item);
-
+            equipmentDatabase.EquipConsumable(item as Consumable, slotIndex);
             uIDocumentPlayerHUDV2.UpdateFavoriteItems();
         }
 
@@ -198,7 +203,7 @@ namespace AF
 
         public bool IsItemFavorited(Item item)
         {
-            return Player.instance.favoriteItems.FirstOrDefault(x => x.name.GetEnglishText() == item.name.GetEnglishText()) != null;
+            return equipmentDatabase.consumables.FirstOrDefault(x => x?.name?.GetEnglishText() == item?.name?.GetEnglishText()) != null;
         }
     }
 

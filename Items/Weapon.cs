@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using AF.Animations;
+using UnityEngine;
 
 namespace AF
 {
@@ -94,13 +96,14 @@ namespace AF
         public Scaling intelligenceScaling = Scaling.E;
 
         [Header("Visual")]
-        public GameObject graphic;
         public DestroyableParticle elementImpactFx;
         public DestroyableParticle metalImpactFx;
         public DestroyableParticle woodImpactFx;
         public DestroyableParticle waterImpactFx;
-        public AnimatorOverrideController animatorOverrideController;
         public DestroyableParticle blockFx;
+
+        [Header("Animation Overrides")]
+        public List<AnimationOverride> animationOverrides;
 
         [Header("Audio")]
         public AudioClip swingSfx;

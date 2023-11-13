@@ -1,6 +1,7 @@
 ﻿
 using System.Collections;
 using System.Collections.Generic;
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
@@ -8,7 +9,7 @@ namespace AF
     public class DestroyableSpellParticle : DestroyableParticle
     {
         public Spell spell;
-        [HideInInspector] public EquipmentGraphicsHandler equipmentGraphicsHandler;
+        [HideInInspector] public StatsBonusController statsBonusController;
 
 
         EnemyHealthController enemyHealthController = null;
@@ -23,6 +24,8 @@ namespace AF
         public int pushForce = 0;
         public bool isPullForce = false;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
         private void OnParticleCollision(GameObject other)
         {
             OnCollide(other);
@@ -94,13 +97,13 @@ namespace AF
                 }
 
                 var intelligenceBonus = 0;
-                if (equipmentGraphicsHandler != null)
+                if (statsBonusController != null)
                 {
-                    intelligenceBonus = equipmentGraphicsHandler.intelligenceBonus;
+                    intelligenceBonus = statsBonusController.intelligenceBonus;
                 }
 
                 var damage = (float)Player.instance.CalculateSpellValue(
-                    (int)spell.damageOnHitEnemy, intelligenceBonus + Player.instance.intelligence);
+                    (int)spell.damageOnHitEnemy, intelligenceBonus + playerStatsDatabase.intelligence);
 
                 Enemy enemy = enemyHealthController.GetComponent<EnemyManager>().enemy;
 
@@ -123,7 +126,7 @@ namespace AF
 
                 if (spell.increaseDamageWithReputation)
                 {
-                    var reputation = Player.instance.GetCurrentReputation();
+                    var reputation = playerStatsDatabase.GetCurrentReputation();
 
                     if (reputation <= 0)
                     {
@@ -140,12 +143,12 @@ namespace AF
 
                 if (pushForce != 0)
                 {
-                    var finalPushForce = pushForce + Player.instance.CalculateSpellValue(pushForce, intelligenceBonus + Player.instance.intelligence);
+                    var finalPushForce = pushForce + Player.instance.CalculateSpellValue(pushForce, intelligenceBonus + playerStatsDatabase.intelligence);
 
 
                     if (spell.increaseDamageWithReputation)
                     {
-                        var reputation = Player.instance.GetCurrentReputation();
+                        var reputation = playerStatsDatabase.GetCurrentReputation();
 
                         if (reputation <= 0)
                         {

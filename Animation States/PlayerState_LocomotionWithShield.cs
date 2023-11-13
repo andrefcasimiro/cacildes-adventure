@@ -1,24 +1,26 @@
 using UnityEngine;
 
-namespace AF {
+namespace AF
+{
     public class PlayerState_LocomotionWithShield : StateMachineBehaviour
     {
-        EquipmentGraphicsHandler equipmentGraphicsHandler;
         AudioSource playerAudioSource;
+        PlayerManager playerManager;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            if (equipmentGraphicsHandler == null)
+            if (playerManager == null)
             {
-                equipmentGraphicsHandler = animator.GetComponent<EquipmentGraphicsHandler>();
-            }
-            if (playerAudioSource == null)
-            {
-                playerAudioSource = equipmentGraphicsHandler.GetComponent<PlayerCombatController>().combatAudioSource;
+                animator.TryGetComponent(out playerManager);
             }
 
-            equipmentGraphicsHandler.HideWeapons();
-            equipmentGraphicsHandler.ShowShield();
+            if (playerAudioSource == null)
+            {
+                playerAudioSource = playerManager.equipmentGraphicsHandler.GetComponent<PlayerCombatController>().combatAudioSource;
+            }
+
+            playerManager.equipmentGraphicsHandler.HideWeapons();
+            playerManager.equipmentGraphicsHandler.ShowShield();
 
             if (Player.instance.equippedShield != null && Player.instance.equippedShield.shieldDrawSfx != null)
             {
@@ -30,20 +32,21 @@ namespace AF {
         {
             if (animator.GetBool("IsBlocking") == false)
             {
-                equipmentGraphicsHandler.HideShield();
-            }else
+                playerManager.equipmentGraphicsHandler.HideShield();
+            }
+            else
             {
-                equipmentGraphicsHandler.ShowShield();
+                playerManager.equipmentGraphicsHandler.ShowShield();
             }
         }
 
         public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            equipmentGraphicsHandler.ShowWeapons();
-         
+            playerManager.equipmentGraphicsHandler.ShowWeapons();
+
             if (animator.GetBool("IsBlocking") == false)
             {
-                equipmentGraphicsHandler.HideShield();
+                playerManager.equipmentGraphicsHandler.HideShield();
             }
         }
     }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
@@ -29,6 +30,12 @@ namespace AF
         DefenseStatManager defenseStatManager => GetComponent<DefenseStatManager>();
 
         Spell currentSpell;
+
+        [Header("Components")]
+        public StatsBonusController statsBonusController;
+
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
 
         private void Awake()
         {
@@ -151,7 +158,7 @@ namespace AF
 
                 Transform nearestEnemy = lockOnManager.nearestLockOnTarget != null ? lockOnManager.nearestLockOnTarget.transform : null;
 
-                
+
                 if (currentSpell.spawnAtNearestOrLockedOnEnemy && nearestEnemy != null)
                 {
                     originTransformPosition = nearestEnemy.transform.position;
@@ -175,7 +182,7 @@ namespace AF
 
                 spellParticle.GetComponent<ParticleSystem>().Play();
 
-                spellParticle.equipmentGraphicsHandler = equipmentGraphicsHandler;
+                spellParticle.statsBonusController = statsBonusController;
                 spellParticle.spell = currentSpell;
             }
 
@@ -189,7 +196,8 @@ namespace AF
         {
             if (currentSpell.healingAmount != -1)
             {
-                playerHealthbox.GetComponent<HealthStatManager>().RestoreHealthPoints(currentSpell.healingAmount + Player.instance.GetCurrentReputation() * 10);
+                playerHealthbox.GetComponent<HealthStatManager>().RestoreHealthPoints(
+                    currentSpell.healingAmount + playerStatsDatabase.GetCurrentReputation() * 10);
             }
 
             if (currentSpell.selfDamageAmount != -1)
@@ -237,6 +245,11 @@ namespace AF
         public bool IsSpellCasting()
         {
             return animator.GetBool(hashIsSpellCasting);
+        }
+
+        public int GetCurrentInteligence()
+        {
+            return playerStatsDatabase.intelligence + statsBonusController.intelligenceBonus;
         }
     }
 

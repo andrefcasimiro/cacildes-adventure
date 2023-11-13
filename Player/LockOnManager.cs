@@ -18,15 +18,15 @@ namespace AF
 
         public GameObject lockOnUi;
 
-        Animator playerAnimator;
+        public Animator playerAnimator;
         public Transform playerHeadRef;
 
-        [HideInInspector] public StarterAssetsInputs inputs;
+        public StarterAssetsInputs inputs;
 
         public GameObject defaultCamera;
         public GameObject lockOnCamera;
 
-       public float maximumLockOnDistance = 15;
+        public float maximumLockOnDistance = 15;
 
         public LockOnRef nearestLockOnTarget;
 
@@ -49,13 +49,8 @@ namespace AF
 
         public float MAX_TIME_BEFORE_DISENGAGING = 1f;
 
-
         private void Awake()
         {
-            playerAnimator = FindObjectOfType<PlayerCombatController>(true).GetComponent<Animator>();
-
-            inputs = FindObjectOfType<StarterAssetsInputs>(true);
-
             LayerEnvironment = LayerMask.NameToLayer("Environment");
             LayerDefault = LayerMask.NameToLayer("Default");
         }
@@ -210,7 +205,7 @@ namespace AF
 
         public void SnapPlayerRotationToLockOnTarget()
         {
-            if (nearestLockOnTarget== null)
+            if (nearestLockOnTarget == null)
             {
                 return;
             }
@@ -229,7 +224,7 @@ namespace AF
 
             this.lockOnUi.gameObject.SetActive(true);
 
-            playerAnimator.SetBool(hashIsLockedOn, true);
+            // playerAnimator.SetBool(hashIsLockedOn, true);
 
             isLockedOn = true;
         }
@@ -241,7 +236,7 @@ namespace AF
             isLockedOn = false;
             defaultCamera.gameObject.SetActive(true);
             lockOnCamera.gameObject.SetActive(false);
-            playerAnimator.SetBool(hashIsLockedOn, false);
+            //            playerAnimator.SetBool(hashIsLockedOn, false);
 
             nearestLockOnTarget = null;
             rightLockTarget = null;
@@ -251,7 +246,8 @@ namespace AF
             playerAnimator.SetFloat(hashStrafeVertical, 0);
         }
 
-        public void HandleLockOnClick() {
+        public void HandleLockOnClick()
+        {
             nearestLockOnTarget = null;
             availableTargets.Clear();
 
@@ -306,7 +302,7 @@ namespace AF
                                     nearestLockOnTarget = availableTargets[i];
                                 }
                             }
-                            
+
                         }
                     }
                 }
@@ -432,7 +428,7 @@ namespace AF
                     targetSwitchingCooldown = 0f;
                 }
             }
-            else if ( lookedRight && rightLockTarget != null)
+            else if (lookedRight && rightLockTarget != null)
             {
                 if (targetSwitchingCooldown >= maxTargetSwitchingCooldown)
                 {

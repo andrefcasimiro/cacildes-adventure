@@ -5,26 +5,26 @@ namespace AF
 {
     public class PlayerShootingManager : MonoBehaviour
     {
-        Animator animator => GetComponent<Animator>();
+        public Animator animator;
 
-        // Set by the consumed consumable
+        // Set by the consumed consumable   
         [HideInInspector] public Projectile currentProjectile;
 
-        LockOnManager lockOnManager;
+        public LockOnManager lockOnManager;
         public Transform projectileSpawnPointRef;
         public Transform throwSpawnPointRef;
 
         public Item bow;
 
-        NotificationManager notificationManager;
-        PlayerInventory playerInventory;
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+        public NotificationManager notificationManager;
+        public PlayerInventory playerInventory;
+        public EquipmentGraphicsHandler equipmentGraphicsHandler;
 
-        ClimbController climbController => GetComponent<ClimbController>();
-        DodgeController dodgeController => GetComponent<DodgeController>();
-        PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
-        PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
-        PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
+        public ClimbController climbController;
+        public DodgeController dodgeController;
+        public PlayerParryManager playerParryManager;
+        public PlayerCombatController playerCombatController;
+        public PlayerComponentManager playerComponentManager;
 
         [Header("Sounds")]
         public AudioClip bowDraw;
@@ -41,16 +41,12 @@ namespace AF
         [Header("Achievements")]
         public Achievement achievementOnShootingBowForFirstTime;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         private void Start()
         {
-            notificationManager = FindObjectOfType<NotificationManager>(true);
-            playerInventory = FindObjectOfType<PlayerInventory>(true);
-
             bow = Resources.Load<Item>("Items/Key Items/Bow");
-
-            lockOnManager = FindObjectOfType<LockOnManager>(true);
-
-
         }
 
         public void ShootBow(ConsumableProjectile consumableProjectile)
@@ -141,12 +137,13 @@ namespace AF
 
         public bool IsShooting()
         {
-            return animator.GetBool("IsShooting");
+            return false;
+            //            return animator.GetBool("IsShooting");
         }
 
         bool CanShoot()
         {
-            if (Player.instance.currentStamina < minimumStaminaToShoot)
+            if (playerStatsDatabase.currentStamina < minimumStaminaToShoot)
             {
                 return false;
             }
@@ -177,7 +174,7 @@ namespace AF
 
 
             // If player is on the ground for being stunned
-            if (animator.GetBool("IsStunned"))
+            if (false)//animator.GetBool("IsStunned"))
             {
                 return false;
             }

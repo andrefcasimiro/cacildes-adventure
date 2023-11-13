@@ -1,3 +1,4 @@
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
@@ -7,11 +8,16 @@ namespace AF
         public int baseHealth = 100;
         public float levelMultiplier = 3.25f;
 
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
+
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
 
         public int GetMaxHealth()
         {
-            return baseHealth + (int)(Mathf.RoundToInt((Player.instance.vitality + equipmentGraphicsHandler.vitalityBonus) * levelMultiplier));
+            return baseHealth + (int)(Mathf.RoundToInt((
+                playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus) * levelMultiplier));
         }
 
         public void SubtractAmount(float amount)

@@ -1,28 +1,21 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace AF
 {
 
     public class PlayerCombatController : MonoBehaviour
     {
-        public readonly int hashCombatting = Animator.StringToHash("IsCombatting");
-        public readonly int hashLightAttack1 = Animator.StringToHash("Light Attack A");
-        public readonly int hashLightAttack2 = Animator.StringToHash("Light Attack B");
-        public readonly int hashLightAttack3 = Animator.StringToHash("Light Attack C");
-        public readonly int hashHeavyAttack1 = Animator.StringToHash("Heavy Attack A");
-        public readonly int hashHeavyAttack2 = Animator.StringToHash("Heavy Attack B");
-        public readonly int hashHeavyAttack3 = Animator.StringToHash("Heavy Attack C");
-        public readonly int hashIsRollAttacking = Animator.StringToHash("IsRollAttacking");
+        public readonly int hashLightAttack1 = Animator.StringToHash("Light Attack 1");
+        public readonly int hashLightAttack2 = Animator.StringToHash("Light Attack 2");
+        public readonly int hashHeavyAttack1 = Animator.StringToHash("Heavy Attack 1");
         public readonly int hashJumpAttack = Animator.StringToHash("Jump Attack");
         public readonly int hashIsJumpAttacking = Animator.StringToHash("IsJumpAttacking");
         public readonly int hashIsStartingJumpAttack = Animator.StringToHash("IsStartingJumpAttack");
-        
-        [Header("Transform Refs")]
-        public Transform headRef;
 
         [Header("Sounds")]
         public AudioSource combatAudioSource;
-        public AudioClip blockingSfx;
 
         public AudioClip unarmedSwingSfx;
         public AudioClip unarmedHitImpactSfx;
@@ -30,142 +23,62 @@ namespace AF
         [Header("Attack Combo Index")]
         public float maxIdleCombo = 2f;
         [SerializeField] int lightAttackComboIndex = 0;
-        float timeSinceLastLightAttack = 0f;
         [SerializeField] int heavyAttackComboIndex = 0;
-        float timeSinceLastHeavyAttack = 0f;
 
         [Header("Flags")]
         public bool isCombatting = false;
-        
-        Animator animator => GetComponent<Animator>();
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
-        StaminaStatManager staminaStatManager => GetComponent<StaminaStatManager>();
-        StarterAssetsInputs starterAssetsInputs => GetComponent<StarterAssetsInputs>();
-        ClimbController climbController => GetComponent<ClimbController>();
-        DodgeController dodgeController => GetComponent<DodgeController>();
-        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
-        PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
-        UIDocumentDialogueWindow uIDocumentDialogueWindow;
-        PlayerShootingManager playerShootingManager => GetComponent<PlayerShootingManager>();
 
-        public bool isParrying = false;
+        [Header("Components")]
+        public PlayerManager playerManager;
+        public Animator animator;
+        public EquipmentGraphicsHandler equipmentGraphicsHandler;
+        public StaminaStatManager staminaStatManager;
+        public StarterAssetsInputs starterAssetsInputs;
+        public ClimbController climbController;
+        public DodgeController dodgeController;
+        public ThirdPersonController thirdPersonController;
+        public PlayerParryManager playerParryManager;
+        public UIDocumentDialogueWindow uIDocumentDialogueWindow;
+        public PlayerShootingManager playerShootingManager;
+        public PlayerComponentManager playerComponentManager;
 
-        [Header("Stamina")]
-        public int unarmedLightAttackStaminaCost = 15;
-        public int unarmedHeavyAttackStaminaCost = 35;
-
-        public WeaponHandlerRef leftWeaponHandlerRef;
-        public WeaponHandlerRef rightWeaponHandlerRef;
-
-        public bool isHeavyAttacking = false;
 
         [Header("Heavy Attacks")]
         public int unarmedHeavyAttackBonus = 35;
 
-        public bool skipIK = false;
+        [Header("UI")]
+        public MenuManager menuManager;
 
+        [Header("Flags")]
+        public bool isHeavyAttacking = false;
         public bool isDamagingHimself = false;
 
-        MenuManager menuManager;
-
-        PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
+        // Coroutines
+        Coroutine ResetLightAttackComboIndexCoroutine, ResetHeavyAttackComboIndexCoroutine;
 
         private void Start()
         {
-            uIDocumentDialogueWindow = FindObjectOfType<UIDocumentDialogueWindow>(true);
             equipmentGraphicsHandler.DeactivateAllHitboxes();
-
-            menuManager = FindAnyObjectByType<MenuManager>(FindObjectsInactive.Include);
         }
 
-        public void SkipIK()
+        public void OnLightAttack()
         {
-            skipIK = true;
-        }
-
-        private void OnAnimatorIK(int layerIndex)
-        {
-            if (playerParryManager.IsBlocking() && Player.instance.equippedShield != null)
+            if (CanLightAttack())
             {
-                return;
-            }
-
-            if (skipIK)
-            {
-                return;
-            }
-
-            if (leftWeaponHandlerRef != null)
-            {
-                animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1f);
-                animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1f);
-                animator.SetIKPosition(AvatarIKGoal.LeftHand, leftWeaponHandlerRef.transform.position);
-                animator.SetIKRotation(AvatarIKGoal.LeftHand, leftWeaponHandlerRef.transform.rotation);
-            }
-
-            if (rightWeaponHandlerRef != null)
-            {
-                animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
-                animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1f);
-                animator.SetIKPosition(AvatarIKGoal.RightHand, rightWeaponHandlerRef.transform.position);
-                animator.SetIKRotation(AvatarIKGoal.RightHand, rightWeaponHandlerRef.transform.rotation);
+                HandleLightAttack();
             }
         }
-
-        private void Update()
+        public void OnHeavyAttack()
         {
-            isCombatting = animator.GetBool(hashCombatting);
-
-            if (timeSinceLastLightAttack < maxIdleCombo)
+            if (CanHeavyAttack())
             {
-                timeSinceLastLightAttack += Time.deltaTime;
-            }
-
-            if (timeSinceLastHeavyAttack < maxIdleCombo)
-            {
-                timeSinceLastHeavyAttack += Time.deltaTime;
-            }
-
-            // Light Attack
-            if (lightAttackComboIndex != 0 && timeSinceLastLightAttack >= maxIdleCombo)
-            {
-                lightAttackComboIndex = 0;
-            }
-            if (heavyAttackComboIndex != 0 && timeSinceLastHeavyAttack >= maxIdleCombo)
-            {
-                heavyAttackComboIndex = 0;
-            }
-
-            if (starterAssetsInputs.lightAttack)
-            {
-                starterAssetsInputs.lightAttack = false;
-
-                if (CanLightAttack())
-                {
-                    HandleLightAttack();
-                }
-            }
-            else if (starterAssetsInputs.heavyAttack)
-            {
-                starterAssetsInputs.heavyAttack = false;
-                if (CanHeavyAttack())
-                {
-                    HandleHeavyAttack();
-                }
+                HandleHeavyAttack();
             }
         }
 
         public void HandleLightAttack()
         {
-            if (isCombatting)
-            {
-                return;
-            }
-
             isHeavyAttacking = false;
-
-
-            equipmentGraphicsHandler.ShowWeapons();
 
             if (thirdPersonController.Grounded)
             {
@@ -176,15 +89,11 @@ namespace AF
 
                 if (lightAttackComboIndex == 0)
                 {
-                    animator.Play(hashLightAttack1);
+                    playerManager.PlayBusyAnimation(hashLightAttack1);
                 }
                 else if (lightAttackComboIndex == 1)
                 {
-                    animator.Play(hashLightAttack2);
-                }
-                else
-                {
-                    animator.Play(hashLightAttack3);
+                    playerManager.PlayBusyAnimation(hashLightAttack2);
                 }
             }
             else
@@ -192,12 +101,20 @@ namespace AF
                 HandleJumpAttack();
             }
 
-            animator.SetBool(hashCombatting, true);
-
-            staminaStatManager.DecreaseStamina(Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.lightAttackStaminaCost : unarmedLightAttackStaminaCost);
-
             lightAttackComboIndex++;
-            timeSinceLastLightAttack = 0f;
+            staminaStatManager.DecreaseLightAttackStamina();
+
+            if (ResetLightAttackComboIndexCoroutine != null)
+            {
+                StopCoroutine(ResetLightAttackComboIndexCoroutine);
+            }
+            ResetLightAttackComboIndexCoroutine = StartCoroutine(_ResetLightAttackComboIndex());
+        }
+
+        IEnumerator _ResetLightAttackComboIndex()
+        {
+            yield return new WaitForSeconds(maxIdleCombo);
+            lightAttackComboIndex = 0;
         }
 
         void HandleJumpAttack()
@@ -215,56 +132,32 @@ namespace AF
 
             isHeavyAttacking = true;
 
-            equipmentGraphicsHandler.ShowWeapons();
+            playerManager.PlayBusyAnimation(hashHeavyAttack1);
 
-            if (heavyAttackComboIndex > 2)
-            {
-                heavyAttackComboIndex = 0;
-            }
-
-            if (heavyAttackComboIndex == 0)
-            {
-                animator.Play(hashHeavyAttack1);
-            }
-            else if (heavyAttackComboIndex == 1)
-            {
-                animator.Play(hashHeavyAttack2);
-            }
-            else
-            {
-                animator.Play(hashHeavyAttack3);
-            }
-
-            animator.SetBool(hashCombatting, true);
-
-            staminaStatManager.DecreaseStamina(Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.heavyAttackStaminaCost : unarmedHeavyAttackStaminaCost);
-
+            staminaStatManager.DecreaseHeavyAttackStamina();
             heavyAttackComboIndex++;
-            timeSinceLastHeavyAttack = 0f;
+
+            if (ResetHeavyAttackComboIndexCoroutine != null)
+            {
+                StopCoroutine(ResetHeavyAttackComboIndexCoroutine);
+            }
+            ResetHeavyAttackComboIndexCoroutine = StartCoroutine(_ResetHeavyAttackComboIndex());
         }
 
+        IEnumerator _ResetHeavyAttackComboIndex()
+        {
+            yield return new WaitForSeconds(maxIdleCombo);
+            heavyAttackComboIndex = 0;
+        }
 
         public bool CanLightAttack()
         {
-            if (dodgeController.IsDodging() && dodgeController.CanRollAttack())
-            {
-                animator.SetBool(hashIsRollAttacking, true);
-            }
-
             if (CanAttack() == false)
             {
                 return false;
             }
 
-            var staminaCost = Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.lightAttackStaminaCost : unarmedLightAttackStaminaCost;
-            if (staminaStatManager.HasEnoughStaminaForAction(staminaCost) == false)
-            {
-                //BGMManager.instance.PlayInsufficientStamina();
-
-                return false;
-            }
-
-            return true;
+            return staminaStatManager.HasEnoughStaminaForLightAttack();
         }
 
         public bool CanHeavyAttack()
@@ -274,23 +167,16 @@ namespace AF
                 return false;
             }
 
-            var staminaCost = Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.heavyAttackStaminaCost : unarmedHeavyAttackStaminaCost;
-            if (staminaStatManager.HasEnoughStaminaForAction(staminaCost) == false)
+            return staminaStatManager.HasEnoughStaminaForHeavyAttack();
+        }
+
+        bool CanAttack()
+        {
+            if (playerManager.IsBusy)
             {
                 return false;
             }
 
-            return true;
-        }
-
-        public void EnableRootMotion()
-        {
-            animator.applyRootMotion = true;
-        }
-
-
-        bool CanAttack()
-        {
             if (menuManager.IsMenuOpen())
             {
                 return false;
@@ -311,18 +197,14 @@ namespace AF
                 return false;
             }
 
-            /*if (thirdPersonController.Grounded == false)
-            {
-                return false;
-            }*/
-
             // If in dialogue
             if (uIDocumentDialogueWindow.isActiveAndEnabled)
             {
                 return false;
             }
 
-            if (playerParryManager.IsBlocking()) {
+            if (playerParryManager.IsBlocking())
+            {
                 return false;
             }
 
@@ -331,21 +213,21 @@ namespace AF
 
         public bool IsJumpAttacking()
         {
-            return animator.GetBool(hashIsJumpAttacking);
+            return false;
+            //            return animator.GetBool(hashIsJumpAttacking);
         }
 
         public bool IsStartingJumpAttack()
         {
-            return animator.GetBool(hashIsStartingJumpAttack);
+            return false;
+            //            return animator.GetBool(hashIsStartingJumpAttack);
         }
 
         private void OnDisable()
         {
             animator.SetBool(hashIsJumpAttacking, false);
             animator.SetBool(hashIsStartingJumpAttack, false);
-            animator.SetBool(hashCombatting, false);
             isHeavyAttacking = false;
         }
-
     }
 }

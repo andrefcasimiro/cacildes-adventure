@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AF.Stats;
 
 namespace AF
 {
@@ -39,6 +40,9 @@ namespace AF
         [Range(0, 100f)]
         public float chanceToSteal = 50;
         public bool isStealingButGetsItemAnyway = false;
+
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
 
         private void Awake()
         {
@@ -77,7 +81,7 @@ namespace AF
 
         float GetStealChance()
         {
-            return chanceToSteal + playerInventory.GetComponent<EquipmentGraphicsHandler>().chanceToStealBonus;
+            return chanceToSteal + playerInventory.GetComponent<StatsBonusController>().chanceToStealBonus;
         }
 
         public void OnInvoked()

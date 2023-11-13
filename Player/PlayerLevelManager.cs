@@ -6,10 +6,11 @@ namespace AF
 {
     public class PlayerLevelManager : MonoBehaviour
     {
+        public PlayerStatsDatabase playerStatsDatabase;
 
         public int GetCurrentLevel()
         {
-            return Player.instance.GetCurrentLevel();
+            return playerStatsDatabase.GetCurrentLevel();
         }
 
         public int GetRequiredExperienceForGivenLevel(int level)

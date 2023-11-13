@@ -8,11 +8,18 @@ namespace AF
 
     public class PlayerWeaponHitbox : MonoBehaviour
     {
-        // References
-        BoxCollider boxCollider => GetComponent<BoxCollider>();
+        [Header("Weapon")]
+        public Weapon weapon;
 
+        [Header("Holstered Weapon Settings")]
+        public GameObject holsteredWeaponGraphic;
+
+        [Header("Trails")]
         public TrailRenderer trailRenderer;
+        public BoxCollider hitCollider => GetComponent<BoxCollider>();
 
+
+        [Header("Components")]
         PlayerCombatController playerCombatController;
         AttackStatManager attackStatManager;
 
@@ -32,19 +39,45 @@ namespace AF
 
         private void Awake()
         {
-            attackStatManager = GetComponentInParent<AttackStatManager>();
-            playerCombatController = GetComponentInParent<PlayerCombatController>();
-
-            if (trailRenderer == null)
-            {
-                trailRenderer = GetComponent<TrailRenderer>();
-            }
+            HideHolsteredWeapon();
+            this.gameObject.SetActive(false);
         }
 
         // Start is called before the first frame update
         void Start()
         {
             DisableHitbox();
+
+            ShowHolsteredWeapon();
+        }
+
+        public void ShowHolsteredWeapon()
+        {
+            if (holsteredWeaponGraphic == null)
+            {
+                return;
+            }
+
+            holsteredWeaponGraphic.SetActive(true);
+        }
+        public void HideHolsteredWeapon()
+        {
+            if (holsteredWeaponGraphic == null)
+            {
+                return;
+            }
+
+            holsteredWeaponGraphic.SetActive(false);
+        }
+
+        private void OnEnable()
+        {
+            HideHolsteredWeapon();
+        }
+
+        private void OnDisable()
+        {
+            HideHolsteredWeapon();
         }
 
         private void Update()
@@ -91,9 +124,9 @@ namespace AF
                 GetComponent<MeshRenderer>().enabled = true;
             }
 
-            boxCollider.enabled = true;
-        
-        
+            hitCollider.enabled = true;
+
+
             if (playerCombatController.isDamagingHimself)
             {
                 FindAnyObjectByType<PlayerHealthbox>(FindObjectsInactive.Include).TakeEnvironmentalDamage(50f, 1, true, 0, WeaponElementType.None);
@@ -112,7 +145,7 @@ namespace AF
                 GetComponent<MeshRenderer>().enabled = false;
             }
 
-            boxCollider.enabled = false;
+            hitCollider.enabled = false;
         }
 
         public void OnTriggerEnter(Collider other)

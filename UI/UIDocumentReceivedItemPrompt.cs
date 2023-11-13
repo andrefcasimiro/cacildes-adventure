@@ -141,14 +141,14 @@ namespace AF
                     {
                         var itemInstance = Player.instance.ownedItems.FirstOrDefault(x => x.item.name.GetText() == itemsUI[0].itemName);
 
-                        
+
                         if (itemInstance != null)
                         {
                             var consumable = itemInstance.item as Consumable;
-                        
+
                             if (consumable != null)
                             {
-                                FindObjectOfType<FavoriteItemsManager>(true).AddFavoriteItemToList(itemInstance.item);
+                                FindObjectOfType<FavoriteItemsManager>(true).AddFavoriteItemToList(itemInstance.item, 0);
                                 FindObjectOfType<FavoriteItemsManager>(true).SwitchToFavoriteItem(itemInstance.item.name.GetText());
                             }
                         }

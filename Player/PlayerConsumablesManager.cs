@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
@@ -13,7 +14,6 @@ namespace AF
         PlayerHealthbox playerHealthbox => GetComponentInChildren<PlayerHealthbox>();
         AttackStatManager attackStatManager => GetComponent<AttackStatManager>();
         ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
         [Header("Components")]
         public PlayerStatusManager playerStatusManager;
@@ -23,6 +23,14 @@ namespace AF
 
         FavoriteItemsManager favoriteItemsManager => GetComponent<FavoriteItemsManager>();
         UIDocumentStatusEffectV2 uIDocumentStatusEffectV2;
+
+
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
+
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
 
         private void Awake()
         {
@@ -48,7 +56,7 @@ namespace AF
             }
 
             Player.instance.appliedConsumables.Add(consumableEffect);
-            
+
             // If we only wish to evaluate the effect once, evaluate on add
             if (consumableEffect.consumableEffect.tick == false)
             {
@@ -86,7 +94,7 @@ namespace AF
 
         public void ClearAllConsumables()
         {
-             var consumables = Player.instance.appliedConsumables.ToList();
+            var consumables = Player.instance.appliedConsumables.ToList();
 
             foreach (var c in consumables)
             {
@@ -118,31 +126,31 @@ namespace AF
             }
             else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
             {
-                equipmentGraphicsHandler.vitalityBonus -= (int)consumableToDelete.consumableEffect.value;
-                equipmentGraphicsHandler.enduranceBonus -= (int)consumableToDelete.consumableEffect.value;
-                equipmentGraphicsHandler.dexterityBonus -= (int)consumableToDelete.consumableEffect.value;
-                equipmentGraphicsHandler.strengthBonus -= (int)consumableToDelete.consumableEffect.value;
-                equipmentGraphicsHandler.intelligenceBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.vitalityBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.enduranceBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.dexterityBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.strengthBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.intelligenceBonus -= (int)consumableToDelete.consumableEffect.value;
             }
             else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.VITALITY_INCREASE)
             {
-                equipmentGraphicsHandler.vitalityBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.vitalityBonus -= (int)consumableToDelete.consumableEffect.value;
             }
             else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ENDURANCE_INCREASE)
             {
-                equipmentGraphicsHandler.enduranceBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.enduranceBonus -= (int)consumableToDelete.consumableEffect.value;
             }
             else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
             {
-                equipmentGraphicsHandler.strengthBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.strengthBonus -= (int)consumableToDelete.consumableEffect.value;
             }
             else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
             {
-                equipmentGraphicsHandler.dexterityBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.dexterityBonus -= (int)consumableToDelete.consumableEffect.value;
             }
             else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.INTELLIGENCE_INCREASE)
             {
-                equipmentGraphicsHandler.intelligenceBonus -= (int)consumableToDelete.consumableEffect.value;
+                playerStatsBonusController.intelligenceBonus -= (int)consumableToDelete.consumableEffect.value;
             }
             else if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
             {
@@ -200,31 +208,31 @@ namespace AF
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ALL_STATS_INCREASE)
             {
-                equipmentGraphicsHandler.vitalityBonus += (int)entry.consumableEffect.value;
-                equipmentGraphicsHandler.enduranceBonus += (int)entry.consumableEffect.value;
-                equipmentGraphicsHandler.dexterityBonus += (int)entry.consumableEffect.value;
-                equipmentGraphicsHandler.strengthBonus += (int)entry.consumableEffect.value;
-                equipmentGraphicsHandler.intelligenceBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.vitalityBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.enduranceBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.dexterityBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.strengthBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.intelligenceBonus += (int)entry.consumableEffect.value;
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.VITALITY_INCREASE)
             {
-                equipmentGraphicsHandler.vitalityBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.vitalityBonus += (int)entry.consumableEffect.value;
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.ENDURANCE_INCREASE)
             {
-                equipmentGraphicsHandler.enduranceBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.enduranceBonus += (int)entry.consumableEffect.value;
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STRENGTH_INCREASE)
             {
-                equipmentGraphicsHandler.strengthBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.strengthBonus += (int)entry.consumableEffect.value;
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.DEXTERITY_INCREASE)
             {
-                equipmentGraphicsHandler.dexterityBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.dexterityBonus += (int)entry.consumableEffect.value;
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.INTELLIGENCE_INCREASE)
             {
-                equipmentGraphicsHandler.intelligenceBonus += (int)entry.consumableEffect.value;
+                playerStatsBonusController.intelligenceBonus += (int)entry.consumableEffect.value;
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.NO_DAMAGE_FOR_X_SECONDS)
             {

@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
@@ -24,7 +25,6 @@ namespace AF
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
         PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
         ThirdPersonController tps => GetComponent<ThirdPersonController>();
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
         ClimbController climbController => GetComponent<ClimbController>();
 
@@ -43,9 +43,12 @@ namespace AF
 
         LockOnManager lockOnManager;
 
-        CharacterController characterController => GetComponent<CharacterController>();
 
         float characterSlopeLimit, characterStepOffset;
+
+        [Header("Components")]
+        public CharacterController characterController;
+        public StatsBonusController playerStatsBonusController;
 
         private void Awake()
         {
@@ -164,7 +167,7 @@ namespace AF
 
         public int GetMaxPoise()
         {
-            return unarmedPoiseHits + equipmentGraphicsHandler.equipmentPoise + poiseBonus;
+            return unarmedPoiseHits + playerStatsBonusController.equipmentPoise + poiseBonus;
         }
 
         public bool IsTakingDamage()

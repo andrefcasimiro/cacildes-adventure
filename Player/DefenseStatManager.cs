@@ -1,11 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
 {
     [System.Serializable]
-    public class NegativeStatusResistance {
+    public class NegativeStatusResistance
+    {
         public StatusEffect statusEffect;
 
         public float resistance = 100f;
@@ -31,6 +32,12 @@ namespace AF
 
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
+
+        [Header("Database")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         public bool ignoreDefense = false;
 
         public float GetDefenseAbsorption()
@@ -42,15 +49,15 @@ namespace AF
 
             return (int)(
                 GetCurrentPhysicalDefense()
-                + equipmentGraphicsHandler.equipmentPhysicalDefense // Equipment Bonus
+                + playerStatsBonusController.equipmentPhysicalDefense // Equipment Bonus
                 + physicalDefenseBonus
-                + (equipmentGraphicsHandler.enduranceBonus * levelMultiplier)
+                + (playerStatsBonusController.enduranceBonus * levelMultiplier)
             );
         }
 
         public int GetCurrentPhysicalDefense()
         {
-            return (int)(this.basePhysicalDefense + ((Player.instance.endurance * levelMultiplier) / 2));
+            return (int)(this.basePhysicalDefense + playerStatsDatabase.endurance * levelMultiplier) / 2;
         }
 
         public int GetCurrentPhysicalDefenseForGivenEndurance(int endurance)
@@ -70,33 +77,33 @@ namespace AF
 
             var bonusFromEquipment = 0f;
 
-            var idx = equipmentGraphicsHandler.statusEffectResistances.FindIndex(x => x.statusEffect == statusEffect);
+            var idx = playerStatsBonusController.statusEffectResistances.FindIndex(x => x.statusEffect == statusEffect);
             if (idx != -1)
             {
-                bonusFromEquipment += equipmentGraphicsHandler.statusEffectResistances[idx].resistanceBonus;
+                bonusFromEquipment += playerStatsBonusController.statusEffectResistances[idx].resistanceBonus;
             }
 
-            return target.resistance + bonusFromEquipment + (Player.instance.endurance * levelMultiplier);
+            return target.resistance + bonusFromEquipment + (playerStatsDatabase.endurance * levelMultiplier);
         }
 
         public float GetMagicDefense()
         {
-            return equipmentGraphicsHandler.magicDefenseBonus;
+            return playerStatsBonusController.magicDefenseBonus;
         }
 
         public float GetFireDefense()
         {
-            return equipmentGraphicsHandler.fireDefenseBonus;
+            return playerStatsBonusController.fireDefenseBonus;
         }
 
         public float GetFrostDefense()
         {
-            return equipmentGraphicsHandler.frostDefenseBonus;
+            return playerStatsBonusController.frostDefenseBonus;
         }
 
         public float GetLightningDefense()
         {
-            return equipmentGraphicsHandler.lightningDefenseBonus;
+            return playerStatsBonusController.lightningDefenseBonus;
         }
 
         public int CompareHelmet(Helmet helmet)

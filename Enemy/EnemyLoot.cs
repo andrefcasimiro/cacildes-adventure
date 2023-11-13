@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
@@ -30,9 +31,12 @@ namespace AF
         EquipmentGraphicsHandler equipmentGraphicsHandler;
         UIDocumentPlayerGold uIDocumentPlayerGold;
 
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
+
         private void Awake()
         {
-             playerInventory = FindFirstObjectByType<PlayerInventory>(FindObjectsInactive.Include);
+            playerInventory = FindFirstObjectByType<PlayerInventory>(FindObjectsInactive.Include);
             notificationManager = FindFirstObjectByType<NotificationManager>(FindObjectsInactive.Include);
             equipmentGraphicsHandler = FindFirstObjectByType<EquipmentGraphicsHandler>(FindObjectsInactive.Include);
             uIDocumentPlayerGold = FindFirstObjectByType<UIDocumentPlayerGold>(FindObjectsInactive.Include);
@@ -51,9 +55,9 @@ namespace AF
             }
 
 
-            if (equipmentGraphicsHandler != null)
+            if (playerStatsBonusController != null)
             {
-                var additionalCoinPercentage = equipmentGraphicsHandler.additionalCoinPercentage;
+                var additionalCoinPercentage = playerStatsBonusController.additionalCoinPercentage;
 
                 if (additionalCoinPercentage != 0)
                 {
@@ -92,7 +96,7 @@ namespace AF
             }
 
             var finalLootTable = new List<DropCurrency>();
-           
+
             // Filter armors or weapons that user might already have
             foreach (var dropCurrency in provisionalLootTable)
             {

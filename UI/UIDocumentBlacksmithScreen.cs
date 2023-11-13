@@ -95,7 +95,7 @@ namespace AF
             root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
 
             var buttonExit = root.Q<Button>("ButtonExit");
-            uiManager.SetupButton(buttonExit, () =>
+            UIUtils.SetupButton(buttonExit, () =>
             {
                 Close();
             });
@@ -183,7 +183,7 @@ namespace AF
                     craftBtn.style.opacity = 0.25f;
                 }
 
-                uiManager.SetupButton(craftBtn, () =>
+                UIUtils.SetupButton(craftBtn, () =>
                 {
                     if (!CanImproveWeapon(wp))
                     {

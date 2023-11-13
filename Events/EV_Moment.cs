@@ -69,6 +69,8 @@ namespace AF
         Vector3 originalDesiredCameraPosition;
         Quaternion originalDesiredCameraRotatin;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
         private void Awake()
         {
             dialogueManager = FindObjectOfType<DialogueManager>(true);
@@ -190,7 +192,7 @@ namespace AF
             LocalizedText message = positiveReputationMessage;
             if (negativeReputationMessage.localizedTexts != null && negativeReputationMessage.localizedTexts.Count() > 0)
             {
-                if (Player.instance.GetCurrentReputation() < 0)
+                if (playerStatsDatabase.GetCurrentReputation() < 0)
                 {
                     message = negativeReputationMessage;
                 }

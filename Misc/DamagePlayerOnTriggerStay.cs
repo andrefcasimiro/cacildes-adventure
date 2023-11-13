@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
@@ -37,9 +38,18 @@ namespace AF
         public bool damageEnemiesInstead = false;
         public bool forceEnemiesIntoCombat = true;
 
+
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
+        public PlayerSpellManager playerSpellManager;
+
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
+
         private void Awake()
         {
-             defenseStatManager = FindObjectOfType<DefenseStatManager>(true);
+            defenseStatManager = FindObjectOfType<DefenseStatManager>(true);
         }
 
         private void Start()
@@ -74,67 +84,63 @@ namespace AF
                 return;
             }
 
-                // Damage Player Case
-                if (!damageEnemiesInstead && (other.CompareTag("Player") || other.CompareTag("PlayerHealthbox")))
+            // Damage Player Case
+            if (!damageEnemiesInstead && (other.CompareTag("Player") || other.CompareTag("PlayerHealthbox")))
+            {
+                var copiedDamage = damage;
+                if (copiedDamage > 0)
                 {
-                    var copiedDamage = damage;
-                    if (copiedDamage > 0)
+                    if (takeArmorInConsideration)
                     {
-                        if (takeArmorInConsideration)
-                        {
-                            copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetDefenseAbsorption()), 0, 999);
-                        }
-
-
-                        var finalElementalDamage = Player.instance.CalculateIncomingElementalAttack((int)elementalDamage, weaponElementType, defenseStatManager);
-
-                        playerHealthbox.TakeEnvironmentalDamage(copiedDamage, poiseDamage, ignoreDodging, finalElementalDamage, weaponElementType);
+                        copiedDamage = Mathf.Clamp((int)(copiedDamage - defenseStatManager.GetDefenseAbsorption()), 0, 999);
                     }
 
-                    if (statusEffect != null)
+
+                    var finalElementalDamage = Player.instance.CalculateIncomingElementalAttack((int)elementalDamage, weaponElementType, defenseStatManager);
+
+                    playerHealthbox.TakeEnvironmentalDamage(copiedDamage, poiseDamage, ignoreDodging, finalElementalDamage, weaponElementType);
+                }
+
+                if (statusEffect != null)
+                {
+                    FindObjectOfType<PlayerStatusManager>(true).InflictStatusEffect(statusEffect, statusEffectAmount, false);
+                }
+
+                cooldown = 0f;
+            }
+
+            if (damageEnemiesInstead)
+            {
+
+                EnemyHealthController enemyHealthController = null;
+
+                if (other.CompareTag("Enemy"))
+                {
+                    enemyHealthController = other.GetComponent<EnemyHealthController>();
+                }
+
+                if (enemyHealthController == null)
+                {
+                    enemyHealthController = other.GetComponent<EnemyHealthHitbox>()?.enemyManager?.enemyHealthController;
+                }
+
+                if (enemyHealthController != null)
+                {
+                    var copiedDamage = damage;
+
+                    if (copiedDamage > 0)
                     {
-                        FindObjectOfType<PlayerStatusManager>(true).InflictStatusEffect(statusEffect, statusEffectAmount, false);
+
+                        if (damageScalesWithIntelligence)
+                        {
+                            copiedDamage = Player.instance.CalculateSpellValue(copiedDamage, playerSpellManager.GetCurrentInteligence());
+                        }
+
+                        enemyHealthController.TakeEnvironmentalDamage(copiedDamage);
                     }
 
                     cooldown = 0f;
                 }
-
-                if (damageEnemiesInstead)
-                {
-
-                    EnemyHealthController enemyHealthController = null;
-
-                    if (other.CompareTag("Enemy"))
-                    {
-                        enemyHealthController = other.GetComponent<EnemyHealthController>();
-                    }
-
-                    if (enemyHealthController == null)
-                    {
-                        enemyHealthController = other.GetComponent<EnemyHealthHitbox>()?.enemyManager?.enemyHealthController;
-                    }
-
-                    if (enemyHealthController != null)
-                    {
-                        var copiedDamage = damage;
-
-                        if (copiedDamage > 0)
-                        {
-
-                            if (damageScalesWithIntelligence)
-                            {
-                            Debug.Log("copeid damage " + copiedDamage);
-                            Debug.Log(" Player.instance.GetCurrentInteligence()" + Player.instance.GetCurrentInteligence());
-
-                            copiedDamage = Player.instance.CalculateSpellValue(copiedDamage, Player.instance.GetCurrentInteligence());
-                            }
-
-                        Debug.Log("copied damage: " + copiedDamage);
-                            enemyHealthController.TakeEnvironmentalDamage(copiedDamage);
-                        }
-
-                        cooldown = 0f;
-                    }
 
 
                 if (statusEffect != null && enemyHealthController != null)
@@ -155,10 +161,10 @@ namespace AF
 
 
                 if (forceEnemiesIntoCombat && enemyHealthController != null)
-                    {
-                        enemyHealthController.GetComponent<EnemyManager>().enemyBehaviorController.ChasePlayer();
-                    }
+                {
+                    enemyHealthController.GetComponent<EnemyManager>().enemyBehaviorController.ChasePlayer();
                 }
+            }
         }
 
     }

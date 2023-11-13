@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using AF.Stats;
+using UnityEngine;
 
 namespace AF
 {
@@ -181,6 +182,9 @@ namespace AF
                 return;
             }
 
+            // The solution for this is to add a player manager class at the top of the player
+            StatsBonusController playerStatsBonusController = GetComponentInChildren<StatsBonusController>();
+
             GetPlayerComponents();
 
             if (damageCooldownTimer <= maxTimerBeforeAllowingDamageAgain)
@@ -193,7 +197,7 @@ namespace AF
                 playerParryManager.InstantiateParryFx();
 
                 int parryDamage = 0;
-                int playerParryBonus = (int)playerParryManager.GetComponent<EquipmentGraphicsHandler>().parryPostureDamageBonus;
+                int playerParryBonus = (int)playerStatsBonusController.parryPostureDamageBonus;
                 if (playerParryBonus > 0)
                 {
                     parryDamage = enemy.enemy.postureDamagePerParry + playerParryBonus + playerParryManager.BASE_PARRY_DAMAGE;

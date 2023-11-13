@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-using System.Collections;
-using System.Collections.Generic;
-
 using UnityEngine.Events;
 
 namespace AF
@@ -22,18 +19,20 @@ namespace AF
 		public bool lockOn;
 		public bool heavyAttack;
 		public bool interact;
-        public bool switchFavoriteItemNext;
-        public bool switchFavoriteItemBack;
-        public bool consumeFavoriteItem;
+		public bool switchSpell;
+		public bool switchWeapon;
+		public bool switchShield;
+		public bool switchConsumable;
+		public bool consumeFavoriteItem;
 		public bool quickSave;
-        public bool quickLoad;
-        public bool aim;
+		public bool quickLoad;
+		public bool aim;
 
-        [Header("UI")]
-        public bool menu;
-        public bool tab;
+		[Header("UI")]
+		public bool menu;
+		public bool tab;
 
-        [Header("Movement Settings")]
+		[Header("Movement Settings")]
 		public bool analogMovement;
 
 		[Header("Mouse Cursor Settings")]
@@ -42,27 +41,33 @@ namespace AF
 
 		CursorManager cursorManager;
 
-        public UnityAction onMenuInput;
-        public UnityAction onTabInput;
+		public UnityAction onMenuInput;
+		public UnityAction onTabInput;
 
-        public UnityAction onViewInGameControlsInput;
+		public UnityAction onViewInGameControlsInput;
 
+		[Header("Events")]
+		public UnityEvent onLightAttackInput;
 
-        private void Awake()
-        {
-            cursorManager = FindObjectOfType<CursorManager>(true);
-        }
+		public UnityEvent onHeavyAttackInput;
+
+		public UnityEvent onSwitchSpellInput, onSwitchConsumableInput, onSwitchShieldInput, onSwitchWeaponInput;
+
+		private void Awake()
+		{
+			cursorManager = FindObjectOfType<CursorManager>(true);
+		}
 
 
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
-        public void OnMove(InputValue value)
+		public void OnMove(InputValue value)
 		{
 			MoveInput(value.Get<Vector2>());
 		}
 
 		public void OnLook(InputValue value)
 		{
-			if(cursorInputForLook)
+			if (cursorInputForLook)
 			{
 				LookInput(value.Get<Vector2>());
 			}
@@ -79,7 +84,7 @@ namespace AF
 		}
 
 		public void OnToggleWalk(InputValue value)
-        {
+		{
 			ToggleWalkInput(value.isPressed);
 		}
 
@@ -88,30 +93,33 @@ namespace AF
 			DodgeInput(value.isPressed);
 		}
 
-        public void OnMenu(InputValue value)
-        {
-            MenuInput(value.isPressed);
+		public void OnMenu(InputValue value)
+		{
+			MenuInput(value.isPressed);
 
-            if (value.isPressed)
-            {
-                onMenuInput.Invoke();
-            }
-        }
+			if (value.isPressed)
+			{
+				onMenuInput.Invoke();
+			}
+		}
 
-        public void OnTab(InputValue value)
-        {
-            TabInput(value.isPressed);
+		public void OnTab(InputValue value)
+		{
+			TabInput(value.isPressed);
 
-            if (value.isPressed)
-            {
+			if (value.isPressed)
+			{
 				// onViewInGameControlsInput.Invoke();
 				onTabInput?.Invoke();
-            }
-        }
+			}
+		}
 
-        public void OnLightAttack(InputValue value)
+		public void OnLightAttack(InputValue value)
 		{
 			LightAttackInput(value.isPressed);
+
+			onLightAttackInput?.Invoke();
+
 		}
 
 		public void OnBlock(InputValue value)
@@ -127,6 +135,8 @@ namespace AF
 		public void OnHeavyAttack(InputValue value)
 		{
 			HeavyAttackInput(value.isPressed);
+			onHeavyAttackInput?.Invoke();
+
 		}
 
 		public void OnInteract(InputValue value)
@@ -134,17 +144,39 @@ namespace AF
 			InteractInput(value.isPressed);
 		}
 
-        public void OnSwitchFavoriteItemNext(InputValue value)
-        {
-            SwitchFavoriteItemNextInput(value.isPressed);
-        }
+		public void OnSwitchSpell(InputValue value)
+		{
+			if (value.isPressed)
+			{
+				onSwitchSpellInput?.Invoke();
+			}
+		}
 
-        public void OnSwitchFavoriteItemBack(InputValue value)
-        {
-            SwitchFavoriteItemBackInput(value.isPressed);
-        }
+		public void OnSwitchConsumable(InputValue value)
+		{
+			if (value.isPressed)
+			{
+				onSwitchConsumableInput?.Invoke();
+			}
+		}
 
-        public void OnConsumeFavoriteItem(InputValue value)
+		public void OnSwitchWeapon(InputValue value)
+		{
+			if (value.isPressed)
+			{
+				onSwitchWeaponInput?.Invoke();
+			}
+		}
+
+		public void OnSwitchShield(InputValue value)
+		{
+			if (value.isPressed)
+			{
+				onSwitchShieldInput?.Invoke();
+			}
+		}
+
+		public void OnConsumeFavoriteItem(InputValue value)
 		{
 			ConsumeFavoriteItemInput(value.isPressed);
 		}
@@ -152,17 +184,17 @@ namespace AF
 		public void OnQuickSave(InputValue value)
 		{
 			QuickSaveInput(value.isPressed);
-        }
-        public void OnQuickLoad(InputValue value)
-        {
-            QuickLoadInput(value.isPressed);
-        }
+		}
+		public void OnQuickLoad(InputValue value)
+		{
+			QuickLoadInput(value.isPressed);
+		}
 #endif
 
-        public void MoveInput(Vector2 newMoveDirection)
+		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
-		} 
+		}
 
 		public void LookInput(Vector2 newLookDirection)
 		{
@@ -187,19 +219,19 @@ namespace AF
 		public void DodgeInput(bool newDodgeState)
 		{
 			dodge = newDodgeState;
-        }
+		}
 
-        public void MenuInput(bool newMenuState)
-        {
-            menu = newMenuState;
-        }
+		public void MenuInput(bool newMenuState)
+		{
+			menu = newMenuState;
+		}
 
-        public void TabInput(bool state)
-        {
-            tab = state;
-        }
+		public void TabInput(bool state)
+		{
+			tab = state;
+		}
 
-        public void LightAttackInput(bool lightAttackState)
+		public void LightAttackInput(bool lightAttackState)
 		{
 			lightAttack = lightAttackState;
 		}
@@ -222,19 +254,9 @@ namespace AF
 		public void InteractInput(bool interactState)
 		{
 			interact = interactState;
-        }
+		}
 
-        public void SwitchFavoriteItemNextInput(bool state)
-        {
-            switchFavoriteItemNext = state;
-        }
-
-        public void SwitchFavoriteItemBackInput(bool state)
-        {
-            switchFavoriteItemBack = state;
-        }
-
-        public void ConsumeFavoriteItemInput(bool state)
+		public void ConsumeFavoriteItemInput(bool state)
 		{
 			consumeFavoriteItem = state;
 		}
@@ -243,12 +265,12 @@ namespace AF
 			quickSave = state;
 		}
 
-        public void QuickLoadInput(bool state)
-        {
-            quickLoad = state;
-        }
+		public void QuickLoadInput(bool state)
+		{
+			quickLoad = state;
+		}
 
-        private void OnApplicationFocus(bool hasFocus)
+		private void OnApplicationFocus(bool hasFocus)
 		{
 			//SetCursorState(cursorLocked);
 		}
@@ -261,31 +283,31 @@ namespace AF
 		private void Start()
 		{
 
-            InputSystem.onDeviceChange += (device, deviceChange) =>
-            {
+			InputSystem.onDeviceChange += (device, deviceChange) =>
+			{
 				// If cursor is not being shown or used for menus, dont do anything
 				if (Cursor.lockState == CursorLockMode.Locked)
 				{
 					return;
 				}
 
-                var gamePadCursor = FindObjectOfType<GamepadCursor>(true);
+				var gamePadCursor = FindObjectOfType<GamepadCursor>(true);
 
-                // If gamepad was disconnected
-                if (Gamepad.current == null && gamePadCursor.isActiveAndEnabled)
-                {
+				// If gamepad was disconnected
+				if (Gamepad.current == null && gamePadCursor.isActiveAndEnabled)
+				{
 					gamePadCursor.gameObject.SetActive(false);
-                }
-                else if (!gamePadCursor.isActiveAndEnabled)
-                {
-                    gamePadCursor.gameObject.SetActive(true);
-                }
+				}
+				else if (!gamePadCursor.isActiveAndEnabled)
+				{
+					gamePadCursor.gameObject.SetActive(true);
+				}
 
 				cursorManager.ShowCursor();
-            };
-        }
+			};
+		}
 
 
 	}
-	
+
 }

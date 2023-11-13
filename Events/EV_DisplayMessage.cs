@@ -73,6 +73,9 @@ namespace AF
         [Header("Show Video")]
         public VideoPlayer video;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         private void Awake()
         {
             dialogueManager = FindObjectOfType<DialogueManager>(true);
@@ -167,7 +170,7 @@ namespace AF
                 }
                 else if (negativeReputationMessages != null && negativeReputationMessages.Length > 0)
                 {
-                    if (Player.instance.GetCurrentReputation() < 0)
+                    if (playerStatsDatabase.GetCurrentReputation() < 0)
                     {
                         var idx = Random.Range(0, negativeReputationMessages.Length);
                         displayMessage = negativeReputationMessages[idx];

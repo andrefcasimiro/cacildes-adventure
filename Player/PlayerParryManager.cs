@@ -1,8 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using JetBrains.Annotations;
-using UnityEditor.Rendering;
 
 namespace AF
 {
@@ -13,17 +10,16 @@ namespace AF
         public readonly int hashIsBlocking = Animator.StringToHash("IsBlocking");
         public readonly int hashIsTakingBlockHit = Animator.StringToHash("IsTakingBlockHit");
 
-        Animator animator => GetComponent<Animator>();
+        public Animator animator;
 
-        StarterAssetsInputs starterAssetsInputs => GetComponent<StarterAssetsInputs>();
+        public StarterAssetsInputs starterAssetsInputs;
 
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+        public EquipmentGraphicsHandler equipmentGraphicsHandler;
 
-        PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
+        public PlayerCombatController playerCombatController;
 
-        ClimbController climbController => GetComponent<ClimbController>();
-        PlayerShootingManager playerShootingManager => GetComponent<PlayerShootingManager>();
-
+        public ClimbController climbController;
+        public PlayerShootingManager playerShootingManager;
         public float unarmedParryWindow = .4f;
         float parryTimer = 0f;
 
@@ -130,12 +126,14 @@ namespace AF
 
         public bool IsBlocking()
         {
-            return animator.GetBool(hashIsBlocking);
+            return false;
+            //            return animator.GetBool(hashIsBlocking);
         }
 
         public bool IsTakingBlockHit()
         {
-            return animator.GetBool(hashIsTakingBlockHit);
+            return false;
+            //            return animator.GetBool(hashIsTakingBlockHit);
         }
 
         public bool IsParrying()

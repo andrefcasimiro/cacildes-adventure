@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
@@ -16,36 +16,40 @@ namespace AF
         public const float EMPTY_STAMINA_REGENERATION_DELAY = 0.5f;
         public bool shouldRegenerateStamina = false;
 
-        StarterAssetsInputs inputs;
+        [Header("Combat Stamina")]
+        public int unarmedLightAttackStaminaCost = 15;
+        public int unarmedHeavyAttackStaminaCost = 35;
 
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+        public EquipmentDatabase equipmentDatabase;
 
-        PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
 
-        private void Awake()
-        {
-            inputs = FindObjectOfType<StarterAssetsInputs>(true);
-        }
+        public StarterAssetsInputs inputs;
+
+        public EquipmentGraphicsHandler equipmentGraphicsHandler;
+
+        public PlayerParryManager playerParryManager;
 
         private void Start()
         {
-            if (Player.instance.currentStamina < GetMaxStamina())
-            {
-                shouldRegenerateStamina = true;
-            }
+            playerStatsDatabase.currentStamina = GetMaxStamina();
         }
 
         public int GetMaxStamina()
         {
-            return baseStamina + (int)(Mathf.RoundToInt((Player.instance.endurance + equipmentGraphicsHandler.enduranceBonus) * levelMultiplier));
+            return baseStamina + (int)(Mathf.RoundToInt((
+                playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * levelMultiplier));
         }
 
         public void DecreaseStamina(float amount)
         {
             shouldRegenerateStamina = false;
 
-            Player.instance.currentStamina = Mathf.Clamp(Player.instance.currentStamina - amount, 0, GetMaxStamina());
-            
+            playerStatsDatabase.currentStamina = Mathf.Clamp(playerStatsDatabase.currentStamina - amount, 0, GetMaxStamina());
+
             StartCoroutine(RegenerateEmptyStamina());
         }
 
@@ -77,9 +81,10 @@ namespace AF
             {
                 finalRegenerationRate = finalRegenerationRate / 4;
             }
-            Player.instance.currentStamina += Mathf.Clamp(finalRegenerationRate * Time.deltaTime, 0f, GetMaxStamina());
 
-            if (Player.instance.currentStamina >= GetMaxStamina())
+            playerStatsDatabase.currentStamina += Mathf.Clamp(finalRegenerationRate * Time.deltaTime, 0f, GetMaxStamina());
+
+            if (playerStatsDatabase.currentStamina >= GetMaxStamina())
             {
                 shouldRegenerateStamina = false;
             }
@@ -87,28 +92,59 @@ namespace AF
 
         public bool HasEnoughStaminaForAction(float actionStaminaCost)
         {
-            return Player.instance.currentStamina - actionStaminaCost > 0;
+            return playerStatsDatabase.currentStamina - actionStaminaCost > 0;
         }
 
         public void RestoreStaminaPercentage(float amount)
         {
             var percentage = (this.GetMaxStamina() * amount / 100);
-            var nextValue = Mathf.Clamp(Player.instance.currentStamina + percentage, 0, this.GetMaxStamina());
+            var nextValue = Mathf.Clamp(playerStatsDatabase.currentStamina + percentage, 0, this.GetMaxStamina());
 
-            Player.instance.currentStamina = nextValue;
+            playerStatsDatabase.currentStamina = nextValue;
         }
 
         public void RestoreStaminaPoints(float amount)
         {
-            var nextValue = Mathf.Clamp(Player.instance.currentStamina + amount, 0, this.GetMaxStamina());
+            var nextValue = Mathf.Clamp(playerStatsDatabase.currentStamina + amount, 0, this.GetMaxStamina());
 
-            Player.instance.currentStamina = nextValue;
+            playerStatsDatabase.currentStamina = nextValue;
         }
 
 
         public float GetStaminaPointsForGivenEndurance(int endurance)
         {
             return baseStamina + (int)(Mathf.Ceil(endurance * levelMultiplier));
+        }
+
+        public void DecreaseLightAttackStamina()
+        {
+            DecreaseStamina(
+                equipmentDatabase.GetCurrentWeapon() != null
+                    ? equipmentDatabase.GetCurrentWeapon().lightAttackStaminaCost
+                    : unarmedLightAttackStaminaCost);
+        }
+        public void DecreaseHeavyAttackStamina()
+        {
+            DecreaseStamina(
+                equipmentDatabase.GetCurrentWeapon() != null
+                    ? equipmentDatabase.GetCurrentWeapon().heavyAttackStaminaCost
+                    : unarmedHeavyAttackStaminaCost);
+        }
+
+        public bool HasEnoughStaminaForLightAttack()
+        {
+            var staminaCost = equipmentDatabase.GetCurrentWeapon() != null
+                ? equipmentDatabase.GetCurrentWeapon().lightAttackStaminaCost : unarmedLightAttackStaminaCost;
+
+            return HasEnoughStaminaForAction(staminaCost);
+        }
+
+        public bool HasEnoughStaminaForHeavyAttack()
+        {
+            var staminaCost = equipmentDatabase.GetCurrentWeapon() != null
+                ? equipmentDatabase.GetCurrentWeapon().heavyAttackStaminaCost : unarmedHeavyAttackStaminaCost;
+
+            return HasEnoughStaminaForAction(staminaCost);
         }
     }
 }

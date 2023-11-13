@@ -170,12 +170,14 @@ namespace AF
 
         public bool IsDodging()
         {
-            return animator.GetBool(hashIsDodging);
+            return false;
+            ///            return animator.GetBool(hashIsDodging);
         }
 
         public bool IsRollAttacking()
         {
-            return animator.GetBool("IsRollAttacking");
+            return false;
+            //            return animator.GetBool("IsRollAttacking");
         }
         #endregion
 

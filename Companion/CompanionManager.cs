@@ -11,7 +11,7 @@ namespace AF
 
         [TextArea]
         public string comment = "Companions must be isKinematic for EventNavigatorCapturable to work smoothly";
-        
+
         #region Animation Hashes
         public readonly int hashIdle = Animator.StringToHash("Idle");
 
@@ -67,7 +67,7 @@ namespace AF
         // Components
         Animator animator => GetComponent<Animator>();
         [HideInInspector] public NavMeshAgent agent => GetComponent<NavMeshAgent>();
-         public GameObject player;
+        public GameObject player;
         PlayerLevelManager playerLevelManager;
 
         // Internal references
@@ -434,7 +434,7 @@ namespace AF
 
         public int GetMaxHealth()
         {
-            return Player.instance.CalculateAIGenericValue((int)baseHealth, playerLevelManager.GetCurrentLevel());
+            return 1; // Player.instance.CalculateAIGenericValue((int)baseHealth, playerLevelManager.GetCurrentLevel());
         }
 
         #endregion

@@ -253,7 +253,7 @@ namespace AF
                     var newDialogueChoiceItem = dialogueChoiceItem.CloneTree();
                     newDialogueChoiceItem.Q<Button>().text = EvaluateDialogueChoiceText(dialogueChoice.choiceText.GetText());
 
-                    uiManager.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
+                    UIUtils.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
                     {
                         selectedChoice = dialogueChoice;
                     });

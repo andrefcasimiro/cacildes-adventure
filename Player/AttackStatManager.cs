@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using AF.Stats;
 
 namespace AF
 {
@@ -24,7 +24,7 @@ namespace AF
         public float A = 1.95f;
         public float S = 2.25f;
 
-        private Dictionary<string, float> scalingDictionary = new Dictionary<string, float>();
+        private Dictionary<string, float> scalingDictionary = new();
 
         [Header("Status attack bonus")]
         [Tooltip("Increased by buffs like potions, or equipment like accessories")]
@@ -36,11 +36,17 @@ namespace AF
 
         public float jumpAttackMultiplier = 2.25f;
 
-        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
-        PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
-        DodgeController dodgeController => GetComponent<DodgeController>();
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
-        HealthStatManager healthStatManager => GetComponent<HealthStatManager>();
+        public ThirdPersonController thirdPersonController;
+        public PlayerCombatController playerCombatController;
+        public DodgeController dodgeController;
+        public EquipmentGraphicsHandler equipmentGraphicsHandler;
+        public HealthStatManager healthStatManager;
+
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
 
         private void Start()
         {
@@ -59,7 +65,8 @@ namespace AF
 
         public bool IsJumpAttacking()
         {
-            return playerCombatController.IsJumpAttacking() || playerCombatController.IsStartingJumpAttack();
+            return false;
+            //            return playerCombatController.IsJumpAttacking() || playerCombatController.IsStartingJumpAttack();
         }
 
         public int GetCurrentPhysicalAttack()
@@ -85,10 +92,10 @@ namespace AF
             return (int)Mathf.Round(
                 Mathf.Ceil(
                     value
-                        + (Player.instance.strength * levelMultiplier)
-                        + (Player.instance.dexterity * levelMultiplier)
-                        + (equipmentGraphicsHandler.strengthBonus * levelMultiplier)
-                        + (equipmentGraphicsHandler.dexterityBonus * levelMultiplier)
+                        + (playerStatsDatabase.strength * levelMultiplier)
+                        + (playerStatsDatabase.dexterity * levelMultiplier)
+                        + (playerStatsBonusController.strengthBonus * levelMultiplier)
+                        + (playerStatsBonusController.dexterityBonus * levelMultiplier)
                     ) + physicalAttackBonus + heavyAttackBonus
                 );
         }
@@ -172,9 +179,9 @@ namespace AF
 
             if (Player.instance.equippedAccessories.Count > 0 && Player.instance.equippedAccessories.Find(x => x.increaseAttackPowerTheLowerTheReputation) != null)
             {
-                if (Player.instance.GetCurrentReputation() < 0)
+                if (playerStatsDatabase.GetCurrentReputation() < 0)
                 {
-                    int extraAttackPower = (int)(Mathf.Abs(Player.instance.GetCurrentReputation()) * 3.25f);
+                    int extraAttackPower = (int)(Mathf.Abs(playerStatsDatabase.GetCurrentReputation()) * 3.25f);
 
                     value += extraAttackPower;
                 }
@@ -201,24 +208,24 @@ namespace AF
 
         public int GetStrengthBonusFromWeapon(Weapon weapon)
         {
-            return (int)(Mathf.Ceil(((Player.instance.strength + equipmentGraphicsHandler.strengthBonus) * this.levelMultiplier * this.scalingDictionary[weapon.strengthScaling.ToString()])));
+            return (int)(Mathf.Ceil(((playerStatsDatabase.strength + playerStatsBonusController.strengthBonus) * this.levelMultiplier * this.scalingDictionary[weapon.strengthScaling.ToString()])));
         }
 
         public float GetDexterityBonusFromWeapon(Weapon weapon)
         {
-            return (int)(Mathf.Ceil(((Player.instance.dexterity + equipmentGraphicsHandler.dexterityBonus) * this.levelMultiplier * this.scalingDictionary[weapon.dexterityScaling.ToString()])));
+            return (int)(Mathf.Ceil(((playerStatsDatabase.dexterity + playerStatsBonusController.dexterityBonus) * this.levelMultiplier * this.scalingDictionary[weapon.dexterityScaling.ToString()])));
         }
 
         public float GetIntelligenceBonusFromWeapon(Weapon weapon)
         {
-            return (int)(Mathf.Ceil(((Player.instance.intelligence + equipmentGraphicsHandler.intelligenceBonus) * this.levelMultiplier * this.scalingDictionary[weapon.intelligenceScaling.ToString()])));
+            return (int)(Mathf.Ceil(((playerStatsDatabase.intelligence + playerStatsBonusController.intelligenceBonus) * this.levelMultiplier * this.scalingDictionary[weapon.intelligenceScaling.ToString()])));
         }
 
         #endregion
 
         public float GetArrowDamageBonus()
         {
-            return Mathf.Ceil(Player.instance.dexterity * this.levelMultiplier + equipmentGraphicsHandler.dexterityBonus * this.levelMultiplier);
+            return Mathf.Ceil(playerStatsDatabase.dexterity * this.levelMultiplier + playerStatsBonusController.dexterityBonus * this.levelMultiplier);
         }
 
     }

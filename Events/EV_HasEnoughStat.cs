@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using AF.Stats;
 using UnityEngine;
 
 namespace AF
@@ -25,35 +26,36 @@ namespace AF
 
         EquipmentGraphicsHandler equipmentGraphicsHandler;
 
+        [Header("Components")]
+        public StatsBonusController playerStatsBonusController;
+
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         public override IEnumerator Dispatch()
         {
-            if (equipmentGraphicsHandler == null)
-            {
-                equipmentGraphicsHandler = FindAnyObjectByType<EquipmentGraphicsHandler>(FindObjectsInactive.Include);
-            }
-
             bool finalValue = false;
 
             int currentValue = 0;
             if (isVitality)
             {
-                currentValue = Player.instance.vitality + equipmentGraphicsHandler.vitalityBonus;
+                currentValue = playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus;
             }
             else if (isEndurance)
             {
-                currentValue = Player.instance.endurance + equipmentGraphicsHandler.enduranceBonus;
+                currentValue = playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus;
             }
             else if (isStrength)
             {
-                currentValue = Player.instance.strength + equipmentGraphicsHandler.strengthBonus;
+                currentValue = playerStatsDatabase.strength + playerStatsBonusController.strengthBonus;
             }
             else if (isDexterity)
             {
-                currentValue = Player.instance.dexterity + equipmentGraphicsHandler.dexterityBonus;
+                currentValue = playerStatsDatabase.dexterity + playerStatsBonusController.dexterityBonus;
             }
             else if (isIntelligence)
             {
-                currentValue = Player.instance.intelligence + equipmentGraphicsHandler.intelligenceBonus;
+                currentValue = playerStatsDatabase.intelligence + playerStatsBonusController.intelligenceBonus;
             }
 
             if (equal)

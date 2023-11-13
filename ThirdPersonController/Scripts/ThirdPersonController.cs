@@ -1,23 +1,12 @@
 ﻿using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.InputSystem;
 
-using AF;
-
-/* Note: animations are called via the controller for both the character and capsule using animator null checks
- */
+using AF.Stats;
 
 namespace AF
 {
-    [RequireComponent(typeof(CharacterController))]
-#if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
-    [RequireComponent(typeof(PlayerInput))]
-#endif
     public class ThirdPersonController : MonoBehaviour
     {
-        [TextArea]
-        public string comment = "Don't put the player gameobject near any spawn point triggers. It will cause a nasty loop";
-
         [Header("Stamina")]
         public int jumpStaminaCost = 15;
         public float runStaminaCost = .05f;
@@ -110,26 +99,33 @@ namespace AF
         [HideInInspector] public int _animIDFreeFall;
         private int _animIDMotionSpeed;
 
-#if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
+        [Header("Components")]
+        public PlayerManager playerManager;
         private PlayerInput _playerInput;
-#endif
-        private Animator _animator;
-        private CharacterController _controller;
-
         [HideInInspector] public StarterAssetsInputs _input;
-        private GameObject _mainCamera;
 
-        private ClimbController climbController => GetComponent<ClimbController>();
-        private DodgeController dodgeController => GetComponent<DodgeController>();
-        private PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
-        private PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
-        private StaminaStatManager staminaStatManager => GetComponent<StaminaStatManager>();
-        private EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
-        private UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
-        private FootstepListener footstepListener => GetComponent<FootstepListener>();
-        private MenuManager menuManager;
+        public GameObject _mainCamera;
+        public UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
 
-        private LockOnManager lockOnManager;
+        Animator _animator;
+        CharacterController _controller;
+        ClimbController climbController;
+
+        DodgeController dodgeController;
+        PlayerCombatController playerCombatController;
+        PlayerComponentManager playerComponentManager;
+        StaminaStatManager staminaStatManager;
+        EquipmentGraphicsHandler equipmentGraphicsHandler;
+        FootstepListener footstepListener;
+        PlayerShootingManager playerShootingManager;
+        PlayerParryManager playerParryManager;
+        StatsBonusController playerStatsBonusController;
+
+        public ViewClockMenu viewClockMenu;
+
+        public MenuManager menuManager;
+
+        public LockOnManager lockOnManager;
 
         private const float _threshold = 0.01f;
 
@@ -145,9 +141,6 @@ namespace AF
         [Header("Sprint FOV")]
         public float sprintFieldOfViewSpeedBonus = 10f;
         public float sprintFieldOfViewSpeedTransition = 2f;
-
-        PlayerShootingManager playerShootingManager => GetComponent<PlayerShootingManager>();
-        PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
 
         [Header("Fall Damage")]
         public bool fallDamageInitialized = false;
@@ -165,21 +158,14 @@ namespace AF
         public bool isSlidingOnIce = false;
         public bool skateRotation = false;
 
-        ViewClockMenu viewClockMenu;
 
-        private bool IsCurrentDeviceMouse
-        {
-            get
-            {
-#if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
-                return _playerInput.currentControlScheme == "KeyboardMouse";
-#else
-				return false;
-#endif
-            }
-        }
 
         public bool canRotateCharacter = true;
+
+        [Header("Components")]
+
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
 
         private void OnEnable()
         {
@@ -188,27 +174,29 @@ namespace AF
 
         private void Awake()
         {
-            // get a reference to our main camera
-            if (_mainCamera == null)
-            {
-                _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-            }
-
-            uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
-
-            lockOnManager = FindObjectOfType<LockOnManager>(true);
-
             defaultFieldOfView = virtualCamera.m_Lens.FieldOfView;
-            menuManager = FindFirstObjectByType<MenuManager>(FindObjectsInactive.Include);
+
+            _animator = playerManager.animator;
+            _controller = playerManager.characterController;
+            climbController = playerManager.climbController;
+            dodgeController = playerManager.dodgeController;
+            playerCombatController = playerManager.playerCombatController;
+            playerComponentManager = playerManager.playerComponentManager;
+            staminaStatManager = playerManager.staminaStatManager;
+            equipmentGraphicsHandler = playerManager.equipmentGraphicsHandler;
+            footstepListener = playerManager.footstepListener;
+            playerShootingManager = playerManager.playerShootingManager;
+            playerParryManager = playerManager.playerParryManager;
+            playerStatsBonusController = playerManager.statsBonusController;
 
         }
 
         private void Start()
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
-            
-            _hasAnimator = TryGetComponent(out _animator);
-            _controller = GetComponent<CharacterController>();
+
+            _hasAnimator = _animator;
+
             _input = GetComponent<StarterAssetsInputs>();
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
             _playerInput = GetComponent<PlayerInput>();
@@ -221,8 +209,6 @@ namespace AF
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
-
-            viewClockMenu = FindAnyObjectByType<ViewClockMenu>(FindObjectsInactive.Include);
         }
 
         private void Update()
@@ -231,8 +217,6 @@ namespace AF
             {
                 enableCooldown += Time.deltaTime;
             }
-
-            _hasAnimator = TryGetComponent(out _animator);
 
             bool isClimbing = climbController.climbState != ClimbController.ClimbState.NONE;
 
@@ -243,7 +227,7 @@ namespace AF
                     JumpAndGravity();
                     GroundedCheck();
 
-                    if (playerParryManager.IsTakingBlockHit() == false && dodgeController.IsRollAttacking() == false && canMove)
+                    if (playerManager.IsBusy == false)
                     {
                         Move();
                     }
@@ -258,7 +242,8 @@ namespace AF
             if (Grounded == false)
             {
                 RaycastHit hit;
-                if (Physics.Raycast(transform.position, transform.up * -1f, out hit)) {
+                if (Physics.Raycast(transform.position, _controller.transform.up * -1f, out hit))
+                {
                     if (hit.transform.tag == "Enemy")
                     {
                         lockOnManager.DisableLockOn();
@@ -269,10 +254,10 @@ namespace AF
 
         private void LateUpdate()
         {
-            if (lockOnManager.isLockedOn)
+            /*if (lockOnManager.isLockedOn)
             {
                 return;
-            }
+            }*/
 
             CameraRotation();
         }
@@ -289,8 +274,8 @@ namespace AF
         private void GroundedCheck()
         {
             // set sphere position, with offset
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
-                transform.position.z);
+            Vector3 spherePosition = new Vector3(transform.position.x, _controller.transform.position.y - GroundedOffset,
+               _controller.transform.position.z);
             Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
 
@@ -299,12 +284,12 @@ namespace AF
 
                 if (PreviousGrounded == true && Grounded == false)
                 {
-                    fallBeganHeight = transform.position.y;
+                    fallBeganHeight = _controller.transform.position.y;
 
                 }
                 else if (PreviousGrounded == false && Grounded == true)
                 {
-                    float fallEndHeight = transform.position.y;
+                    float fallEndHeight = _controller.transform.position.y;
 
                     var currentFallHeight = Mathf.Abs(fallBeganHeight - fallEndHeight);
 
@@ -334,7 +319,7 @@ namespace AF
             if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
             {
                 //Don't multiply mouse input by Time.deltaTime;
-                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+                float deltaTimeMultiplier = 1.0f;
 
                 _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
                 _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
@@ -406,7 +391,7 @@ namespace AF
         private void Move()
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            bool isSprinting = _input.sprint && Player.instance.currentStamina > 1f && _input.move != Vector2.zero;
+            bool isSprinting = _input.sprint && playerStatsDatabase.currentStamina > 1f && _input.move != Vector2.zero;
             float targetSpeed = isSprinting ? SprintSpeed : (_input.toggleWalk ? WalkSpeed : RunSpeed);
 
 
@@ -426,7 +411,7 @@ namespace AF
                 }
             }
 
-            var weightSpeed = equipmentGraphicsHandler.weightPenalty > 0 ? equipmentGraphicsHandler.weightPenalty : 0;
+            var weightSpeed = playerStatsBonusController.weightPenalty > 0 ? playerStatsBonusController.weightPenalty : 0;
 
             targetSpeed -= weightSpeed;
 
@@ -449,7 +434,7 @@ namespace AF
             // note: Vector2's == operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is no input, set the target speed to 0
             if (_input.move == Vector2.zero) targetSpeed = 0.0f;
- 
+
             float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
 
             if (
@@ -480,11 +465,11 @@ namespace AF
                 if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn && dodgeController.IsDodging() == false)
                 {
 
-                    Vector3 targetRot = lockOnManager.nearestLockOnTarget.transform.position - transform.position;
+                    Vector3 targetRot = lockOnManager.nearestLockOnTarget.transform.position - _controller.transform.position;
                     targetRot.y = 0;
                     var t = Quaternion.LookRotation(targetRot);
 
-                    transform.rotation = Quaternion.Lerp(transform.rotation, t, 100f * Time.deltaTime);
+                    _controller.transform.rotation = Quaternion.Lerp(transform.rotation, t, 100f * Time.deltaTime);
                 }
                 else
                 {
@@ -499,7 +484,7 @@ namespace AF
                     }
 
                     // rotate to face input direction relative to camera position
-                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                    _controller.transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
                 }
 
             }
@@ -545,7 +530,7 @@ namespace AF
             {
                 float lockOnSpeed = _input.move.x != 0 && _input.move.y != 0 ? _speed : _speed * 1.5f;
 
-                Vector3 targetPos = (transform.forward * (lockOnSpeed) * _input.move.y + transform.right * (lockOnSpeed) * _input.move.x);
+                Vector3 targetPos = (transform.forward * (lockOnSpeed) * _input.move.y + _controller.transform.right * (lockOnSpeed) * _input.move.x);
                 targetPos.y = _verticalVelocity + verticalVelocityBonus;
                 _controller.Move(targetPos * Time.deltaTime);
             }
@@ -562,7 +547,7 @@ namespace AF
                 _animator.SetFloat(_animIDSpeed, _animationBlend);
 
                 // Get movement penalties
-                var jumpWeightSpeed = equipmentGraphicsHandler.weightPenalty > 0 ? equipmentGraphicsHandler.weightPenalty : 0;
+                var jumpWeightSpeed = playerStatsBonusController.weightPenalty > 0 ? playerStatsBonusController.weightPenalty : 0;
 
                 _animator.SetFloat(_animIDMotionSpeed, inputMagnitude - jumpWeightSpeed);
             }
@@ -626,7 +611,7 @@ namespace AF
                         // the square root of H * -2 * G = how much velocity needed to reach desired height
                         _verticalVelocity = Mathf.Sqrt((JumpHeight + JumpHeightBonus + JumpWeightBonus) * -2f * Gravity);
 
-                        var weightSpeed = equipmentGraphicsHandler.weightPenalty > 0 ? equipmentGraphicsHandler.weightPenalty : 0;
+                        var weightSpeed = playerStatsBonusController.weightPenalty > 0 ? playerStatsBonusController.weightPenalty : 0;
 
                         _verticalVelocity -= weightSpeed;
 
@@ -698,7 +683,8 @@ namespace AF
                     _verticalVelocity += (Gravity * Time.deltaTime) + (playerCombatController.IsJumpAttacking() ? jumpAttackVelocityFinal : 0f);
                 }
             }
-            else if ((Player.instance.equippedWeapon == null) || (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.stopInAir == true)) {
+            else if ((Player.instance.equippedWeapon == null) || (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.stopInAir == true))
+            {
                 _verticalVelocity = 0f;
             }
             else
@@ -737,7 +723,7 @@ namespace AF
 
             // when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
             Gizmos.DrawSphere(
-                new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z),
+                new Vector3(transform.position.x, _controller.transform.position.y - GroundedOffset, _controller.transform.position.z),
                 GroundedRadius);
         }
 
@@ -754,7 +740,7 @@ namespace AF
         {
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
-                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+                AudioSource.PlayClipAtPoint(LandingAudioClip,_controller.transform.TransformPoint(_controller.center), FootstepAudioVolume);
             }
         }*/
     }

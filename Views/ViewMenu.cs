@@ -35,7 +35,6 @@ namespace AF
         {
             SetupRefs();
 
-
             equipmentButton.RemoveFromClassList("active");
             objectivesButton.RemoveFromClassList("active");
             optionsButton.RemoveFromClassList("active");
@@ -67,13 +66,11 @@ namespace AF
                 cursorManager.ShowCursor();
             }
         }
-         
+
         void SetupRefs()
         {
             menuManager = menuManager != null ? menuManager : FindAnyObjectByType<MenuManager>(FindObjectsInactive.Include);
             root = GetComponent<UIDocument>().rootVisualElement;
-            root.Focus();
-
 
             if (root != null && menuManager.hasPlayedFadeIn == false)
             {
@@ -92,26 +89,30 @@ namespace AF
 
 
             equipmentButton = root.Q<Button>(EQUIPMENT_BUTTON);
-            equipmentButton.clicked += () => {
+            equipmentButton.clicked += () =>
+            {
                 Soundbank.instance.PlayUIHover();
-                menuManager.SetMenuView(ActiveMenu.EQUIPMENT); 
+                menuManager.SetMenuView(ActiveMenu.EQUIPMENT);
             };
 
             objectivesButton = root.Q<Button>(OBJECTIVES_BUTTON);
-            objectivesButton.clicked += () => {
+            objectivesButton.clicked += () =>
+            {
                 Soundbank.instance.PlayUIHover();
-                menuManager.SetMenuView(ActiveMenu.OBJECTIVES); 
+                menuManager.SetMenuView(ActiveMenu.OBJECTIVES);
             };
 
             optionsButton = root.Q<Button>(OPTIONS_BUTTON);
-            optionsButton.clicked += () => {
+            optionsButton.clicked += () =>
+            {
                 Soundbank.instance.PlayUIHover();
-                menuManager.SetMenuView(ActiveMenu.OPTIONS); 
+                menuManager.SetMenuView(ActiveMenu.OPTIONS);
             };
 
             exitButton = root.Q<Button>(EXIT_BUTTON);
 
-            exitButton.clicked += () => {
+            exitButton.clicked += () =>
+            {
                 Application.Quit();
             };
 

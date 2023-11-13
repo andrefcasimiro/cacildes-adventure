@@ -40,7 +40,7 @@ namespace AF
         {
             var closeBtn = root.Q<Button>("CloseBtn");
 
-            uiManager.SetupButton(closeBtn, () =>
+            UIUtils.SetupButton(closeBtn, () =>
             {
                 Close();
             });

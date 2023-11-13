@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 using System.Linq;
+using AF.Stats;
 
 namespace AF
 {
@@ -44,6 +45,8 @@ namespace AF
         UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
         PlayerInventory playerInventory;
         EquipmentGraphicsHandler equipmentGraphicsHandler;
+
+        public StatsBonusController playerStatsBonusController;
 
         private void Awake()
         {
@@ -145,7 +148,7 @@ namespace AF
 
         float GetStealChance()
         {
-            return chanceToSteal + equipmentGraphicsHandler.chanceToStealBonus;
+            return chanceToSteal + playerStatsBonusController.chanceToStealBonus;
         }
 
         public void OnInvoked()

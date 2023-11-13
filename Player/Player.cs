@@ -54,16 +54,9 @@ namespace AF
 
         [Header("Stats")]
         public float currentHealth;
-        public float currentStamina;
         public int currentReputation;
         public int currentGold;
 
-        [Header("Attributes")]
-        public int vitality = 0;
-        public int endurance = 0;
-        public int strength = 0;
-        public int dexterity = 0;
-        public int intelligence = 0;
 
         [Header("Inventory")]
         public List<ItemEntry> ownedItems = new List<ItemEntry>();
@@ -147,7 +140,6 @@ namespace AF
 
             // Health & stamina logic, playern needs to be present in every game scene now because of this:
             currentHealth = FindObjectOfType<HealthStatManager>(true).GetMaxHealth();
-            currentStamina = FindObjectOfType<StaminaStatManager>(true).GetMaxStamina();
 
             // Default Equipment
 
@@ -534,48 +526,48 @@ namespace AF
         #region Player Data Logic
         public void ResetPlayerData()
         {
-            this.vitality = 1;
-            this.endurance = 1;
-            this.dexterity = 1;
-            this.strength = 1;
-            this.intelligence = 1;
+            /* this.vitality = 1;
+             this.endurance = 1;
+             this.dexterity = 1;
+             this.strength = 1;
+             this.intelligence = 1;
 
-            this.currentGold = 0;
+             this.currentGold = 0;
 
-            this.currentObjective = "";
+             this.currentObjective = "";
 
-            this.currentReputation = 1;
+             this.currentReputation = 1;
 
-            this.ownedItems.Clear();
-            this.favoriteItems.Clear();
+             this.ownedItems.Clear();
+             this.favoriteItems.Clear();
 
-            this.equippedHelmet = null;
-            this.equippedArmor = defaultArmor;
-            this.equippedGauntlets = null;
-            this.equippedLegwear = defaultLegwear;
-            this.equippedAccessories = new();
-            this.equippedShield = null;
-            this.equippedWeapon = null;
+             this.equippedHelmet = null;
+             this.equippedArmor = defaultArmor;
+             this.equippedGauntlets = null;
+             this.equippedLegwear = defaultLegwear;
+             this.equippedAccessories = new();
+             this.equippedShield = null;
+             this.equippedWeapon = null;
 
-            this.appliedConsumables.Clear();
-            this.appliedStatus.Clear();
+             this.appliedConsumables.Clear();
+             this.appliedStatus.Clear();
 
-            this.alchemyRecipes.Clear();
-            this.cookingRecipes.Clear();
+             this.alchemyRecipes.Clear();
+             this.cookingRecipes.Clear();
 
-            this.companions.Clear();
+             this.companions.Clear();
 
-            // Reset all switches
-            foreach (var _switch in SwitchManager.instance.switchEntryInstances)
-            {
-                _switch.currentValue = false;
-            }
+             // Reset all switches
+             foreach (var _switch in SwitchManager.instance.switchEntryInstances)
+             {
+                 _switch.currentValue = false;
+             }
 
-            // Reset all variables
-            foreach (var _variable in VariableManager.instance.variableEntryInstances)
-            {
-                _variable.currentValue = _variable.initialValue;
-            }
+             // Reset all variables
+             foreach (var _variable in VariableManager.instance.variableEntryInstances)
+             {
+                 _variable.currentValue = _variable.initialValue;
+             }*/
         }
         #endregion
 
@@ -637,37 +629,6 @@ namespace AF
             yield return loadingScreen.FadeAndDisable();
         }
         #endregion
-
-        public int GetCurrentLevel()
-        {
-            return (Player.instance.vitality + Player.instance.strength + Player.instance.dexterity + Player.instance.endurance + Player.instance.intelligence);
-        }
-
-        #region Reputation
-        public int GetCurrentReputation()
-        {
-            CheckForEquipmentGraphicsHandlerReference();
-
-            return Player.instance.currentReputation + equipmentGraphicsHandler.reputationBonus;
-        }
-        #endregion
-
-        #region Spells
-        public int GetCurrentInteligence()
-        {
-            CheckForEquipmentGraphicsHandlerReference();
-
-            return Player.instance.intelligence + equipmentGraphicsHandler.intelligenceBonus;
-        }
-        #endregion
-
-        void CheckForEquipmentGraphicsHandlerReference()
-        {
-            if (equipmentGraphicsHandler == null)
-            {
-                equipmentGraphicsHandler = FindAnyObjectByType<EquipmentGraphicsHandler>(FindObjectsInactive.Include);
-            }
-        }
 
         #region AI Formulas
 

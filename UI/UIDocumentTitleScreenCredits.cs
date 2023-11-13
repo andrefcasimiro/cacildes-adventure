@@ -68,7 +68,7 @@ namespace AF
                 }
             }
 
-            uiManager.SetupButton(closeBtn, () =>
+            UIUtils.SetupButton(closeBtn, () =>
             {
                 Close();
             });

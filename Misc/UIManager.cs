@@ -173,52 +173,5 @@ namespace AF
             notificationManager.ShowNotification("Can not perform action at this time", notificationManager.systemError);
         }
 
-
-        public void SetupButton(Button button, UnityAction callback)
-        {
-            button.RegisterCallback<ClickEvent>(ev =>
-            {
-                PlayPopAnimation(button);
-                Soundbank.instance.PlayUIDecision();
-                callback.Invoke();
-            });
-
-            button.RegisterCallback<NavigationSubmitEvent>(ev =>
-            {
-                PlayPopAnimation(button);
-                Soundbank.instance.PlayUIDecision();
-                callback.Invoke();
-            });
-
-
-            button.RegisterCallback<FocusEvent>(ev =>
-            {
-                PlayPopAnimation(button);
-                Soundbank.instance.PlayUIHover();
-            });
-
-            button.RegisterCallback<MouseOverEvent>(ev =>
-            {
-                PlayPopAnimation(button);
-                Soundbank.instance.PlayUIHover();
-            });
-
-            button.RegisterCallback<PointerEnterEvent>(ev =>
-            {
-                PlayPopAnimation(button);
-                Soundbank.instance.PlayUIHover();
-            });
-        }
-
-        void PlayPopAnimation(Button button)
-        {
-            DOTween.To(
-                () => new Vector3(0, 0, 0),
-                scale => button.transform.scale = scale,
-                button.transform.scale,
-                0.5f
-            ).SetEase(Ease.OutElastic);
-
-        }
     }
 }

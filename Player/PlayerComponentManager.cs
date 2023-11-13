@@ -6,16 +6,17 @@ namespace AF
 
     public class PlayerComponentManager : MonoBehaviour
     {
-        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
-        PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
-        DodgeController dodgeController => GetComponent<DodgeController>();
-        PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
+        [Header("Components")]
+        public ThirdPersonController thirdPersonController;
+        public PlayerCombatController playerCombatController;
+        public DodgeController dodgeController;
+        public PlayerParryManager playerParryManager;
+        public CharacterController characterController;
 
 
         public bool isInTutorial = false;
         public bool isInBonfire = false;
 
-        CharacterController characterController => GetComponent<CharacterController>();
 
         // Cache
         int nothingLayer;

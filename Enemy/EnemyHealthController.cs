@@ -87,6 +87,9 @@ namespace AF
         [Header("Reputation for Hell Skeletons")]
         public bool receiveReputationWhileReputationIsNegative = false;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         private void Awake()
         {
             sceneSettings = FindFirstObjectByType<SceneSettings>(FindObjectsInactive.Include);
@@ -637,7 +640,7 @@ namespace AF
 
             if (receiveReputationWhileReputationIsNegative && Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.isHolyWeapon)
             {
-                if (Player.instance.GetCurrentReputation() < 0)
+                if (playerStatsDatabase.GetCurrentReputation() < 0)
                 {
                     FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include).IncreaseReputation(1);
                 }
