@@ -161,9 +161,6 @@ namespace AF
                 itemReceived.quantity = quantity;
                 itemReceived.sprite = item.sprite;
 
-                uIDocumentReceivedItemPrompt.itemsUI.Clear();
-                uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
-
 
                 uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
 
@@ -171,7 +168,6 @@ namespace AF
             }
             else if (items.Length > 0)
             {
-                uIDocumentReceivedItemPrompt.itemsUI.Clear();
 
                 foreach (var item in items)
                 {
@@ -181,7 +177,6 @@ namespace AF
                     itemReceived.quantity = 1;
                     itemReceived.sprite = item.sprite;
 
-                    uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
 
                     playerInventory.AddItem(item, 1);
 
@@ -195,10 +190,6 @@ namespace AF
 
             if (onPickupAfterConfirming != null)
             {
-                uIDocumentReceivedItemPrompt.onConfirmEvent.AddListener(() =>
-                {
-                    onPickupAfterConfirming.Invoke();
-                });
             }
 
             if (switchEntry == null)

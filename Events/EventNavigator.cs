@@ -17,6 +17,9 @@ namespace AF
         // Internal
         IEventNavigatorCapturable currentTarget;
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
         public void OnInteract()
         {
             currentTarget?.OnInvoked();

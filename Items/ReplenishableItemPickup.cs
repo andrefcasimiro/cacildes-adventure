@@ -210,15 +210,15 @@ namespace AF
                 itemReceived.quantity = quantity;
                 itemReceived.sprite = item.sprite;
 
-                uIDocumentReceivedItemPrompt.itemsUI.Clear();
-                uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
+                //uIDocumentReceivedItemPrompt.itemsUI.Clear();
+                //uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
 
                 uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
                 playerInventory.AddItem(item, quantity);
             }
             else if (replenishableItemEntries.Length > 0)
             {
-                uIDocumentReceivedItemPrompt.itemsUI.Clear();
+                //uIDocumentReceivedItemPrompt.itemsUI.Clear();
 
                 foreach (var possibleItem in replenishableItemEntries)
                 {
@@ -231,7 +231,7 @@ namespace AF
                         itemReceived.quantity = possibleItem.quantity;
                         itemReceived.sprite = possibleItem.item.sprite;
 
-                        uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
+                        //uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
                         playerInventory.AddItem(possibleItem.item, possibleItem.quantity);
                     }
                 }

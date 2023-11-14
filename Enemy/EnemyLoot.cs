@@ -144,7 +144,7 @@ namespace AF
 
                 if (uIDocumentReceivedItemPrompt != null)
                 {
-                    uIDocumentReceivedItemPrompt.itemsUI.Clear();
+                    //uIDocumentReceivedItemPrompt.itemsUI.Clear();
                 }
             }
 
@@ -160,7 +160,7 @@ namespace AF
                     itemReceived.quantity = 1;
                     itemReceived.sprite = item.sprite;
 
-                    uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
+                    //uIDocumentReceivedItemPrompt.itemsUI.Add(itemReceived);
                 }
                 else
                 {

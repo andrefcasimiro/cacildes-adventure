@@ -3,45 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
-using UnityEngine.Events;
 
 namespace AF
 {
-
     public class UIDocumentReceivedItemPrompt : MonoBehaviour
     {
         [System.Serializable]
         public class ItemsReceived
         {
-
             public string itemName = "Item Name";
             public int quantity = 0;
             public Sprite sprite = null;
-
         }
 
         public UIDocument uiDocument;
 
-        public AudioClip onConfirmSfx;
-
-        VisualElement root;
-        StarterAssetsInputs inputs;
-
         public VisualTreeAsset receivedItemPrefab;
 
-        public List<ItemsReceived> itemsUI = new List<ItemsReceived>();
-
-        public UnityEvent onConfirmEvent;
+        bool isPopupActive = false;
 
         private void Awake()
         {
-            this.gameObject.SetActive(false);
-            inputs = FindObjectOfType<StarterAssetsInputs>(true);
+            gameObject.SetActive(false);
         }
 
-        private void OnEnable()
+        public void DisplayItemsReceived(List<ItemsReceived> itemsReceived)
         {
-            this.root = uiDocument.rootVisualElement;
+            isPopupActive = false;
+
+            var root = uiDocument.rootVisualElement;
 
             if (Gamepad.current != null)
             {
@@ -54,10 +44,10 @@ namespace AF
                 root.Q<IMGUIContainer>("GamepadIcon").style.display = DisplayStyle.None;
             }
 
-            var rootPanel = this.root.Q<VisualElement>("ReceivedItemsContainer");
+            var rootPanel = root.Q<VisualElement>("ReceivedItemsContainer");
             rootPanel.Clear();
 
-            foreach (var itemUIEntry in itemsUI)
+            foreach (var itemUIEntry in itemsReceived)
             {
 
                 var clone = receivedItemPrefab.CloneTree();
@@ -67,36 +57,29 @@ namespace AF
                 clone.Q<IMGUIContainer>("ItemSprite").style.backgroundImage = new StyleBackground(itemUIEntry.sprite);
 
                 rootPanel.Add(clone);
-
             }
+
+            // Force the flag to be activated in the next frame so that OnInteract doesn't overlap with another OnInteract event of the same frame (i.e. Opening a chest)
+            Invoke(nameof(SetIsPopupActiveToTrue), 0f);
         }
 
-        private void OnDisable()
+        void SetIsPopupActiveToTrue()
         {
-            if (onConfirmEvent != null)
-            {
-                onConfirmEvent?.Invoke();
-                onConfirmEvent?.RemoveAllListeners();
-            }
+            isPopupActive = true;
         }
 
-
-        private void Update()
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnInteract()
         {
-            if (!this.gameObject.activeSelf)
+            if (isPopupActive)
             {
-                return;
-            }
+                isPopupActive = false;
 
-            if (inputs.interact)
-            {
-                inputs.interact = false;
-
-                BGMManager.instance.PlaySound(onConfirmSfx, null);
-                this.gameObject.SetActive(false);
+                gameObject.SetActive(false);
             }
         }
 
     }
-
 }

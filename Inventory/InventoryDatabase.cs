@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using AF;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,10 +7,9 @@ namespace AF.Inventory
     [CreateAssetMenu(fileName = "Inventory Database", menuName = "System/New Inventory Database", order = 0)]
     public class InventoryDatabase : ScriptableObject
     {
+        public List<ItemEntry> ownedItems = new();
 
-        // Use a list for pickups
-        public List<ItemEntry> ownedItems = new List<ItemEntry>();
-
+        public bool shouldClearOnExitPlayMode = false;
 
         private void OnEnable()
         {
@@ -23,7 +19,7 @@ namespace AF.Inventory
 
         private void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            if (state == PlayModeStateChange.ExitingPlayMode)
+            if (state == PlayModeStateChange.ExitingPlayMode && shouldClearOnExitPlayMode)
             {
                 // Clear the list when exiting play mode
                 Clear();
@@ -35,5 +31,4 @@ namespace AF.Inventory
             ownedItems.Clear();
         }
     }
-
 }

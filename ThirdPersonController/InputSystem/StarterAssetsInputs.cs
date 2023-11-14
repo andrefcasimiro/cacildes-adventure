@@ -15,14 +15,25 @@ namespace AF
 		public bool toggleWalk;
 		public bool dodge;
 		public bool lightAttack;
+		public UnityEvent onLightAttackInput;
+
 		public bool block;
 		public bool lockOn;
 		public bool heavyAttack;
+		public UnityEvent onHeavyAttackInput;
+
 		public bool interact;
+		public UnityEvent onInteract;
 		public bool switchSpell;
+		public UnityEvent onSwitchSpellInput;
 		public bool switchWeapon;
+		public UnityEvent onSwitchWeaponInput;
+
 		public bool switchShield;
+		public UnityEvent onSwitchShieldInput;
+
 		public bool switchConsumable;
+		public UnityEvent onSwitchConsumableInput;
 		public bool consumeFavoriteItem;
 		public bool quickSave;
 		public bool quickLoad;
@@ -46,12 +57,6 @@ namespace AF
 
 		public UnityAction onViewInGameControlsInput;
 
-		[Header("Events")]
-		public UnityEvent onLightAttackInput;
-
-		public UnityEvent onHeavyAttackInput;
-
-		public UnityEvent onSwitchSpellInput, onSwitchConsumableInput, onSwitchShieldInput, onSwitchWeaponInput;
 
 		private void Awake()
 		{
@@ -142,6 +147,11 @@ namespace AF
 		public void OnInteract(InputValue value)
 		{
 			InteractInput(value.isPressed);
+
+			if (value.isPressed)
+			{
+				onInteract?.Invoke();
+			}
 		}
 
 		public void OnSwitchSpell(InputValue value)
