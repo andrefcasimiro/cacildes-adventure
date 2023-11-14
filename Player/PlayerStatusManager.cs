@@ -20,6 +20,10 @@ namespace AF
         public bool immuneToFrostbite = false;
         public bool immuneToFear = false;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+        public StatusDatabase statusDatabase;
+
         private void Awake()
         {
             uIDocumentStatusEffectV2 = FindObjectOfType<UIDocumentStatusEffectV2>(true);
@@ -27,7 +31,7 @@ namespace AF
 
         private void Update()
         {
-            if (Player.instance.appliedStatus.Count > 0)
+            if (statusDatabase.appliedStatus.Count > 0)
             {
                 HandleStatusEffects();
             }
@@ -50,21 +54,21 @@ namespace AF
                 return;
             }
 
-            var idx = Player.instance.appliedStatus.FindIndex(x => x.statusEffect == statusEffect);
+            var idx = statusDatabase.appliedStatus.FindIndex(x => x.statusEffect == statusEffect);
             if (idx != -1)
             {
-                if (Player.instance.appliedStatus[idx].hasReachedTotalAmount)
+                if (statusDatabase.appliedStatus[idx].hasReachedTotalAmount)
                 {
                     return;
                 }
 
-                Player.instance.appliedStatus[idx].currentAmount += amount;
+                statusDatabase.appliedStatus[idx].currentAmount += amount;
 
                 float maxAmountBeforeSuffering = defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect);
-                if (Player.instance.appliedStatus[idx].currentAmount >= maxAmountBeforeSuffering)
+                if (statusDatabase.appliedStatus[idx].currentAmount >= maxAmountBeforeSuffering)
                 {
-                    Player.instance.appliedStatus[idx].currentAmount = maxAmountBeforeSuffering;
-                    Player.instance.appliedStatus[idx].hasReachedTotalAmount = true;
+                    statusDatabase.appliedStatus[idx].currentAmount = maxAmountBeforeSuffering;
+                    statusDatabase.appliedStatus[idx].hasReachedTotalAmount = true;
 
 
 
@@ -84,7 +88,7 @@ namespace AF
             appliedStatus.currentAmount = amount;
             appliedStatus.hasReachedTotalAmount = hasReachedFullAmount;
 
-            Player.instance.appliedStatus.Add(appliedStatus);
+            statusDatabase.appliedStatus.Add(appliedStatus);
             FindObjectOfType<UIDocumentStatusEffectV2>(true).AddNegativeStatusEntry(statusEffect, defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect));
         }
 
@@ -92,7 +96,7 @@ namespace AF
         {
             List<AppliedStatus> statusToDelete = new List<AppliedStatus>();
 
-            foreach (var entry in Player.instance.appliedStatus.ToList())
+            foreach (var entry in statusDatabase.appliedStatus.ToList())
             {
                 var negativeStatusEntry = defenseStatManager.negativeStatusResistances.Find(x => x.statusEffect == entry.statusEffect);
                 var decreaseRateWithDamage = 1f;
@@ -134,7 +138,7 @@ namespace AF
                 return;
             }
 
-            Player.instance.appliedStatus.Remove(appliedStatus);
+            statusDatabase.appliedStatus.Remove(appliedStatus);
             uIDocumentStatusEffectV2.RemoveNegativeStatusEntry(appliedStatus.statusEffect);
 
             HandleNegativeStatusDeletion(appliedStatus);
@@ -165,7 +169,7 @@ namespace AF
 
         public void RemoveAllStatus()
         {
-            var playerNegativeStatus = Player.instance.appliedStatus.ToArray();
+            var playerNegativeStatus = statusDatabase.appliedStatus.ToArray();
 
             foreach (var playerNegativeStat in playerNegativeStatus)
             {
@@ -183,8 +187,8 @@ namespace AF
                     if (entry.statusEffect.usePercentuagelDamage)
                     {
                         var percentageOfHealthToTake = entry.statusEffect.damagePercentualValue * healthStatManager.GetMaxHealth() / 100;
-                        var newHealth = Player.instance.currentHealth - percentageOfHealthToTake;
-                        Player.instance.currentHealth = Mathf.Clamp(newHealth, 0, healthStatManager.GetMaxHealth());
+                        var newHealth = playerStatsDatabase.currentHealth - percentageOfHealthToTake;
+                        playerStatsDatabase.currentHealth = Mathf.Clamp(newHealth, 0, healthStatManager.GetMaxHealth());
                     }
                     else
                     {
@@ -194,13 +198,13 @@ namespace AF
                 else
                 {
                     var newHealth =
-                        Player.instance.currentHealth - (entry.statusEffect.damagePerSecond * Time.deltaTime)
+                        playerStatsDatabase.currentHealth - (entry.statusEffect.damagePerSecond * Time.deltaTime)
                     ;
 
-                    Player.instance.currentHealth = Mathf.Clamp(newHealth, 0, healthStatManager.GetMaxHealth());
+                    playerStatsDatabase.currentHealth = (int)Mathf.Clamp(newHealth, 0, healthStatManager.GetMaxHealth());
                 }
 
-                if (Player.instance.currentHealth <= 0)
+                if (playerStatsDatabase.currentHealth <= 0)
                 {
                     playerHealthbox.Die();
 
@@ -244,7 +248,7 @@ namespace AF
             }
         }
 
-        public void HandlePlayerComponents(bool canUse) 
+        public void HandlePlayerComponents(bool canUse)
         {
             if (canUse)
             {

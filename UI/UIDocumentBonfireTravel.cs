@@ -28,6 +28,9 @@ namespace AF
         CursorManager cursorManager;
         ThirdPersonController thirdPersonController;
 
+        [Header("Databases")]
+        public BonfiresDatabase bonfiresDatabase;
+
         private void Awake()
         {
 
@@ -36,11 +39,6 @@ namespace AF
 
 
             gameObject.SetActive(false);
-        }
-
-        private void Start()
-        {
-
         }
 
         void Close()
@@ -68,7 +66,7 @@ namespace AF
             // Add callbacks
             foreach (var location in bonfireLocations)
             {
-                if (Player.instance.unlockAllBonfires || Player.instance.unlockedBonfires.Contains(location.bonfireName.GetEnglishText()))
+                if (bonfiresDatabase.unlockedBonfires.Contains(location.bonfireName.GetEnglishText()))
                 {
                     var clonedBonfireOption = travelOptionAsset.CloneTree();
                     clonedBonfireOption.Q<Button>().text = location.bonfireName.GetText();

@@ -72,17 +72,21 @@ namespace AF
             });
         }
 
-        static void PlayPopAnimation(Button button)
+
+        public static void PlayPopAnimation(VisualElement button)
+        {
+            PlayPopAnimation(button, Vector3.zero);
+        }
+        public static void PlayPopAnimation(VisualElement button, Vector3 startingScale)
         {
             button.transform.scale = Vector3.one;
 
             DOTween.To(
-                () => new Vector3(0, 0, 0),
+                () => startingScale,
                 scale => button.transform.scale = scale,
                 Vector3.one,
                 0.5f
             ).SetEase(Ease.OutElastic);
-
         }
     }
 }

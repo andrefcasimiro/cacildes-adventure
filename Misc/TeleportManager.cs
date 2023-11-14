@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AF
 {
-    public class TeleportManager: MonoBehaviour
+    public class TeleportManager : MonoBehaviour
     {
         public static TeleportManager instance;
 
@@ -36,7 +36,7 @@ namespace AF
             COLLISEUM = 6 //22 for production
         }
 
-        private void Awake()    
+        private void Awake()
         {
             if (instance != null && instance != this)
             {
@@ -54,10 +54,10 @@ namespace AF
             {
                 SetSpawnGameObjectNameRef(spawnGameObjectNameRef);
 
-                Player.instance.LoadScene((int)sceneName, true);
+                //Player.instance.LoadScene((int)sceneName, true);
             }
         }
-        
+
         public void SetSpawnGameObjectNameRef(string spawnGameObjectNameRef)
         {
             this.spawnGameObjectNameRef = spawnGameObjectNameRef;
@@ -105,7 +105,6 @@ namespace AF
 
             }
 
-            Player.instance.lastEnemyKilled = null;
 
             this.spawnGameObjectNameRef = null;
         }

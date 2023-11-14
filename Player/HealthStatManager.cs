@@ -14,30 +14,37 @@ namespace AF
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
 
+        private void Awake()
+        {
+            // TODO: Move to title screen or something
+            playerStatsDatabase.currentHealth = GetMaxHealth();
+        }
+
         public int GetMaxHealth()
         {
             return baseHealth + (int)(Mathf.RoundToInt((
                 playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus) * levelMultiplier));
         }
 
-        public void SubtractAmount(float amount)
+        public void SubtractAmount(int amount)
         {
-            Player.instance.currentHealth = Mathf.Clamp(Player.instance.currentHealth - amount, 0, GetMaxHealth());
+            playerStatsDatabase.currentHealth = Mathf.Clamp(
+                playerStatsDatabase.currentHealth - amount, 0, GetMaxHealth());
         }
 
-        public void RestoreHealthPercentage(float amount)
+        public void RestoreHealthPercentage(int amount)
         {
             var percentage = (this.GetMaxHealth() * amount / 100);
-            var nextValue = Mathf.Clamp(Player.instance.currentHealth + percentage, 0, this.GetMaxHealth());
+            var nextValue = Mathf.Clamp(playerStatsDatabase.currentHealth + percentage, 0, this.GetMaxHealth());
 
-            Player.instance.currentHealth = nextValue;
+            playerStatsDatabase.currentHealth = nextValue;
         }
 
-        public void RestoreHealthPoints(float amount)
+        public void RestoreHealthPoints(int amount)
         {
-            var nextValue = Mathf.Clamp(Player.instance.currentHealth + amount, 0, this.GetMaxHealth());
+            var nextValue = Mathf.Clamp(playerStatsDatabase.currentHealth + amount, 0, this.GetMaxHealth());
 
-            Player.instance.currentHealth = nextValue;
+            playerStatsDatabase.currentHealth = nextValue;
         }
 
         public float GetHealthPointsForGivenVitality(int vitality)
@@ -47,7 +54,7 @@ namespace AF
 
         public float GetExtraAttackBasedOnCurrentHealth()
         {
-            var percentage = (Player.instance.currentHealth * 100 / GetMaxHealth()) * 0.01;
+            var percentage = (playerStatsDatabase.currentHealth * 100 / GetMaxHealth()) * 0.01;
 
             if (percentage > 0.9)
             {

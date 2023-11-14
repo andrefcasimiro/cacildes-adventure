@@ -34,6 +34,9 @@ namespace AF
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         private void Awake()
         {
             playerInventory = FindFirstObjectByType<PlayerInventory>(FindObjectsInactive.Include);
@@ -51,7 +54,7 @@ namespace AF
 
             if (enemyManager.currentLevel > 1)
             {
-                goldToReceive = Player.instance.CalculateAIGenericValue(enemyManager.enemy.baseGold, enemyManager.currentLevel);
+                goldToReceive = Formulas.CalculateAIGenericValue(enemyManager.enemy.baseGold, enemyManager.currentLevel);
             }
 
 
@@ -76,7 +79,7 @@ namespace AF
 
             uIDocumentPlayerGold.PlayCoinsFX(transform);
             uIDocumentPlayerGold.NotifyGold(goldToReceive);
-            Player.instance.currentGold += (int)goldToReceive;
+            playerStatsDatabase.gold += (int)goldToReceive;
         }
 
         private void GetLoot()

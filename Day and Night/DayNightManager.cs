@@ -30,7 +30,6 @@ namespace AF
 
         [Header("Values")]
         [Range(0, 24)]
-        public float timeOfDay; // This is used only in editor. In game, we use the Player.instance.timeOfDay;
         [TextArea] public string comment = "Put timeOfDay at 0 after finishing playing around with it";
         public bool tick = true;
 
@@ -56,6 +55,8 @@ namespace AF
         IEnumerable<IClockListener> iClockListenersInScene;
 
         public bool canUpdateLighting = true;
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         private void Awake()
         {
@@ -64,11 +65,6 @@ namespace AF
 
         private void Start()
         {
-            if (Player.instance != null)
-            {
-                timeOfDay = Player.instance.timeOfDay;
-            }
-
             RenderSettings.fogDensity = fogDensity;
         }
 
@@ -85,13 +81,9 @@ namespace AF
 
         void _SetInternalTimeOfDay(float newValue)
         {
-            var oldHour = Mathf.Round(timeOfDay);
-            timeOfDay = newValue;
+            var oldHour = Mathf.Round(worldSettings.timeOfDay);
+            worldSettings.timeOfDay = newValue;
 
-            if (Player.instance != null)
-            {
-                Player.instance.timeOfDay = newValue;
-            }
 
             if (oldHour != Mathf.Round(newValue))
             {
@@ -125,11 +117,11 @@ namespace AF
             if (Application.isPlaying)
             {
 
-                var newTimeOfDayValue = timeOfDay;
+                var newTimeOfDayValue = worldSettings.timeOfDay;
 
                 if (TimePassageAllowed() && tick)
                 {
-                    newTimeOfDayValue += ((Time.deltaTime * Player.instance.daySpeed));
+                    newTimeOfDayValue += ((Time.deltaTime * worldSettings.daySpeed));
                 }
 
                 var copy = newTimeOfDayValue;
@@ -139,7 +131,7 @@ namespace AF
 
                 if (copy >= 24 && newTimeOfDayValue >= 0 && newTimeOfDayValue < 23)
                 {
-                    Player.instance.daysPassed++;
+                    worldSettings.daysPassed++;
                 }
 
 
@@ -150,7 +142,7 @@ namespace AF
 
             if (canUpdateLighting)
             {
-                UpdateLighting(timeOfDay / 24f);
+                UpdateLighting(worldSettings.timeOfDay / 24f);
             }
 
             ShowClockText();
@@ -169,8 +161,8 @@ namespace AF
                 return;
             }
 
-            var hour = (int)(timeOfDay);
-            var minutes = Mathf.Abs(hour - timeOfDay) * 60;
+            var hour = (int)(worldSettings.timeOfDay);
+            var minutes = Mathf.Abs(hour - worldSettings.timeOfDay) * 60;
             minutes = (int)System.Math.Round(minutes, 2);
             string hourString = hour.ToString();
             if (hourString.Length == 1)
@@ -199,19 +191,19 @@ namespace AF
                 return;
             }
 
-            if (timeOfDay >= 5 && timeOfDay < 8)
+            if (worldSettings.timeOfDay >= 5 && worldSettings.timeOfDay < 8)
             {
                 dayNightIcon.style.backgroundImage = new StyleBackground(dawnSprite);
             }
-            else if (timeOfDay > 8 && timeOfDay < 17)
+            else if (worldSettings.timeOfDay > 8 && worldSettings.timeOfDay < 17)
             {
                 dayNightIcon.style.backgroundImage = new StyleBackground(daySprite);
             }
-            else if (timeOfDay > 17 && timeOfDay < 21)
+            else if (worldSettings.timeOfDay > 17 && worldSettings.timeOfDay < 21)
             {
                 dayNightIcon.style.backgroundImage = new StyleBackground(eveningSprite);
             }
-            else if (timeOfDay >= 0 && timeOfDay < 5 || timeOfDay > 21 && timeOfDay <= 24)
+            else if (worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay < 5 || worldSettings.timeOfDay > 21 && worldSettings.timeOfDay <= 24)
             {
                 dayNightIcon.style.backgroundImage = new StyleBackground(nightSprite);
             }
@@ -219,23 +211,23 @@ namespace AF
 
         void UpdateLighting(float timePercent)
         {
-            if (timeOfDay >= 7 && timeOfDay < 18f)
+            if (worldSettings.timeOfDay >= 7 && worldSettings.timeOfDay < 18f)
             {
                 RenderSettings.skybox = daySky;
             }
-            else if (timeOfDay >= 18f && timeOfDay < 20)
+            else if (worldSettings.timeOfDay >= 18f && worldSettings.timeOfDay < 20)
             {
                 RenderSettings.skybox = duskSky;
             }
-            else if (timeOfDay >= 20 && timeOfDay <= 22)
+            else if (worldSettings.timeOfDay >= 20 && worldSettings.timeOfDay <= 22)
             {
                 RenderSettings.skybox = nightfallSky;
             }
-            else if (timeOfDay >= 22 && timeOfDay <= 24 || timeOfDay >= 0 && timeOfDay < 5)
+            else if (worldSettings.timeOfDay >= 22 && worldSettings.timeOfDay <= 24 || worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay < 5)
             {
                 RenderSettings.skybox = nightSky;
             }
-            else if (timeOfDay >= 5 && timeOfDay < 7)
+            else if (worldSettings.timeOfDay >= 5 && worldSettings.timeOfDay < 7)
             {
                 RenderSettings.skybox = dawnSky;
             }

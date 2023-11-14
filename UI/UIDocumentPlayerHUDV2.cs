@@ -45,6 +45,8 @@ namespace AF
 
         IMGUIContainer spellSlotContainer, consumableSlotContainer, weaponSlotContainer, shieldSlotContainer;
 
+        [Header("Animations")]
+        public Vector3 popEffectWhenSwitchingSlots = new Vector3(0.8f, 0.8f, 0.8f);
 
         private void Awake()
         {
@@ -88,7 +90,7 @@ namespace AF
                 playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * _containerMultiplierPerLevel);
 
             float healthPercentage = Mathf.Clamp(
-                (Player.instance.currentHealth * 100) / healthStatManager.GetMaxHealth(),
+                (playerStatsDatabase.currentHealth * 100) / healthStatManager.GetMaxHealth(),
                 0,
                 100
             );
@@ -149,8 +151,29 @@ namespace AF
             consumableSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentConsumable() != null
                 ? new StyleBackground(equipmentDatabase.GetCurrentConsumable().sprite)
                 : new StyleBackground(unequippedConsumableSlot);
-
         }
+
+        public void OnSwitchWeapon()
+        {
+            UIUtils.PlayPopAnimation(weaponSlotContainer, popEffectWhenSwitchingSlots);
+            UpdateFavoriteItems();
+        }
+        public void OnSwitchShield()
+        {
+            UIUtils.PlayPopAnimation(shieldSlotContainer, popEffectWhenSwitchingSlots);
+            UpdateFavoriteItems();
+        }
+        public void OnSwitchConsumable()
+        {
+            UIUtils.PlayPopAnimation(consumableSlotContainer, popEffectWhenSwitchingSlots);
+            UpdateFavoriteItems();
+        }
+        public void OnSwitchSpell()
+        {
+            UIUtils.PlayPopAnimation(spellSlotContainer, popEffectWhenSwitchingSlots);
+            UpdateFavoriteItems();
+        }
+
 
     }
 

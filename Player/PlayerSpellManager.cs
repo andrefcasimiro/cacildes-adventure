@@ -197,7 +197,7 @@ namespace AF
             if (currentSpell.healingAmount != -1)
             {
                 playerHealthbox.GetComponent<HealthStatManager>().RestoreHealthPoints(
-                    currentSpell.healingAmount + playerStatsDatabase.GetCurrentReputation() * 10);
+                    (int)currentSpell.healingAmount + playerStatsDatabase.GetCurrentReputation() * 10);
             }
 
             if (currentSpell.selfDamageAmount != -1)

@@ -24,6 +24,9 @@ namespace AF
 
         CursorManager cursorManager;
 
+        [Header("Databases")]
+        public BonfiresDatabase bonfiresDatabase;
+
 
         private void Awake()
         {
@@ -38,6 +41,16 @@ namespace AF
             playerAnimator = playerComponentManager.GetComponent<Animator>();
         }
 
+        public void UnlockBonfire(string bonfireName)
+        {
+            if (bonfiresDatabase.unlockedBonfires.Contains(bonfireName))
+            {
+                return;
+            }
+
+            bonfiresDatabase.unlockedBonfires.Add(bonfireName);
+        }
+
         public void ActivateBonfire()
         {
             playerAnimator.Play("Idle Walk Run Blend");
@@ -48,7 +61,7 @@ namespace AF
 
             if (canBeTravelledTo)
             {
-                Player.instance.UnlockBonfire(bonfireName.GetEnglishText());
+                UnlockBonfire(bonfireName.GetEnglishText());
             }
 
             // Find all active enemies in scene

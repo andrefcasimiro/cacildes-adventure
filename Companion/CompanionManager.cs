@@ -145,7 +145,7 @@ namespace AF
 
         public int GetCompanionAttack()
         {
-            return Player.instance.CalculateAIGenericValue(baseAttackPower, playerLevelManager.GetCurrentLevel());
+            return Formulas.CalculateAIGenericValue(baseAttackPower, playerLevelManager.GetCurrentLevel());
         }
 
         public void ResetAttackCooldown()

@@ -44,6 +44,7 @@ namespace AF
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public EquipmentDatabase equipmentDatabase;
 
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;
@@ -72,7 +73,7 @@ namespace AF
         public int GetCurrentPhysicalAttack()
         {
             int heavyAttackBonus = 0;
-            if (Player.instance.equippedWeapon == null && playerCombatController.isHeavyAttacking)
+            if (equipmentDatabase.GetCurrentWeapon() == null && playerCombatController.isHeavyAttacking)
             {
                 heavyAttackBonus = playerCombatController.unarmedHeavyAttackBonus;
             }
@@ -116,13 +117,13 @@ namespace AF
         #region Weapon Attack
         public int CompareWeapon(Weapon weaponToCompare)
         {
-            if (Player.instance.equippedWeapon == null)
+            if (equipmentDatabase.GetCurrentWeapon() == null)
             {
                 return 1;
             }
 
             var weaponToCompareAttack = GetWeaponAttack(weaponToCompare);
-            var currentWeaponAttack = GetWeaponAttack(Player.instance.equippedWeapon);
+            var currentWeaponAttack = GetWeaponAttack(equipmentDatabase.GetCurrentWeapon());
 
             if (weaponToCompareAttack > currentWeaponAttack)
             {
@@ -163,13 +164,8 @@ namespace AF
             {
                 value = Mathf.FloorToInt(value * jumpAttackMultiplier);
 
-
-                if (Player.instance.equippedAccessories.Count > 0)
-                {
-                    var attackBonuses = Player.instance.equippedAccessories.Sum(x => x.jumpAttackBonus);
-                    value += attackBonuses;
-                }
-
+                var jumpAttackBonuses = equipmentDatabase.accessories.Sum(x => x != null ? x.jumpAttackBonus : 0);
+                value += jumpAttackBonuses;
             }
 
             if (weapon.halveDamage)
@@ -177,7 +173,7 @@ namespace AF
                 return (int)(value / 2);
             }
 
-            if (Player.instance.equippedAccessories.Count > 0 && Player.instance.equippedAccessories.Find(x => x.increaseAttackPowerTheLowerTheReputation) != null)
+            if (equipmentDatabase.accessories.FirstOrDefault(x => x != null && x.increaseAttackPowerTheLowerTheReputation) != null)
             {
                 if (playerStatsDatabase.GetCurrentReputation() < 0)
                 {
@@ -187,18 +183,16 @@ namespace AF
                 }
             }
 
-            if (Player.instance.equippedAccessories.Count > 0 && Player.instance.equippedAccessories.Find(x => x.increaseAttackPowerWithLowerHealth) != null)
+            if (equipmentDatabase.accessories.FirstOrDefault(x => x != null && x.increaseAttackPowerWithLowerHealth) != null)
             {
                 int extraAttackPower = (int)(value * healthStatManager.GetExtraAttackBasedOnCurrentHealth());
 
                 value += extraAttackPower;
             }
 
-            if (Player.instance.equippedAccessories.Count > 0)
-            {
-                var attackBonuses = Player.instance.equippedAccessories.Sum(x => x.physicalAttackBonus);
-                value += attackBonuses;
-            }
+
+            var attackBonuses = equipmentDatabase.accessories.Sum(x => x != null ? x.physicalAttackBonus : 0);
+            value += attackBonuses;
 
             return value;
         }

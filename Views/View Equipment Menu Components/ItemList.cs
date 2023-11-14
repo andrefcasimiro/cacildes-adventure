@@ -1,5 +1,5 @@
-using System.Linq;
 using AF.Equipment;
+using AF.Inventory;
 using AF.Stats;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -53,6 +53,8 @@ namespace AF.UI.EquipmentMenu
 
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
+        public PlayerStatsDatabase playerStatsDatabase;
+        public InventoryDatabase inventoryDatabase;
 
         Button returnButton;
 
@@ -219,7 +221,7 @@ namespace AF.UI.EquipmentMenu
                 this.itemsScrollView.Add(instance);
             }
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 if (item.item is not T typedItem)
                 {
@@ -239,52 +241,6 @@ namespace AF.UI.EquipmentMenu
                 instance.Q<VisualElement>("Sprite").style.backgroundImage = new StyleBackground(item.item.sprite);
                 var itemName = instance.Q<Label>("ItemName");
                 itemName.text = item.item.name.GetText();
-
-                bool itemIsEquipped = false;
-
-                if (item.item is Weapon weapon)
-                {
-                    itemIsEquipped = Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.name.GetEnglishText() == weapon.name.GetEnglishText();
-
-                    if (weapon.level > 1)
-                    {
-                        itemName.text += " +" + weapon.level;
-                    }
-                }
-                else if (item.item is Shield shield)
-                {
-                    itemIsEquipped = Player.instance.equippedShield != null && Player.instance.equippedShield.name.GetEnglishText() == shield.name.GetEnglishText();
-                }
-                else if (item.item is Helmet helmet)
-                {
-                    itemIsEquipped = Player.instance.equippedHelmet != null && Player.instance.equippedHelmet.name.GetEnglishText() == helmet.name.GetEnglishText();
-                }
-                else if (item.item is Armor armor)
-                {
-                    itemIsEquipped = Player.instance.equippedArmor != null && Player.instance.equippedArmor.name.GetEnglishText() == armor.name.GetEnglishText();
-                }
-                else if (item.item is Gauntlet gauntlet)
-                {
-                    itemIsEquipped = Player.instance.equippedGauntlets != null && Player.instance.equippedGauntlets.name.GetEnglishText() == gauntlet.name.GetEnglishText();
-                }
-                else if (item.item is Legwear legwear)
-                {
-                    itemIsEquipped = Player.instance.equippedLegwear != null && Player.instance.equippedLegwear.name.GetEnglishText() == legwear.name.GetEnglishText();
-                }
-                else if (item.item is Accessory accessory)
-                {
-                    itemIsEquipped = Player.instance.IsAccessoryEquiped(accessory);
-                }
-                else
-                {
-                    itemName.text += " (" + item.amount + ")";
-                }
-
-                if (itemIsEquipped)
-                {
-                    instance.style.opacity = 1.5f;
-                    itemName.text += GamePreferences.instance.IsEnglish() ? " (Equipped)" : " (Equipado)";
-                }
 
                 var equipmentColorIndicator = GetEquipmentColorIndicator(item.item);
                 if (equipmentColorIndicator == Color.black)
@@ -357,15 +313,6 @@ namespace AF.UI.EquipmentMenu
                     playerStatsAndAttributesUI.DrawStats(null);
                 });
 
-                if (favoriteItemsManager.IsItemFavorited(item.item))
-                {
-                    instance.Q("Favorite").style.display = DisplayStyle.Flex;
-                }
-                else
-                {
-                    instance.Q("Favorite").style.display = DisplayStyle.None;
-                }
-
                 if (item.item is Consumable consumable)
                 {
                     var useItemButton = instance.Q<Button>("UseItemButton");
@@ -374,6 +321,11 @@ namespace AF.UI.EquipmentMenu
 
                     useItemButton.clicked += () =>
                     {
+                        if (playerStatsDatabase.currentHealth <= 0)
+                        {
+                            return;
+                        }
+
                         consumable.OnConsume();
 
                         menuManager.CloseMenu();
@@ -385,12 +337,6 @@ namespace AF.UI.EquipmentMenu
                 {
                     instance.Q<Button>("UseItemButton").style.display = DisplayStyle.None;
                 }
-
-                if (!itemIsEquipped && isAccessory && equipmentGraphicsHandler.CanEquipMoreAccessories())
-                {
-                    instance.SetEnabled(false);
-                }
-
 
                 this.itemsScrollView.Add(instance);
             }

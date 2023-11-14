@@ -64,7 +64,7 @@ namespace AF
         [HideInInspector] public bool hasHyperArmorActive = false;
         [HideInInspector] public string transitionToExecution = "";
         [HideInInspector] public string playerExecutedClip = "";
-        
+
         EnemyManager enemyManager => GetComponent<EnemyManager>();
 
         public bool isDamagingHimself = false;
@@ -81,7 +81,7 @@ namespace AF
 
         public int GetCurrentAttack()
         {
-            var attackPower = Player.instance.CalculateAIAttack(enemyManager.enemy.basePhysicalAttack, enemyManager.currentLevel) + weaponDamageBonus;
+            var attackPower = Formulas.CalculateAIAttack(enemyManager.enemy.basePhysicalAttack, enemyManager.currentLevel) + weaponDamageBonus;
 
             if (enemyManager.attackReducingFactor > 1)
             {

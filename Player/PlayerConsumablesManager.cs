@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AF.Inventory;
 using AF.Stats;
 using UnityEngine;
 
@@ -30,7 +31,12 @@ namespace AF
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public InventoryDatabase inventoryDatabase;
+        public StatusDatabase statusDatabase;
 
+
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         private void Awake()
         {
@@ -39,7 +45,7 @@ namespace AF
 
         private void Update()
         {
-            if (Player.instance.appliedConsumables.Count > 0)
+            if (statusDatabase.appliedConsumables.Count > 0)
             {
                 HandleConsumableEffects();
             }
@@ -47,20 +53,20 @@ namespace AF
 
         public void AddConsumableEffect(AppliedConsumable consumableEffect)
         {
-            var idx = Player.instance.appliedConsumables.FindIndex(x => x.consumableEffect.consumablePropertyName == consumableEffect.consumableEffect.consumablePropertyName);
+            var idx = statusDatabase.appliedConsumables.FindIndex(x => x.consumableEffect.consumablePropertyName == consumableEffect.consumableEffect.consumablePropertyName);
             if (idx != -1)
             {
                 // If consuming an already applied consumable, prolong its time
-                Player.instance.appliedConsumables[idx].currentDuration += consumableEffect.consumableEffect.effectDuration;
+                statusDatabase.appliedConsumables[idx].currentDuration += consumableEffect.consumableEffect.effectDuration;
                 return;
             }
 
-            Player.instance.appliedConsumables.Add(consumableEffect);
+            statusDatabase.appliedConsumables.Add(consumableEffect);
 
             // If we only wish to evaluate the effect once, evaluate on add
             if (consumableEffect.consumableEffect.tick == false)
             {
-                EvaluateEffect(Player.instance.appliedConsumables.Last());
+                EvaluateEffect(statusDatabase.appliedConsumables.Last());
             }
 
             uIDocumentStatusEffectV2.AddConsumableEntry(consumableEffect.consumableEffect);
@@ -70,7 +76,7 @@ namespace AF
         {
             List<AppliedConsumable> consumablesToDelete = new List<AppliedConsumable>();
 
-            foreach (var entry in Player.instance.appliedConsumables)
+            foreach (var entry in statusDatabase.appliedConsumables)
             {
                 entry.currentDuration -= Time.deltaTime;
 
@@ -94,7 +100,7 @@ namespace AF
 
         public void ClearAllConsumables()
         {
-            var consumables = Player.instance.appliedConsumables.ToList();
+            var consumables = statusDatabase.appliedConsumables.ToList();
 
             foreach (var c in consumables)
             {
@@ -104,7 +110,7 @@ namespace AF
 
         public void RemoveConsumable(AppliedConsumable consumableToDelete)
         {
-            Player.instance.appliedConsumables.Remove(consumableToDelete);
+            statusDatabase.appliedConsumables.Remove(consumableToDelete);
             uIDocumentStatusEffectV2.RemoveConsumableEntry(consumableToDelete);
 
             if (consumableToDelete.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STAMINA_REGENERATION_RATE)
@@ -180,14 +186,13 @@ namespace AF
             {
                 playerPoiseController.poiseBonus -= (int)consumableToDelete.consumableEffect.value;
             }
-
         }
 
         public void EvaluateEffect(AppliedConsumable entry)
         {
             if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.HEALTH_REGENERATION)
             {
-                healthStatManager.RestoreHealthPoints(entry.consumableEffect.value);
+                healthStatManager.RestoreHealthPoints((int)entry.consumableEffect.value);
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.STAMINA_REGENERATION_RATE)
             {
@@ -259,7 +264,7 @@ namespace AF
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.RESTORE_SPELL_USE)
             {
-                foreach (var item in Player.instance.ownedItems)
+                foreach (var item in inventoryDatabase.ownedItems)
                 {
                     var castedSpell = item.item as Spell;
 
@@ -271,7 +276,7 @@ namespace AF
                     }
                 }
 
-                favoriteItemsManager.UpdateFavoriteItems();
+                // favoriteItemsManager.UpdateFavoriteItems();
             }
             else if (entry.consumableEffect.consumablePropertyName == Consumable.ConsumablePropertyName.IMMUNE_TO_FIRE)
             {
@@ -307,23 +312,23 @@ namespace AF
 
                 FindObjectOfType<SceneSettings>(true).isInterior = false;
                 FindObjectOfType<DayNightManager>(true).tick = true;
-                var originalDaySpeed = Player.instance.daySpeed;
+                var originalDaySpeed = worldSettings.daySpeed;
 
-                var targetHour = Mathf.Floor(Player.instance.timeOfDay) + 1;
+                var targetHour = Mathf.Floor(worldSettings.timeOfDay) + 1;
 
                 if (targetHour > 23)
                 {
-                    Player.instance.timeOfDay = 0;
+                    worldSettings.timeOfDay = 0;
                     targetHour = 0;
                 }
 
                 yield return null;
 
-                Player.instance.daySpeed = 2;
+                worldSettings.daySpeed = 2;
 
-                yield return new WaitUntil(() => Mathf.Floor(Player.instance.timeOfDay) == targetHour);
+                yield return new WaitUntil(() => Mathf.Floor(worldSettings.timeOfDay) == targetHour);
 
-                Player.instance.daySpeed = originalDaySpeed;
+                worldSettings.daySpeed = originalDaySpeed;
 
                 FindObjectOfType<DayNightManager>(true).tick = FindObjectOfType<DayNightManager>(true).TimePassageAllowed();
                 FindObjectOfType<SceneSettings>(true).isInterior = isInteriorOriginal;

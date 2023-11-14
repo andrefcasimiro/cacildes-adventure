@@ -36,6 +36,9 @@ namespace AF
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public EquipmentDatabase equipmentDatabase;
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         public void Awake()
         {
@@ -183,14 +186,14 @@ namespace AF
 
             if (this.characterShopInstances[idx].dayThatTradingBegan == -1)
             {
-                this.characterShopInstances[idx].dayThatTradingBegan = Player.instance.daysPassed;
+                this.characterShopInstances[idx].dayThatTradingBegan = worldSettings.daysPassed;
             }
 
             // Retrieve coin to player
             var finalPrice = GetItemToBuyPrice(itemToBuy, this.characterShopInstances[idx]);
 
             FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost(finalPrice);
-            Player.instance.currentGold -= finalPrice;
+            playerStatsDatabase.gold -= finalPrice;
 
             // Give item to player
             playerInventory.AddItem(itemToBuy.item, 1);
@@ -225,7 +228,7 @@ namespace AF
             var finalPrice = GetItemToSellPrice(itemToSell);
 
             FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGold(finalPrice);
-            Player.instance.currentGold += finalPrice;
+            playerStatsDatabase.gold += finalPrice;
 
             return true;
         }
@@ -243,7 +246,7 @@ namespace AF
 
             if (shopEntryInstance.requiredItemForDiscounts != null)
             {
-                if (shopEntryInstance.requiredItemForDiscounts is Helmet && Player.instance.equippedHelmet != null && Player.instance.equippedHelmet.name.GetEnglishText() == shopEntryInstance.requiredItemForDiscounts.name.GetEnglishText())
+                if (shopEntryInstance.requiredItemForDiscounts is Helmet && equipmentDatabase.helmet != null && equipmentDatabase.helmet.name.GetEnglishText() == shopEntryInstance.requiredItemForDiscounts.name.GetEnglishText())
                 {
                     finalPrice = (int)(finalPrice / shopEntryInstance.discountGivenByItemInInventory);
                 }

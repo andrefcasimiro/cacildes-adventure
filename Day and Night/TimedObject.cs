@@ -10,6 +10,8 @@ namespace AF
     {
         public string dayHours = "05-20";
         public string nightHours = "20-5";
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         private void Start()
         {
@@ -21,7 +23,7 @@ namespace AF
             var dayTriggers = transform.GetComponentsInChildren<DayTrigger>(true);
             var nightTriggers = transform.GetComponentsInChildren<NightTrigger>(true);
 
-            if (Player.instance.timeOfDay >= 5 && Player.instance.timeOfDay < 20)
+            if (worldSettings.timeOfDay >= 5 && worldSettings.timeOfDay < 20)
             {
                 if (dayTriggers.Length > 0)
                 {
@@ -39,7 +41,7 @@ namespace AF
                     }
                 }
             }
-            else if (Player.instance.timeOfDay >= 20 && Player.instance.timeOfDay <= 24 || Player.instance.timeOfDay >= 0 && Player.instance.timeOfDay < 5)
+            else if (worldSettings.timeOfDay >= 20 && worldSettings.timeOfDay <= 24 || worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay < 5)
             {
                 if (dayTriggers.Length > 0)
                 {

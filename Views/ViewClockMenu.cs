@@ -26,6 +26,9 @@ namespace AF
 
         [Header("Achievements")]
         public Achievement achievementForPassingTime;
+        [Header("Systems")]
+        public WorldSettings worldSettings;
+
 
         private void Awake()
         {
@@ -200,7 +203,7 @@ namespace AF
 
             achievementForPassingTime.AwardAchievement();
 
-            StartCoroutine(MoveTime((int)Player.instance.timeOfDay + 1));
+            StartCoroutine(MoveTime((int)worldSettings.timeOfDay + 1));
         }
 
         IEnumerator MoveTime(int desiredTime)
@@ -217,7 +220,7 @@ namespace AF
 
             this.root.style.display = DisplayStyle.None;
 
-            var originalDaySpeed = Player.instance.daySpeed;
+            var originalDaySpeed = worldSettings.daySpeed;
 
             var targetHour = desiredTime;
             bool isInteriorOriginal = sceneSettings.isInterior;
@@ -232,22 +235,22 @@ namespace AF
 
                 if (targetHour > 23)
                 {
-                    Player.instance.timeOfDay = 0;
+                    worldSettings.timeOfDay = 0;
                     targetHour = 0;
                 }
 
                 yield return null;
 
-                Player.instance.daySpeed = 3;
+                worldSettings.daySpeed = 3;
 
                 yield return new WaitUntil(() =>
                 {
-                    return Mathf.FloorToInt(Player.instance.timeOfDay) == Mathf.FloorToInt(targetHour);
+                    return Mathf.FloorToInt(worldSettings.timeOfDay) == Mathf.FloorToInt(targetHour);
                 });
 
             }
 
-            Player.instance.daySpeed = originalDaySpeed;
+            worldSettings.daySpeed = originalDaySpeed;
 
             dayNightManager.tick = dayNightManager.TimePassageAllowed();
             sceneSettings.isInterior = isInteriorOriginal;

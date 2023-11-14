@@ -36,7 +36,7 @@ namespace AF
             root.Q<Label>("SubTitle").text = LocalizedTerms.SavedAt() + ": " + DateTime.Parse(saveFileEntry.creationDate).ToString();
 
             var totalGameTime = System.TimeSpan.FromSeconds(saveFileEntry.gameTime);
-            root.Q<Label>("Description").text = LocalizedTerms.TotalPlayTime() + ": " + totalGameTime.Hours + "h " + totalGameTime.Minutes + "m " + totalGameTime.Seconds + "s";
+            root.Q<Label>("Description").text = LocalizedTerms.TotalPlayTime() + ": " + totalworldSettings.Hours + "h " + totalworldSettings.Minutes + "m " + totalworldSettings.Seconds + "s";
             root.Q<Label>("CurrentObjectiveText").text = ""; //+ saveFileEntry.currentObjective;
 
             root.Q<VisualElement>("SaveGameItemPreview").style.opacity = 1;*/

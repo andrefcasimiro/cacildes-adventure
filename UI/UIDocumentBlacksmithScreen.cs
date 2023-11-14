@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AF.Inventory;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -32,6 +33,10 @@ namespace AF
         CursorManager cursorManager;
 
         [HideInInspector] public bool returnToBonfire = false;
+
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+        public InventoryDatabase inventoryDatabase;
 
         private void Awake()
         {
@@ -143,9 +148,9 @@ namespace AF
             });
             scrollView.Clear();
 
-            List<Player.ItemEntry> weapons = new();
+            List<ItemEntry> weapons = new();
 
-            foreach (var it in Player.instance.ownedItems)
+            foreach (var it in inventoryDatabase.ownedItems)
             {
                 Weapon wp = it.item as Weapon;
                 if (wp != null && wp.canBeUpgraded)
@@ -201,7 +206,7 @@ namespace AF
                     notificationManager.ShowNotification(receivedMessage.GetText(), wp.sprite);
 
                     var currentWeaponLevel = wp.level;
-                    Player.instance.currentGold -= wp.GetRequiredUpgradeGoldForGivenLevel(currentWeaponLevel + 1);
+                    playerStatsDatabase.gold -= wp.GetRequiredUpgradeGoldForGivenLevel(currentWeaponLevel + 1);
                     playerInventory.RemoveItem(wp.upgradeMaterial, wp.GetRequiredOresForGivenLevel(currentWeaponLevel + 1));
 
                     wp.level++;
@@ -299,7 +304,7 @@ namespace AF
             ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(weapon.upgradeMaterial.sprite);
             ingredientItemEntry.Q<Label>("Title").text = weapon.upgradeMaterial.name.GetText();
 
-            var playerOwnedIngredient = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == weapon.upgradeMaterial.name.GetEnglishText());
+            var playerOwnedIngredient = inventoryDatabase.ownedItems.Find(x => x.item.name.GetEnglishText() == weapon.upgradeMaterial.name.GetEnglishText());
             var playerOwnedIngredientAmount = 0;
             if (playerOwnedIngredient != null)
             {
@@ -316,8 +321,8 @@ namespace AF
             goldItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(goldSprite);
             goldItemEntry.Q<Label>("Title").text = LocalizedTerms.Gold();
 
-            goldItemEntry.Q<Label>("Amount").text = Player.instance.currentGold + " / " + weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel);
-            goldItemEntry.Q<Label>("Amount").style.opacity = Player.instance.currentGold >= weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel) ? 1 : 0.25f;
+            goldItemEntry.Q<Label>("Amount").text = playerStatsDatabase.gold + " / " + weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel);
+            goldItemEntry.Q<Label>("Amount").style.opacity = playerStatsDatabase.gold >= weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel) ? 1 : 0.25f;
 
             root.Q<VisualElement>("ItemInfo").Add(goldItemEntry);
 
@@ -334,7 +339,7 @@ namespace AF
                 return false;
             }
 
-            var itemEntry = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == weapon.upgradeMaterial.name.GetEnglishText());
+            var itemEntry = inventoryDatabase.ownedItems.Find(x => x.item.name.GetEnglishText() == weapon.upgradeMaterial.name.GetEnglishText());
 
             if (itemEntry == null)
             {
@@ -346,7 +351,7 @@ namespace AF
                 return false;
             }
 
-            if (Player.instance.currentGold < weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel))
+            if (playerStatsDatabase.gold < weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel))
             {
                 return false;
             }

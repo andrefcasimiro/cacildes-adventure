@@ -31,6 +31,8 @@ namespace AF
 
         [Header("Colliseum")]
         public bool isColliseum = false;
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         PlayerComponentManager playerComponentManager;
 
@@ -142,7 +144,7 @@ namespace AF
 
         bool IsNightTime()
         {
-            return Player.instance.timeOfDay >= 20 && Player.instance.timeOfDay <= 24 || Player.instance.timeOfDay >= 0 && Player.instance.timeOfDay < 6;
+            return worldSettings.timeOfDay >= 20 && worldSettings.timeOfDay <= 24 || worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay < 6;
         }
 
         bool CanPlayNightSfx(AudioClip clip)

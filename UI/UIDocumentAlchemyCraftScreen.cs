@@ -1,4 +1,5 @@
 using System.Linq;
+using AF.Inventory;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -45,6 +46,10 @@ namespace AF
         PlayerInventory playerInventory;
 
         [HideInInspector] public bool returnToBonfire = false;
+
+        [Header("Databases")]
+        public RecipesDatabase recipesDatabase;
+        public InventoryDatabase inventoryDatabase;
 
         private void Awake()
         {
@@ -128,14 +133,14 @@ namespace AF
                 root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(alchemyBackgroundImage);
 
                 craftActivityTitle.text = AlchemyActivityTitle.GetText();
-                PopulateScrollView(Player.instance.alchemyRecipes.ToArray());
+                PopulateScrollView(recipesDatabase.alchemyRecipes.ToArray());
             }
             else if (craftActivity == CraftActivity.COOKING)
             {
                 root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(cookingBackgroundImage);
 
                 craftActivityTitle.text = CookingActivityTitle.GetText();
-                PopulateScrollView(Player.instance.cookingRecipes.ToArray());
+                PopulateScrollView(recipesDatabase.cookingRecipes.ToArray());
             }
         }
 
@@ -268,7 +273,7 @@ namespace AF
                 ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(ingredient.ingredient.sprite);
                 ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name.GetText();
 
-                var playerOwnedIngredient = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == ingredient.ingredient.name.GetEnglishText());
+                var playerOwnedIngredient = inventoryDatabase.ownedItems.Find(x => x.item.name.GetEnglishText() == ingredient.ingredient.name.GetEnglishText());
                 var playerOwnedIngredientAmount = 0;
                 if (playerOwnedIngredient != null)
                 {
@@ -289,7 +294,7 @@ namespace AF
 
             foreach (var ingredient in recipe.ingredients)
             {
-                var itemEntry = Player.instance.ownedItems.Find(x => x.item.name.GetEnglishText() == ingredient.ingredient.name.GetEnglishText());
+                var itemEntry = inventoryDatabase.ownedItems.Find(x => x.item.name.GetEnglishText() == ingredient.ingredient.name.GetEnglishText());
 
                 if (itemEntry == null)
                 {

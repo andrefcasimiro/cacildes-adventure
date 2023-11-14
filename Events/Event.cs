@@ -16,6 +16,8 @@ namespace AF
         [HideInInspector] public EventPage[] eventPages;
 
         [HideInInspector] public EventPage currentTarget;
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         private void Awake()
         {
@@ -155,11 +157,11 @@ namespace AF
             // If appear until is after midnight, it may become smaller than appearFrom (i. e. appear from 17 until 4)
             if (currentTarget.appearFrom > currentTarget.appearUntil)
             {
-                isActive = Player.instance.timeOfDay >= currentTarget.appearFrom && Player.instance.timeOfDay <= 24 || (Player.instance.timeOfDay >= 0 && Player.instance.timeOfDay <= currentTarget.appearUntil);
+                isActive = worldSettings.timeOfDay >= currentTarget.appearFrom && worldSettings.timeOfDay <= 24 || (worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay <= currentTarget.appearUntil);
             }
             else
             {
-                isActive = Player.instance.timeOfDay >= currentTarget.appearFrom && Player.instance.timeOfDay <= currentTarget.appearUntil;
+                isActive = worldSettings.timeOfDay >= currentTarget.appearFrom && worldSettings.timeOfDay <= currentTarget.appearUntil;
             }
 
             currentTarget.gameObject.SetActive(isActive);

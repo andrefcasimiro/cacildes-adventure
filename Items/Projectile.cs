@@ -158,7 +158,7 @@ namespace AF
             var playerParrymanager = FindObjectOfType<PlayerParryManager>(true);
             if (playerParrymanager.IsBlocking() && Vector3.Angle(transform.forward, playerParrymanager.transform.forward * -1) <= 90f)
             {
-                Instantiate(Player.instance.equippedShield.blockFx, other.transform.position, Quaternion.identity);
+                // Instantiate(Player.instance.equippedShield.blockFx, other.transform.position, Quaternion.identity);
             }
 
             if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.EASY)
@@ -278,7 +278,7 @@ namespace AF
                 {
                     return;
                 }
-                
+
                 if (!hasCollidedAlready)
                 {
 
@@ -480,7 +480,7 @@ namespace AF
 
                 if (playerParrymanager.IsBlocking() && Vector3.Angle(transform.forward, playerParrymanager.transform.forward * -1) <= 90f)
                 {
-                    Instantiate(Player.instance.equippedShield.blockFx, other.transform.position, Quaternion.identity);
+                    // Instantiate(Player.instance.equippedShield.blockFx, other.transform.position, Quaternion.identity);
 
                     if (destroyOnCollision)
                     {

@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using TigerForge;
 using AF.Events;
+using System.Linq;
 
 [CreateAssetMenu(fileName = "Equipment Database", menuName = "System/New Equipment Database", order = 0)]
 public class EquipmentDatabase : ScriptableObject
@@ -207,6 +208,11 @@ public class EquipmentDatabase : ScriptableObject
     public Consumable GetCurrentConsumable()
     {
         return consumables[currentConsumableIndex];
+    }
+
+    public bool IsAccessoryEquiped(Accessory accessory)
+    {
+        return accessories.Contains(accessory);
     }
 
 }

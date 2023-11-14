@@ -6,6 +6,9 @@ namespace AF
 {
     public class EV_Sleep : EventBase
     {
+        [Header("Systems")]
+        public WorldSettings worldSettings;
+
         public int targetHour = 0;
 
         public bool fadeToBlack = true;
@@ -16,7 +19,7 @@ namespace AF
 
             FindObjectOfType<SceneSettings>(true).isInterior = false;
             FindObjectOfType<DayNightManager>(true).tick = true;
-            var originalDaySpeed = Player.instance.daySpeed;
+            var originalDaySpeed = worldSettings.daySpeed;
 
             if (fadeToBlack)
             {
@@ -26,16 +29,17 @@ namespace AF
 
             yield return null;
 
-            Player.instance.daySpeed = 2;
+            worldSettings.daySpeed = 2;
 
-            yield return new WaitUntil(() => Mathf.Floor(Player.instance.timeOfDay) == targetHour);
+            yield return new WaitUntil(() => Mathf.Floor(worldSettings.timeOfDay) == targetHour);
 
-            Player.instance.daySpeed = originalDaySpeed;
+            worldSettings.daySpeed = originalDaySpeed;
 
             FindObjectOfType<DayNightManager>(true).tick = FindObjectOfType<DayNightManager>(true).TimePassageAllowed();
             FindObjectOfType<SceneSettings>(true).isInterior = isInteriorOriginal;
 
-            if (fadeToBlack) {
+            if (fadeToBlack)
+            {
 
                 FindObjectOfType<UIBlackCanvas>(true).StartFade();
 

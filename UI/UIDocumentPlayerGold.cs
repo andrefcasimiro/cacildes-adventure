@@ -23,6 +23,9 @@ namespace AF
 
         ParticleSystem currentGold;
 
+        [Header("Stats Database")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         private void Awake()
         {
             particlePoolManager = FindAnyObjectByType<ParticlePoolManager>(FindObjectsInactive.Include);
@@ -41,7 +44,7 @@ namespace AF
 
             currentGold = particlePoolManager.goldPool.Pool.Get();
 
-            
+
             if (currentGold == null)
             {
                 return;
@@ -62,7 +65,7 @@ namespace AF
             StopAllCoroutines();
 
             this.currentReceivedAmount = amount;
-            this.playerGold = Player.instance.currentGold;
+            this.playerGold = playerStatsDatabase.gold;
 
             this.gameObject.SetActive(true);
 
@@ -91,7 +94,7 @@ namespace AF
             StopAllCoroutines();
 
             this.currentDeductedAmount = amount;
-            this.playerGold = Player.instance.currentGold;
+            this.playerGold = playerStatsDatabase.gold;
 
             this.gameObject.SetActive(true);
 
@@ -120,7 +123,7 @@ namespace AF
 
                 playerGold += (int)ScoreIncrement;
 
-                if (playerGold > Player.instance.currentGold) { playerGold = Player.instance.currentGold; }
+                if (playerGold > playerStatsDatabase.gold) { playerGold = playerStatsDatabase.gold; }
 
 
                 root.Q<Label>("GoldReceived").text = "+ " + currentReceivedAmount;
@@ -135,7 +138,7 @@ namespace AF
 
                 playerGold -= (int)ScoreIncrement;
 
-                if (playerGold <= Player.instance.currentGold) { playerGold = Player.instance.currentGold; }
+                if (playerGold <= playerStatsDatabase.gold) { playerGold = playerStatsDatabase.gold; }
 
 
                 root.Q<Label>("GoldReceived").text = "- " + currentDeductedAmount;

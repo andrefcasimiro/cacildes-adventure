@@ -53,7 +53,7 @@ namespace AF
 
             UIUtils.SetupButton(playTutorialButton, () =>
             {
-                Player.instance.LoadScene(6, true);
+                //Player.instance.LoadScene(6, true);
             });
 
             UIUtils.SetupButton(creditsButton, () =>

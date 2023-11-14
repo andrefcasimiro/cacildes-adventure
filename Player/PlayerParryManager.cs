@@ -58,7 +58,7 @@ namespace AF
 
             if (IsBlocking())
             {
-                animator.SetBool("HasShield", Player.instance.equippedShield != null);
+                //animator.SetBool("HasShield", Player.instance.equippedShield != null);
             }
 
             if (currentCounterAttackWindow < maxCounterAttackWindowAfterParry)

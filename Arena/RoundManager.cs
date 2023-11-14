@@ -192,14 +192,7 @@ namespace AF
             playerComponentManager.isInBonfire = true;
             playerComponentManager.CurePlayer();
 
-            if (Player.instance.isDemo)
-            {
-                TeleportManager.instance.Teleport(TeleportManager.SceneName.PATH_TO_SLEPBONE_PATHWAY, "Path to Slepbone Bonfire Spawnref");
-            }
-            else
-            {
-                TeleportManager.instance.Teleport(sceneToReturnWhenExitingTournament, "A");
-            }
+            TeleportManager.instance.Teleport(sceneToReturnWhenExitingTournament, "A");
 
         }
 

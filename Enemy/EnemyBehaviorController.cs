@@ -73,7 +73,8 @@ namespace AF
 
         bool IsPlayerDisguisedAsFaction()
         {
-            // If `requireOnlyArmor` is true, check only the equipped armor.
+            return false;
+            /*// If `requireOnlyArmor` is true, check only the equipped armor.
             if (requireOnlyArmor)
             {
                 return Player.instance.equippedArmor != null && Player.instance.equippedArmor.name.GetEnglishText() == disguisedArmor.name.GetEnglishText();
@@ -95,7 +96,7 @@ namespace AF
             return Player.instance.equippedHelmet.name.GetEnglishText() == disguisedHelmet.name.GetEnglishText()
                 && Player.instance.equippedGauntlets.name.GetEnglishText() == disguisedGauntlets.name.GetEnglishText()
                 && Player.instance.equippedArmor.name.GetEnglishText() == disguisedArmor.name.GetEnglishText()
-                && Player.instance.equippedLegwear.name.GetEnglishText() == disguisedLegwear.name.GetEnglishText();
+                && Player.instance.equippedLegwear.name.GetEnglishText() == disguisedLegwear.name.GetEnglishText();*/
         }
         void TurnFriendly()
         {

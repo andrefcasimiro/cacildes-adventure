@@ -1,4 +1,5 @@
 using System.Linq;
+using AF.Inventory;
 using UnityEngine;
 
 namespace AF
@@ -42,6 +43,7 @@ namespace AF
         public Achievement achievementOnShootingBowForFirstTime;
 
         [Header("Databases")]
+        public InventoryDatabase inventoryDatabase;
         public PlayerStatsDatabase playerStatsDatabase;
 
         private void Start()
@@ -56,7 +58,7 @@ namespace AF
                 return;
             }
 
-            if (Player.instance.ownedItems.FirstOrDefault(x => x.item.name.GetEnglishText() == bow.name.GetEnglishText()) == null)
+            if (inventoryDatabase.ownedItems.FirstOrDefault(x => x.item.name.GetEnglishText() == bow.name.GetEnglishText()) == null)
             {
                 notificationManager.ShowNotification(LocalizedTerms.BowRequired(), notificationManager.systemError);
                 return;

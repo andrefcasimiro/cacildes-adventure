@@ -1,6 +1,7 @@
 ﻿
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AF.Stats;
 using UnityEngine;
 
@@ -26,6 +27,8 @@ namespace AF
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public EquipmentDatabase equipmentDatabase;
+
         private void OnParticleCollision(GameObject other)
         {
             OnCollide(other);
@@ -102,7 +105,7 @@ namespace AF
                     intelligenceBonus = statsBonusController.intelligenceBonus;
                 }
 
-                var damage = (float)Player.instance.CalculateSpellValue(
+                var damage = (float)Formulas.CalculateSpellValue(
                     (int)spell.damageOnHitEnemy, intelligenceBonus + playerStatsDatabase.intelligence);
 
                 Enemy enemy = enemyHealthController.GetComponent<EnemyManager>().enemy;
@@ -143,7 +146,7 @@ namespace AF
 
                 if (pushForce != 0)
                 {
-                    var finalPushForce = pushForce + Player.instance.CalculateSpellValue(pushForce, intelligenceBonus + playerStatsDatabase.intelligence);
+                    var finalPushForce = pushForce + Formulas.CalculateSpellValue(pushForce, intelligenceBonus + playerStatsDatabase.intelligence);
 
 
                     if (spell.increaseDamageWithReputation)
@@ -174,7 +177,7 @@ namespace AF
                     }
                 }
 
-                var targetAccessory = Player.instance.equippedAccessories.Find(x => x.increasesSpellDamage && x.spellDamageMultiplier > 0);
+                var targetAccessory = equipmentDatabase.accessories.FirstOrDefault(x => x.increasesSpellDamage && x.spellDamageMultiplier > 0);
                 if (targetAccessory != null)
                 {
                     damage = (int)(damage * targetAccessory.spellDamageMultiplier);

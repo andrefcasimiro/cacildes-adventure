@@ -1,4 +1,5 @@
 using System.Collections;
+using AF.Companions;
 
 namespace AF
 {
@@ -6,10 +7,11 @@ namespace AF
     public class EV_FinishGame : EventBase
     {
         public Achievement achievementForFinishingGameWithCompanions;
+        public CompanionsDatabase companionsDatabase;
 
         public override IEnumerator Dispatch()
         {
-            if (Player.instance.companions.Count > 0)
+            if (companionsDatabase.companions.Count > 0)
             {
                 achievementForFinishingGameWithCompanions.AwardAchievement();
             }

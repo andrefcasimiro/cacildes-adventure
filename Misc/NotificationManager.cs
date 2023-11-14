@@ -92,7 +92,7 @@ namespace AF
         // TODO: This should be on a proper class
         public void IncreaseReputation(int value)
         {
-            Player.instance.currentReputation += value;
+            //Player.instance.currentReputation += value;
 
             Soundbank.instance.PlayReputationIncreased();
             ShowNotification(LocalizedTerms.ReputationIncreased(value, playerStatsDatabase.GetCurrentReputation()), reputationIncreaseSprite);
@@ -101,12 +101,13 @@ namespace AF
         // TODO: This should be on a proper class
         public void DecreaseReputation(int value)
         {
+            /*
             Player.instance.currentReputation -= value;
 
             if (Player.instance.currentReputation <= -25f)
             {
                 negativeReputationAchievement.AwardAchievement();
-            }
+            }*/
 
             Soundbank.instance.PlayReputationDecreased();
             ShowNotification(LocalizedTerms.ReputationDecreased(value, playerStatsDatabase.GetCurrentReputation()), reputationDecreaseSprite);

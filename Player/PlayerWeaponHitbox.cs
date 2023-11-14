@@ -37,6 +37,9 @@ namespace AF
 
         public bool isFoot = false;
 
+        [Header("Databases")]
+        public EquipmentDatabase equipmentDatabase;
+
         private void Awake()
         {
             HideHolsteredWeapon();
@@ -103,7 +106,7 @@ namespace AF
 
         public void EnableHitbox()
         {
-            var weapon = Player.instance.equippedWeapon;
+            var weapon = equipmentDatabase.GetCurrentWeapon();
 
             if (isFoot == false && weapon != null && weapon.swingSfx != null)
             {
@@ -162,14 +165,13 @@ namespace AF
                 }
             }
 
-            var weapon = Player.instance.equippedWeapon;
+            var weapon = equipmentDatabase.GetCurrentWeapon();
 
             var enemyHealthHitbox = other.GetComponent<EnemyHealthHitbox>();
             if (enemyHealthHitbox == null)
             {
                 enemyHealthHitbox = other.GetComponentInChildren<EnemyHealthHitbox>();
             }
-
 
             if (enemyHealthHitbox == null)
             {

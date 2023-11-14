@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AF.Companions;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 
 namespace AF
 {
@@ -89,6 +89,9 @@ namespace AF
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public CompanionsDatabase companionsDatabase;
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         private void Awake()
         {
@@ -174,18 +177,18 @@ namespace AF
             var baseHealth = enemyManager.enemy.baseHealth;
             if (enemyManager.currentLevel > 1)
             {
-                baseHealth = Player.instance.CalculateAIHealth(maxHealthOverride != -1 ? maxHealthOverride : enemyManager.enemy.baseHealth, enemyManager.currentLevel);
+                baseHealth = Formulas.CalculateAIHealth(maxHealthOverride != -1 ? maxHealthOverride : enemyManager.enemy.baseHealth, enemyManager.currentLevel);
             }
 
-            if (Player.instance.companions.Count == 1)
+            if (companionsDatabase.companions.Count == 1)
             {
                 baseHealth = (int)(baseHealth * 1.025f);
             }
-            else if (Player.instance.companions.Count == 2)
+            else if (companionsDatabase.companions.Count == 2)
             {
                 baseHealth = (int)(baseHealth * 1.1f);
             }
-            else if (Player.instance.companions.Count > 2)
+            else if (companionsDatabase.companions.Count > 2)
             {
                 baseHealth = (int)(baseHealth * 1.2f);
             }
@@ -394,7 +397,7 @@ namespace AF
 
             if (weapon != null && weapon.doubleDamageDuringNightTime)
             {
-                if (Player.instance.timeOfDay > 20 || Player.instance.timeOfDay < 5)
+                if (worldSettings.timeOfDay > 20 || worldSettings.timeOfDay < 5)
                 {
                     appliedDamage *= 2;
                 }
@@ -634,17 +637,20 @@ namespace AF
             enemyManager.characterController.excludeLayers = LayerMask.GetMask("TempCast");
             enemyManager.agent.enabled = false;
 
-            Player.instance.lastEnemyKilled = enemyManager.enemy;
+
+            companionsDatabase.lastEnemyKilled = enemyManager.enemy;
 
             onEnemyDeath?.Invoke();
 
+
+            /*
             if (receiveReputationWhileReputationIsNegative && Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.isHolyWeapon)
             {
                 if (playerStatsDatabase.GetCurrentReputation() < 0)
                 {
                     FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include).IncreaseReputation(1);
                 }
-            }
+            }*/
 
             StartCoroutine(DieFlow());
         }
@@ -672,14 +678,14 @@ namespace AF
 
             if (mustBeKilledWithHolyWeapon)
             {
-                if (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.isHolyWeapon)
+                /*if (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.isHolyWeapon)
                 {
                     onKilledWithHolyWeapon.Invoke();
                 }
                 else
                 {
                     onKilledWithOtherWeaponOtherThanHoly.Invoke();
-                }
+                }*/
             }
 
             BGMManager.instance.PlayMapMusicAfterKillingEnemy(enemyManager);

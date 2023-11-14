@@ -139,7 +139,6 @@ namespace AF
                 var newObjective = switchEntryInstances[switchIndex].switchEntry.newObjective;
                 if (!string.IsNullOrEmpty(newObjective))
                 {
-                    Player.instance.currentObjective = newObjective;
                 }
             }
         }

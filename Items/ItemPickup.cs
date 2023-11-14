@@ -44,6 +44,9 @@ namespace AF
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         private void Awake()
         {
             inputs = FindObjectOfType<StarterAssetsInputs>(true);
@@ -103,10 +106,10 @@ namespace AF
                     playerInventory.playerAchievementsManager.achievementForStealing.AwardAchievement();
 
 
-                    if (Player.instance.currentGold >= itemsPrice)
+                    if (playerStatsDatabase.gold >= itemsPrice)
                     {
                         FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice);
-                        Player.instance.currentGold -= (int)itemsPrice;
+                        playerStatsDatabase.gold -= (int)itemsPrice;
 
                         var notif = FindObjectOfType<NotificationManager>(true);
                         notif.ShowNotification(LocalizedTerms.CaughtStealing(), notif.personBusy);
@@ -114,8 +117,8 @@ namespace AF
                     }
                     else
                     {
-                        FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice - Player.instance.currentGold);
-                        Player.instance.currentGold = 0;
+                        FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice - playerStatsDatabase.gold);
+                        playerStatsDatabase.gold = 0;
 
                         // Lose reputation instead
                         FindObjectOfType<NotificationManager>(true).DecreaseReputation(1);
@@ -139,14 +142,14 @@ namespace AF
             if (gold != -1)
             {
                 FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGold(gold);
-                Player.instance.currentGold += gold;
+                playerStatsDatabase.gold += gold;
 
             }
 
             // Is Alchemy Recipe?
             else if (alchemyRecipe != null)
             {
-                Player.instance.alchemyRecipes.Add(alchemyRecipe);
+                // Player.instance.alchemyRecipes.Add(alchemyRecipe);
             }
             else if (item != null) // Normal Item
             {

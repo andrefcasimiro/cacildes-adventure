@@ -210,7 +210,7 @@ namespace AF
             float damageToReceive = CalculateDamageToReceive(enemy.enemyCombatController.GetCurrentAttack(),
                 defenseStatManager.GetDefenseAbsorption(), healthStatManager.GetMaxHealth());
 
-            float elementalDamage = Player.instance.CalculateIncomingElementalAttack((int)weaponElementalDamage, weaponElementType, defenseStatManager);
+            float elementalDamage = Formulas.CalculateIncomingElementalAttack((int)weaponElementalDamage, weaponElementType, defenseStatManager);
 
             if (!string.IsNullOrEmpty(enemy.enemyCombatController.playerExecutedClip) && !string.IsNullOrEmpty(enemy.enemyCombatController.transitionToExecution))
             {

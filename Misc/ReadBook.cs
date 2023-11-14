@@ -120,12 +120,12 @@ namespace AF
                         if (alchemyRecipe != null)
                         {
                             notificationManager.ShowNotification(LocalizedTerms.LearnedRecipe() + alchemyRecipe.name.GetText(), notificationManager.recipeIcon);
-                            Player.instance.alchemyRecipes.Add(alchemyRecipe);
+                            //Player.instance.alchemyRecipes.Add(alchemyRecipe);
                         }
                         else if (cookingRecipe != null)
                         {
                             notificationManager.ShowNotification(LocalizedTerms.LearnedRecipe() + cookingRecipe.name.GetText(), notificationManager.recipeIcon);
-                            Player.instance.cookingRecipes.Add(cookingRecipe);
+                            //Player.instance.cookingRecipes.Add(cookingRecipe);
                         }
                     }
 

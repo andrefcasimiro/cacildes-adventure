@@ -9,7 +9,6 @@ namespace AF
     {
         public static TrailerManager instance;
 
-        public Player.ItemEntry[] ownedItems;
 
         public bool alternateBetweenEquipments = false;
         public bool randomizeEquipment = false;
@@ -28,7 +27,7 @@ namespace AF
 
         public Equipment[] equipment;
         int loopIndex = 0;
-        
+
         public float maxTimeBetweenEquipment = 2f;
         public float currentTimeBetweenEquipment = Mathf.Infinity;
 
@@ -45,7 +44,7 @@ namespace AF
         public Companion hugo;
         public Companion alcino;
         public Companion balbino;
-        
+
         public void LoopEquipment()
         {
             if (currentTimeBetweenEquipment <= maxTimeBetweenEquipment)
@@ -174,7 +173,7 @@ namespace AF
             var copiedOwnedItems = ownedItems.ToArray();
             foreach (var ownedItem in copiedOwnedItems)
             {
-                Player.instance.ownedItems.Add(new Player.ItemEntry()
+                inventoryDatabase.ownedItems.Add(new Player.ItemEntry()
                 {
                     item = Instantiate(ownedItem.item),
                     amount = ownedItem.amount,

@@ -83,7 +83,7 @@ namespace AF
 
                 if (copiedDamage > 0)
                 {
-                    copiedDamage = Player.instance.CalculateIncomingElementalAttack(copiedDamage, weaponElementType, defenseStatManager);
+                    copiedDamage = Formulas.CalculateIncomingElementalAttack(copiedDamage, weaponElementType, defenseStatManager);
 
                     playerHealthbox.TakeEnvironmentalDamage(0, poiseDamage, ignoreDodging, copiedDamage, weaponElementType);
                 }

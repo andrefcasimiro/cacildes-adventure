@@ -20,7 +20,7 @@ namespace AF
         public LocalizedText passTimeText;
         public LocalizedText travelText;
         public LocalizedText exitBonfireText;
-        
+
         CursorManager cursorManager;
         ThirdPersonController thirdPersonController;
         SceneSettings sceneSettings;
@@ -34,7 +34,11 @@ namespace AF
         public Item blacksmithKit;
         public Item alchemyKit;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
 
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         private void Awake()
         {
@@ -48,7 +52,7 @@ namespace AF
 
         private void Start()
         {
-            originalDaySpeed = Player.instance.daySpeed;
+            originalDaySpeed = worldSettings.daySpeed;
             gameObject.SetActive(false);
 
         }
@@ -64,7 +68,7 @@ namespace AF
 
             root.Q<Label>("BonfireNameLabel").text = bonfireNameLabel.GetText();
 
-            hasEnoughForLevellingUp = Player.instance.currentGold >= playerLevelManager.GetRequiredExperienceForNextLevel();
+            hasEnoughForLevellingUp = playerStatsDatabase.gold >= playerLevelManager.GetRequiredExperienceForNextLevel();
 
             root.Q<Label>("LevelUpAvailableLabel").style.display = hasEnoughForLevellingUp ? DisplayStyle.Flex : DisplayStyle.None;
 
@@ -94,7 +98,7 @@ namespace AF
 
 
             root.Q<Label>("CurrentGoldAndRequiredLabel").text = GamePreferences.instance.IsEnglish() ? "Your gold / Amount for next level" : "Moedas / Necessárias para próx. nível";
-            root.Q<Label>("GoldAndRequiredFornextLevel").text = Player.instance.currentGold + " / " + playerLevelManager.GetRequiredExperienceForNextLevel();
+            root.Q<Label>("GoldAndRequiredFornextLevel").text = playerStatsDatabase.gold + " / " + playerLevelManager.GetRequiredExperienceForNextLevel();
 
             levelUpButton.RegisterCallback<ClickEvent>(ev =>
             {
@@ -148,7 +152,7 @@ namespace AF
         void ExitBonfire()
         {
 
-            Player.instance.daySpeed = originalDaySpeed;
+            worldSettings.daySpeed = originalDaySpeed;
 
             bonfire.ExitBonfire();
             StartCoroutine(DisableCursor());
@@ -180,23 +184,23 @@ namespace AF
 
                 sceneSettings.isInterior = false;
                 dayNightManager.tick = true;
-                var originalDaySpeed = Player.instance.daySpeed;
+                var originalDaySpeed = worldSettings.daySpeed;
 
-                var targetHour = Mathf.Floor(Player.instance.timeOfDay) + 1;
+                var targetHour = Mathf.Floor(worldSettings.timeOfDay) + 1;
 
                 if (targetHour > 23)
                 {
-                    Player.instance.timeOfDay = 0;
+                    worldSettings.timeOfDay = 0;
                     targetHour = 0;
                 }
 
                 yield return null;
 
-                Player.instance.daySpeed = 2;
+                worldSettings.daySpeed = 2;
 
-                yield return new WaitUntil(() => Mathf.FloorToInt(Player.instance.timeOfDay) == Mathf.FloorToInt(targetHour));
+                yield return new WaitUntil(() => Mathf.FloorToInt(worldSettings.timeOfDay) == Mathf.FloorToInt(targetHour));
 
-                Player.instance.daySpeed = originalDaySpeed;
+                worldSettings.daySpeed = originalDaySpeed;
 
                 dayNightManager.tick = dayNightManager.TimePassageAllowed();
                 sceneSettings.isInterior = isInteriorOriginal;

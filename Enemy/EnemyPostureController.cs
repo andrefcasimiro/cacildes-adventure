@@ -165,7 +165,7 @@ namespace AF
                 return enemyManager.enemy.maxPostureDamage;
             }
 
-            return Player.instance.CalculateAIPosture(enemyManager.enemy.maxPostureDamage, enemyManager.currentLevel);
+            return Formulas.CalculateAIPosture(enemyManager.enemy.maxPostureDamage, enemyManager.currentLevel);
         }
 
         public void ShowHUD()

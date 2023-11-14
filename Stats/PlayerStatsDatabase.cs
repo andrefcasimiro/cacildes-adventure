@@ -4,8 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Player Stats Database", menuName = "System/New Player Stats Database", order = 0)]
 public class PlayerStatsDatabase : ScriptableObject
 {
-
-
     [Header("Stats")]
     public int vitality = 1;
     public int endurance = 1;
@@ -14,6 +12,7 @@ public class PlayerStatsDatabase : ScriptableObject
     public int intelligence = 1;
 
     [Header("Attributes")]
+    public int currentHealth = 0;
     public float currentStamina = 0;
     public int reputation = 1;
     public int gold = 0;

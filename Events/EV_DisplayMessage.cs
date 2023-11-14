@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Video;
+using AF.Companions;
 
 namespace AF
 {
@@ -75,6 +76,7 @@ namespace AF
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public CompanionsDatabase companionsDatabase;
 
         private void Awake()
         {
@@ -151,7 +153,7 @@ namespace AF
                         //  then check if an additional companion is required
                         if (shouldAdd && switchRandomMessage.companionDependant != null)
                         {
-                            // shouldAdd = Player.instance.companions.Exists(x => x.companionId == switchRandomMessage.companionDependant.companionId);
+                            // shouldAdd = companionsDatabase.companions.Exists(x => x.companionId == switchRandomMessage.companionDependant.companionId);
                         }
 
                         if (shouldAdd)
@@ -178,23 +180,23 @@ namespace AF
 
                 }
 
-                if (shouldCheckIfAnEnemyWasKilledAndCommentOnThat && Player.instance.lastEnemyKilled != null)
+                if (shouldCheckIfAnEnemyWasKilledAndCommentOnThat && companionsDatabase.lastEnemyKilled != null)
                 {
 
-                    if (character.name == "Alcino" && Player.instance.lastEnemyKilled.alcinoCommentsUponKillingEnemy.localizedTexts.Count() > 0)
+                    if (character.name == "Alcino" && companionsDatabase.lastEnemyKilled.alcinoCommentsUponKillingEnemy.localizedTexts.Count() > 0)
                     {
-                        displayMessage = Player.instance.lastEnemyKilled.alcinoCommentsUponKillingEnemy;
+                        displayMessage = companionsDatabase.lastEnemyKilled.alcinoCommentsUponKillingEnemy;
                     }
-                    else if (character.name == "Hugo" && Player.instance.lastEnemyKilled.hugoCommentsOnKillingEnemy.localizedTexts.Count() > 0)
+                    else if (character.name == "Hugo" && companionsDatabase.lastEnemyKilled.hugoCommentsOnKillingEnemy.localizedTexts.Count() > 0)
                     {
-                        displayMessage = Player.instance.lastEnemyKilled.hugoCommentsOnKillingEnemy;
+                        displayMessage = companionsDatabase.lastEnemyKilled.hugoCommentsOnKillingEnemy;
                     }
-                    else if (character.name == "Balbino" && Player.instance.lastEnemyKilled.balbinoCommentsOnKillingEnemy.localizedTexts.Count() > 0)
+                    else if (character.name == "Balbino" && companionsDatabase.lastEnemyKilled.balbinoCommentsOnKillingEnemy.localizedTexts.Count() > 0)
                     {
-                        displayMessage = Player.instance.lastEnemyKilled.balbinoCommentsOnKillingEnemy;
+                        displayMessage = companionsDatabase.lastEnemyKilled.balbinoCommentsOnKillingEnemy;
                     }
 
-                    Player.instance.lastEnemyKilled = null;
+                    companionsDatabase.lastEnemyKilled = null;
                 }
 
                 LocalizedText messageToShow = displayMessage;

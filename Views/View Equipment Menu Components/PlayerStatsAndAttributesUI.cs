@@ -43,6 +43,7 @@ namespace AF.UI.EquipmentMenu
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public EquipmentDatabase equipmentDatabase;
 
         [HideInInspector] public bool shouldRerender = true;
 
@@ -73,13 +74,11 @@ namespace AF.UI.EquipmentMenu
 
         public void DrawStats(Item item)
         {
-            bool isEnglish = GamePreferences.instance.IsEnglish();
+            statsAndAttributesLabels[LEVEL].text = "Level " + playerStatsDatabase.GetCurrentLevel();
+            statsAndAttributesLabels[GOLD].text = "Gold " + playerStatsDatabase.gold;
 
-            statsAndAttributesLabels[LEVEL].text = (isEnglish ? "Level " : "Nível ") + playerStatsDatabase.GetCurrentLevel();
-            statsAndAttributesLabels[GOLD].text = (isEnglish ? "Gold " : "Ouro ") + Player.instance.currentGold;
-
-            int baseAttack = Player.instance.equippedWeapon != null
-                ? attackStatManager.GetWeaponAttack(Player.instance.equippedWeapon)
+            int baseAttack = equipmentDatabase.GetCurrentWeapon() != null
+                ? attackStatManager.GetWeaponAttack(equipmentDatabase.GetCurrentWeapon())
                 : attackStatManager.GetCurrentPhysicalAttack();
 
             int itemAttack = 0;
@@ -87,14 +86,14 @@ namespace AF.UI.EquipmentMenu
             {
                 itemAttack = (int)attackStatManager.GetWeaponAttack(weapon);
             }
-            else if (item is Accessory accessory && Player.instance.IsAccessoryEquiped(accessory) == false)
+            else if (item is Accessory accessory && equipmentDatabase.IsAccessoryEquiped(accessory))
             {
                 itemAttack = baseAttack + accessory.physicalAttackBonus;
             }
 
             UpdateStatLabel(
                 statsAndAttributesLabels[ATTACK],
-                isEnglish ? "Attack " : "Ataque ",
+                "Attack ",
                 baseAttack,
                 itemAttack);
 
@@ -132,7 +131,7 @@ namespace AF.UI.EquipmentMenu
             if (item is ArmorBase armorBase)
             {
                 // EDGE CASDE: If is not accessory that is already equipped
-                if ((armorBase is Accessory acc && Player.instance.IsAccessoryEquiped(acc)) == false)
+                if (armorBase is Accessory acc && equipmentDatabase.IsAccessoryEquiped(acc) == false)
                 {
                     itemPhysicalDefense = GetElementalDefenseFromItem(armorBase, WeaponElementType.None);
                     itemFireDefense = GetElementalDefenseFromItem(armorBase, WeaponElementType.Fire);
@@ -163,43 +162,43 @@ namespace AF.UI.EquipmentMenu
 
             UpdateStatLabel(
                 statsAndAttributesLabels[VITALITY],
-                isEnglish ? "Vitality " : "Vitalidade ",
+                "Vitality ",
                 baseVitality,
                 vitalityFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[ENDURANCE],
-                isEnglish ? "Endurance " : "Resistência ",
+                "Endurance ",
                 baseEndurance,
                 enduranceFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[STRENGTH],
-                isEnglish ? "Strength " : "Força ",
+                "Strength ",
                 baseStrength,
                 strengthFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[DEXTERITY],
-                isEnglish ? "Dexterity " : "Destreza ",
+                "Dexterity ",
                 baseDexterity,
                 dexterityFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[INTELLIGENCE],
-                isEnglish ? "Intelligence " : "Inteligência ",
+                "Intelligence ",
                 baseIntelligence,
                 intelligenceFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[REPUTATION],
-                isEnglish ? "Reputation " : "Reputação ",
+                "Reputation ",
                 baseReputation,
                 reputationFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[DEFENSE],
-                isEnglish ? "Defense " : "Defesa ",
+                "Defense ",
                 basePhysicalDefense,
                 itemPhysicalDefense);
 
@@ -225,13 +224,13 @@ namespace AF.UI.EquipmentMenu
 
             UpdateStatLabel(
                 statsAndAttributesLabels[POISE],
-                isEnglish ? "Poise " : "Postura ",
+                "Poise ",
                 basePoise,
                 itemPoise);
 
             UpdateEquipLoadStatLabel(
                 statsAndAttributesLabels[EQUIP_LOAD],
-                isEnglish ? "Weight Load " : "Peso ",
+                "Weight Load ",
                 baseEquipLoad,
                 itemEquipLoad);
         }
@@ -301,15 +300,15 @@ namespace AF.UI.EquipmentMenu
             {
                 if (equipmentGraphicsHandler.IsLightWeightForGivenValue(rightValue))
                 {
-                    suffix = GamePreferences.instance.IsEnglish() ? " (Light)" : " (Leve)";
+                    suffix = " (Light)";
                 }
                 else if (equipmentGraphicsHandler.IsMidWeightForGivenValue(rightValue))
                 {
-                    suffix = GamePreferences.instance.IsEnglish() ? " (Medium)" : " (Médio)";
+                    suffix = " (Medium)";
                 }
                 else if (equipmentGraphicsHandler.IsHeavyWeightForGivenValue(rightValue))
                 {
-                    suffix = GamePreferences.instance.IsEnglish() ? " (Heavy)" : " (Pesado)";
+                    suffix = " (Heavy)";
                 }
 
                 label.text += Math.Round(rightValue * 100, 2) + "%" + suffix;
@@ -329,15 +328,15 @@ namespace AF.UI.EquipmentMenu
 
             if (equipmentGraphicsHandler.IsLightWeightForGivenValue(leftValue))
             {
-                suffix = GamePreferences.instance.IsEnglish() ? " (Light)" : " (Leve)";
+                suffix = " (Light)";
             }
             else if (equipmentGraphicsHandler.IsMidWeightForGivenValue(leftValue))
             {
-                suffix = GamePreferences.instance.IsEnglish() ? " (Medium)" : " (Médio)";
+                suffix = " (Medium)";
             }
             else if (equipmentGraphicsHandler.IsHeavyWeightForGivenValue(leftValue))
             {
-                suffix = GamePreferences.instance.IsEnglish() ? " (Heavy)" : " (Pesado)";
+                suffix = " (Heavy)";
             }
 
             label.text += Math.Round(leftValue * 100, 2) + "%" + suffix;
@@ -350,10 +349,10 @@ namespace AF.UI.EquipmentMenu
 
             Dictionary<string, Dictionary<WeaponElementType, int>> equippedItemsDictionary = new()
             {
-                { "AF.Helmet", CreateDefenseDictionary(Player.instance.equippedHelmet) },
-                { "AF.Armor", CreateDefenseDictionary(Player.instance.equippedArmor) },
-                { "AF.Gauntlet", CreateDefenseDictionary(Player.instance.equippedGauntlets) },
-                { "AF.Legwear", CreateDefenseDictionary(Player.instance.equippedLegwear) },
+                { "AF.Helmet", CreateDefenseDictionary(equipmentDatabase.helmet) },
+                { "AF.Armor", CreateDefenseDictionary(equipmentDatabase.armor) },
+                { "AF.Gauntlet", CreateDefenseDictionary(equipmentDatabase.gauntlet) },
+                { "AF.Legwear", CreateDefenseDictionary(equipmentDatabase.legwear) },
                 { "AF.Accessory", CreateDefenseDictionary(null) }
             };
 
@@ -426,7 +425,7 @@ namespace AF.UI.EquipmentMenu
             var currentPoise = playerPoiseController.GetMaxPoise();
             if (armorBase is Helmet helmet)
             {
-                var poiseFromEquippedItem = Player.instance.equippedHelmet != null ? Player.instance.equippedHelmet.poiseBonus : 0;
+                var poiseFromEquippedItem = equipmentDatabase.helmet != null ? equipmentDatabase.helmet.poiseBonus : 0;
                 currentPoise -= poiseFromEquippedItem;
                 if (currentPoise < 0) currentPoise = 0;
 
@@ -435,7 +434,7 @@ namespace AF.UI.EquipmentMenu
 
             if (armorBase is Armor armor)
             {
-                var poiseFromEquippedItem = Player.instance.equippedArmor != null ? Player.instance.equippedArmor.poiseBonus : 0;
+                var poiseFromEquippedItem = equipmentDatabase.armor != null ? equipmentDatabase.armor.poiseBonus : 0;
                 currentPoise -= poiseFromEquippedItem;
                 if (currentPoise < 0) currentPoise = 0;
 
@@ -444,7 +443,7 @@ namespace AF.UI.EquipmentMenu
 
             if (armorBase is Gauntlet gauntlet)
             {
-                var poiseFromEquippedItem = Player.instance.equippedGauntlets != null ? Player.instance.equippedGauntlets.poiseBonus : 0;
+                var poiseFromEquippedItem = equipmentDatabase.gauntlet != null ? equipmentDatabase.gauntlet.poiseBonus : 0;
                 currentPoise -= poiseFromEquippedItem;
                 if (currentPoise < 0) currentPoise = 0;
 
@@ -453,7 +452,7 @@ namespace AF.UI.EquipmentMenu
 
             if (armorBase is Legwear legwear)
             {
-                var poiseFromEquippedItem = Player.instance.equippedLegwear != null ? Player.instance.equippedLegwear.poiseBonus : 0;
+                var poiseFromEquippedItem = equipmentDatabase.legwear != null ? equipmentDatabase.legwear.poiseBonus : 0;
                 currentPoise -= poiseFromEquippedItem;
                 if (currentPoise < 0) currentPoise = 0;
 
@@ -463,7 +462,7 @@ namespace AF.UI.EquipmentMenu
             if (armorBase is Accessory accessory)
             {
                 var poiseBonus = 0;
-                if (Player.instance.IsAccessoryEquiped(accessory) == false)
+                if (equipmentDatabase.IsAccessoryEquiped(accessory) == false)
                 {
                     poiseBonus = accessory.poiseBonus;
                 }
@@ -481,7 +480,7 @@ namespace AF.UI.EquipmentMenu
 
             if (armorBase is Weapon wp)
             {
-                var speedPenaltyFromItem = Player.instance.equippedWeapon != null ? Player.instance.equippedWeapon.speedPenalty : 0;
+                var speedPenaltyFromItem = equipmentDatabase.GetCurrentWeapon() != null ? equipmentDatabase.GetCurrentWeapon().speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
                 if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
 
@@ -489,7 +488,7 @@ namespace AF.UI.EquipmentMenu
             }
             else if (armorBase is Shield shield)
             {
-                var speedPenaltyFromItem = Player.instance.equippedShield != null ? Player.instance.equippedShield.speedPenalty : 0;
+                var speedPenaltyFromItem = equipmentDatabase.GetCurrentShield() != null ? equipmentDatabase.GetCurrentShield().speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
                 if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
 
@@ -497,7 +496,7 @@ namespace AF.UI.EquipmentMenu
             }
             else if (armorBase is Helmet helmet)
             {
-                var speedPenaltyFromItem = Player.instance.equippedHelmet != null ? Player.instance.equippedHelmet.speedPenalty : 0;
+                var speedPenaltyFromItem = equipmentDatabase.helmet != null ? equipmentDatabase.helmet.speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
                 if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
 
@@ -505,7 +504,7 @@ namespace AF.UI.EquipmentMenu
             }
             else if (armorBase is Armor armorItem)
             {
-                var speedPenaltyFromItem = Player.instance.equippedArmor != null ? Player.instance.equippedArmor.speedPenalty : 0;
+                var speedPenaltyFromItem = equipmentDatabase.armor != null ? equipmentDatabase.armor.speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
                 if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
 
@@ -513,7 +512,7 @@ namespace AF.UI.EquipmentMenu
             }
             else if (armorBase is Gauntlet gauntlet)
             {
-                var speedPenaltyFromItem = Player.instance.equippedGauntlets != null ? Player.instance.equippedGauntlets.speedPenalty : 0;
+                var speedPenaltyFromItem = equipmentDatabase.gauntlet != null ? equipmentDatabase.gauntlet.speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
                 if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
 
@@ -521,7 +520,7 @@ namespace AF.UI.EquipmentMenu
             }
             else if (armorBase is Legwear legwear)
             {
-                var speedPenaltyFromItem = Player.instance.equippedLegwear != null ? Player.instance.equippedLegwear.speedPenalty : 0;
+                var speedPenaltyFromItem = equipmentDatabase.legwear != null ? equipmentDatabase.legwear.speedPenalty : 0;
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
                 if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
 
@@ -529,7 +528,7 @@ namespace AF.UI.EquipmentMenu
             }
             else if (armorBase is Accessory acc)
             {
-                var speedPenaltyFromItem = Player.instance.equippedAccessories.Count > 0 ? Player.instance.equippedAccessories.Sum(x => x.speedPenalty) : 0;
+                var speedPenaltyFromItem = equipmentDatabase.accessories.Sum(x => x != null ? x.speedPenalty : 0);
 
                 currentWeightPenalty += speedPenaltyFromItem * -1f;
                 if (currentWeightPenalty <= 0) currentWeightPenalty = 0;
@@ -580,59 +579,63 @@ namespace AF.UI.EquipmentMenu
             int valueFromCurrentEquipment = 0;
             if (armorBase is Helmet)
             {
-                if (Player.instance.equippedHelmet != null)
+                if (equipmentDatabase.helmet != null)
                 {
+                    Helmet equippedHelmet = equipmentDatabase.helmet;
 
-                    if (attributeType == AttributeType.VITALITY) { valueFromCurrentEquipment = Player.instance.equippedHelmet.vitalityBonus; }
-                    else if (attributeType == AttributeType.ENDURANCE) { valueFromCurrentEquipment = Player.instance.equippedHelmet.enduranceBonus; }
-                    else if (attributeType == AttributeType.STRENGTH) { valueFromCurrentEquipment = Player.instance.equippedHelmet.strengthBonus; }
-                    else if (attributeType == AttributeType.DEXTERITY) { valueFromCurrentEquipment = Player.instance.equippedHelmet.dexterityBonus; }
-                    else if (attributeType == AttributeType.REPUTATION) { valueFromCurrentEquipment = Player.instance.equippedHelmet.reputationBonus; }
-                    else if (attributeType == AttributeType.INTELLIGENCE) { valueFromCurrentEquipment = Player.instance.equippedHelmet.intelligenceBonus; }
+                    if (attributeType == AttributeType.VITALITY) { valueFromCurrentEquipment = equippedHelmet.vitalityBonus; }
+                    else if (attributeType == AttributeType.ENDURANCE) { valueFromCurrentEquipment = equippedHelmet.enduranceBonus; }
+                    else if (attributeType == AttributeType.STRENGTH) { valueFromCurrentEquipment = equippedHelmet.strengthBonus; }
+                    else if (attributeType == AttributeType.DEXTERITY) { valueFromCurrentEquipment = equippedHelmet.dexterityBonus; }
+                    else if (attributeType == AttributeType.REPUTATION) { valueFromCurrentEquipment = equippedHelmet.reputationBonus; }
+                    else if (attributeType == AttributeType.INTELLIGENCE) { valueFromCurrentEquipment = equippedHelmet.intelligenceBonus; }
                 }
             }
             else if (armorBase is Armor)
             {
-                if (Player.instance.equippedArmor != null)
+                if (equipmentDatabase.armor != null)
                 {
+                    Armor equippedArmor = equipmentDatabase.armor;
 
-                    if (attributeType == AttributeType.VITALITY) { valueFromCurrentEquipment = Player.instance.equippedArmor.vitalityBonus; }
-                    else if (attributeType == AttributeType.ENDURANCE) { valueFromCurrentEquipment = Player.instance.equippedArmor.enduranceBonus; }
-                    else if (attributeType == AttributeType.STRENGTH) { valueFromCurrentEquipment = Player.instance.equippedArmor.strengthBonus; }
-                    else if (attributeType == AttributeType.DEXTERITY) { valueFromCurrentEquipment = Player.instance.equippedArmor.dexterityBonus; }
-                    else if (attributeType == AttributeType.REPUTATION) { valueFromCurrentEquipment = Player.instance.equippedArmor.reputationBonus; }
-                    else if (attributeType == AttributeType.INTELLIGENCE) { valueFromCurrentEquipment = Player.instance.equippedArmor.intelligenceBonus; }
+                    if (attributeType == AttributeType.VITALITY) { valueFromCurrentEquipment = equippedArmor.vitalityBonus; }
+                    else if (attributeType == AttributeType.ENDURANCE) { valueFromCurrentEquipment = equippedArmor.enduranceBonus; }
+                    else if (attributeType == AttributeType.STRENGTH) { valueFromCurrentEquipment = equippedArmor.strengthBonus; }
+                    else if (attributeType == AttributeType.DEXTERITY) { valueFromCurrentEquipment = equippedArmor.dexterityBonus; }
+                    else if (attributeType == AttributeType.REPUTATION) { valueFromCurrentEquipment = equippedArmor.reputationBonus; }
+                    else if (attributeType == AttributeType.INTELLIGENCE) { valueFromCurrentEquipment = equippedArmor.intelligenceBonus; }
                 }
             }
             else if (armorBase is Gauntlet)
             {
-                if (Player.instance.equippedGauntlets != null)
+                if (equipmentDatabase.gauntlet != null)
                 {
+                    Gauntlet equippedGauntlet = equipmentDatabase.gauntlet;
 
-                    if (attributeType == AttributeType.VITALITY) { valueFromCurrentEquipment = Player.instance.equippedGauntlets.vitalityBonus; }
-                    else if (attributeType == AttributeType.ENDURANCE) { valueFromCurrentEquipment = Player.instance.equippedGauntlets.enduranceBonus; }
-                    else if (attributeType == AttributeType.STRENGTH) { valueFromCurrentEquipment = Player.instance.equippedGauntlets.strengthBonus; }
-                    else if (attributeType == AttributeType.DEXTERITY) { valueFromCurrentEquipment = Player.instance.equippedGauntlets.dexterityBonus; }
-                    else if (attributeType == AttributeType.REPUTATION) { valueFromCurrentEquipment = Player.instance.equippedGauntlets.reputationBonus; }
-                    else if (attributeType == AttributeType.INTELLIGENCE) { valueFromCurrentEquipment = Player.instance.equippedGauntlets.intelligenceBonus; }
+                    if (attributeType == AttributeType.VITALITY) { valueFromCurrentEquipment = equippedGauntlet.vitalityBonus; }
+                    else if (attributeType == AttributeType.ENDURANCE) { valueFromCurrentEquipment = equippedGauntlet.enduranceBonus; }
+                    else if (attributeType == AttributeType.STRENGTH) { valueFromCurrentEquipment = equippedGauntlet.strengthBonus; }
+                    else if (attributeType == AttributeType.DEXTERITY) { valueFromCurrentEquipment = equippedGauntlet.dexterityBonus; }
+                    else if (attributeType == AttributeType.REPUTATION) { valueFromCurrentEquipment = equippedGauntlet.reputationBonus; }
+                    else if (attributeType == AttributeType.INTELLIGENCE) { valueFromCurrentEquipment = equippedGauntlet.intelligenceBonus; }
                 }
             }
             else if (armorBase is Legwear)
             {
-                if (Player.instance.equippedLegwear != null)
+                if (equipmentDatabase.legwear != null)
                 {
+                    Legwear equippedLegwear = equipmentDatabase.legwear;
 
-                    if (attributeType == AttributeType.VITALITY) { valueFromCurrentEquipment = Player.instance.equippedLegwear.vitalityBonus; }
-                    else if (attributeType == AttributeType.ENDURANCE) { valueFromCurrentEquipment = Player.instance.equippedLegwear.enduranceBonus; }
-                    else if (attributeType == AttributeType.STRENGTH) { valueFromCurrentEquipment = Player.instance.equippedLegwear.strengthBonus; }
-                    else if (attributeType == AttributeType.DEXTERITY) { valueFromCurrentEquipment = Player.instance.equippedLegwear.dexterityBonus; }
-                    else if (attributeType == AttributeType.REPUTATION) { valueFromCurrentEquipment = Player.instance.equippedLegwear.reputationBonus; }
-                    else if (attributeType == AttributeType.INTELLIGENCE) { valueFromCurrentEquipment = Player.instance.equippedLegwear.intelligenceBonus; }
+                    if (attributeType == AttributeType.VITALITY) { valueFromCurrentEquipment = equippedLegwear.vitalityBonus; }
+                    else if (attributeType == AttributeType.ENDURANCE) { valueFromCurrentEquipment = equippedLegwear.enduranceBonus; }
+                    else if (attributeType == AttributeType.STRENGTH) { valueFromCurrentEquipment = equippedLegwear.strengthBonus; }
+                    else if (attributeType == AttributeType.DEXTERITY) { valueFromCurrentEquipment = equippedLegwear.dexterityBonus; }
+                    else if (attributeType == AttributeType.REPUTATION) { valueFromCurrentEquipment = equippedLegwear.reputationBonus; }
+                    else if (attributeType == AttributeType.INTELLIGENCE) { valueFromCurrentEquipment = equippedLegwear.intelligenceBonus; }
                 }
             }
             else if (armorBase is Accessory accessory)
             {
-                if (Player.instance.IsAccessoryEquiped(accessory))
+                if (equipmentDatabase.IsAccessoryEquiped(accessory))
                 {
                     bonusFromEquipment = 0;
                 }

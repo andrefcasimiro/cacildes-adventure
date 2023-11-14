@@ -14,6 +14,8 @@ namespace AF
         public GameObject bed;
 
         EnemyManager enemyManager => GetComponent<EnemyManager>();
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         // Start is called before the first frame update
         void Start()
@@ -56,11 +58,11 @@ namespace AF
             // If appear until is after midnight, it may become smaller than appearFrom (i. e. appear from 17 until 4)
             if (sleepFrom > sleepUntil)
             {
-                shouldSleep = Player.instance.timeOfDay >= sleepFrom && Player.instance.timeOfDay <= 24 || (Player.instance.timeOfDay >= 0 && Player.instance.timeOfDay <= sleepUntil);
+                shouldSleep = worldSettings.timeOfDay >= sleepFrom && worldSettings.timeOfDay <= 24 || (worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay <= sleepUntil);
             }
             else
             {
-                shouldSleep = Player.instance.timeOfDay >= sleepFrom && Player.instance.timeOfDay <= sleepUntil;
+                shouldSleep = worldSettings.timeOfDay >= sleepFrom && worldSettings.timeOfDay <= sleepUntil;
             }
 
             if (shouldSleep)
@@ -98,7 +100,7 @@ namespace AF
             isSleeping = false;
             enemyManager.animator.SetBool(enemyManager.hashIsSleeping, false);
             enemyManager.agent.isStopped = false;
-            
+
             if (bed != null)
             {
                 bed.SetActive(false);

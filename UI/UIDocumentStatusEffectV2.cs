@@ -18,6 +18,9 @@ namespace AF
         UIDocument uiDocument => GetComponent<UIDocument>();
         VisualElement root;
 
+        [Header("Databases")]
+        public StatusDatabase statusDatabase;
+
         // Start is called before the first frame update
         void Awake()
         {
@@ -36,12 +39,12 @@ namespace AF
             ClearAllConsumableEntries();
 
             defenseStatManager = FindObjectOfType<DefenseStatManager>(true);
-            foreach (var negativeStatus in Player.instance.appliedStatus)
+            foreach (var negativeStatus in statusDatabase.appliedStatus)
             {
                 AddNegativeStatusEntry(negativeStatus.statusEffect, defenseStatManager.GetMaximumStatusResistanceBeforeSufferingStatusEffect(negativeStatus.statusEffect));
             }
 
-            foreach (var consumable in Player.instance.appliedConsumables)
+            foreach (var consumable in statusDatabase.appliedConsumables)
             {
                 AddConsumableEntry(consumable.consumableEffect);
             }
@@ -89,7 +92,7 @@ namespace AF
 
         void HandleNegativeStatusEffects(VisualElement statusEntry)
         {
-            var appliedStatus = Player.instance.appliedStatus.Find(x => x.statusEffect.name.GetEnglishText() == statusEntry.viewDataKey);
+            var appliedStatus = statusDatabase.appliedStatus.Find(x => x.statusEffect.name.GetEnglishText() == statusEntry.viewDataKey);
 
             float percentage = appliedStatus.currentAmount * 100 / statusEntry.Q<VisualElement>("Bar").style.width.value.value; //100px is the width of the status bar
 
@@ -146,7 +149,7 @@ namespace AF
 
         void HandleConsumableEffects(VisualElement statusEntry)
         {
-            var appliedConsumable = Player.instance.appliedConsumables.Find(x => x.consumableEffect.consumablePropertyName.ToString() == statusEntry.viewDataKey);
+            var appliedConsumable = statusDatabase.appliedConsumables.Find(x => x.consumableEffect.consumablePropertyName.ToString() == statusEntry.viewDataKey);
 
             statusEntry.Q<VisualElement>("Bar").style.width = appliedConsumable.currentDuration;
 

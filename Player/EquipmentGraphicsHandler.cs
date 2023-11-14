@@ -311,36 +311,7 @@ namespace AF
         #endregion
 
         #region Accessories
-        public bool CanEquipMoreAccessories()
-        {
-            return BASE_NUMBER_OF_ACCESSORIES_THAT_CAN_EQUIP + GetExtraAccessorySlots() <= Player.instance.equippedAccessories.Count;
-        }
 
-        public int GetExtraAccessorySlots()
-        {
-            int extraSlotsCount = 0;
-
-            foreach (var extraAccessorySlot in extraAccessorySlots)
-            {
-                bool conditionsMet = true;
-
-                foreach (var requiredSwitch in extraAccessorySlot.requiredSwitches)
-                {
-                    if (!SwitchManager.instance.GetSwitchCurrentValue(requiredSwitch))
-                    {
-                        conditionsMet = false;
-                        break;
-                    }
-                }
-
-                if (conditionsMet)
-                {
-                    extraSlotsCount++;
-                }
-            }
-
-            return extraSlotsCount;
-        }
 
         public void EquipAccessory(Accessory accessoryToEquip, int slotIndex)
         {

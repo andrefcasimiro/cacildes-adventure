@@ -108,24 +108,18 @@ namespace AF
 
         }
 
-        public virtual void OnConsumeSuccess()
+        public virtual void OnConsumeSuccess(PlayerInventory playerInventory, StatusDatabase statusDatabase)
         {
-            PlayerInventory playerInventory = FindObjectOfType<PlayerInventory>(true);
-
-            if (Player.instance.currentHealth <= 0)
-            {
-                return;
-            }
 
             if (shouldNotRemoveOnUse == false)
             {
                 playerInventory.RemoveItem(this, 1);
             }
 
-            StartEffectOnPlayer();
+            StartEffectOnPlayer(statusDatabase);
         }
 
-        public void StartEffectOnPlayer()
+        public void StartEffectOnPlayer(StatusDatabase statusDatabase)
         {
 
             if (restoreHealth)
@@ -133,11 +127,11 @@ namespace AF
                 var healthStatManager = FindObjectOfType<HealthStatManager>(true);
                 if (restoreHealthInPercentage)
                 {
-                    healthStatManager.RestoreHealthPercentage(amountOfHealthToRestore);
+                    healthStatManager.RestoreHealthPercentage((int)amountOfHealthToRestore);
                 }
                 else
                 {
-                    healthStatManager.RestoreHealthPoints(amountOfHealthToRestore);
+                    healthStatManager.RestoreHealthPoints((int)amountOfHealthToRestore);
                 }
             }
 
@@ -156,7 +150,7 @@ namespace AF
 
             if (removeNegativeStatus)
             {
-                FindObjectOfType<PlayerStatusManager>(true).RemoveAppliedStatus(Player.instance.appliedStatus.Find(x => x.statusEffect == statusToRemove));
+                FindObjectOfType<PlayerStatusManager>(true).RemoveAppliedStatus(statusDatabase.appliedStatus.Find(x => x.statusEffect == statusToRemove));
             }
 
             if (applyNegativeStatus)
@@ -179,11 +173,11 @@ namespace AF
 
 
                 // Remove any applied consumable that contains one the consumable effects of this consumable
-                var idx = Player.instance.appliedConsumables.FindIndex(appliedConsumable => appliedConsumable.consumableEffect.consumablePropertyName == consumableEffect.consumablePropertyName);
+                var idx = statusDatabase.appliedConsumables.FindIndex(appliedConsumable => appliedConsumable.consumableEffect.consumablePropertyName == consumableEffect.consumablePropertyName);
 
                 if (idx != -1)
                 {
-                    playerConsumablesManager.RemoveConsumable(Player.instance.appliedConsumables[idx]);
+                    playerConsumablesManager.RemoveConsumable(statusDatabase.appliedConsumables[idx]);
                 }
 
                 // Is it a instant effect?

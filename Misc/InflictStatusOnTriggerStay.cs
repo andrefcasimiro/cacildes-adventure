@@ -13,6 +13,9 @@ namespace AF
 
         PlayerStatusManager playerStatusManager;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         private void Awake()
         {
             playerStatusManager = FindObjectOfType<PlayerStatusManager>(true);
@@ -24,7 +27,7 @@ namespace AF
             {
                 if (other.CompareTag("Player"))
                 {
-                    if (Player.instance.currentHealth <= 0)
+                    if (playerStatsDatabase.currentHealth <= 0)
                     {
                         return;
                     }

@@ -8,6 +8,8 @@ namespace AF
 
     public class ComplexTimedObject : MonoBehaviour, IClockListener, ISaveable
     {
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         DawnTrigger[] dawnTriggers;
         DayTrigger[] dayTriggers;
@@ -28,7 +30,7 @@ namespace AF
 
         public void OnHourChanged()
         {
-            if (Player.instance.timeOfDay >= 7 && Player.instance.timeOfDay < 18f)
+            if (worldSettings.timeOfDay >= 7 && worldSettings.timeOfDay < 18f)
             {
                 foreach (var trigger in dawnTriggers)
                 {
@@ -51,7 +53,7 @@ namespace AF
                     trigger.gameObject.SetActive(false);
                 }
             }
-            else if (Player.instance.timeOfDay >= 18f && Player.instance.timeOfDay < 20)
+            else if (worldSettings.timeOfDay >= 18f && worldSettings.timeOfDay < 20)
             {
                 foreach (var trigger in dawnTriggers)
                 {
@@ -74,7 +76,7 @@ namespace AF
                     trigger.gameObject.SetActive(false);
                 }
             }
-            else if (Player.instance.timeOfDay >= 20 && Player.instance.timeOfDay < 22)
+            else if (worldSettings.timeOfDay >= 20 && worldSettings.timeOfDay < 22)
             {
                 foreach (var trigger in dawnTriggers)
                 {
@@ -97,7 +99,7 @@ namespace AF
                     trigger.gameObject.SetActive(false);
                 }
             }
-            else if (Player.instance.timeOfDay >= 22 && Player.instance.timeOfDay <= 24 || Player.instance.timeOfDay >= 0 && Player.instance.timeOfDay < 5)
+            else if (worldSettings.timeOfDay >= 22 && worldSettings.timeOfDay <= 24 || worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay < 5)
             {
                 foreach (var trigger in dawnTriggers)
                 {
@@ -120,7 +122,7 @@ namespace AF
                     trigger.gameObject.SetActive(true);
                 }
             }
-            else if (Player.instance.timeOfDay >= 5 && Player.instance.timeOfDay < 7)
+            else if (worldSettings.timeOfDay >= 5 && worldSettings.timeOfDay < 7)
             {
                 foreach (var trigger in dawnTriggers)
                 {

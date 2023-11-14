@@ -42,19 +42,6 @@ namespace AF
                 }
             }
 
-            if (deactivateIfIsDemo && Player.instance.isDemo)
-            {
-                if (dialogueManager == null)
-                {
-                    dialogueManager = FindAnyObjectByType<DialogueManager>(FindObjectsInactive.Include);
-                }
-
-                yield return dialogueManager.ShowDialogueWithChoices(
-                    null, demoLocalizedText, new List<DialogueChoice>(), 0.05f, false, null, null);
-
-                yield break;
-            }
-
             if (skip == false)
             {
                 yield return StartCoroutine(Teleport());
@@ -63,7 +50,7 @@ namespace AF
 
         private IEnumerator Teleport()
         {
-            if (audioClip != null && audioSource  != null)
+            if (audioClip != null && audioSource != null)
             {
                 audioSource.PlayOneShot(audioClip);
             }

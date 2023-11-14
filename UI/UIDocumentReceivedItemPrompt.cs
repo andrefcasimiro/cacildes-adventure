@@ -1,9 +1,8 @@
-﻿using System.Collections;
+﻿
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
-using System.Linq;
 using UnityEngine.Events;
 
 namespace AF
@@ -70,39 +69,6 @@ namespace AF
                 rootPanel.Add(clone);
 
             }
-
-            root.Q<VisualElement>("AddToFavoriteItems").style.display = DisplayStyle.None;
-
-            if (itemsUI.Count == 1)
-            {
-                var idx = Player.instance.favoriteItems.FindIndex(favItem => favItem.name.GetText() == itemsUI.ElementAt(0).itemName);
-                if (idx == -1)
-                {
-                    var itemInstance = Player.instance.ownedItems.FirstOrDefault(x => x.item.name.GetText() == itemsUI[0].itemName);
-
-                    if (itemInstance != null)
-                    {
-                        var consumable = itemInstance.item as Consumable;
-                        if (consumable != null && Gamepad.current == null)
-                        {
-
-                            if (GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.PORTUGUESE)
-                            {
-                                root.Q<VisualElement>("AddToFavoriteItems").Q<Label>("AddToFavoriteItemsLabel").text = "Adicionar aos favoritos";
-                            }
-                            else
-                            {
-                                root.Q<VisualElement>("AddToFavoriteItems").Q<Label>("AddToFavoriteItemsLabel").text = "Add to Favorite Items";
-                            }
-
-                            root.Q<VisualElement>("AddToFavoriteItems").style.display = DisplayStyle.Flex;
-
-                        }
-                    }
-
-                }
-
-            }
         }
 
         private void OnDisable()
@@ -128,36 +94,6 @@ namespace AF
 
                 BGMManager.instance.PlaySound(onConfirmSfx, null);
                 this.gameObject.SetActive(false);
-            }
-
-            if (inputs.dodge || Input.GetKeyDown(KeyCode.F))
-            {
-                inputs.dodge = false;
-
-                if (itemsUI.Count == 1)
-                {
-                    var idx = Player.instance.favoriteItems.FindIndex(favItem => favItem.name.GetText() == itemsUI.ElementAt(0).itemName);
-                    if (idx == -1)
-                    {
-                        var itemInstance = Player.instance.ownedItems.FirstOrDefault(x => x.item.name.GetText() == itemsUI[0].itemName);
-
-
-                        if (itemInstance != null)
-                        {
-                            var consumable = itemInstance.item as Consumable;
-
-                            if (consumable != null)
-                            {
-                                FindObjectOfType<FavoriteItemsManager>(true).AddFavoriteItemToList(itemInstance.item, 0);
-                                FindObjectOfType<FavoriteItemsManager>(true).SwitchToFavoriteItem(itemInstance.item.name.GetText());
-                            }
-                        }
-
-                        BGMManager.instance.PlaySound(onConfirmSfx, null);
-                        this.gameObject.SetActive(false);
-                    }
-
-                }
             }
         }
 

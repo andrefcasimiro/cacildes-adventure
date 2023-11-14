@@ -13,6 +13,9 @@ namespace AF
 
         public object lostCoins;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+
         private void Awake()
         {
             if (instance != null && instance != this)
@@ -89,7 +92,7 @@ namespace AF
         {
             FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGold(amount);
 
-            Player.instance.currentGold += amount;
+            playerStatsDatabase.gold += amount;
 
             this.lostCoins = null;
         }

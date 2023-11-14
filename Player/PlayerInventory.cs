@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AF.Inventory;
 using UnityEngine;
 
 namespace AF
@@ -43,6 +44,11 @@ namespace AF
         [Header("Components")]
         public PlayerAchievementsManager playerAchievementsManager;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+        public InventoryDatabase inventoryDatabase;
+        public StatusDatabase statusDatabase;
+
         private void Awake()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
@@ -52,25 +58,25 @@ namespace AF
 
         public void ReplenishItems()
         {
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 if (item.usages > 0)
                 {
-                    var idx = Player.instance.ownedItems.IndexOf(item);
+                    var idx = inventoryDatabase.ownedItems.IndexOf(item);
 
-                    Player.instance.ownedItems[idx].amount += item.usages;
-                    Player.instance.ownedItems[idx].usages = 0;
+                    inventoryDatabase.ownedItems[idx].amount += item.usages;
+                    inventoryDatabase.ownedItems[idx].usages = 0;
                 }
             }
 
-            favoriteItemsManager.UpdateFavoriteItems();
+            // favoriteItemsManager.UpdateFavoriteItems();
         }
 
         void HandleItemAchievements(Item item)
         {
             if (item is Weapon)
             {
-                int numberOfWeapons = Player.instance.ownedItems.Count(x => x.item is Weapon);
+                int numberOfWeapons = inventoryDatabase.ownedItems.Count(x => x.item is Weapon);
 
                 if (numberOfWeapons <= 0)
                 {
@@ -83,7 +89,7 @@ namespace AF
             }
             else if (item is Spell)
             {
-                int numberOfSpells = Player.instance.ownedItems.Count(x => x.item is Spell);
+                int numberOfSpells = inventoryDatabase.ownedItems.Count(x => x.item is Spell);
 
                 if (numberOfSpells <= 0)
                 {
@@ -96,20 +102,20 @@ namespace AF
         {
             HandleItemAchievements(item);
 
-            Player.ItemEntry itemEntry = new()
+            ItemEntry itemEntry = new()
             {
                 item = item,
                 amount = quantity
             };
 
-            var idx = Player.instance.ownedItems.FindIndex(x => x.item.name.GetEnglishText() == item.name.GetEnglishText());
+            var idx = inventoryDatabase.ownedItems.FindIndex(x => x.item.name.GetEnglishText() == item.name.GetEnglishText());
             if (idx != -1)
             {
-                Player.instance.ownedItems[idx].amount += itemEntry.amount;
+                inventoryDatabase.ownedItems[idx].amount += itemEntry.amount;
             }
             else
             {
-                Player.instance.ownedItems.Add(itemEntry);
+                inventoryDatabase.ownedItems.Add(itemEntry);
             }
 
             FindObjectOfType<UIDocumentPlayerHUDV2>(true).UpdateFavoriteItems();
@@ -117,46 +123,34 @@ namespace AF
 
         public void RemoveItem(Item item, int amount)
         {
-            int itemEntryIndex = Player.instance.ownedItems.FindIndex(_itemEntry => _itemEntry.item.name.GetEnglishText() == item.name.GetEnglishText());
+            int itemEntryIndex = inventoryDatabase.ownedItems.FindIndex(_itemEntry => _itemEntry.item.name.GetEnglishText() == item.name.GetEnglishText());
 
             if (itemEntryIndex == -1)
             {
                 return;
             }
 
-            if (Player.instance.ownedItems[itemEntryIndex].amount <= 1)
+            if (inventoryDatabase.ownedItems[itemEntryIndex].amount <= 1)
             {
                 // If not reusable item
                 if (item.lostUponUse)
                 {
                     // Remove item 
-                    Player.instance.ownedItems.RemoveAt(itemEntryIndex);
-
-                    // Remove item from favorite
-                    var idxOfThisItemInFavorites = Player.instance.favoriteItems.IndexOf(item);
-                    if (idxOfThisItemInFavorites != -1)
-                    {
-                        Player.instance.favoriteItems.Remove(item);
-
-                        if (idxOfThisItemInFavorites == 0)
-                        {
-                            favoriteItemsManager.SwitchFavoriteItemsOrder(1);
-                        }
-                    }
+                    inventoryDatabase.ownedItems.RemoveAt(itemEntryIndex);
                 }
                 else
                 {
-                    Player.instance.ownedItems[itemEntryIndex].amount = 0;
-                    Player.instance.ownedItems[itemEntryIndex].usages++;
+                    inventoryDatabase.ownedItems[itemEntryIndex].amount = 0;
+                    inventoryDatabase.ownedItems[itemEntryIndex].usages++;
                 }
             }
             else
             {
-                Player.instance.ownedItems[itemEntryIndex].amount -= amount;
+                inventoryDatabase.ownedItems[itemEntryIndex].amount -= amount;
 
                 if (item.lostUponUse == false)
                 {
-                    Player.instance.ownedItems[itemEntryIndex].usages++;
+                    inventoryDatabase.ownedItems[itemEntryIndex].usages++;
                 }
 
             }
@@ -166,7 +160,7 @@ namespace AF
 
         public int GetItemQuantity(Item item)
         {
-            var entry = Player.instance.ownedItems.FirstOrDefault(x => x.item.name.GetEnglishText() == item.name.GetEnglishText());
+            var entry = inventoryDatabase.ownedItems.FirstOrDefault(x => x.item.name.GetEnglishText() == item.name.GetEnglishText());
 
             if (entry == null)
             {
@@ -180,7 +174,7 @@ namespace AF
         {
             List<Weapon> weapons = new List<Weapon>();
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 var possibleWeapon = item.item as Weapon;
                 if (possibleWeapon != null)
@@ -196,7 +190,7 @@ namespace AF
         {
             List<Shield> shields = new List<Shield>();
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 var possibleShield = item.item as Shield;
                 if (possibleShield != null)
@@ -212,7 +206,7 @@ namespace AF
         {
             List<Accessory> accessories = new List<Accessory>();
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 var possibleAccessory = item.item as Accessory;
                 if (possibleAccessory != null)
@@ -228,7 +222,7 @@ namespace AF
         {
             List<Helmet> items = new List<Helmet>();
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 var possibleItem = item.item as Helmet;
                 if (possibleItem != null)
@@ -244,7 +238,7 @@ namespace AF
         {
             List<Armor> items = new List<Armor>();
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 var possibleItem = item.item as Armor;
                 if (possibleItem != null)
@@ -260,7 +254,7 @@ namespace AF
         {
             List<Legwear> items = new List<Legwear>();
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 var possibleItem = item.item as Legwear;
                 if (possibleItem != null)
@@ -277,7 +271,7 @@ namespace AF
         {
             List<Gauntlet> items = new List<Gauntlet>();
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 var possibleItem = item.item as Gauntlet;
                 if (possibleItem != null)
@@ -293,7 +287,7 @@ namespace AF
         {
             List<Consumable> items = new List<Consumable>();
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 var possibleItem = item.item as Consumable;
                 if (possibleItem != null)
@@ -309,7 +303,7 @@ namespace AF
         {
             List<Spell> items = new();
 
-            foreach (var item in Player.instance.ownedItems)
+            foreach (var item in inventoryDatabase.ownedItems)
             {
                 var possibleItem = item.item as Spell;
                 if (possibleItem != null)
@@ -387,7 +381,7 @@ namespace AF
                 return;
             }
 
-            if (Player.instance.currentHealth <= 0)
+            if (playerStatsDatabase.currentHealth <= 0)
             {
                 return;
             }
@@ -490,6 +484,11 @@ namespace AF
                 return;
             }
 
+            if (playerStatsDatabase.currentHealth <= 0)
+            {
+                return;
+            }
+
             if (currentConsumedItem.sfxOnConsume != null)
             {
                 BGMManager.instance.PlaySound(currentConsumedItem.sfxOnConsume, null);
@@ -500,7 +499,8 @@ namespace AF
                 Instantiate(currentConsumedItem.particleOnConsume, GameObject.FindWithTag("Player").transform);
             }
 
-            currentConsumedItem.OnConsumeSuccess();
+
+            currentConsumedItem.OnConsumeSuccess(this, statusDatabase);
 
             if (currentConsumedItem.destroyItemOnConsumeMoment)
             {

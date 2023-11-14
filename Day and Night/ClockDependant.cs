@@ -31,6 +31,8 @@ namespace AF
         public Companion companion;
 
         public UnityEvent onConditionMet;
+        [Header("Systems")]
+        public WorldSettings worldSettings;
 
         private void Awake()
         {
@@ -74,11 +76,11 @@ namespace AF
             // If appear until is after midnight, it may become smaller than appearFrom (i. e. appear from 17 until 4)
             if (startHour > endHour)
             {
-                isActive = Player.instance.timeOfDay >= startHour && Player.instance.timeOfDay <= 24 || (Player.instance.timeOfDay >= 0 && Player.instance.timeOfDay <= endHour);
+                isActive = worldSettings.timeOfDay >= startHour && worldSettings.timeOfDay <= 24 || (worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay <= endHour);
             }
             else
             {
-                isActive = Player.instance.timeOfDay >= startHour && Player.instance.timeOfDay <= endHour;
+                isActive = worldSettings.timeOfDay >= startHour && worldSettings.timeOfDay <= endHour;
             }
 
             if (clockDependency == ClockDependency.OUTSIDE_RANGE)

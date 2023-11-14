@@ -48,6 +48,11 @@ namespace AF
 
         public StatsBonusController playerStatsBonusController;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+        [Header("Systems")]
+        public WorldSettings worldSettings;
+
         private void Awake()
         {
             inputs = FindObjectOfType<StarterAssetsInputs>(true);
@@ -94,9 +99,9 @@ namespace AF
             if (HasReplenished())
             {
                 // If is only one day passed, only enable after passing the hour threshold
-                if ((Player.instance.daysPassed - 1) == VariableManager.instance.GetVariableValue(variableEntry))
+                if ((worldSettings.daysPassed - 1) == VariableManager.instance.GetVariableValue(variableEntry))
                 {
-                    if (Player.instance.timeOfDay >= hourToReplenish)
+                    if (worldSettings.timeOfDay >= hourToReplenish)
                     {
                         Replenish();
                     }
@@ -116,7 +121,7 @@ namespace AF
 
         bool HasReplenished()
         {
-            if (Player.instance.daysPassed > VariableManager.instance.GetVariableValue(variableEntry) + daysToRespawn)
+            if (worldSettings.daysPassed > VariableManager.instance.GetVariableValue(variableEntry) + daysToRespawn)
             {
                 return true;
             }
@@ -173,10 +178,10 @@ namespace AF
 
                     playerInventory.playerAchievementsManager.achievementForStealing.AwardAchievement();
 
-                    if (Player.instance.currentGold >= itemsPrice)
+                    if (playerStatsDatabase.gold >= itemsPrice)
                     {
                         FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice);
-                        Player.instance.currentGold -= (int)itemsPrice;
+                        playerStatsDatabase.gold -= (int)itemsPrice;
 
                         var notif = FindObjectOfType<NotificationManager>(true);
                         notif.ShowNotification(LocalizedTerms.CaughtStealing(), notif.personBusy);
@@ -184,8 +189,8 @@ namespace AF
                     }
                     else
                     {
-                        FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice - Player.instance.currentGold);
-                        Player.instance.currentGold = 0;
+                        FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGoldLost((int)itemsPrice - playerStatsDatabase.gold);
+                        playerStatsDatabase.gold = 0;
 
                         // Lose reputation instead
                         FindObjectOfType<NotificationManager>(true).DecreaseReputation(1);
@@ -242,7 +247,7 @@ namespace AF
             }
 
             // Record the day that the item was picked
-            VariableManager.instance.UpdateVariable(variableEntry, Player.instance.daysPassed);
+            VariableManager.instance.UpdateVariable(variableEntry, worldSettings.daysPassed);
         }
 
 

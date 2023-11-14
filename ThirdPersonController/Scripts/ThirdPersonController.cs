@@ -166,6 +166,7 @@ namespace AF
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public EquipmentDatabase equipmentDatabase;
 
         private void OnEnable()
         {
@@ -675,15 +676,15 @@ namespace AF
                 if (_verticalVelocity < _terminalVelocity)
                 {
                     var jumpAttackVelocityFinal = jumpAttackVelocity;
-                    if (Player.instance.equippedWeapon != null)
+                    if (equipmentDatabase.GetCurrentWeapon() != null)
                     {
-                        jumpAttackVelocityFinal = Player.instance.equippedWeapon.jumpAttackVelocity;
+                        jumpAttackVelocityFinal = equipmentDatabase.GetCurrentWeapon().jumpAttackVelocity;
                     }
 
                     _verticalVelocity += (Gravity * Time.deltaTime) + (playerCombatController.IsJumpAttacking() ? jumpAttackVelocityFinal : 0f);
                 }
             }
-            else if ((Player.instance.equippedWeapon == null) || (Player.instance.equippedWeapon != null && Player.instance.equippedWeapon.stopInAir == true))
+            else if ((equipmentDatabase.GetCurrentWeapon() == null) || (equipmentDatabase.GetCurrentWeapon() != null && equipmentDatabase.GetCurrentWeapon().stopInAir == true))
             {
                 _verticalVelocity = 0f;
             }

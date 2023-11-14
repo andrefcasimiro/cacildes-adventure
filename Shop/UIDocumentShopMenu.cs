@@ -28,9 +28,14 @@ namespace AF
 
         StarterAssetsInputs inputs;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+        [Header("Systems")]
+        public WorldSettings worldSettings;
+
         private void Awake()
         {
-             inputs = FindObjectOfType<StarterAssetsInputs>(true);
+            inputs = FindObjectOfType<StarterAssetsInputs>(true);
 
             cursorManager = FindObjectOfType<CursorManager>(true);
         }
@@ -121,7 +126,7 @@ namespace AF
                 itemsToShow.Add(boughtItemFromPlayer);
             }
 
-            root.Q<Label>("PlayerGold").text = LocalizedTerms.YourCurrentGold() + ": " + Player.instance.currentGold + " " + LocalizedTerms.Coins();
+            root.Q<Label>("PlayerGold").text = LocalizedTerms.YourCurrentGold() + ": " + playerStatsDatabase.gold + " " + LocalizedTerms.Coins();
 
             UpdateItemsList(itemsToShow);
         }
@@ -142,7 +147,7 @@ namespace AF
                 cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.item.sprite);
                 cloneButton.Q<Label>("ItemName").text = item.item.name.GetText() + " ( " + item.quantity + " )";
 
-                bool canBuy = item.quantity > 0 && Player.instance.currentGold >= ShopManager.instance.GetItemToBuyPrice(item, shop);
+                bool canBuy = item.quantity > 0 && playerStatsDatabase.gold >= ShopManager.instance.GetItemToBuyPrice(item, shop);
 
                 cloneButton.Q<Button>("BuySellItem").SetEnabled(canBuy);
                 cloneButton.Q<Button>("BuySellItem").style.opacity = (canBuy ? 1 : 0.5f);
@@ -155,7 +160,7 @@ namespace AF
 
                 cloneButton.RegisterCallback<PointerOutEvent>(ev =>
                 {
-                    HideItemPreview( root);
+                    HideItemPreview(root);
                 });
 
                 cloneButton.RegisterCallback<FocusInEvent>(ev =>
@@ -184,7 +189,7 @@ namespace AF
         {
             var shop = ShopManager.instance.GetShopInstanceByName(shopEntry.name);
 
-            if (Player.instance.currentGold >= ShopManager.instance.GetItemToBuyPrice(item, shop))
+            if (playerStatsDatabase.gold >= ShopManager.instance.GetItemToBuyPrice(item, shop))
             {
                 if (!ShopManager.instance.HasStock(shopEntry.name, item))
                 {
@@ -221,9 +226,9 @@ namespace AF
                 // If is only one day passed, only enable after passing the hour threshold
                 var shopRefreshValue = ShopManager.instance.GetShopInstanceByName(shopEntry.name).dayThatTradingBegan;
 
-                if ((Player.instance.daysPassed - 1) == shopRefreshValue)
+                if ((worldSettings.daysPassed - 1) == shopRefreshValue)
                 {
-                    if (Player.instance.timeOfDay >= hourToReplenish)
+                    if (worldSettings.timeOfDay >= hourToReplenish)
                     {
                         Replenish();
                     }
@@ -254,13 +259,13 @@ namespace AF
             }
 
             var shopRefreshValue = shop != null ? shop.dayThatTradingBegan : -1;
-            
+
             if (shopRefreshValue == -1)
             {
                 return true;
             }
 
-            return Player.instance.daysPassed > shopRefreshValue + daysToRestock;
+            return worldSettings.daysPassed > shopRefreshValue + daysToRestock;
         }
 
     }

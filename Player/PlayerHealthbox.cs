@@ -53,6 +53,10 @@ namespace AF
         [Header("Components")]
         public PlayerAchievementsManager playerAchievementsManager;
 
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
+        public EquipmentDatabase equipmentDatabase;
+
         private void Awake()
         {
             sceneSettings = FindObjectOfType<SceneSettings>(true);
@@ -114,7 +118,7 @@ namespace AF
         public void TakeEnvironmentalDamage(float damage, int poiseDamage, bool ignoreDodging, int elementalDamage, WeaponElementType weaponElementType)
         {
 
-            if (Player.instance.currentHealth <= 0)
+            if (playerStatsDatabase.currentHealth <= 0)
             {
                 return;
             }
@@ -130,8 +134,6 @@ namespace AF
             {
                 return;
             }
-
-            Player.instance.playerWasHit = true;
 
             if (weaponElementType == WeaponElementType.Fire && elementalDamage > 0)
             {
@@ -171,7 +173,8 @@ namespace AF
             {
                 combatNotificationsController.ShowDamage(Mathf.RoundToInt(damage));
             }
-            healthStatManager.SubtractAmount(damage);
+            healthStatManager.SubtractAmount((int)
+            damage);
 
             if (playerPoiseController.damageParticlePrefab != null)
             {
@@ -183,7 +186,7 @@ namespace AF
                 Instantiate(farting, transform.position, Quaternion.identity);
             }
 
-            if (Player.instance.currentHealth <= 0)
+            if (playerStatsDatabase.currentHealth <= 0)
             {
                 Die();
             }
@@ -207,7 +210,7 @@ namespace AF
                 return;
             }
 
-            if (Player.instance.currentHealth <= 0)
+            if (playerStatsDatabase.currentHealth <= 0)
             {
                 return;
             }
@@ -228,30 +231,30 @@ namespace AF
             {
                 float blockStaminaCost = 0;
                 float defenseAbsorption = playerParryManager.unarmedDefenseAbsorption; // Unarmed default
-                if (Player.instance.equippedShield != null)
+                if (equipmentDatabase.GetCurrentShield() != null)
                 {
-                    blockStaminaCost = Player.instance.equippedShield.blockStaminaCost;
-                    defenseAbsorption = Player.instance.equippedShield.defenseAbsorption;
+                    blockStaminaCost = equipmentDatabase.GetCurrentShield().blockStaminaCost;
+                    defenseAbsorption = equipmentDatabase.GetCurrentShield().defenseAbsorption;
                 }
-                else if (Player.instance.equippedWeapon != null)
+                else if (equipmentDatabase.GetCurrentWeapon() != null)
                 {
-                    blockStaminaCost = Player.instance.equippedWeapon.blockStaminaCost;
-                    defenseAbsorption = Player.instance.equippedWeapon.blockAbsorption;
+                    blockStaminaCost = equipmentDatabase.GetCurrentWeapon().blockStaminaCost;
+                    defenseAbsorption = equipmentDatabase.GetCurrentWeapon().blockAbsorption;
                 }
 
                 float staminaCost = blockStaminaCost + enemy.enemyCombatController.bonusBlockStaminaCost;
 
                 bool playerCanBlock = staminaStatManager.HasEnoughStaminaForAction(staminaCost);
 
-                if (Player.instance.equippedShield != null)
+                if (equipmentDatabase.GetCurrentShield() != null)
                 {
-                    Instantiate(Player.instance.equippedShield.blockFx, equipmentGraphicsHandler.shieldGraphic.transform);
+                    Instantiate(equipmentDatabase.GetCurrentShield().blockFx, equipmentGraphicsHandler.shieldGraphic.transform);
                 }
-                else if (Player.instance.equippedWeapon != null && equipmentGraphicsHandler.leftHand != null)
+                else if (equipmentDatabase.GetCurrentWeapon() != null && equipmentGraphicsHandler.leftHand != null)
                 {
-                    if (Player.instance.equippedWeapon.blockFx != null)
+                    if (equipmentDatabase.GetCurrentWeapon().blockFx != null)
                     {
-                        Instantiate(Player.instance.equippedWeapon.blockFx, equipmentGraphicsHandler.leftHand.transform.position, Quaternion.identity);
+                        Instantiate(equipmentDatabase.GetCurrentWeapon().blockFx, equipmentGraphicsHandler.leftHand.transform.position, Quaternion.identity);
                     }
                 }
 
@@ -268,9 +271,9 @@ namespace AF
                     playerCombatController.GetComponent<Animator>().SetBool(playerParryManager.hashIsBlocking, false);
                 }
 
-                if (Player.instance.equippedShield != null && Player.instance.equippedShield.damageDealtToEnemiesUponBlocking > 0)
+                if (equipmentDatabase.GetCurrentShield() != null && equipmentDatabase.GetCurrentShield().damageDealtToEnemiesUponBlocking > 0)
                 {
-                    enemy.enemyHealthController.TakeEnvironmentalDamage(Player.instance.equippedShield.damageDealtToEnemiesUponBlocking);
+                    enemy.enemyHealthController.TakeEnvironmentalDamage(equipmentDatabase.GetCurrentShield().damageDealtToEnemiesUponBlocking);
                 }
             }
 
@@ -325,16 +328,14 @@ namespace AF
             }
 
 
-            Player.instance.playerWasHit = true;
-
-            healthStatManager.SubtractAmount(damage + elementalDamage);
+            healthStatManager.SubtractAmount((int)damage + elementalDamage);
 
             if (weaponDamageSfx != null)
             {
                 BGMManager.instance.PlaySound(weaponDamageSfx, playerCombatController.combatAudioSource);
             }
 
-            if (Player.instance.currentHealth <= 0)
+            if (playerStatsDatabase.currentHealth <= 0)
             {
                 if (playerPoiseController.damageParticlePrefab != null)
                 {
@@ -351,7 +352,7 @@ namespace AF
 
         public void Die()
         {
-            if (hasSurvivedDeath == false && Player.instance.equippedAccessories.FirstOrDefault(x => x.chanceToSurviveDeath))
+            if (hasSurvivedDeath == false && equipmentDatabase.accessories.FirstOrDefault(x => x != null && x.chanceToSurviveDeath) != null)
             {
                 float chanceToSurvive = Random.Range(0, 100f);
                 if (chanceToSurvive >= 50)
@@ -374,9 +375,8 @@ namespace AF
 
             playerAchievementsManager.achievementForDyingFirstTime.AwardAchievement();
 
-            Player.instance.memorizePlayerDeath = true;
 
-            Player.instance.currentHealth = 0;
+            playerStatsDatabase.currentHealth = 0;
             animator.SetBool("IsDodging", false);
 
 

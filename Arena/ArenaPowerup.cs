@@ -14,6 +14,9 @@ namespace AF
 
         public AudioClip onCollisionWithPlayer;
 
+        [Header("Databases")]
+        public StatusDatabase statusDatabase;
+
         private void Update()
         {
             currentTime += Time.deltaTime;
@@ -30,7 +33,7 @@ namespace AF
             {
                 BGMManager.instance.PlaySound(onCollisionWithPlayer, null);
 
-                consumable.StartEffectOnPlayer();
+                consumable.StartEffectOnPlayer(statusDatabase);
 
                 Destroy(this.gameObject);
             }

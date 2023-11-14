@@ -96,7 +96,7 @@ namespace AF
                     }
 
 
-                    var finalElementalDamage = Player.instance.CalculateIncomingElementalAttack((int)elementalDamage, weaponElementType, defenseStatManager);
+                    var finalElementalDamage = Formulas.CalculateIncomingElementalAttack((int)elementalDamage, weaponElementType, defenseStatManager);
 
                     playerHealthbox.TakeEnvironmentalDamage(copiedDamage, poiseDamage, ignoreDodging, finalElementalDamage, weaponElementType);
                 }
@@ -133,7 +133,7 @@ namespace AF
 
                         if (damageScalesWithIntelligence)
                         {
-                            copiedDamage = Player.instance.CalculateSpellValue(copiedDamage, playerSpellManager.GetCurrentInteligence());
+                            copiedDamage = Formulas.CalculateSpellValue(copiedDamage, playerSpellManager.GetCurrentInteligence());
                         }
 
                         enemyHealthController.TakeEnvironmentalDamage(copiedDamage);

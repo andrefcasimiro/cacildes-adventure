@@ -37,6 +37,7 @@ namespace AF
 
         [Header("Database")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public EquipmentDatabase equipmentDatabase;
 
         public bool ignoreDefense = false;
 
@@ -108,17 +109,17 @@ namespace AF
 
         public int CompareHelmet(Helmet helmet)
         {
-            if (Player.instance.equippedHelmet == null)
+            if (equipmentDatabase.helmet == null)
             {
                 return 1;
             }
 
-            if (helmet.physicalDefense > Player.instance.equippedHelmet.physicalDefense)
+            if (helmet.physicalDefense > equipmentDatabase.helmet.physicalDefense)
             {
                 return 1;
             }
 
-            if (Player.instance.equippedHelmet.physicalDefense == helmet.physicalDefense)
+            if (equipmentDatabase.helmet.physicalDefense == helmet.physicalDefense)
             {
                 return 0;
             }
@@ -128,17 +129,17 @@ namespace AF
 
         public int CompareArmor(Armor armor)
         {
-            if (Player.instance.equippedArmor == null)
+            if (equipmentDatabase.armor == null)
             {
                 return 1;
             }
 
-            if (armor.physicalDefense > Player.instance.equippedArmor.physicalDefense)
+            if (armor.physicalDefense > equipmentDatabase.armor.physicalDefense)
             {
                 return 1;
             }
 
-            if (Player.instance.equippedArmor.physicalDefense == armor.physicalDefense)
+            if (equipmentDatabase.armor.physicalDefense == armor.physicalDefense)
             {
                 return 0;
             }
@@ -148,17 +149,17 @@ namespace AF
 
         public int CompareGauntlet(Gauntlet gauntlet)
         {
-            if (Player.instance.equippedGauntlets == null)
+            if (equipmentDatabase.gauntlet == null)
             {
                 return 1;
             }
 
-            if (gauntlet.physicalDefense > Player.instance.equippedGauntlets.physicalDefense)
+            if (gauntlet.physicalDefense > equipmentDatabase.gauntlet.physicalDefense)
             {
                 return 1;
             }
 
-            if (Player.instance.equippedGauntlets.physicalDefense == gauntlet.physicalDefense)
+            if (equipmentDatabase.gauntlet.physicalDefense == gauntlet.physicalDefense)
             {
                 return 0;
             }
@@ -168,17 +169,17 @@ namespace AF
 
         public int CompareLegwear(Legwear legwear)
         {
-            if (Player.instance.equippedLegwear == null)
+            if (equipmentDatabase.legwear == null)
             {
                 return 1;
             }
 
-            if (legwear.physicalDefense > Player.instance.equippedLegwear.physicalDefense)
+            if (legwear.physicalDefense > equipmentDatabase.legwear.physicalDefense)
             {
                 return 1;
             }
 
-            if (Player.instance.equippedLegwear.physicalDefense == legwear.physicalDefense)
+            if (equipmentDatabase.legwear.physicalDefense == legwear.physicalDefense)
             {
                 return 0;
             }

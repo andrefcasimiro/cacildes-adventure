@@ -1,20 +1,21 @@
 ﻿using System.Collections;
-using UnityEngine;
-
 namespace AF
 {
-
     public class EV_MarkItemAsFavorite : EventBase
     {
-        public Item item;
+        public Consumable item;
         public int consumableSlotToEquipItem = 0;
+
+        public EquipmentDatabase equipmentDatabase;
 
         public override IEnumerator Dispatch()
         {
-            FindObjectOfType<FavoriteItemsManager>(true).AddFavoriteItemToList(item, consumableSlotToEquipItem);
+            if (equipmentDatabase != null)
+            {
+                equipmentDatabase.EquipConsumable(item, consumableSlotToEquipItem);
+            }
 
             yield return null;
         }
     }
-
 }
