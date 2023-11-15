@@ -50,7 +50,7 @@ namespace AF
         }
         public void PlayBattleMusic()
         {
-//            var battleMusic = sceneSettings.battleMusic;
+            //            var battleMusic = sceneSettings.battleMusic;
             StopMusic();
 
         }
@@ -151,12 +151,12 @@ namespace AF
             customAudioSource.PlayOneShot(sfxToPlay);
         }
 
-        public void PlayMapMusicAfterKillingEnemy(EnemyManager killedEnemy)
+        public void PlayMapMusicAfterKillingEnemy(CharacterManager killedEnemy)
         {
             // Check if more enemies are in chase or combat state
-            var activeEnemies = FindObjectsByType<EnemyManager>(FindObjectsSortMode.None);
+            var activeEnemies = FindObjectsByType<CharacterManager>(FindObjectsSortMode.None);
 
-            if (activeEnemies.FirstOrDefault(x => x.enemyCombatController.IsInCombat() && x != killedEnemy))
+            if (false) //activeEnemies.FirstOrDefault(x => x.enemyCombatController.IsInCombat() && x != killedEnemy))
             {
                 return;
             }

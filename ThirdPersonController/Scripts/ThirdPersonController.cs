@@ -228,10 +228,8 @@ namespace AF
                     JumpAndGravity();
                     GroundedCheck();
 
-                    if (playerManager.IsBusy == false)
-                    {
-                        Move();
-                    }
+                    Move();
+
                 }
                 else
                 {
@@ -522,17 +520,23 @@ namespace AF
                 targetDirection = Vector3.zero;
             }
 
+            if (playerManager.IsBusy())
+            {
+                return;
+            }
+
             if (isSlidingOnIce)
             {
                 _controller.Move(transform.forward * 10f * Time.deltaTime +
                                  new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
             }
-            else if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn && dodgeController.IsDodging() == false)
+            else if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn)
             {
                 float lockOnSpeed = _input.move.x != 0 && _input.move.y != 0 ? _speed : _speed * 1.5f;
 
                 Vector3 targetPos = (transform.forward * (lockOnSpeed) * _input.move.y + _controller.transform.right * (lockOnSpeed) * _input.move.x);
                 targetPos.y = _verticalVelocity + verticalVelocityBonus;
+
                 _controller.Move(targetPos * Time.deltaTime);
             }
             else
@@ -540,7 +544,6 @@ namespace AF
                 _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                                  new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
             }
-
 
             // update animator if using character
             if (_hasAnimator)
@@ -733,7 +736,7 @@ namespace AF
         /// </summary>
         public void DisableCharacterRotation()
         {
-            canRotateCharacter = false;
+            //canRotateCharacter = false;
         }
 
 

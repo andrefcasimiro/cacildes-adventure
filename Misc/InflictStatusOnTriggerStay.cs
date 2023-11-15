@@ -36,16 +36,16 @@ namespace AF
                 }
                 else if (detectEnemies)
                 {
-                    var enemy = other.GetComponent<EnemyManager>();
+                    var enemy = other.GetComponent<CharacterManager>();
 
-                    if (enemy != null && enemy.enemyNegativeStatusController != null)
+                    if (enemy != null) //&& enemy.enemyNegativeStatusController != null)
                     {
-                        if (enemy.enemyHealthController.currentHealth <= 0)
+                        if (false) //enemy.enemyHealthController.currentHealth <= 0)
                         {
                             return;
                         }
 
-                        enemy.enemyNegativeStatusController.InflictStatusEffect(statusEffect, amount * Time.deltaTime);
+                        // enemy.enemyNegativeStatusController.InflictStatusEffect(statusEffect, amount * Time.deltaTime);
                     }
                 }
             }

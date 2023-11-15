@@ -18,7 +18,7 @@ namespace AF
         public int poiseDamage = 0;
         public int blockStaminaCost = 0;
 
-        EnemyManager enemy;
+        CharacterManager enemy;
 
         // References
         Collider boxCollider => GetComponent<Collider>();
@@ -38,7 +38,7 @@ namespace AF
 
         private void Awake()
         {
-            enemy = GetComponentInParent<EnemyManager>();
+            enemy = GetComponentInParent<CharacterManager>();
 
             trailRenderer = GetComponent<TrailRenderer>();
             if (trailRenderer == null)
@@ -115,10 +115,11 @@ namespace AF
             }
 
 
-            if (enemy.enemyCombatController.isDamagingHimself)
-            {
-                enemy.enemyHealthController.TakeEnvironmentalDamage(50f);
-            }
+            /*
+                        if (enemy.enemyCombatController.isDamagingHimself)
+                        {
+                            enemy.enemyHealthController.TakeEnvironmentalDamage(50f);
+                        }*/
 
 
             boxCollider.enabled = true;
@@ -136,7 +137,7 @@ namespace AF
             if (enemy != null)
             {
                 // Disable Tracking
-                enemy.facePlayer = false;
+                //enemy.facePlayer = false;
             }
 
             boxCollider.enabled = false;
@@ -172,7 +173,7 @@ namespace AF
         {
             if (other.gameObject.CompareTag("PlayerCompanionHealthHitbox"))
             {
-                other.GetComponentInParent<CompanionManager>().TakeDamage(enemy.enemyCombatController.GetCurrentAttack(), enemy);
+                // other.GetComponentInParent<CompanionManager>().TakeDamage(enemy.enemyCombatController.GetCurrentAttack(), enemy);
 
                 return;
             }
@@ -192,7 +193,7 @@ namespace AF
                 return;
             }
 
-            if (playerParryManager.IsParrying() && enemy.enemyPostureController != null)
+            if (playerParryManager.IsParrying()) //&& enemy.enemyPostureController != null)
             {
                 playerParryManager.InstantiateParryFx();
 
@@ -200,19 +201,19 @@ namespace AF
                 int playerParryBonus = (int)playerStatsBonusController.parryPostureDamageBonus;
                 if (playerParryBonus > 0)
                 {
-                    parryDamage = enemy.enemy.postureDamagePerParry + playerParryBonus + playerParryManager.BASE_PARRY_DAMAGE;
+                    //parryDamage = enemy.enemy.postureDamagePerParry + playerParryBonus + playerParryManager.BASE_PARRY_DAMAGE;
                 }
 
-                enemy.enemyPostureController.TakePostureDamage(parryDamage);
+                //enemy.enemyPostureController.TakePostureDamage(parryDamage);
                 return;
             }
 
-            float damageToReceive = CalculateDamageToReceive(enemy.enemyCombatController.GetCurrentAttack(),
-                defenseStatManager.GetDefenseAbsorption(), healthStatManager.GetMaxHealth());
+            float damageToReceive = 1;//CalculateDamageToReceive(enemy.enemyCombatController.GetCurrentAttack(),
+            //defenseStatManager.GetDefenseAbsorption(), healthStatManager.GetMaxHealth());
 
             float elementalDamage = Formulas.CalculateIncomingElementalAttack((int)weaponElementalDamage, weaponElementType, defenseStatManager);
 
-            if (!string.IsNullOrEmpty(enemy.enemyCombatController.playerExecutedClip) && !string.IsNullOrEmpty(enemy.enemyCombatController.transitionToExecution))
+            /*if (!string.IsNullOrEmpty(enemy.enemyCombatController.playerExecutedClip) && !string.IsNullOrEmpty(enemy.enemyCombatController.transitionToExecution))
             {
                 enemy.animator.Play(enemy.enemyCombatController.transitionToExecution);
 
@@ -227,10 +228,10 @@ namespace AF
                 enemy.player.GetComponent<PlayerComponentManager>().DisableComponents();
                 enemy.player.GetComponent<Animator>().Play(enemy.enemyCombatController.playerExecutedClip);
                 enemy.player.GetComponent<PlayerPoiseController>().MarkAsStunned();
-            }
+            }`*/
 
 
-            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.enemyCombatController.currentAttackPoiseDamage, (int)elementalDamage, weaponElementType);
+            //            playerHealthbox.TakeDamage(damageToReceive, enemy.transform, weaponImpactSfx, enemy.enemyCombatController.currentAttackPoiseDamage, (int)elementalDamage, weaponElementType);
 
             DisableHitbox();
 

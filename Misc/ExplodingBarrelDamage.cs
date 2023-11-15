@@ -90,23 +90,22 @@ namespace AF
             }
             else
             {
-                EnemyHealthController enemyHealthController = null;
 
                 if (other.CompareTag("Enemy"))
                 {
                     hitEntities.Add(other);
 
-                    enemyHealthController = other.GetComponent<EnemyHealthController>();
+                    //enemyHealthController = other.GetComponent<EnemyHealthController>();
                 }
 
 
 
-                if (enemyHealthController == null)
+                if (false)//enemyHealthController == null)
                 {
-                    enemyHealthController = other.GetComponent<EnemyHealthHitbox>()?.enemyManager?.enemyHealthController;
+                    //enemyHealthController = other.GetComponent<CharacterHealthHitbox>()?.characterManager?.enemyHealthController;
                 }
 
-                if (enemyHealthController != null)
+                if (false) //enemyHealthController != null)
                 {
 
                     var copiedDamage = damageFromFarDistance;
@@ -121,19 +120,19 @@ namespace AF
 
                     if (copiedDamage > 0)
                     {
-                        enemyHealthController.TakeEnvironmentalDamage(copiedDamage * multiplierForEnemies);
+                        //enemyHealthController.TakeEnvironmentalDamage(copiedDamage * multiplierForEnemies);
                     }
 
-                    enemyHealthController.GetComponent<EnemyManager>().PushEnemy(pushforceForEnemies, ForceMode.Acceleration);
+                    //enemyHealthController.GetComponent<CharacterManager>().PushEnemy(pushforceForEnemies, ForceMode.Acceleration);
                 }
 
 
 
-
-                if (forceEnemiesIntoCombat && enemyHealthController != null)
-                {
-                    enemyHealthController.GetComponent<EnemyManager>().enemyBehaviorController.ChasePlayer();
-                }
+                /*
+                                if (forceEnemiesIntoCombat && enemyHealthController != null)
+                                {
+                                    enemyHealthController.GetComponent<CharacterManager>().enemyBehaviorController.ChasePlayer();
+                                }*/
             }
 
         }

@@ -29,7 +29,7 @@ namespace AF
         float maxTimerBeforeAllowingDamageAgain = .5f;
         float damageCooldownTimer = Mathf.Infinity;
 
-        List<EnemyHealthHitbox> hitEnemies = new();
+        List<CharacterHealthHitbox> hitEnemies = new();
 
         public bool debug = false;
 
@@ -43,7 +43,12 @@ namespace AF
         private void Awake()
         {
             HideHolsteredWeapon();
-            this.gameObject.SetActive(false);
+
+            // If not an unarmed hitbox, hide weapon at the start
+            if (weapon != null)
+            {
+                this.gameObject.SetActive(false);
+            }
         }
 
         // Start is called before the first frame update
@@ -112,28 +117,23 @@ namespace AF
             {
                 BGMManager.instance.PlaySound(weapon.swingSfx, playerCombatController.combatAudioSource);
             }
-            else if (playerCombatController.unarmedSwingSfx != null)
+            /*else if (playerCombatController.unarmedSwingSfx != null)
             {
                 BGMManager.instance.PlaySound(playerCombatController.unarmedSwingSfx, playerCombatController.combatAudioSource);
-            }
+            }*/
 
             if (trailRenderer != null)
             {
                 trailRenderer.enabled = true;
             }
 
-            if (debug)
-            {
-                GetComponent<MeshRenderer>().enabled = true;
-            }
-
             hitCollider.enabled = true;
 
-
+            /*
             if (playerCombatController.isDamagingHimself)
-            {
-                FindAnyObjectByType<PlayerHealthbox>(FindObjectsInactive.Include).TakeEnvironmentalDamage(50f, 1, true, 0, WeaponElementType.None);
-            }
+                        {
+                            FindAnyObjectByType<PlayerHealthbox>(FindObjectsInactive.Include).TakeEnvironmentalDamage(50f, 1, true, 0, WeaponElementType.None);
+                        }*/
         }
 
         public void DisableHitbox()
@@ -167,10 +167,10 @@ namespace AF
 
             var weapon = equipmentDatabase.GetCurrentWeapon();
 
-            var enemyHealthHitbox = other.GetComponent<EnemyHealthHitbox>();
+            var enemyHealthHitbox = other.GetComponent<CharacterHealthHitbox>();
             if (enemyHealthHitbox == null)
             {
-                enemyHealthHitbox = other.GetComponentInChildren<EnemyHealthHitbox>();
+                enemyHealthHitbox = other.GetComponentInChildren<CharacterHealthHitbox>();
             }
 
             if (enemyHealthHitbox == null)
@@ -215,22 +215,23 @@ namespace AF
                 {
                     hitEnemies.Add(enemyHealthHitbox);
 
-                    enemyHealthHitbox.enemyManager.enemyHealthController.TakeDamage(
-                        attackStatManager,
-                        weapon,
-                        other.ClosestPointOnBounds(this.transform.position),
-                        (weapon != null && weapon.impactFleshSfx != null) ? weapon.impactFleshSfx : playerCombatController.unarmedHitImpactSfx,
-                        enemyHealthHitbox.damageBonus);
+                    /*
+                                        enemyHealthHitbox.characterManager.enemyHealthController.TakeDamage(
+                                            attackStatManager,
+                                            weapon,
+                                            other.ClosestPointOnBounds(this.transform.position),
+                                            (weapon != null && weapon.impactFleshSfx != null) ? weapon.impactFleshSfx : playerCombatController.unarmedHitImpactSfx,
+                                            enemyHealthHitbox.damageBonus);
 
-                    if (enemyHealthHitbox.enemyManager.enemyTargetController != null)
-                    {
-                        enemyHealthHitbox.enemyManager.enemyTargetController.BreakCompanionFocus();
-                    }
+                                        if (enemyHealthHitbox.characterManager.enemyTargetController != null)
+                                        {
+                                            enemyHealthHitbox.characterManager.enemyTargetController.BreakCompanionFocus();
+                                        }
 
-                    if (heavyAttackParticle != null && attackStatManager.IsHeavyAttacking())
-                    {
-                        Instantiate(heavyAttackParticle, trailRenderer.transform.position, Quaternion.identity);
-                    }
+                                        if (heavyAttackParticle != null && attackStatManager.IsHeavyAttacking())
+                                        {
+                                            Instantiate(heavyAttackParticle, trailRenderer.transform.position, Quaternion.identity);
+                                        }*/
 
 
                 }

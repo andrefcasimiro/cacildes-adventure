@@ -20,7 +20,7 @@ namespace AF
 
         private float projectileCooldown = 0f;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         ClimbController playerClimbController;
 
@@ -70,7 +70,7 @@ namespace AF
                 return;
             }
 
-            enemyManager.enemyWeaponController.HideWeapons();
+            //characterManager.enemyWeaponController.HideWeapons();
 
             bowGraphic.SetActive(true);
         }
@@ -82,14 +82,14 @@ namespace AF
                 return;
             }
 
-            enemyManager.enemyWeaponController.ShowWeapons();
+            // characterManager.enemyWeaponController.ShowWeapons();
 
             bowGraphic.SetActive(false);
         }
 
         public void PrepareProjectile()
         {
-            enemyManager.animator.Play(this.shootActions.Length > 0 ? Animator.StringToHash(this.shootActions[0]) : enemyManager.hashShooting);
+            // characterManager.animator.Play(this.shootActions.Length > 0 ? Animator.StringToHash(this.shootActions[0]) : characterManager.hashShooting);
             projectileCooldown = 0f;
         }
 
@@ -100,7 +100,8 @@ namespace AF
 
         public bool IsShooting()
         {
-            return enemyManager.animator.GetBool(enemyManager.hashIsShooting);
+            return false;
+            // return characterManager.animator.GetBool(characterManager.hashIsShooting);
         }
 
         /// <summary>

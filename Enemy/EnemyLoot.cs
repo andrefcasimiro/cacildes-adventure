@@ -20,7 +20,7 @@ namespace AF
         public List<DropCurrency> additionalLootTable = new List<DropCurrency>();
         [Tooltip("If set, will ignore the enemy's default loot table for the additionalLootTable")] public bool overrideLootTable = false;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         PlayerInventory playerInventory;
         NotificationManager notificationManager;
@@ -50,12 +50,12 @@ namespace AF
         {
             yield return new WaitForSeconds(1f);
 
-            var goldToReceive = enemyManager.enemy.baseGold;
+            //var goldToReceive = characterManager.enemy.baseGold;
 
-            if (enemyManager.currentLevel > 1)
+            /*if (characterManager.currentLevel > 1)
             {
-                goldToReceive = Formulas.CalculateAIGenericValue(enemyManager.enemy.baseGold, enemyManager.currentLevel);
-            }
+                goldToReceive = Formulas.CalculateAIGenericValue(characterManager.enemy.baseGold, characterManager.currentLevel);
+            }*/
 
 
             if (playerStatsBonusController != null)
@@ -64,13 +64,13 @@ namespace AF
 
                 if (additionalCoinPercentage != 0)
                 {
-                    var additionalCoin = (int)Mathf.Ceil(goldToReceive * additionalCoinPercentage / 100);
+                    //var additionalCoin = (int)Mathf.Ceil(goldToReceive * additionalCoinPercentage / 100);
 
-                    goldToReceive += additionalCoin;
+                    //                    goldToReceive += additionalCoin;
                 }
             }
 
-            goldToReceive += bonusGold;
+            //goldToReceive += bonusGold;
 
 
             GetLoot();
@@ -78,8 +78,8 @@ namespace AF
             yield return new WaitForSeconds(0.2f);
 
             uIDocumentPlayerGold.PlayCoinsFX(transform);
-            uIDocumentPlayerGold.NotifyGold(goldToReceive);
-            playerStatsDatabase.gold += (int)goldToReceive;
+            // uIDocumentPlayerGold.NotifyGold(goldToReceive);
+            // playerStatsDatabase.gold += (int)goldToReceive;
         }
 
         private void GetLoot()
@@ -88,7 +88,7 @@ namespace AF
 
             bool hasPlayedFanfare = false;
 
-            var provisionalLootTable = overrideLootTable ? additionalLootTable : enemyManager.enemy.lootTable;
+            var provisionalLootTable = additionalLootTable; //characterManager.enemy.lootTable;
 
             if (overrideLootTable == false && additionalLootTable.Count > 0)
             {

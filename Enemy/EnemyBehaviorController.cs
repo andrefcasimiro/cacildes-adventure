@@ -16,7 +16,7 @@ namespace AF
         public FactionName faction = FactionName.NONE;
         public bool ignoreFactionAndJustCheckForEquippedArmor = false;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         [Header("Player Apparel")]
         public Helmet disguisedHelmet;
@@ -112,12 +112,12 @@ namespace AF
                 FactionManager.instance.SetFactionAffinity(faction, -1);
             }
 
-            enemyManager.enemyHealthController.ShowHUD();
+            // characterManager.enemyHealthController.ShowHUD();
         }
 
         public void ChasePlayer()
         {
-            enemyManager.animator.SetBool(enemyManager.hashChasing, true);
+            //characterManager.animator.SetBool(characterManager.hashChasing, true);
         }
     }
 }

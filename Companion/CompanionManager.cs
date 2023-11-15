@@ -71,7 +71,7 @@ namespace AF
         PlayerLevelManager playerLevelManager;
 
         // Internal references
-        public EnemyManager currentEnemy;
+        public CharacterManager currentEnemy;
 
         [HideInInspector] public float defaultStoppingDistance;
 
@@ -184,7 +184,7 @@ namespace AF
             animator.Play(hashIdle);
         }
 
-        public void ForceIntoCombat(EnemyManager currentEnemy)
+        public void ForceIntoCombat(CharacterManager currentEnemy)
         {
             if (waitingForPlayer || inParty == false)
             {
@@ -384,10 +384,10 @@ namespace AF
             this.currentHealth = GetMaxHealth();
         }
 
-        public void TakeDamage(float damage, EnemyManager enemyManager)
+        public void TakeDamage(float damage, CharacterManager characterManager)
         {
             // If enemy and companion not facing each other, dont take damage to avoid receiving hitbox damages that are not correct
-            if (Vector3.Angle(transform.forward * -1, enemyManager.transform.forward) > 90f)
+            if (Vector3.Angle(transform.forward * -1, characterManager.transform.forward) > 90f)
             {
                 return;
             }
@@ -403,10 +403,10 @@ namespace AF
                 animator.Play(hashInjured);
                 injuredCooldown = 0;
 
-                if (enemyManager.enemyTargetController != null)
+                /*if (characterManager.enemyTargetController != null)
                 {
-                    enemyManager.enemyTargetController.BreakCompanionFocus();
-                }
+                    characterManager.enemyTargetController.BreakCompanionFocus();
+                }*/
             }
             else
             {

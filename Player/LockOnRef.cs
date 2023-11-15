@@ -7,18 +7,18 @@ namespace AF
 
     public class LockOnRef : MonoBehaviour
     {
-        [HideInInspector] public EnemyManager enemyManager;
+        [HideInInspector] public CharacterManager characterManager;
 
         private void Start()
         {
-            enemyManager = GetComponentInParent<EnemyManager>(true);
+            characterManager = GetComponentInParent<CharacterManager>(true);
         }
 
         public bool CanLockOn()
         {
-            if (enemyManager != null)
+            if (characterManager != null)
             {
-                return enemyManager.enemyHealthController.currentHealth > 0;
+                return false;// characterManager.enemyHealthController.currentHealth > 0;
             }
 
             // Must be dummy target then

@@ -41,12 +41,12 @@ namespace AF
 
             if (other.CompareTag("Enemy"))
             {
-                EnemyManager enemyManager = other.GetComponent<EnemyManager>();
+                CharacterManager characterManager = other.GetComponent<CharacterManager>();
 
-                if (enemyManager != null)
+                if (characterManager != null)
                 {
-                    return enemiesToBuff.Contains(enemyManager.enemy);
-                    
+                    return false; //enemiesToBuff.Contains(characterManager.enemy);
+
                 }
             }
 

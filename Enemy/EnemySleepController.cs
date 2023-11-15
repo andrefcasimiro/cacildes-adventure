@@ -13,7 +13,7 @@ namespace AF
         public bool isSleeping = false;
         public GameObject bed;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
         [Header("Systems")]
         public WorldSettings worldSettings;
 
@@ -38,7 +38,7 @@ namespace AF
         {
             if (isSleeping)
             {
-                if (Vector3.Distance(this.transform.position, enemyManager.player.transform.position) <= 1f)
+                if (false)// Vector3.Distance(this.transform.position, characterManager.player.transform.position) <= 1f)
                 {
                     isSleeping = false;
                     WakeUp();
@@ -67,11 +67,11 @@ namespace AF
 
             if (shouldSleep)
             {
-                if (enemyManager.enemyCombatController.IsInCombat() == false)
-                {
-                    // Sleep
-                    Sleep();
-                }
+                /* if (characterManager.enemyCombatController.IsInCombat() == false)
+                 {
+                     // Sleep
+                     Sleep();
+                 }*/
             }
             else
             {
@@ -86,8 +86,8 @@ namespace AF
         public void Sleep()
         {
             isSleeping = true;
-            enemyManager.animator.Play(enemyManager.hashSleeping);
-            // enemyManager.agent.isStopped = true;
+            // characterManager.animator.Play(characterManager.hashSleeping);
+            // characterManager.agent.isStopped = true;
 
             if (bed != null)
             {
@@ -98,8 +98,8 @@ namespace AF
         public void WakeUp()
         {
             isSleeping = false;
-            enemyManager.animator.SetBool(enemyManager.hashIsSleeping, false);
-            enemyManager.agent.isStopped = false;
+            // characterManager.animator.SetBool(characterManager.hashIsSleeping, false);
+            characterManager.agent.isStopped = false;
 
             if (bed != null)
             {

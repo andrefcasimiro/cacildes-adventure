@@ -48,7 +48,7 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("EnemyHealthHitbox"))
+            if (other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("CharacterHealthHitbox"))
             {
                 return;
             }

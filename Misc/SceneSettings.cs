@@ -58,13 +58,9 @@ namespace AF
 
             if (enemiesIgnorePlayer)
             {
-                var allEnemies = FindObjectsOfType<EnemyManager>(true);
+                var allEnemies = FindObjectsOfType<CharacterManager>(true);
                 foreach (var enemy in allEnemies)
                 {
-                    if (enemy.enemySightController != null)
-                    {
-                        enemy.enemySightController.ignorePlayer = true;
-                    }
                 }
             }
 
@@ -163,32 +159,6 @@ namespace AF
         }
         #endregion
 
-        #region Tutorial
-        public void RestartTutorialFromCheckpoint(Vector3 playerPosition)
-        {
-            // Cure player
-            playerComponentManager.CurePlayer();
-
-            // Find all active enemies in scene
-            var allEnemiesInScene = FindObjectsOfType<EnemyManager>();
-            foreach (var enemy in allEnemiesInScene)
-            {
-                if (enemy.enemyBossController != null)
-                {
-                    continue;
-                }
-
-                enemy.enabled = true;
-                enemy.Revive();
-            }
-
-            // Attempt to teleport player
-            var newPlayerPosition = Utils.GetNearestNavMeshPoint(playerPosition);
-
-            playerComponentManager.UpdatePosition(newPlayerPosition, Quaternion.identity);
-            Instantiate(respawnFx, newPlayerPosition, Quaternion.identity);
-        }
-        #endregion
     }
 
 }

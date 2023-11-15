@@ -34,8 +34,8 @@ namespace AF
             }
             else if (other.gameObject.CompareTag("Enemy"))
             {
-                EnemyManager enemyManager = other.GetComponent<EnemyManager>();
-                enemyManager.enemyHealthController.TakeEnvironmentalDamage(damage);
+                CharacterManager characterManager = other.GetComponent<CharacterManager>();
+                /*                characterManager.enemyHealthController.TakeEnvironmentalDamage(damage);*/
             }
         }
 

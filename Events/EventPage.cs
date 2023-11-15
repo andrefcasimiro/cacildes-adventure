@@ -56,7 +56,7 @@ namespace AF
         // Event Page transform child that controls movement
         private GameObject player;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         DayNightManager dayNightManager;
         UIDocumentDialogueWindow uIDocumentDialogueWindow;
@@ -271,7 +271,7 @@ namespace AF
         public bool CanRunEventPage()
         {
             // If event belongs to an enemy and enemy is agressive
-            if (enemyManager != null && enemyManager.enemyBehaviorController.isAgressive)
+            if (characterManager != null) //&& characterManager.enemyBehaviorController.isAgressive)
             {
                 return false;
             }

@@ -1,10 +1,11 @@
+using AF.Animations;
 using AF.Equipment;
 using AF.Stats;
 using UnityEngine;
 
 namespace AF
 {
-    public class PlayerManager : MonoBehaviour
+    public class PlayerManager : MonoBehaviour, ICharacter
     {
         public Animator animator;
         public CharacterController characterController;
@@ -34,7 +35,7 @@ namespace AF
         public EventNavigator eventNavigator;
         public PlayerParryManager playerParryManager;
 
-        public bool IsBusy = false;
+        public bool isBusy = false;
 
         public void ResetStates()
         {
@@ -43,26 +44,27 @@ namespace AF
                 playerInventory.FinishItemConsumption();
             }
 
-
             animator.applyRootMotion = false;
             dodgeController.hasIframes = false;
+            thirdPersonController.canRotateCharacter = true;
             playerComponentManager.EnableCollisionWithEnemies();
-            IsBusy = false;
+            isBusy = false;
+        }
+
+        public bool IsBusy()
+        {
+            return isBusy;
         }
 
         public void PlayBusyAnimation(int animationHash)
         {
             animator.Play(animationHash);
-            IsBusy = true;
+            isBusy = true;
         }
-
-        /// <summary>
-        /// Animation Event
-        /// </summary>
-        public void EnableRootMotion()
+        public void PlayBusyAnimationWithRootMotion(int animationHash)
         {
             animator.applyRootMotion = true;
+            PlayBusyAnimation(animationHash);
         }
-
     }
 }

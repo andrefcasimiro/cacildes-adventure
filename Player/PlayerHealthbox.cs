@@ -220,7 +220,7 @@ namespace AF
                 return;
             }
 
-            EnemyManager enemy = attackerTransform.GetComponent<EnemyManager>();
+            CharacterManager enemy = attackerTransform.GetComponent<CharacterManager>();
 
             if (
                playerParryManager.IsBlocking()
@@ -242,7 +242,7 @@ namespace AF
                     defenseAbsorption = equipmentDatabase.GetCurrentWeapon().blockAbsorption;
                 }
 
-                float staminaCost = blockStaminaCost + enemy.enemyCombatController.bonusBlockStaminaCost;
+                float staminaCost = blockStaminaCost;
 
                 bool playerCanBlock = staminaStatManager.HasEnoughStaminaForAction(staminaCost);
 
@@ -273,7 +273,6 @@ namespace AF
 
                 if (equipmentDatabase.GetCurrentShield() != null && equipmentDatabase.GetCurrentShield().damageDealtToEnemiesUponBlocking > 0)
                 {
-                    enemy.enemyHealthController.TakeEnvironmentalDamage(equipmentDatabase.GetCurrentShield().damageDealtToEnemiesUponBlocking);
                 }
             }
 
@@ -284,10 +283,6 @@ namespace AF
 
             if (enemy != null)
             {
-                if (enemy.enemyCombatController.weaponStatusEffect != null)
-                {
-                    playerStatusManager.InflictStatusEffect(enemy.enemyCombatController.weaponStatusEffect, enemy.enemyCombatController.statusEffectAmount, false);
-                }
             }
 
             if (damage > 0)
@@ -365,12 +360,6 @@ namespace AF
                         : "O Anel Escarlate salvou-te da morte", null);
                     return;
                 }
-            }
-
-            if (sceneSettings.isSceneTutorial)
-            {
-                sceneSettings.RestartTutorialFromCheckpoint(transform.position);
-                return;
             }
 
             playerAchievementsManager.achievementForDyingFirstTime.AwardAchievement();

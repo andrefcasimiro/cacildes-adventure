@@ -6,7 +6,7 @@ namespace AF
 {
     public class EnemyManageHealthboxes : StateMachineBehaviour
     {
-        EnemyManager enemyManager;
+        CharacterManager characterManager;
 
         public bool activateHealthHitboxes = false;
         public bool deactivateHealthHitboxes = false;
@@ -14,21 +14,22 @@ namespace AF
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
 
-            animator.gameObject.TryGetComponent<EnemyManager>(out enemyManager);
+            animator.gameObject.TryGetComponent<CharacterManager>(out characterManager);
 
-            if (enemyManager == null)
+            if (characterManager == null)
             {
-                enemyManager = animator.GetComponentInParent<EnemyManager>(true);
+                characterManager = animator.GetComponentInParent<CharacterManager>(true);
             }
 
-            if (activateHealthHitboxes)
-            {
-                enemyManager.enemyHealthController.EnableHealthHitboxes();
-            }
-            else if (deactivateHealthHitboxes)
-            {
-                    enemyManager.enemyHealthController.DisableHealthHitboxes();
-            }
+            /*
+                        if (activateHealthHitboxes)
+                        {
+                            characterManager.enemyHealthController.EnableHealthHitboxes();
+                        }
+                        else if (deactivateHealthHitboxes)
+                        {
+                            characterManager.enemyHealthController.DisableHealthHitboxes();
+                        }*/
         }
     }
 

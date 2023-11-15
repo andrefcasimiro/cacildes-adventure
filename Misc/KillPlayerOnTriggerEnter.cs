@@ -48,19 +48,19 @@ namespace AF
                     Physics.autoSyncTransforms = false;
 
                     return;
-                }   
+                }
 
                 other.GetComponentInChildren<PlayerHealthbox>(true).Die();
             }
 
             if (other.gameObject.CompareTag("Enemy") && ignoreEnemies == false)
             {
-                var enemyManager = other.GetComponent<EnemyManager>();
+                var characterManager = other.GetComponent<CharacterManager>();
 
-                if (enemyManager != null)
+                if (characterManager != null)
                 {
-                    BGMManager.instance.PlaySound(waterSfx, enemyManager.combatAudioSource);
-                    enemyManager.enemyHealthController.TakeEnvironmentalDamage(9999999);
+                    BGMManager.instance.PlaySound(waterSfx, characterManager.combatAudioSource);
+                    // characterManager.enemyHealthController.TakeEnvironmentalDamage(9999999);
                 }
 
             }

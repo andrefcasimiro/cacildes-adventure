@@ -38,17 +38,17 @@ namespace AF
 
             if (other.gameObject.CompareTag("Enemy"))
             {
-                EnemyManager enemyManager = other.GetComponent<EnemyManager>();
+                CharacterManager characterManager = other.GetComponent<CharacterManager>();
 
-                if (enemyManager != null)
+                if (characterManager != null)
                 {
-                    if (enemiesToIgnore.Contains(enemyManager.enemy))
-                    {
-                        return;
-                    }
+                    /* if (enemiesToIgnore.Contains(characterManager.enemy))
+                     {
+                         return;
+                     }*/
 
-                    var enemyFireDamage = enemyManager.enemy.fireDamageBonus * fireDamage;
-                    enemyManager.enemyHealthController.TakeEnvironmentalDamage(enemyFireDamage);
+                    //                    var enemyFireDamage = characterManager.enemy.fireDamageBonus * fireDamage;
+                    //                    characterManager.enemyHealthController.TakeEnvironmentalDamage(enemyFireDamage);
                 }
 
                 return;

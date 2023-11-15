@@ -5,7 +5,7 @@ namespace AF
 
     public class EnemyShieldCollider : MonoBehaviour
     {
-        EnemyManager enemyManager => GetComponentInParent<EnemyManager>();
+        CharacterManager characterManager => GetComponentInParent<CharacterManager>();
 
         float maxCooldown = 1f;
         float cooldown = Mathf.Infinity;
@@ -18,7 +18,7 @@ namespace AF
         private void OnTriggerEnter(Collider other)
         {
             /*
-            if (other.gameObject.tag == "PlayerWeapon" && enemyManager.enemyBlockController != null && enemyManager.enemyBlockController.IsBlocking())
+            if (other.gameObject.tag == "PlayerWeapon" && characterManager.enemyBlockController != null && characterManager.enemyBlockController.IsBlocking())
             {
                 if (cooldown < maxCooldown)
                 {
@@ -26,7 +26,7 @@ namespace AF
                 }
 
                 cooldown = 0f;
-                Instantiate(enemyManager.enemyBlockController.blockParticleEffect, this.transform.position, Quaternion.identity);
+                Instantiate(characterManager.enemyBlockController.blockParticleEffect, this.transform.position, Quaternion.identity);
             }*/
         }
     }

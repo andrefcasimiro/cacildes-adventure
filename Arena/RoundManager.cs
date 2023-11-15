@@ -15,18 +15,18 @@ namespace AF
     public class RoundManager : MonoBehaviour
     {
         [Header("Enemies")]
-        public List<EnemyManager> easyEnemies;
-        public List<EnemyManager> mediumEnemies;
-        public List<EnemyManager> hardEnemies;
-        public List<EnemyManager> easyBosses;
-        public List<EnemyManager> mediumBosses;
-        public List<EnemyManager> hardBosses;
+        public List<CharacterManager> easyEnemies;
+        public List<CharacterManager> mediumEnemies;
+        public List<CharacterManager> hardEnemies;
+        public List<CharacterManager> easyBosses;
+        public List<CharacterManager> mediumBosses;
+        public List<CharacterManager> hardBosses;
 
         [System.Serializable]
         public class SpecialRound
         {
             public int round = 10;
-            public List<EnemyManager> specialRoundEnemies;
+            public List<CharacterManager> specialRoundEnemies;
             public int numberOfEnemiesToSpawn = 0;
         }
 
@@ -239,7 +239,7 @@ namespace AF
             int maxEnemiesToSpawn = 1;
             int minEnemiesToSpawn = 1;
 
-            List<EnemyManager> availableEnemies = new();
+            List<CharacterManager> availableEnemies = new();
 
             if (specialRound != null)
             {
@@ -255,7 +255,7 @@ namespace AF
                     // For the initial rounds, gradually increase the difficulty.
                     maxEnemiesToSpawn = 1;
 
-                    availableEnemies.AddRange((IEnumerable<EnemyManager>)(easyEnemies as IEnumerable));
+                    availableEnemies.AddRange((IEnumerable<CharacterManager>)(easyEnemies as IEnumerable));
                 }
                 else if (currentRound <= 5)
                 {
@@ -263,7 +263,7 @@ namespace AF
                     maxEnemiesToSpawn = 3;
                     minEnemiesToSpawn = 2;
 
-                    availableEnemies.AddRange((IEnumerable<EnemyManager>)(easyEnemies as IEnumerable));
+                    availableEnemies.AddRange((IEnumerable<CharacterManager>)(easyEnemies as IEnumerable));
 
                     // Pick one medium enemy to add variety.
                     var randomMediumEnemyPicked = mediumEnemies[Random.Range(0, mediumEnemies.Count())];
@@ -364,13 +364,13 @@ namespace AF
 
         }
 
-        void HandleInstatiatedEnemy(EnemyManager choosenEnemyRound)
+        void HandleInstatiatedEnemy(CharacterManager choosenEnemyRound)
         {
-            EnemyManager choosenEnemyRoundInstance = Instantiate(choosenEnemyRound,
+            CharacterManager choosenEnemyRoundInstance = Instantiate(choosenEnemyRound,
                     spawnRefs[Random.Range(0, spawnRefs.Count())].transform.position,
                     Quaternion.identity);
 
-            choosenEnemyRoundInstance.RepositionNavmeshAgent();
+            /*choosenEnemyRoundInstance.RepositionNavmeshAgent();
 
             var additionalLevels = (int)(currentRound / 10);
             choosenEnemyRoundInstance.currentLevel += additionalLevels;
@@ -394,12 +394,12 @@ namespace AF
 
             choosenEnemyRoundInstance.alwaysTrackPlayer = true;
             choosenEnemyRoundInstance.enemyBehaviorController.ChasePlayer();
-            choosenEnemyRoundInstance.enemyBehaviorController.TurnAgressive();
+            choosenEnemyRoundInstance.enemyBehaviorController.TurnAgressive();*/
         }
 
         void ClearEnemiesFromRound()
         {
-            var allEnemiesInRound = FindObjectsByType<EnemyManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var allEnemiesInRound = FindObjectsByType<CharacterManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
             bool hasPlayedSound = false;
             foreach (var enemy in allEnemiesInRound)
@@ -416,13 +416,14 @@ namespace AF
 
         public void CheckIfRoundShouldEnd()
         {
-            var allEnemiesInRound = FindObjectsByType<EnemyManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var allEnemiesInRound = FindObjectsByType<CharacterManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-            if (allEnemiesInRound.All(x => x.enemyHealthController.currentHealth <= 0))
-            {
-                // End round
-                EndRound();
-            }
+            /*
+                        if (allEnemiesInRound.All(x => x.enemyHealthController.currentHealth <= 0))
+                        {
+                            // End round
+                            EndRound();
+                        }*/
         }
 
         private void UpdateTimerUI()

@@ -87,13 +87,14 @@ namespace AF
                     lightAttackComboIndex = 0;
                 }
 
+
                 if (lightAttackComboIndex == 0)
                 {
-                    playerManager.PlayBusyAnimation(hashLightAttack1);
+                    playerManager.PlayBusyAnimationWithRootMotion(hashLightAttack1);
                 }
                 else if (lightAttackComboIndex == 1)
                 {
-                    playerManager.PlayBusyAnimation(hashLightAttack2);
+                    playerManager.PlayBusyAnimationWithRootMotion(hashLightAttack2);
                 }
             }
             else
@@ -132,7 +133,7 @@ namespace AF
 
             isHeavyAttacking = true;
 
-            playerManager.PlayBusyAnimation(hashHeavyAttack1);
+            playerManager.PlayBusyAnimationWithRootMotion(hashHeavyAttack1);
 
             staminaStatManager.DecreaseHeavyAttackStamina();
             heavyAttackComboIndex++;
@@ -172,7 +173,7 @@ namespace AF
 
         bool CanAttack()
         {
-            if (playerManager.IsBusy)
+            if (playerManager.IsBusy())
             {
                 return false;
             }

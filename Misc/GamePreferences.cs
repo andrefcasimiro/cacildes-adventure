@@ -244,9 +244,8 @@ namespace AF
 
         void UpdateDifficulty()
         {
-            foreach (var enemyManager in FindObjectsByType<EnemyManager>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (var characterManager in FindObjectsByType<CharacterManager>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             {
-                enemyManager.ResetDifficulty();
             }
         }
 

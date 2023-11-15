@@ -10,14 +10,15 @@ namespace AF
         [HideInInspector] public int hashIsDodging = Animator.StringToHash("IsDodging");
 
         [Header("Dodge Settings")]
-        [Range(0, 100)][Tooltip("0 means never, 100 means always")]
+        [Range(0, 100)]
+        [Tooltip("0 means never, 100 means always")]
         public int dodgeWeight = 100;
         public float maxDodgeCooldown = 10f;
         [HideInInspector] public float dodgeCooldown = Mathf.Infinity; // Used by the EnemyState_Waiting to control the dodge frequency
         public bool dodgeLeftOrRight = false;
         public string[] customDodgeClips;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
         PlayerCombatController playerCombatController;
 
         private void Awake()
@@ -29,7 +30,7 @@ namespace AF
         {
             UpdateDodgeCounter();
         }
-        
+
         void UpdateDodgeCounter()
         {
             if (dodgeCooldown < maxDodgeCooldown)
@@ -65,15 +66,15 @@ namespace AF
 
         public void Dodge()
         {
-            if (dodgeLeftOrRight && enemyManager.IsNavMeshAgentActive())
+            if (dodgeLeftOrRight) // && characterManager.IsNavMeshAgentActive())
             {
-                var playerIsOnTheLeft = enemyManager.PlayerIsOnTheLeft();
+                var playerIsOnTheLeft = false; //characterManager.PlayerIsOnTheLeft();
 
                 if (playerIsOnTheLeft)
                 {
                     LookAtPlayer();
-                    enemyManager.facePlayer = false;
-                    enemyManager.animator.Play(enemyManager.hashDodgeRight);
+                    // characterManager.facePlayer = false;
+                    //characterManager.animator.Play(characterManager.hashDodgeRight);
 
                     ActivateDodge();
                 }
@@ -81,8 +82,8 @@ namespace AF
                 {
                     LookAtPlayer();
                     // Face playerManager first
-                    enemyManager.facePlayer = false;
-                    enemyManager.animator.Play(enemyManager.hashDodgeLeft);
+                    // characterManager.facePlayer = false;
+                    // characterManager.animator.Play(characterManager.hashDodgeLeft);
 
                     ActivateDodge();
                 }
@@ -92,33 +93,34 @@ namespace AF
 
             if (customDodgeClips.Length > 0)
             {
-                enemyManager.enemyHealthController.DisableHealthHitboxes();
+                //                characterManager.enemyHealthController.DisableHealthHitboxes();
 
                 var dice = Random.Range(0, customDodgeClips.Length);
 
-                enemyManager.animator.Play(customDodgeClips[dice]);
+                characterManager.animator.Play(customDodgeClips[dice]);
             }
         }
 
         public void ActivateDodge()
-        {
-            if (enemyManager.enemy.dodgeSfx != null && enemyManager.combatAudioSource != null)
+        {/*
+            if (characterManager.enemy.dodgeSfx != null && characterManager.combatAudioSource != null)
             {
-                BGMManager.instance.PlaySoundWithPitchVariation(enemyManager.enemy.dodgeSfx, enemyManager.combatAudioSource);
+                BGMManager.instance.PlaySoundWithPitchVariation(characterManager.enemy.dodgeSfx, characterManager.combatAudioSource);
             }
 
-            enemyManager.enemyHealthController.DisableHealthHitboxes();
+            characterManager.enemyHealthController.DisableHealthHitboxes();*/
         }
 
         public void DeactivateDodge()
         {
-            enemyManager.facePlayer = true;
-            enemyManager.enemyHealthController.EnableHealthHitboxes();
+            /*
+            characterManager.facePlayer = true;
+            characterManager.enemyHealthController.EnableHealthHitboxes();*/
         }
 
         public bool IsDodging()
         {
-            return enemyManager.animator.GetBool(hashIsDodging);
+            return characterManager.animator.GetBool(hashIsDodging);
         }
     }
 }

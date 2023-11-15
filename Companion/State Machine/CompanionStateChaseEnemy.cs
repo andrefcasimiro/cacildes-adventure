@@ -29,7 +29,7 @@ namespace AF
         {
             companionManager.FaceEnemy();
 
-            if (companionManager.currentEnemy == null || companionManager.currentEnemy.enemyHealthController.currentHealth <= 0)
+            if (companionManager.currentEnemy == null) //|| companionManager.currentEnemy.enemyHealthController.currentHealth <= 0)
             {
                 animator.SetBool(companionManager.hashIsChasingEnemy, false);
                 animator.SetBool(companionManager.hashIsCombatting, false);

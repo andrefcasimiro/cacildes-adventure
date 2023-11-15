@@ -16,7 +16,7 @@ namespace AF
 
         public AudioClip pushSfx;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         public void Activate()
         {
@@ -40,13 +40,13 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            if (isActivated == false ||canDamage == false)
+            if (isActivated == false || canDamage == false)
             {
                 return;
             }
 
-            EnemyHealthController en = other.GetComponent<EnemyHealthController>();
-            if (en == null)
+            // EnemyHealthController en = other.GetComponent<EnemyHealthController>();
+            /*Pif (en == null)
             {
                 en = other.GetComponentInParent<EnemyHealthController>();
             }
@@ -55,18 +55,18 @@ namespace AF
             {
                 en.TakeEnvironmentalDamage(damageOnCollidingWithEnemies);
                 canDamage = false;
-            }
+            }*/
         }
 
         public void Throw()
         {
-            enemyManager.PushEnemy(pushForce, ForceMode.Acceleration);
+            // characterManager.PushEnemy(pushForce, ForceMode.Acceleration);
 
             canDamage = true;
 
             StartCoroutine(ResetCanDamage());
 
-            enemyManager.combatAudioSource.PlayOneShot(pushSfx);
+            characterManager.combatAudioSource.PlayOneShot(pushSfx);
         }
 
         IEnumerator ResetCanDamage()

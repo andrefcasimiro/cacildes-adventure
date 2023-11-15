@@ -12,7 +12,7 @@ namespace AF
         [Range(0, 100)] public int parryWeight = 0;
         public bool isShieldAlwaysVisible = false;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         public string blockHitAnimationName = "";
         public bool blockWhileStrafing = false;
@@ -23,8 +23,8 @@ namespace AF
 
         private void Awake()
         {
-             playerPoiseController = FindObjectOfType<PlayerPoiseController>(true);
-             playerParryManager = FindObjectOfType<PlayerParryManager>(true);
+            playerPoiseController = FindObjectOfType<PlayerPoiseController>(true);
+            playerParryManager = FindObjectOfType<PlayerParryManager>(true);
         }
 
         // Start is called before the first frame update
@@ -43,12 +43,13 @@ namespace AF
 
         public bool IsBlocking()
         {
-            return enemyManager.animator.GetBool(enemyManager.hashIsBlocking);
+            return false;
+            //return characterManager.animator.GetBool(characterManager.hashIsBlocking);
         }
 
         public void ActivateParry()
         {
-            enemyManager.animator.Play(enemyManager.hashParry);
+            // characterManager.animator.Play(characterManager.hashParry);
 
             playerPoiseController.IncreasePoiseDamage(1);
             playerPoiseController.PlayParried();
@@ -61,32 +62,32 @@ namespace AF
 
         public void HandleBlock(Vector3 blockContactPosition, int guardBreakHitAmount)
         {
-            if (enemyManager.enemyPostureController != null)
-            {
-                bool hasBrokePosture = enemyManager.enemyPostureController.TakePostureDamage(guardBreakHitAmount);
-            
-                if (hasBrokePosture)
-                {
-                    return;
-                }
-            }
+            /* if (characterManager.enemyPostureController != null)
+             {
+                 bool hasBrokePosture = characterManager.enemyPostureController.TakePostureDamage(guardBreakHitAmount);
 
-            if (blockParticleEffect != null)
-            {
-                Vector3 pos = blockContactPosition;
+                 if (hasBrokePosture)
+                 {
+                     return;
+                 }
+             }
 
-                if (pos == Vector3.zero && shield != null)
-                {
-                    pos = shield.transform.position;
-                }
+             if (blockParticleEffect != null)
+             {
+                 Vector3 pos = blockContactPosition;
 
-                Instantiate(blockParticleEffect, pos, Quaternion.identity);
-            }
+                 if (pos == Vector3.zero && shield != null)
+                 {
+                     pos = shield.transform.position;
+                 }
 
-            if (!string.IsNullOrEmpty(blockHitAnimationName))
-            {
-                enemyManager.animator.Play(blockHitAnimationName);
-            }
+                 Instantiate(blockParticleEffect, pos, Quaternion.identity);
+             }
+
+             if (!string.IsNullOrEmpty(blockHitAnimationName))
+             {
+                 characterManager.animator.Play(blockHitAnimationName);
+             }*/
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace AF
         {
             if (Random.Range(0, 100) <= 50)
             {
-                enemyManager.animator.Play(enemyManager.hashCombatting);
+                // characterManager.animator.Play(characterManager.hashCombatting);
             }
         }
 
@@ -110,7 +111,7 @@ namespace AF
                 shield.gameObject.SetActive(true);
             }
 
-            enemyManager.enemyHealthController.DisableHealthHitboxes();
+            // characterManager.enemyHealthController.DisableHealthHitboxes();
         }
 
         /// <summary>
@@ -123,12 +124,12 @@ namespace AF
                 shield.gameObject.SetActive(false);
             }
 
-            enemyManager.enemyHealthController.EnableHealthHitboxes();
+            //  characterManager.enemyHealthController.EnableHealthHitboxes();
         }
 
         public bool CanBlock()
         {
-            if (enemyManager.enemyBlockController.blockWeight == 0)
+            if (false) //characterManager.enemyBlockController.blockWeight == 0)
             {
                 return false;
             }
@@ -143,12 +144,13 @@ namespace AF
                 return false;
             }
 
-            return Random.Range(0, 100) < enemyManager.enemyBlockController.blockWeight;
+            return Random.Range(0, 100) < 1; //characterManager.enemyBlockController.blockWeight;
         }
 
         public bool CanParry()
         {
-            if (enemyManager.enemyBlockController.parryWeight == 0) {
+            if (false)//characterManager.enemyBlockController.parryWeight == 0)
+            {
                 return false;
             }
 
@@ -157,27 +159,27 @@ namespace AF
                 return false;
             }
 
-            return Random.Range(0, 100) < enemyManager.enemyBlockController.parryWeight;
+            return Random.Range(0, 100) < 1f;//characterManager.enemyBlockController.parryWeight;
         }
 
         public bool IsBusy()
         {
+            /*
+                        // If not waiting, don't allow to block or parry because it means we are in the middle of another action
+                        if (!characterManager.enemyCombatController.IsWaiting())
+                        {
+                            return true;
+                        }
 
-            // If not waiting, don't allow to block or parry because it means we are in the middle of another action
-            if (!enemyManager.enemyCombatController.IsWaiting())
-            {
-                return true;
-            }
+                        if (characterManager.enemyPostureController != null && characterManager.enemyPostureController.IsStunned())
+                        {
+                            return true;
+                        }
 
-            if (enemyManager.enemyPostureController != null && enemyManager.enemyPostureController.IsStunned())
-            {
-                return true;
-            }
-
-            if (enemyManager.enemyDodgeController != null && enemyManager.enemyDodgeController.IsDodging())
-            {
-                return true;
-            }
+                        if (characterManager.enemyDodgeController != null && characterManager.enemyDodgeController.IsDodging())
+                        {
+                            return true;
+                        }*/
 
             return false;
         }

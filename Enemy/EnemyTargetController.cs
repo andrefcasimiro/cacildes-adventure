@@ -12,7 +12,7 @@ namespace AF
         public float maxTimeFocusedOnCompanions = 10f;
         float focusedOnCompanionsTimer = Mathf.Infinity;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         private void Update()
         {
@@ -49,7 +49,7 @@ namespace AF
 
             currentCompanion = companionManager;
 
-            enemyManager.agent.SetDestination(currentCompanion.transform.position);
+            characterManager.agent.SetDestination(currentCompanion.transform.position);
         }
 
         public void BreakCompanionFocus()
@@ -57,10 +57,10 @@ namespace AF
             currentCompanion = null;
 
             // Refocus on playerManager
-            if (enemyManager.IsNavMeshAgentActive())
+            /*if (characterManager.IsNavMeshAgentActive())
             {
-                enemyManager.agent.SetDestination(enemyManager.player.transform.position);
-            }
+                characterManager.agent.SetDestination(characterManager.player.transform.position);
+            }*/
         }
 
     }

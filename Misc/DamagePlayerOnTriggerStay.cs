@@ -112,58 +112,58 @@ namespace AF
             if (damageEnemiesInstead)
             {
 
-                EnemyHealthController enemyHealthController = null;
+                //EnemyHealthController enemyHealthController = null;
 
                 if (other.CompareTag("Enemy"))
                 {
-                    enemyHealthController = other.GetComponent<EnemyHealthController>();
+                    //  enemyHealthController = other.GetComponent<EnemyHealthController>();
                 }
+                /*
+                                if (enemyHealthController == null)
+                                {
+                                    enemyHealthController = other.GetComponent<CharacterHealthHitbox>()?.characterManager?.enemyHealthController;
+                                }
 
-                if (enemyHealthController == null)
-                {
-                    enemyHealthController = other.GetComponent<EnemyHealthHitbox>()?.enemyManager?.enemyHealthController;
-                }
+                                if (enemyHealthController != null)
+                                {
+                                    var copiedDamage = damage;
 
-                if (enemyHealthController != null)
-                {
-                    var copiedDamage = damage;
+                                    if (copiedDamage > 0)
+                                    {
 
-                    if (copiedDamage > 0)
-                    {
+                                        if (damageScalesWithIntelligence)
+                                        {
+                                            copiedDamage = Formulas.CalculateSpellValue(copiedDamage, playerSpellManager.GetCurrentInteligence());
+                                        }
 
-                        if (damageScalesWithIntelligence)
-                        {
-                            copiedDamage = Formulas.CalculateSpellValue(copiedDamage, playerSpellManager.GetCurrentInteligence());
-                        }
+                                        enemyHealthController.TakeEnvironmentalDamage(copiedDamage);
+                                    }
 
-                        enemyHealthController.TakeEnvironmentalDamage(copiedDamage);
-                    }
-
-                    cooldown = 0f;
-                }
-
-
-                if (statusEffect != null && enemyHealthController != null)
-                {
-                    var enemyNegativeStatus = enemyHealthController.GetComponent<EnemyNegativeStatusController>();
-
-                    if (enemyNegativeStatus != null)
-                    {
-                        enemyNegativeStatus.InflictStatusEffect(statusEffect, statusEffectAmount);
-
-                    }
-                }
-
-                if (postureDamage > 0)
-                {
-                    enemyHealthController.GetComponent<EnemyPostureController>().TakePostureDamage(postureDamage);
-                }
+                                    cooldown = 0f;
+                                }
 
 
-                if (forceEnemiesIntoCombat && enemyHealthController != null)
-                {
-                    enemyHealthController.GetComponent<EnemyManager>().enemyBehaviorController.ChasePlayer();
-                }
+                                if (statusEffect != null && enemyHealthController != null)
+                                {
+                                    var enemyNegativeStatus = enemyHealthController.GetComponent<EnemyNegativeStatusController>();
+
+                                    if (enemyNegativeStatus != null)
+                                    {
+                                        enemyNegativeStatus.InflictStatusEffect(statusEffect, statusEffectAmount);
+
+                                    }
+                                }
+
+                                if (postureDamage > 0)
+                                {
+                                    enemyHealthController.GetComponent<EnemyPostureController>().TakePostureDamage(postureDamage);
+                                }
+
+
+                                if (forceEnemiesIntoCombat && enemyHealthController != null)
+                                {
+                                    enemyHealthController.GetComponent<CharacterManager>().enemyBehaviorController.ChasePlayer();
+                                }*/
             }
         }
 

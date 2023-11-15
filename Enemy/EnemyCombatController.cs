@@ -65,30 +65,31 @@ namespace AF
         [HideInInspector] public string transitionToExecution = "";
         [HideInInspector] public string playerExecutedClip = "";
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         public bool isDamagingHimself = false;
 
         public void ForceIntoCombat()
         {
-            if (enemyManager.enemyHealthController.currentHealth <= 0)
+            if (false)//characterManager.enemyHealthController.currentHealth <= 0)
             {
                 return;
             }
 
-            enemyManager.animator.SetBool(enemyManager.hashChasing, true);
+            // characterManager.animator.SetBool(characterManager.hashChasing, true);
         }
 
         public int GetCurrentAttack()
         {
-            var attackPower = Formulas.CalculateAIAttack(enemyManager.enemy.basePhysicalAttack, enemyManager.currentLevel) + weaponDamageBonus;
+            return 1;
+            /*            var attackPower = Formulas.CalculateAIAttack(characterManager.enemy.basePhysicalAttack, characterManager.currentLevel) + weaponDamageBonus;
 
-            if (enemyManager.attackReducingFactor > 1)
-            {
-                attackPower = (int)(attackPower / enemyManager.attackReducingFactor);
-            }
+                        if (characterManager.attackReducingFactor > 1)
+                        {
+                            attackPower = (int)(attackPower / characterManager.attackReducingFactor);
+                        }
 
-            return attackPower;
+                        return attackPower;*/
         }
 
         public bool IsInCombat()
@@ -98,17 +99,20 @@ namespace AF
                 return false;
             }
 
-            return enemyManager.animator.GetBool(enemyManager.hashIsInCombat);
+
+            return false;
+            //return characterManager.animator.GetBool(characterManager.hashIsInCombat);
         }
 
         public bool IsWaiting()
         {
-            return enemyManager.animator.GetBool(enemyManager.hashIsWaiting);
+            return false;
+            //return characterManager.animator.GetBool(characterManager.hashIsWaiting);
         }
 
         public bool IsPlayerFarAway()
         {
-            return Vector3.Distance(enemyManager.agent.transform.position, enemyManager.player.transform.position) > enemyManager.agent.stoppingDistance + 0.5f + enemyManager.enemyCombatController.minimumAttackDistanceToPlayer;
+            return false; //Vector3.Distance(characterManager.agent.transform.position, characterManager.player.transform.position) > characterManager.agent.stoppingDistance + 0.5f + characterManager.enemyCombatController.minimumAttackDistanceToPlayer;
         }
 
         // TODO: Fix Boolean as a parameter, very ugly
@@ -122,7 +126,7 @@ namespace AF
                     return runningAttacks[attackDice];
                 }
 
-                return runningAttacks.FirstOrDefault(x => Vector3.Distance(enemyManager.transform.position, enemyManager.player.transform.position) >= x.minDistanceToAttack);
+                //return runningAttacks.FirstOrDefault(x => Vector3.Distance(characterManager.transform.position, characterManager.player.transform.position) >= x.minDistanceToAttack);
             }
 
             return null;

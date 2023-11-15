@@ -65,7 +65,7 @@ namespace AF
             }
 
             // Find all active enemies in scene
-            var allEnemiesInScene = FindObjectsOfType<EnemyManager>();
+            var allEnemiesInScene = FindObjectsOfType<CharacterManager>();
             foreach (var enemy in allEnemiesInScene)
             {
                 if (enemy.GetComponent<EnemyBossController>() != null)
@@ -74,7 +74,7 @@ namespace AF
                 }
 
                 enemy.enabled = true;
-                enemy.Revive();
+                // enemy.Revive();
             }
 
             fireFx.gameObject.SetActive(true);

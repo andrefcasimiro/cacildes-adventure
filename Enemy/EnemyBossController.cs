@@ -64,7 +64,7 @@ namespace AF
             bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
             bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName.GetText();
 
-            GetComponent<EnemyHealthController>().HideHUD();
+            //GetComponent<EnemyHealthController>().HideHUD();
 
             bossHud.rootVisualElement.style.display = DisplayStyle.Flex;
         }
@@ -105,14 +105,15 @@ namespace AF
 
         public bool AllBossesAreDead()
         {
-            var bossIsDead = GetComponent<EnemyHealthController>().currentHealth <= 0;
+            /*var bossIsDead = GetComponent<EnemyHealthController>().currentHealth <= 0;
 
             if (partner == null)
             {
                 return bossIsDead;
             }
 
-            return bossIsDead && partner.GetComponent<EnemyHealthController>().currentHealth <= 0;
+            return bossIsDead && partner.GetComponent<EnemyHealthController>().currentHealth <= 0;*/
+            return false;
         }
     }
 }

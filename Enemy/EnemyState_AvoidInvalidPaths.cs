@@ -2,11 +2,12 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace AF {
+namespace AF
+{
     public class EnemyState_AvoidInvalidPaths : StateMachineBehaviour
     {
         NavMeshAgent navMeshAgent;
-        EnemyManager enemyManager;
+        CharacterManager characterManager;
         AnimationEventHandlerWithMotion animationEventHandler;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -21,9 +22,9 @@ namespace AF {
                 navMeshAgent = animator.GetComponentInParent<NavMeshAgent>();
             }
 
-            if (enemyManager == null)
+            if (characterManager == null)
             {
-                enemyManager = navMeshAgent.GetComponent<EnemyManager>();
+                characterManager = navMeshAgent.GetComponent<CharacterManager>();
 
             }
 
@@ -36,7 +37,7 @@ namespace AF {
         public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
 
-            if (enemyManager != null && enemyManager.avoidInvalidPathsAlways)
+            if (characterManager != null) //&& characterManager.avoidInvalidPathsAlways)
             {
                 navMeshAgent.enabled = true;
                 navMeshAgent.updatePosition = true;

@@ -12,7 +12,7 @@ namespace AF
         public UnityEngine.UI.Slider postureBarSlider;
         public GameObject stunnedParticle;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         public bool isParriable = false;
 
@@ -29,9 +29,9 @@ namespace AF
 
         private void Start()
         {
-            if (enemyManager.player != null)
+            if (false) //characterManager.player != null)
             {
-                playerAchievementsManager = enemyManager.player.GetComponent<PlayerAchievementsManager>();
+                // playerAchievementsManager = characterManager.player.GetComponent<PlayerAchievementsManager>();
             }
 
             InitializePostureHUD();
@@ -55,7 +55,7 @@ namespace AF
 
         void UpdatePosture()
         {
-            if (enemyManager.enemyHealthController.currentHealth <= 0)
+            if (false)//characterManager.enemyHealthController.currentHealth <= 0)
             {
                 return;
             }
@@ -70,7 +70,7 @@ namespace AF
             {
                 if (currentPostureDamage > 0)
                 {
-                    currentPostureDamage -= Time.deltaTime * enemyManager.enemy.postureDecreaseRate;
+                    currentPostureDamage -= Time.deltaTime * 1; //characterManager.enemy.postureDecreaseRate;
                 }
                 else
                 {
@@ -81,9 +81,9 @@ namespace AF
 
         public bool TakePostureDamage(int extraPostureDamage)
         {
-            enemyManager.enemyWeaponController.DisableAllWeaponHitboxes();
+            //characterManager.enemyWeaponController.DisableAllWeaponHitboxes();
 
-            var postureDamage = enemyManager.enemy.postureDamagePerParry;
+            var postureDamage = 0; //characterManager.enemy.postureDamagePerParry;
             if (extraPostureDamage != 0)
             {
                 postureDamage = extraPostureDamage;
@@ -101,7 +101,7 @@ namespace AF
             }
             else if (extraPostureDamage == 0) // If damage from parry, play parry animation
             {
-                enemyManager.animator.Play(enemyManager.hashPostureHit);
+                // characterManager.animator.Play(characterManager.hashPostureHit);
             }
 
             return false;
@@ -145,7 +145,7 @@ namespace AF
             Soundbank.instance.PlayEnemyGuardBreak();
 
             //stunnedParticle.gameObject.SetActive(true);
-            enemyManager.animator.Play(enemyManager.hashPostureBreak);
+            // characterManager.animator.Play(characterManager.hashPostureBreak);
         }
 
         public void RecoverPosture()
@@ -155,17 +155,20 @@ namespace AF
 
         public bool IsStunned()
         {
-            return enemyManager.animator.GetBool(enemyManager.hashIsStunned);
+            return false;
+            // return characterManager.animator.GetBool(characterManager.hashIsStunned);
         }
 
         int GetMaxPostureDamage()
         {
-            if (enemyManager.currentLevel <= 1)
+            return 0;
+            /*
+            if (characterManager.currentLevel <= 1)
             {
-                return enemyManager.enemy.maxPostureDamage;
+                return characterManager.enemy.maxPostureDamage;
             }
 
-            return Formulas.CalculateAIPosture(enemyManager.enemy.maxPostureDamage, enemyManager.currentLevel);
+            return Formulas.CalculateAIPosture(characterManager.enemy.maxPostureDamage, characterManager.currentLevel);*/
         }
 
         public void ShowHUD()

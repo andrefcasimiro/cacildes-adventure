@@ -185,8 +185,9 @@ namespace AF
             }
         }
 
-        void EvaluateConfettiTrap(EnemyManager enemyManager)
+        void EvaluateConfettiTrap(CharacterManager characterManager)
         {
+            /*
             var dice = Random.Range(0f, 100);
             // Elemental Damage
             if (dice <= 25)
@@ -216,47 +217,47 @@ namespace AF
                 switch (randomElement)
                 {
                     case WeaponElementType.Fire:
-                        elementalDefense = enemyManager.enemy.fireDamageBonus * 25 / 100; // Convert to percentage
+                        elementalDefense = characterManager.enemy.fireDamageBonus * 25 / 100; // Convert to percentage
                         break;
                     case WeaponElementType.Frost:
-                        elementalDefense = enemyManager.enemy.frostDamageBonus * 25 / 100; // Convert to percentage
+                        elementalDefense = characterManager.enemy.frostDamageBonus * 25 / 100; // Convert to percentage
                         break;
                     case WeaponElementType.Lightning:
-                        elementalDefense = enemyManager.enemy.lightningDamageBonus * 25 / 100; // Convert to percentage
+                        elementalDefense = characterManager.enemy.lightningDamageBonus * 25 / 100; // Convert to percentage
                         break;
                     case WeaponElementType.Magic:
-                        elementalDefense = enemyManager.enemy.magicDamageBonus * 25 / 100; // Convert to percentage
+                        elementalDefense = characterManager.enemy.magicDamageBonus * 25 / 100; // Convert to percentage
                         break;
                 }
                 projectileDamage += (projectileDamage * elementalDefense);
 
-                enemyManager.enemyHealthController
+                characterManager.enemyHealthController
                     .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
             }
             else if (dice <= 50)
             {
                 var statusEffectToApply = possibleStatusEffects[Random.Range(0, possibleStatusEffects.Length)];
-                if (statusEffectToApply != null && enemyManager.enemyNegativeStatusController != null)
+                if (statusEffectToApply != null && characterManager.enemyNegativeStatusController != null)
                 {
-                    enemyManager.enemyNegativeStatusController.InflictStatusEffect(statusEffectToApply, Random.Range(25f, 50f));
+                    characterManager.enemyNegativeStatusController.InflictStatusEffect(statusEffectToApply, Random.Range(25f, 50f));
                 }
             }
             else if (dice <= 75)
             {
-                enemyManager.PushEnemy(Random.Range(2, 8), ForceMode.Impulse);
+                characterManager.PushEnemy(Random.Range(2, 8), ForceMode.Impulse);
             }
             else if (dice <= 85)
             {
-                enemyManager.enemyHealthController.RestoreHealthPercentage(100);
+                characterManager.enemyHealthController.RestoreHealthPercentage(100);
             }
             else if (dice <= 95)
             {
-                enemyManager.enemyHealthController.TakeEnvironmentalDamage(9999999);
+                characterManager.enemyHealthController.TakeEnvironmentalDamage(9999999);
             }
             else
             {
-                enemyManager.enemyHealthController.TakeEnvironmentalDamage(25);
-            }
+                characterManager.enemyHealthController.TakeEnvironmentalDamage(25);
+            }*/
         }
 
         private void OnTriggerEnter(Collider other)
@@ -268,13 +269,13 @@ namespace AF
                     return;
                 }
 
-                EnemyManager enemyManager = other.gameObject.GetComponent<EnemyManager>();
-                if (enemyManager == null)
+                CharacterManager characterManager = other.gameObject.GetComponent<CharacterManager>();
+                if (characterManager == null)
                 {
-                    enemyManager = other.GetComponentInParent<EnemyManager>();
+                    characterManager = other.GetComponentInParent<CharacterManager>();
                 }
 
-                if (enemyManager == null)
+                if (characterManager == null)
                 {
                     return;
                 }
@@ -297,7 +298,7 @@ namespace AF
 
                     if (isConfettiTrap)
                     {
-                        EvaluateConfettiTrap(enemyManager);
+                        EvaluateConfettiTrap(characterManager);
 
                         Destroy(this.gameObject);
                         return;
@@ -305,34 +306,36 @@ namespace AF
 
                     // Apply elemental defense reduction based on weaponElementType
                     float elementalDefense = 0f;
+
+                    /*
                     switch (projectileAttackElementType)
                     {
                         case WeaponElementType.Fire:
-                            elementalDefense = enemyManager.enemy.fireDamageBonus * 25 / 100; // Convert to percentage
+                            elementalDefense = characterManager.enemy.fireDamageBonus * 25 / 100; // Convert to percentage
                             break;
                         case WeaponElementType.Frost:
-                            elementalDefense = enemyManager.enemy.frostDamageBonus * 25 / 100; // Convert to percentage
+                            elementalDefense = characterManager.enemy.frostDamageBonus * 25 / 100; // Convert to percentage
                             break;
                         case WeaponElementType.Lightning:
-                            elementalDefense = enemyManager.enemy.lightningDamageBonus * 25 / 100; // Convert to percentage
+                            elementalDefense = characterManager.enemy.lightningDamageBonus * 25 / 100; // Convert to percentage
                             break;
                         case WeaponElementType.Magic:
-                            elementalDefense = enemyManager.enemy.magicDamageBonus * 25 / 100; // Convert to percentage
+                            elementalDefense = characterManager.enemy.magicDamageBonus * 25 / 100; // Convert to percentage
                             break;
-                    }
+                    }*/
 
                     projectileDamage += (projectileDamage * elementalDefense);
 
-
-                    enemyManager.enemyHealthController
+                    /*
+                    characterManager.enemyHealthController
                         .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
 
-                    enemyManager.PushEnemy(projectilePushForce, ForceMode.Impulse);
+                    characterManager.PushEnemy(projectilePushForce, ForceMode.Impulse);
 
-                    if (statusEffectToApply != null && enemyManager.enemyNegativeStatusController != null)
+                    if (statusEffectToApply != null && characterManager.enemyNegativeStatusController != null)
                     {
-                        enemyManager.enemyNegativeStatusController.InflictStatusEffect(statusEffectToApply, amountOfStatusEffectToApply);
-                    }
+                        characterManager.enemyNegativeStatusController.InflictStatusEffect(statusEffectToApply, amountOfStatusEffectToApply);
+                    }*/
                 }
 
                 return;
@@ -383,7 +386,7 @@ namespace AF
                 return;
             }
 
-            if (other.gameObject.tag != "Enemy" && other.gameObject.tag != "EnemyHealthHitbox" && other.gameObject.tag != "" && isFromPlayer == false)
+            if (other.gameObject.tag != "Enemy" && other.gameObject.tag != "CharacterHealthHitbox" && other.gameObject.tag != "" && isFromPlayer == false)
             {
                 hasCollidedAlready = true;
             }
@@ -401,7 +404,7 @@ namespace AF
             // Is Player ?
             if (isFromPlayer)
             {
-                EnemyHealthHitbox enemyHealthHitbox = other.gameObject.GetComponentInChildren<EnemyHealthHitbox>(true);
+                CharacterHealthHitbox enemyHealthHitbox = other.gameObject.GetComponentInChildren<CharacterHealthHitbox>(true);
 
                 // Colliding with something else
                 if (enemyHealthHitbox == null)
@@ -423,35 +426,36 @@ namespace AF
                 {
                     // Apply elemental defense reduction based on weaponElementType
                     float elementalDefense = 0f;
-                    switch (projectileAttackElementType)
+                    /*switch (projectileAttackElementType)
                     {
                         case WeaponElementType.Fire:
-                            elementalDefense = enemyHealthHitbox.enemyManager.enemy.fireDamageBonus * 25 / 100; // Convert to percentage
+                            elementalDefense = enemyHealthHitbox.characterManager.enemy.fireDamageBonus * 25 / 100; // Convert to percentage
                             break;
                         case WeaponElementType.Frost:
-                            elementalDefense = enemyHealthHitbox.enemyManager.enemy.frostDamageBonus * 25 / 100; // Convert to percentage
+                            elementalDefense = enemyHealthHitbox.characterManager.enemy.frostDamageBonus * 25 / 100; // Convert to percentage
                             break;
                         case WeaponElementType.Lightning:
-                            elementalDefense = enemyHealthHitbox.enemyManager.enemy.lightningDamageBonus * 25 / 100; // Convert to percentage
+                            elementalDefense = enemyHealthHitbox.characterManager.enemy.lightningDamageBonus * 25 / 100; // Convert to percentage
                             break;
                         case WeaponElementType.Magic:
-                            elementalDefense = enemyHealthHitbox.enemyManager.enemy.magicDamageBonus * 25 / 100; // Convert to percentage
+                            elementalDefense = enemyHealthHitbox.characterManager.enemy.magicDamageBonus * 25 / 100; // Convert to percentage
                             break;
-                    }
+                    }*/
 
                     projectileDamage += (projectileDamage * elementalDefense);
 
 
-                    enemyHealthHitbox.enemyManager.enemyHealthController
-                        .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
+                    /*
+                                        enemyHealthHitbox.characterManager.enemyHealthController
+                                            .TakeProjectileDamage(projectileDamage + FindObjectOfType<AttackStatManager>(true).GetArrowDamageBonus(), this);
 
-                    enemyHealthHitbox.enemyManager.PushEnemy(projectilePushForce, ForceMode.Impulse);
+                                        enemyHealthHitbox.characterManager.PushEnemy(projectilePushForce, ForceMode.Impulse);*/
                 }
 
-                if (statusEffectToApply != null && enemyHealthHitbox.enemyManager.enemyNegativeStatusController != null)
-                {
-                    enemyHealthHitbox.enemyManager.enemyNegativeStatusController.InflictStatusEffect(statusEffectToApply, amountOfStatusEffectToApply);
-                }
+                /* if (statusEffectToApply != null && enemyHealthHitbox.characterManager.enemyNegativeStatusController != null)
+                 {
+                     enemyHealthHitbox.characterManager.enemyNegativeStatusController.InflictStatusEffect(statusEffectToApply, amountOfStatusEffectToApply);
+                 }*/
 
                 hasCollidedAlready = true;
 

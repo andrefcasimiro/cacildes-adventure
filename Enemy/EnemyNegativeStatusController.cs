@@ -27,8 +27,7 @@ namespace AF
         public GameObject statusEffectContainer;
 
         // Components
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
-        EnemyHealthController enemyHealthController => GetComponent<EnemyHealthController>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
         CombatNotificationsController combatNotificationsController => GetComponent<CombatNotificationsController>();
 
         private void Update()
@@ -77,10 +76,7 @@ namespace AF
 
                     if (statusEffect.usePercentuagelDamage && statusEffect.damagePercentualValue > 0)
                     {
-                        var percentageOfHealthToTake = statusEffect.damagePercentualValue * enemyHealthController.GetMaxHealth() / 100;
-                        valueToReturn = percentageOfHealthToTake;
 
-                        combatNotificationsController.ShowStatusEffectAmount(statusEffect.name.GetText(), valueToReturn, statusEffect.barColor);
                     }
                     else
                     {
@@ -95,12 +91,7 @@ namespace AF
                 return valueToReturn;
             }
 
-            var negativeStatusResistance = enemyManager.enemy.negativeStatusResistances.FirstOrDefault(x => x.statusEffect == statusEffect);
             var maxAmountBeforeDamage = 100f;
-            if (negativeStatusResistance != null)
-            {
-                maxAmountBeforeDamage = negativeStatusResistance.resistance;
-            }
 
             AppliedStatus appliedStatus = new AppliedStatus();
             appliedStatus.statusEffect = statusEffect;
@@ -113,19 +104,11 @@ namespace AF
                 combatNotificationsController.ShowStatusFullAmountEffect(statusEffect.appliedStatusDisplayName.GetText(), statusEffect.barColor);
                 Instantiate(statusEffect.particleOnDamage, this.transform);
 
-                if (appliedStatus.statusEffect.damagePercentualValue > 0)
-                {
-                    var percentageOfHealthToTake = appliedStatus.statusEffect.damagePercentualValue * enemyHealthController.GetMaxHealth() / 100;
-                    valueToReturn = percentageOfHealthToTake;
-                    combatNotificationsController.ShowStatusEffectAmount(statusEffect.name.GetText(), valueToReturn, statusEffect.barColor);
-                }
             }
 
             EnemyAppliedStatus enemyAppliedStatus = new EnemyAppliedStatus();
             enemyAppliedStatus.appliedStatus = appliedStatus;
             enemyAppliedStatus.maxAmountBeforeDamage = maxAmountBeforeDamage;
-            enemyAppliedStatus.decreaseRateWithDamage = negativeStatusResistance.decreaseRateWithDamage;
-            enemyAppliedStatus.decreaseRateWithoutDamage = negativeStatusResistance.decreaseRateWithoutDamage;
 
             var uiIndicatorInstance = Instantiate(uiStatusPrefab, statusEffectContainer.transform);
             enemyAppliedStatus.fullAmountUIIndicator = uiIndicatorInstance;
@@ -194,71 +177,23 @@ namespace AF
 
             if (entry.statusEffect.statAffected == Stat.Health)
             {
-                if (entry.statusEffect.effectIsImmediate)
-                {
-                    if (entry.statusEffect.usePercentuagelDamage)
-                    {
-                        var percentageOfHealthToTake = entry.statusEffect.damagePercentualValue * enemyHealthController.GetMaxHealth() / 100;
-                        var newHealth = enemyHealthController.currentHealth - percentageOfHealthToTake;
-                        enemyHealthController.currentHealth = Mathf.Clamp(newHealth, 0, enemyHealthController.GetMaxHealth());
-                    }
-                }
-                else
-                {
-                    var newHealth = enemyHealthController.currentHealth - (entry.statusEffect.damagePerSecond * Time.deltaTime);
-
-                    enemyHealthController.currentHealth = Mathf.Clamp(newHealth, 0, enemyHealthController.GetMaxHealth());
-                }
-
-                if (enemyHealthController.currentHealth <= 0)
-                {
-                    enemyHealthController.Die();
-
-                    // Remove this status
-                    statusToDelete.Add(enemyAppliedStatus);
-                }
 
                 return;
             }
 
 
-            if (entry.statusEffect.damageSelf)
-            {
-                enemyManager.enemyCombatController.isDamagingHimself = true;
-            }
-
-            if (entry.statusEffect.ignoreDefense)
-            {
-                enemyManager.enemyHealthController.ignoreDefense = true;
-            }
-
-            if (entry.statusEffect.instantDeath)
-            {
-                enemyManager.enemyHealthController.Die();
-            }
-
             if (entry.statusEffect.slowDownAnimatorSpeedValue > 0f)
             {
-                enemyManager.animator.speed -= entry.statusEffect.slowDownAnimatorSpeedValue;
+                characterManager.animator.speed -= entry.statusEffect.slowDownAnimatorSpeedValue;
             }
 
         }
 
         void HandleNegativeStatusDeletion(AppliedStatus appliedStatus)
         {
-            if (appliedStatus.statusEffect.damageSelf)
-            {
-                enemyManager.enemyCombatController.isDamagingHimself = false;
-            }
-
-            if (appliedStatus.statusEffect.ignoreDefense)
-            {
-                enemyManager.enemyHealthController.ignoreDefense = false;
-            }
-
             if (appliedStatus.statusEffect.slowDownAnimatorSpeedValue > 0f)
             {
-                enemyManager.animator.speed += appliedStatus.statusEffect.slowDownAnimatorSpeedValue;
+                characterManager.animator.speed += appliedStatus.statusEffect.slowDownAnimatorSpeedValue;
             }
         }
 

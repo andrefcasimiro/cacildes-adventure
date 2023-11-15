@@ -21,7 +21,7 @@ namespace AF
         [Header("Options")]
         public bool hideWeaponsOnStart = false;
 
-        EnemyManager enemyManager => GetComponent<EnemyManager>();
+        CharacterManager characterManager => GetComponent<CharacterManager>();
 
         // Start is called before the first frame update
         void Start()
@@ -219,27 +219,27 @@ namespace AF
 
 
         public void HandleWeaponBonus(EnemyWeaponHitbox weapon, bool isAttacking)
-        {
+        {/*
             if (weapon.poiseDamage != 0)
             {
-                enemyManager.enemyCombatController.currentAttackPoiseDamage = isAttacking
-                        ? enemyManager.enemyCombatController.currentAttackPoiseDamage + weapon.poiseDamage
-                        : enemyManager.enemyCombatController.currentAttackPoiseDamage - weapon.poiseDamage;
+                characterManager.enemyCombatController.currentAttackPoiseDamage = isAttacking
+                        ? characterManager.enemyCombatController.currentAttackPoiseDamage + weapon.poiseDamage
+                        : characterManager.enemyCombatController.currentAttackPoiseDamage - weapon.poiseDamage;
             }
 
             if (weapon.statusEffect != null && weapon.statusEffectAmountPerHit != 0)
             {
-                enemyManager.enemyCombatController.weaponStatusEffect = isAttacking ? weapon.statusEffect : null;
-                enemyManager.enemyCombatController.statusEffectAmount = isAttacking
-                        ? enemyManager.enemyCombatController.statusEffectAmount + weapon.statusEffectAmountPerHit
-                        : enemyManager.enemyCombatController.statusEffectAmount - weapon.statusEffectAmountPerHit;
+                characterManager.enemyCombatController.weaponStatusEffect = isAttacking ? weapon.statusEffect : null;
+                characterManager.enemyCombatController.statusEffectAmount = isAttacking
+                        ? characterManager.enemyCombatController.statusEffectAmount + weapon.statusEffectAmountPerHit
+                        : characterManager.enemyCombatController.statusEffectAmount - weapon.statusEffectAmountPerHit;
             }
             if (weapon.blockStaminaCost != 0)
             {
-                enemyManager.enemyCombatController.bonusBlockStaminaCost = isAttacking
-                        ? enemyManager.enemyCombatController.bonusBlockStaminaCost + weapon.blockStaminaCost
-                        : enemyManager.enemyCombatController.bonusBlockStaminaCost - weapon.blockStaminaCost;
-            }
+                characterManager.enemyCombatController.bonusBlockStaminaCost = isAttacking
+                        ? characterManager.enemyCombatController.bonusBlockStaminaCost + weapon.blockStaminaCost
+                        : characterManager.enemyCombatController.bonusBlockStaminaCost - weapon.blockStaminaCost;
+            }*/
         }
 
     }

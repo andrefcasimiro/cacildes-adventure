@@ -78,11 +78,11 @@ namespace AF
                 }
             }
 
-            EnemyHealthHitbox enemyHealthHitbox = other.GetComponent<EnemyHealthHitbox>();
+            CharacterHealthHitbox enemyHealthHitbox = other.GetComponent<CharacterHealthHitbox>();
 
             if (enemyHealthHitbox == null)
             {
-                enemyHealthHitbox = other.GetComponentInChildren<EnemyHealthHitbox>();
+                enemyHealthHitbox = other.GetComponentInChildren<CharacterHealthHitbox>();
 
             }
 
@@ -96,34 +96,35 @@ namespace AF
                 return;
             }
 
-            if (enemyHealthHitbox.enemyManager.enemyHealthController.currentHealth <= 0)
+            /*if (enemyHealthHitbox.characterManager.enemyHealthController.currentHealth <= 0)
             {
                 return;
             }
 
-            enemyHealthHitbox.enemyManager.enemyHealthController.TakeEnvironmentalDamage(companionManager.GetCompanionAttack());
-            enemyHealthHitbox.enemyManager.enemyPoiseController.IncreasePoiseDamage(poiseDamage);
-
+            enemyHealthHitbox.characterManager.enemyHealthController.TakeEnvironmentalDamage(companionManager.GetCompanionAttack());
+            enemyHealthHitbox.characterManager.enemyPoiseController.IncreasePoiseDamage(poiseDamage);
+*/
             if (statusEffectToInflict != null)
             {
 
-                var enemyStatusController = enemyHealthHitbox.enemyManager.enemyNegativeStatusController;
+                /*var enemyStatusController = enemyHealthHitbox.characterManager.enemyNegativeStatusController;
 
                 if (enemyStatusController != null)
                 {
                     enemyStatusController.InflictStatusEffect(statusEffectToInflict, amountOfStatusEffectPerHit);
-                }
+                }*/
             }
 
-            if (enemyHealthHitbox.enemyManager.enemyTargetController != null)
-            {
-                enemyHealthHitbox.enemyManager.enemyTargetController.FocusOnCompanion(this.companionManager);
-            }
 
-            if (pushForceAmount != -1)
-            {
-                enemyHealthHitbox.enemyManager.PushEnemy(pushForceAmount, ForceMode.Acceleration);
-            }
+            /*            if (enemyHealthHitbox.characterManager.enemyTargetController != null)
+                        {
+                            enemyHealthHitbox.characterManager.enemyTargetController.FocusOnCompanion(this.companionManager);
+                        }
+
+                        if (pushForceAmount != -1)
+                        {
+                            enemyHealthHitbox.characterManager.PushEnemy(pushForceAmount, ForceMode.Acceleration);
+                        }*/
 
             BGMManager.instance.PlaySound(weaponImpactSfx, companionManager.combatAudioSource);
 
