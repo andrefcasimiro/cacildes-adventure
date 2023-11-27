@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace AF
 {
 
-    public class UIBlackCanvas : MonoBehaviour, ISaveable
+    public class UIBlackCanvas : MonoBehaviour
     {
 
         public float fadeTime = 2f;

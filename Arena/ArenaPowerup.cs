@@ -14,8 +14,8 @@ namespace AF
 
         public AudioClip onCollisionWithPlayer;
 
-        [Header("Databases")]
-        public StatusDatabase statusDatabase;
+        // [Header("Databases")]
+        //  public StatusDatabase statusDatabase;
 
         private void Update()
         {
@@ -33,7 +33,7 @@ namespace AF
             {
                 BGMManager.instance.PlaySound(onCollisionWithPlayer, null);
 
-                consumable.StartEffectOnPlayer(statusDatabase);
+                // consumable.StartEffectOnPlayer(statusDatabase);
 
                 Destroy(this.gameObject);
             }

@@ -24,7 +24,6 @@ namespace AF
                     finalStatusAmount *= dodgeBonusMultiplier;
                 }
 
-                other.GetComponent<PlayerStatusManager>().InflictStatusEffect(statusEffect, finalStatusAmount * Time.deltaTime, false);
             }
         }
 

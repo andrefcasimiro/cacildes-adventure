@@ -5,7 +5,7 @@ using AF.Stats;
 
 namespace AF
 {
-    public class ReplenishableItemPickup : VariableListener, IClockListener, IEventNavigatorCapturable, ISaveable
+    public class ReplenishableItemPickup : VariableListener, IClockListener, IEventNavigatorCapturable
     {
         [System.Serializable]
         public class ReplenishableItemEntry

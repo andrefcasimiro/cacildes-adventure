@@ -4,7 +4,7 @@ namespace AF
 {
     public class ResetCharacterStatesOnStateEnter : StateMachineBehaviour
     {
-        ICharacter character;
+        CharacterBaseManager character;
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {

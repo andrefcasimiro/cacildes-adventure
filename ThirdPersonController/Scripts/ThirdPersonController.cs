@@ -2,6 +2,7 @@
 using UnityEngine.InputSystem;
 
 using AF.Stats;
+using AF.Shooting;
 
 namespace AF
 {
@@ -72,6 +73,7 @@ namespace AF
 
         [Tooltip("For locking the camera position on all axis")]
         public bool LockCameraPosition = false;
+        public bool rotateWithCamera = false;
 
         public float jumpAttackVelocity = -5f;
 
@@ -94,6 +96,7 @@ namespace AF
 
         // animation IDs
         private int _animIDSpeed;
+        private int _animIDIsMoving;
         private int _animIDGrounded;
         private int _animIDJump;
         [HideInInspector] public int _animIDFreeFall;
@@ -117,8 +120,8 @@ namespace AF
         StaminaStatManager staminaStatManager;
         EquipmentGraphicsHandler equipmentGraphicsHandler;
         FootstepListener footstepListener;
-        PlayerShootingManager playerShootingManager;
-        PlayerParryManager playerParryManager;
+        PlayerShooter playerShootingManager;
+        PlayerBlockInput playerParryManager;
         StatsBonusController playerStatsBonusController;
 
         public ViewClockMenu viewClockMenu;
@@ -187,9 +190,8 @@ namespace AF
             equipmentGraphicsHandler = playerManager.equipmentGraphicsHandler;
             footstepListener = playerManager.footstepListener;
             playerShootingManager = playerManager.playerShootingManager;
-            playerParryManager = playerManager.playerParryManager;
+            playerParryManager = playerManager.playerBlockInput;
             playerStatsBonusController = playerManager.statsBonusController;
-
         }
 
         private void Start()
@@ -221,21 +223,17 @@ namespace AF
 
             bool isClimbing = climbController.climbState != ClimbController.ClimbState.NONE;
 
-            if (playerShootingManager.IsShooting() == false)
+            if (isClimbing == false)
             {
-                if (isClimbing == false)
-                {
-                    JumpAndGravity();
-                    GroundedCheck();
+                JumpAndGravity();
+                GroundedCheck();
 
-                    Move();
+                Move();
 
-                }
-                else
-                {
-                    Climb();
-                }
-
+            }
+            else
+            {
+                Climb();
             }
 
             if (Grounded == false)
@@ -249,21 +247,16 @@ namespace AF
                     }
                 }
             }
-        }
 
-        private void LateUpdate()
-        {
-            /*if (lockOnManager.isLockedOn)
-            {
-                return;
-            }*/
-
+            Rotate();
             CameraRotation();
+
         }
 
         private void AssignAnimationIDs()
         {
             _animIDSpeed = Animator.StringToHash("Speed");
+            _animIDIsMoving = Animator.StringToHash("IsMoving");
             _animIDGrounded = Animator.StringToHash("Grounded");
             _animIDJump = Animator.StringToHash("Jump");
             _animIDFreeFall = Animator.StringToHash("FreeFall");
@@ -295,7 +288,6 @@ namespace AF
                     // Takes fall damage?
                     if (currentFallHeight > minimumFallHeightToTakeDamage && trackFallDamage)
                     {
-                        FindObjectOfType<PlayerHealthbox>(true).TakeEnvironmentalDamage(Mathf.RoundToInt(currentFallHeight * damageMultiplierPerMeter), currentFallHeight <= minimumFallHeightToTakeDamage + 3 ? 1 : 10, true, 0, WeaponElementType.None);
                     }
                 }
 
@@ -310,6 +302,23 @@ namespace AF
             {
                 _animator.SetBool(_animIDGrounded, Grounded);
             }
+        }
+
+        public void RotateWithCamera()
+        {
+            Vector3 targetDir = Camera.main.transform.forward;
+            targetDir.y = 0;
+            targetDir.Normalize();
+
+            if (targetDir == Vector3.zero)
+                targetDir = playerManager.transform.forward;
+
+            float rs = 12;
+
+            Quaternion tr = Quaternion.LookRotation(targetDir);
+            Quaternion targetRotation = Quaternion.Slerp(playerManager.transform.rotation, tr, rs * Time.deltaTime);
+
+            playerManager.transform.rotation = Quaternion.Euler(0, targetRotation.eulerAngles.y, 0);
         }
 
         private void CameraRotation()
@@ -384,6 +393,50 @@ namespace AF
             if (_hasAnimator)
             {
                 _animator.SetFloat(_animIDSpeed, _animationBlend);
+                _animator.SetBool(_animIDIsMoving, _animationBlend > 0);
+            }
+        }
+
+        private void Rotate()
+        {
+            // normalise input direction
+            Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
+
+            // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
+            // if there is a move input rotate player when the player is moving
+
+
+            if (rotateWithCamera)
+            {
+                RotateWithCamera();
+            }
+            else if (_input.move != Vector2.zero && canRotateCharacter == true)
+            {
+
+                if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn && dodgeController.IsDodging() == false)
+                {
+
+                    Vector3 targetRot = lockOnManager.nearestLockOnTarget.transform.position - _controller.transform.position;
+                    targetRot.y = 0;
+                    var t = Quaternion.LookRotation(targetRot);
+
+                    _controller.transform.rotation = Quaternion.Lerp(transform.rotation, t, 100f * Time.deltaTime);
+                }
+                else
+                {
+                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
+                                      _mainCamera.transform.eulerAngles.y;
+                    float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
+                        RotationSmoothTime);
+
+                    if (skateRotation)
+                    {
+                        rotation = Mathf.Clamp(rotation, 0f, 160f);
+                    }
+
+                    // rotate to face input direction relative to camera position
+                    _controller.transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                }
             }
         }
 
@@ -453,41 +506,6 @@ namespace AF
             _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
-            // normalise input direction
-            Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
-
-            // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
-            // if there is a move input rotate player when the player is moving
-            if (_input.move != Vector2.zero && canRotateCharacter == true)
-            {
-
-                if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn && dodgeController.IsDodging() == false)
-                {
-
-                    Vector3 targetRot = lockOnManager.nearestLockOnTarget.transform.position - _controller.transform.position;
-                    targetRot.y = 0;
-                    var t = Quaternion.LookRotation(targetRot);
-
-                    _controller.transform.rotation = Quaternion.Lerp(transform.rotation, t, 100f * Time.deltaTime);
-                }
-                else
-                {
-                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                      _mainCamera.transform.eulerAngles.y;
-                    float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
-                        RotationSmoothTime);
-
-                    if (skateRotation)
-                    {
-                        rotation = Mathf.Clamp(rotation, 0f, 160f);
-                    }
-
-                    // rotate to face input direction relative to camera position
-                    _controller.transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
-                }
-
-            }
-
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
@@ -515,14 +533,9 @@ namespace AF
                 climbController.Climb(_speed * Time.deltaTime * direction);
             }
 
-            if (dodgeController.IsDodging())
+            if (dodgeController.IsDodging() || playerManager.IsBusy())
             {
                 targetDirection = Vector3.zero;
-            }
-
-            if (playerManager.IsBusy())
-            {
-                return;
             }
 
             if (isSlidingOnIce)
@@ -530,7 +543,7 @@ namespace AF
                 _controller.Move(transform.forward * 10f * Time.deltaTime +
                                  new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
             }
-            else if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn)
+            else if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn || rotateWithCamera)
             {
                 float lockOnSpeed = _input.move.x != 0 && _input.move.y != 0 ? _speed : _speed * 1.5f;
 
@@ -549,6 +562,7 @@ namespace AF
             if (_hasAnimator)
             {
                 _animator.SetFloat(_animIDSpeed, _animationBlend);
+                _animator.SetBool(_animIDIsMoving, _input.move.magnitude > 0);
 
                 // Get movement penalties
                 var jumpWeightSpeed = playerStatsBonusController.weightPenalty > 0 ? playerStatsBonusController.weightPenalty : 0;
@@ -699,6 +713,11 @@ namespace AF
 
         bool CanJump()
         {
+            if (playerManager.IsBusy())
+            {
+                return false;
+            }
+
             if (viewClockMenu != null && viewClockMenu.isActiveAndEnabled)
             {
                 return false;
@@ -717,20 +736,6 @@ namespace AF
             return Mathf.Clamp(lfAngle, lfMin, lfMax);
         }
 
-        private void OnDrawGizmosSelected()
-        {
-            Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
-            Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
-
-            if (Grounded) Gizmos.color = transparentGreen;
-            else Gizmos.color = transparentRed;
-
-            // when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
-            Gizmos.DrawSphere(
-                new Vector3(transform.position.x, _controller.transform.position.y - GroundedOffset, _controller.transform.position.z),
-                GroundedRadius);
-        }
-
         /// <summary>
         ///  Animation Event
         /// </summary>
@@ -739,13 +744,13 @@ namespace AF
             //canRotateCharacter = false;
         }
 
-
-        /*private void OnLand(AnimationEvent animationEvent)
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetCanRotateCharacter(bool value)
         {
-            if (animationEvent.animatorClipInfo.weight > 0.5f)
-            {
-                AudioSource.PlayClipAtPoint(LandingAudioClip,_controller.transform.TransformPoint(_controller.center), FootstepAudioVolume);
-            }
-        }*/
+            canRotateCharacter = value;
+        }
     }
 }

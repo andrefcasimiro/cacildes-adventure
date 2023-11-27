@@ -1,6 +1,6 @@
 using AF;
 
-public class VariableDependent : VariableListener, ISaveable
+public class VariableDependent : VariableListener
 {
     public int requiredValue;
 

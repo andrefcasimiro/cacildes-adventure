@@ -31,7 +31,7 @@ namespace AF
 
         public EquipmentGraphicsHandler equipmentGraphicsHandler;
 
-        public PlayerParryManager playerParryManager;
+        public PlayerManager playerManager;
 
         private void Start()
         {
@@ -77,7 +77,7 @@ namespace AF
         {
             var finalRegenerationRate = STAMINA_REGENERATION_RATE + staminaRegenerationBonus - negativeStaminaRegenerationBonus;
 
-            if (playerParryManager.IsBlocking())
+            if (playerManager.characterBlockController.isBlocking)
             {
                 finalRegenerationRate = finalRegenerationRate / 4;
             }

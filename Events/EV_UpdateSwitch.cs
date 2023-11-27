@@ -32,12 +32,6 @@ namespace AF
             {
                 SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(targetSwitch, newValue);
             }
-
-            if (!string.IsNullOrEmpty(analyticsMessage))
-            {
-                FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
-            }
-
             if (flushQueuedSwitchesRightAfter)
             {
                 SwitchManager.instance.UpdateQueuedSwitches();

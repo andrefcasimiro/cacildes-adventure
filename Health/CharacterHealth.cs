@@ -1,29 +1,12 @@
 
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace AF.Health
 {
-    public class CharacterHealth : MonoBehaviour
+    public class CharacterHealth : CharacterBaseHealth
     {
-        [SerializeField]
-        int m_maxHealth = 100;
-
-        public int MaxHealth
-        {
-            get
-            {
-                return m_maxHealth;
-            }
-
-            set
-            {
-                m_maxHealth = value;
-            }
-        }
-
-        int m_currentHealth;
-        public int CurrentHealth
+        float m_currentHealth;
+        protected float CurrentHealth
         {
             get
             {
@@ -32,35 +15,23 @@ namespace AF.Health
 
             set
             {
-                m_currentHealth = Mathf.Clamp(value, 0, MaxHealth);
+                m_currentHealth = Mathf.Clamp(value, 0, GetMaxHealth());
             }
         }
 
-
-        [Header("Events")]
-        public UnityEvent onStart;
-        public UnityEvent onTakeDamage;
-        public UnityEvent onRestoreHealth;
-        public UnityEvent onDeath;
-
-        void Awake()
+        public void Awake()
         {
-            CurrentHealth = MaxHealth;
+            CurrentHealth = GetMaxHealth();
         }
 
-        private void Start()
-        {
-            onStart?.Invoke();
-        }
-
-        public void RestoreHealth(int value)
+        public override void RestoreHealth(int value)
         {
             CurrentHealth += value;
 
             onRestoreHealth?.Invoke();
         }
 
-        public void TakeDamage(int value)
+        public override void TakeDamage(float value)
         {
             if (value <= 0)
             {
@@ -76,6 +47,15 @@ namespace AF.Health
             }
         }
 
+        public override int GetMaxHealth()
+        {
+            return maxHealth;
+        }
+
+        public override float GetCurrentHealth()
+        {
+            return CurrentHealth;
+        }
     }
 
 }

@@ -186,6 +186,31 @@ namespace AF.UI.EquipmentMenu
 
         void AssignArrowButtonCallbacks()
         {
+            Dictionary<Button, Func<Arrow>> buttonDictionary = new()
+            {
+                { arrowsButtonSlot1, () => equipmentDatabase.arrows[0] },
+                { arrowsButtonSlot2, () => equipmentDatabase.arrows[1] },
+            };
+
+            int slotIndex = 0;
+            foreach (var entry in buttonDictionary)
+            {
+                int localSlotIndex = slotIndex;  // Create a local variable to capture the correct value
+
+                UIUtils.SetupButton(entry.Key,
+                    () => SetupEquipmentButton(ItemList.EquipmentType.ARROW, localSlotIndex, "Arrow"),
+                    () =>
+                    {
+                        OnSlotFocus("Arrows", entry.Value());
+                    },
+                    () =>
+                    {
+                        OnSlotFocusOut();
+                    },
+                    false);
+
+                slotIndex++;
+            }
         }
 
         void AssignSpellButtonCallbacks()
@@ -401,6 +426,9 @@ namespace AF.UI.EquipmentMenu
             SetBackgroundImage(secondaryWeaponButtonSlot1, equipmentDatabase.shields, 0, txt_UnequipedShield);
             SetBackgroundImage(secondaryWeaponButtonSlot2, equipmentDatabase.shields, 1, txt_UnequipedShield);
             SetBackgroundImage(secondaryWeaponButtonSlot3, equipmentDatabase.shields, 2, txt_UnequipedShield);
+
+            SetBackgroundImage(arrowsButtonSlot1, equipmentDatabase.arrows, 0, txt_UnequipedArrow);
+            SetBackgroundImage(arrowsButtonSlot2, equipmentDatabase.arrows, 1, txt_UnequipedArrow);
 
             SetBackgroundImage(spellsButtonSlot1, equipmentDatabase.spells, 0, txt_UnequipedSpell);
             SetBackgroundImage(spellsButtonSlot2, equipmentDatabase.spells, 1, txt_UnequipedSpell);

@@ -22,16 +22,16 @@ namespace AF
         public override void OnConsume()
         {
 
-            var playerShootingManager = FindObjectOfType<PlayerShootingManager>(true);
+            /*            var playerShootingManager = FindObjectOfType<PlayerShootingManager>(true);
 
-            if (projectileType == ProjectileType.BOW)
-            {
-                playerShootingManager.ShootBow(this);
-            }
-            else if (projectileType == ProjectileType.THROWABLE)
-            {
-                playerShootingManager.ThrowConsumable(this);
-            }
+                        if (projectileType == ProjectileType.BOW)
+                        {
+                            playerShootingManager.ShootBow(this);
+                        }
+                        else if (projectileType == ProjectileType.THROWABLE)
+                        {
+                            playerShootingManager.ThrowConsumable(this);
+                        }*/
         }
 
     }

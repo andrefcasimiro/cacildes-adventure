@@ -60,9 +60,9 @@ namespace AF.Detection
                     isSighted = tagsToDetect.Contains(hit.transform.gameObject.tag);
                 }
 
-                if (isSighted)
+                if (isSighted && hit.TryGetComponent(out CharacterBaseManager target))
                 {
-                    targetManager.SetTarget(hit.transform);
+                    targetManager.SetTarget(target);
 
                     OnTargetSighted?.Invoke();
                 }

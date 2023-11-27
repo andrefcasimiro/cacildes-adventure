@@ -10,7 +10,7 @@ namespace AF
     {
         public UIDocumentBonfireMenu uIDocumentBonfireMenu;
 
-        HealthStatManager healthStatManager;
+        PlayerHealth healthStatManager;
         StaminaStatManager staminaStatManager;
         AttackStatManager attackStatManager;
         DefenseStatManager defenseStatManager;
@@ -107,7 +107,7 @@ namespace AF
         private void OnEnable()
         {
             GameObject player = GameObject.FindWithTag("Player");
-            healthStatManager = player.GetComponent<HealthStatManager>();
+            healthStatManager = player.GetComponent<PlayerHealth>();
             staminaStatManager = player.GetComponent<StaminaStatManager>();
             attackStatManager = player.GetComponent<AttackStatManager>();
             defenseStatManager = player.GetComponent<DefenseStatManager>();
@@ -227,7 +227,6 @@ namespace AF
 
             DrawUI(root);
 
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(true);
         }
 
         void DrawUI(VisualElement root)

@@ -12,39 +12,16 @@ namespace AF
     }
 
     [CreateAssetMenu(menuName = "Misc / Status / New Status")]
+    [System.Serializable]
     public class StatusEffect : ScriptableObject
     {
-        public new LocalizedText name;
-
-        public LocalizedText appliedStatusDisplayName; 
- 
-        public Sprite spriteIndicator;
-
+        public string builtUpName;
+        public string appliedName;
+        public Sprite icon;
         public Color barColor;
-
-        public Stat statAffected = Stat.None;
-
-        [Header("Damage Stat Options")]
-        public bool usePercentuagelDamage = false;
-        public int damagePercentualValue = 30;
-
-        [Header("Immediate Effect Options")]
-        [Tooltip("If true, the effect will be applied once the bar reaches its full, and then the effect will be removed")]
-        public bool effectIsImmediate = false;
-
-        [Header("Effect over time Options")]
-        public float damagePerSecond = 1;
-
-        [Header("FX")]
-        public GameObject particleOnDamage;
-
-        [Header("Other")]
-        public bool disablePlayerMovement = false;
-        public bool damageSelf = false;
-        public bool ignoreDefense = false;
-        public float slowDownAnimatorSpeedValue = -1f;
-        public bool instantDeath = false;
-
-
+        public bool isPositive = false;
+        public bool isAppliedImmediately = false;
+        public float decreaseRateWithDamage = 1f;
+        public float decreaseRateWithoutDamage = 5f;
     }
 }

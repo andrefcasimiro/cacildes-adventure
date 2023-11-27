@@ -6,7 +6,7 @@ using UnityEngine.AI;
 namespace AF
 {
 
-    public class ComplexTimedObject : MonoBehaviour, IClockListener, ISaveable
+    public class ComplexTimedObject : MonoBehaviour, IClockListener
     {
         [Header("Systems")]
         public WorldSettings worldSettings;

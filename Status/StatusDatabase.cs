@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace AF
+namespace AF.StatusEffects
 {
 
     [CreateAssetMenu(fileName = "Status Database", menuName = "System/New Status Database", order = 0)]
@@ -11,11 +12,7 @@ namespace AF
 
 
         [Header("Status Effects")]
-        public List<AppliedStatus> appliedStatus = new();
-
-        [Header("Consumables Effects")]
-        public List<AppliedConsumable> appliedConsumables = new();
-
+        public List<AppliedStatusEffect> appliedStatus = new();
 
         private void OnEnable()
         {
@@ -34,8 +31,13 @@ namespace AF
 
         public void Clear()
         {
-            appliedConsumables.Clear();
             appliedStatus.Clear();
+        }
+
+        public void LoadAppliedStatus(StatusController statusController)
+        {
+            statusController.appliedStatusEffects.Clear();
+            statusController.appliedStatusEffects = appliedStatus.ToList();
         }
 
     }

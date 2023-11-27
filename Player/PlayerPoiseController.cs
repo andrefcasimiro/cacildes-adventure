@@ -86,12 +86,6 @@ namespace AF
             var playerMaxPoise = GetMaxPoise();
             var poiseDamageReceived = Mathf.Abs(poiseDamage - playerMaxPoise);
 
-            if (currentPoiseHitCount >= playerMaxPoise && playerSpellManager.ShouldInterruptSpell(poiseDamageReceived))
-            {
-                playerSpellManager.CancelAnySpells();
-
-                ActivatePoiseDamage();
-            }
         }
 
         public void ActivateMaxPoiseDamage()

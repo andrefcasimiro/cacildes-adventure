@@ -12,7 +12,6 @@ namespace AF
         public float maxExplosionDuration = .5f;
         public float maxEffectiveDistance = 4f;
 
-        PlayerHealthbox playerHealthbox;
         public ParticleSystem part => GetComponent<ParticleSystem>();
 
         public List<ParticleCollisionEvent> collisionEvents;
@@ -42,7 +41,6 @@ namespace AF
         {
             collisionEvents = new List<ParticleCollisionEvent>();
 
-            playerHealthbox = FindObjectOfType<PlayerHealthbox>(true);
         }
 
 
@@ -85,7 +83,6 @@ namespace AF
                 {
                     copiedDamage = Formulas.CalculateIncomingElementalAttack(copiedDamage, weaponElementType, defenseStatManager);
 
-                    playerHealthbox.TakeEnvironmentalDamage(0, poiseDamage, ignoreDodging, copiedDamage, weaponElementType);
                 }
             }
             else

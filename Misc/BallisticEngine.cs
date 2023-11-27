@@ -41,7 +41,7 @@ namespace AF
             foreach (var spawnRef in spawnRefs)
             {
                 var obj = Instantiate(prefab, spawnRef.transform.position, Quaternion.LookRotation(spawnRef.transform.forward - spawnRef.transform.position));
-                obj.Shoot(other.transform);
+                // obj.Shoot(other.transform, 100f);
 
                 audioSource.PlayOneShot(fireSfx);
             }

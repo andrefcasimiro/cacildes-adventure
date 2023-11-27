@@ -20,13 +20,13 @@ namespace AF
         [HideInInspector] public Transform leftHand;
         [HideInInspector] public Transform rightHand;
 
-        public PlayerWeaponHitbox leftUnarmedHitbox;
-        public PlayerWeaponHitbox rightUnarmedHitbox;
+        public CharacterWeaponHitbox leftUnarmedHitbox;
+        public CharacterWeaponHitbox rightUnarmedHitbox;
 
-        public PlayerWeaponHitbox leftWeaponHitbox;
-        public PlayerWeaponHitbox rightWeaponHitbox;
-        public PlayerWeaponHitbox leftFootHitbox;
-        public PlayerWeaponHitbox rightFootHitbox;
+        public CharacterWeaponHitbox leftWeaponHitbox;
+        public CharacterWeaponHitbox rightWeaponHitbox;
+        public CharacterWeaponHitbox leftFootHitbox;
+        public CharacterWeaponHitbox rightFootHitbox;
 
         public GameObject leftWeaponGraphic;
         public GameObject rightWeaponGraphic;

@@ -14,11 +14,9 @@ namespace AF
         float maxCooldownOnAir = 5f;
         float cooldownOnAir = Mathf.Infinity;
 
-        PlayerHealthbox playerHealthbox;
 
         private void Awake()
         {
-            playerHealthbox = FindObjectOfType<PlayerHealthbox>(true);
 
             originalPosition = transform.localPosition;
 
@@ -55,7 +53,6 @@ namespace AF
 
             if (other.gameObject.CompareTag("Player"))
             {
-                playerHealthbox.TakeDamage(damageInflicted, this.transform, null, 5, 0, WeaponElementType.None);
             }
 
             Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);

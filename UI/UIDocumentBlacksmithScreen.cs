@@ -72,11 +72,6 @@ namespace AF
             }
         }
 
-        private void OnDisable()
-        {
-            FindObjectOfType<GamepadCursor>(true).gameObject.SetActive(false);
-        }
-
         void Close()
         {
             if (returnToBonfire)

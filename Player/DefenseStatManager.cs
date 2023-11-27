@@ -4,17 +4,6 @@ using UnityEngine;
 
 namespace AF
 {
-    [System.Serializable]
-    public class NegativeStatusResistance
-    {
-        public StatusEffect statusEffect;
-
-        public float resistance = 100f;
-
-        public float decreaseRateWithoutDamage = 5;
-
-        public float decreaseRateWithDamage = 1;
-    }
 
     public class DefenseStatManager : MonoBehaviour
     {
@@ -26,9 +15,6 @@ namespace AF
         [Header("Status defense bonus")]
         [Tooltip("Increased by buffs like potions, or equipment like accessories")]
         public float physicalDefenseBonus = 0f;
-
-        [Header("Negative Status Resistances")]
-        public List<NegativeStatusResistance> negativeStatusResistances = new List<NegativeStatusResistance>();
 
         EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
 
@@ -68,23 +54,7 @@ namespace AF
 
         public float GetMaximumStatusResistanceBeforeSufferingStatusEffect(StatusEffect statusEffect)
         {
-            var target = this.negativeStatusResistances.Find(x => x.statusEffect == statusEffect);
-
-            if (target == null)
-            {
-                // Fallback for unknown status
-                return 100f;
-            }
-
-            var bonusFromEquipment = 0f;
-
-            var idx = playerStatsBonusController.statusEffectResistances.FindIndex(x => x.statusEffect == statusEffect);
-            if (idx != -1)
-            {
-                bonusFromEquipment += playerStatsBonusController.statusEffectResistances[idx].resistanceBonus;
-            }
-
-            return target.resistance + bonusFromEquipment + (playerStatsDatabase.endurance * levelMultiplier);
+            return 1f;
         }
 
         public float GetMagicDefense()

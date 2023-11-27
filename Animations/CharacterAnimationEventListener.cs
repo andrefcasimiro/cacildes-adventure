@@ -74,5 +74,15 @@ namespace AF.Animations
         {
             characterManager.animator.applyRootMotion = false;
         }
+
+        public void OnSpellCast()
+        {
+            characterManager.characterBaseShooter.CastSpell();
+        }
+
+        public void OnFireArrow()
+        {
+            characterManager.characterBaseShooter.FireArrow();
+        }
     }
 }

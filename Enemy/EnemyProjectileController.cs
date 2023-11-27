@@ -119,7 +119,7 @@ namespace AF
                 projectile.forwardVelocity *= dist > 1 ? dist : 1f;
             }
 
-            projectile.Shoot(playerClimbController.playerHeadRef.transform);
+            //projectile.Shoot(playerClimbController.playerHeadRef.transform, 100f);
         }
 
         /// <summary>

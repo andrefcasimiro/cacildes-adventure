@@ -24,7 +24,7 @@ namespace AF
         public int basePhysicalAttack = 90;
 
         [Header("Poise")]
-        public int maxPoiseHits = 1; 
+        public int maxPoiseHits = 1;
         public float maxTimeBeforeResettingPoise = 15f;
         public float maxCooldownBeforeTakingAnotherHitToPoise = 2f;
 
@@ -43,7 +43,7 @@ namespace AF
         [Range(1, 5f)] public float darknessDamageBonus = 1;
 
         [Header("Negative Status Resistance")]
-        public NegativeStatusResistance[] negativeStatusResistances;
+        // public NegativeStatusResistance[] negativeStatusResistances;
 
         [Header("Posture")]
         public int brokenPostureDamageMultiplier = 3;

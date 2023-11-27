@@ -1,3 +1,4 @@
+using AF.Shooting;
 using UnityEngine;
 
 namespace AF
@@ -25,13 +26,12 @@ namespace AF
 
         StarterAssetsInputs inputs;
         UIDocumentKeyPrompt uIDocumentKeyPrompt;
-        PlayerShootingManager playerShootingManager;
+        PlayerShooter playerShootingManager;
 
         private void Start()
         {
             inputs = FindObjectOfType<StarterAssetsInputs>(true);
             uIDocumentKeyPrompt = FindObjectOfType<UIDocumentKeyPrompt>(true);
-            playerShootingManager = FindObjectOfType<PlayerShootingManager>(true);
         }
 
         private void OnTriggerEnter(Collider other)
@@ -64,7 +64,7 @@ namespace AF
                 return;
             }
 
-            if (playerShootingManager.IsShooting())
+            if (playerShootingManager.isAiming)
             {
                 return;
             }

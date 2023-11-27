@@ -35,10 +35,10 @@ namespace AF
                 return this;
             }
 
-            if (characterManager.targetManager.CurrentTarget != null)
+            if (characterManager.targetManager.currentTarget != null)
             {
                 float distanceToTarget = Vector3.Distance(
-                    characterManager.agent.transform.position, characterManager.targetManager.CurrentTarget.position);
+                    characterManager.agent.transform.position, characterManager.targetManager.currentTarget.transform.position);
 
                 if (distanceToTarget <= characterManager.agent.stoppingDistance)
                 {

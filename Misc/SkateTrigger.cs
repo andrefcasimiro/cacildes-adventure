@@ -14,7 +14,6 @@ namespace AF
         CharacterController characterController;
 
         PlayerPoiseController playerPoiseController;
-        PlayerHealthbox playerHealthbox;
 
         public float velocity = 9f;
 
@@ -29,7 +28,6 @@ namespace AF
             tps = FindObjectOfType<ThirdPersonController>(true);
             characterController = tps.GetComponent<CharacterController>();
             playerPoiseController = tps.GetComponent<PlayerPoiseController>();
-            playerHealthbox = FindObjectOfType<PlayerHealthbox>(true);
         }
 
         private void OnTriggerEnter(Collider other)
@@ -58,7 +56,7 @@ namespace AF
             }
 
             Vector3 mov = (characterController.transform.forward) * velocity * Time.deltaTime;
-                mov.y = -9.71f;
+            mov.y = -9.71f;
 
             if (playerPoiseController.isStunned == false)
             {
@@ -83,7 +81,6 @@ namespace AF
                 return;
             }
 
-            playerHealthbox.Event_TakeDamage(lightDamage);
         }
 
         public void DamageMedium()
@@ -92,7 +89,6 @@ namespace AF
             {
                 return;
             }
-            playerHealthbox.Event_TakeDamage(mediumDamage);
         }
         public void DamageLarge()
         {
@@ -100,7 +96,6 @@ namespace AF
             {
                 return;
             }
-            playerHealthbox.Event_TakeDamage(largeDamage);
             playerPoiseController.ActivateMaxPoiseDamage();
         }
 

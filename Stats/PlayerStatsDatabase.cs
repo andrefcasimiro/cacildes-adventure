@@ -12,7 +12,7 @@ public class PlayerStatsDatabase : ScriptableObject
     public int intelligence = 1;
 
     [Header("Attributes")]
-    public int currentHealth = 0;
+    public float currentHealth = 0;
     public float currentStamina = 0;
     public int reputation = 1;
     public int gold = 0;
@@ -39,6 +39,11 @@ public class PlayerStatsDatabase : ScriptableObject
         strength = 1;
         dexterity = 1;
         intelligence = 1;
+
+        currentHealth = 0;
+        currentStamina = 0;
+        reputation = 1;
+        gold = 0;
     }
 
     public int GetCurrentLevel()

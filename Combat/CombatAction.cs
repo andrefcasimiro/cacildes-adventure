@@ -1,3 +1,4 @@
+using AF.Health;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -6,7 +7,11 @@ namespace AF.Combat
 
     public class CombatAction : MonoBehaviour
     {
-        public AnimationClip attackAnimation;
+        [Header("Animation Clip or String Settings")]
+        [Tooltip("If set, will override the generic attack animation for this clip during this combat action")]
+        public AnimationClip attackAnimationClip;
+        [Tooltip("If you prefer to use an animation name instead of a clip for this combat action")]
+        public string attackAnimationName;
 
         [Header("Conditions")]
         [Range(1, 100)]
@@ -20,6 +25,9 @@ namespace AF.Combat
         public UnityEvent onAttack_HitboxOpen;
         public UnityEvent onAttack_End;
 
+        [Header("Damage")]
+        public Damage damage;
+
         [Header("Cooldowns")]
         public float maxCooldown = 15f;
 
@@ -32,7 +40,7 @@ namespace AF.Combat
 
         public bool CanUseCombatAction()
         {
-            if (characterManager.characterCombatController.characterManager.IsBusy())
+            if (characterManager.IsBusy())
             {
                 return false;
             }
@@ -42,21 +50,18 @@ namespace AF.Combat
                 return false;
             }
 
-            float currentHealthPercentage =
-                1f; //characterCombatController.characterManager.enemyHealthController.currentHealth * 100 / characterCombatController.characterManager.enemyHealthController.GetMaxHealth();
-
-
+            float currentHealthPercentage = characterManager.health.GetCurrentHealthPercentage();
             if (
                 currentHealthPercentage <= 0
-                || currentHealthPercentage < minimumHealthToUse
+                || currentHealthPercentage > minimumHealthToUse
             )
             {
                 return false;
             }
 
-            if (characterManager.targetManager.CurrentTarget != null)
+            if (characterManager.targetManager.currentTarget != null)
             {
-                var distanceToPlayer = Vector3.Distance(transform.position, characterManager.targetManager.CurrentTarget.position);
+                var distanceToPlayer = Vector3.Distance(transform.position, characterManager.targetManager.currentTarget.transform.position);
                 if (distanceToPlayer > maximumDistanceToTarget || distanceToPlayer < minimumDistanceToTarget)
                 {
                     return false;

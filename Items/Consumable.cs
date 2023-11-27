@@ -108,7 +108,7 @@ namespace AF
 
         }
 
-        public virtual void OnConsumeSuccess(PlayerInventory playerInventory, StatusDatabase statusDatabase)
+        public virtual void OnConsumeSuccess(PlayerInventory playerInventory)//, StatusDatabase statusDatabase)
         {
 
             if (shouldNotRemoveOnUse == false)
@@ -116,22 +116,22 @@ namespace AF
                 playerInventory.RemoveItem(this, 1);
             }
 
-            StartEffectOnPlayer(statusDatabase);
+            //StartEffectOnPlayer(statusDatabase);
         }
 
-        public void StartEffectOnPlayer(StatusDatabase statusDatabase)
+        public void StartEffectOnPlayer()//StatusDatabase statusDatabase)
         {
 
             if (restoreHealth)
             {
-                var healthStatManager = FindObjectOfType<HealthStatManager>(true);
+                var healthStatManager = FindObjectOfType<PlayerHealth>(true);
                 if (restoreHealthInPercentage)
                 {
                     healthStatManager.RestoreHealthPercentage((int)amountOfHealthToRestore);
                 }
                 else
                 {
-                    healthStatManager.RestoreHealthPoints((int)amountOfHealthToRestore);
+                    healthStatManager.RestoreHealth((int)amountOfHealthToRestore);
                 }
             }
 
@@ -150,21 +150,22 @@ namespace AF
 
             if (removeNegativeStatus)
             {
-                FindObjectOfType<PlayerStatusManager>(true).RemoveAppliedStatus(statusDatabase.appliedStatus.Find(x => x.statusEffect == statusToRemove));
+                //FindObjectOfType<PlayerStatusManager>(true).RemoveAppliedStatus(statusDatabase.appliedStatus.Find(x => x.statusEffect == statusToRemove));
             }
 
             if (applyNegativeStatus)
             {
                 float maxAmountBeforeSuffering = FindObjectOfType<DefenseStatManager>(true).GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusToApply);
 
-                var playerStatusManager = FindAnyObjectByType<PlayerStatusManager>(FindObjectsInactive.Include);
+                //var playerStatusManager = FindAnyObjectByType<PlayerStatusManager>(FindObjectsInactive.Include);
 
-                playerStatusManager.InflictStatusEffect(statusToApply, maxAmountBeforeSuffering, true);
+                // playerStatusManager.InflictStatusEffect(statusToApply, maxAmountBeforeSuffering, true);
             }
 
-            var playerConsumablesManager = FindObjectOfType<PlayerConsumablesManager>(true);
+            //var playerConsumablesManager = FindObjectOfType<PlayerConsumablesManager>(true);
             foreach (var consumableEffect in consumableEffects)
             {
+                /*
                 AppliedConsumable appliedConsumables = new AppliedConsumable();
                 appliedConsumables.consumableEffect = consumableEffect;
                 appliedConsumables.currentDuration = consumableEffect.effectDuration;
@@ -185,9 +186,9 @@ namespace AF
                 {
                     playerConsumablesManager.EvaluateEffect(appliedConsumables);
                     return;
-                }
+                }*/
 
-                playerConsumablesManager.AddConsumableEffect(appliedConsumables);
+                // playerConsumablesManager.AddConsumableEffect(appliedConsumables);
             }
         }
     }

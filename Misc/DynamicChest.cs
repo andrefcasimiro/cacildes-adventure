@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AF
 {
-    public class DynamicChest : MonoBehaviour, ISaveable
+    public class DynamicChest : MonoBehaviour
     {
 
         public GameObject chestLid;

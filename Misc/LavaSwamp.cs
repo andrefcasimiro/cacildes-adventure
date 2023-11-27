@@ -22,7 +22,6 @@ namespace AF
         [Tooltip("If player dodges while in the poisonous swamp, how much damage is added")]
         public float dodgeBonusMultiplier = 2f;
 
-        PlayerHealthbox playerHealthbox;
 
         private void Update()
         {
@@ -71,12 +70,14 @@ namespace AF
             finalStatusAmount = (int)(finalStatusAmount * Mathf.Abs((1 - elementalDefense))); // Subtract elemental defense as a percentage
 
 
-            if (playerHealthbox == null)
-            {
-                playerHealthbox = FindAnyObjectByType<PlayerHealthbox>(FindObjectsInactive.Include);
-            }
+            /*
+                        if (playerHealthbox == null)
+                        {
+                            playerHealthbox = FindAnyObjectByType<PlayerHealthbox>(FindObjectsInactive.Include);
+                        }
 
-            playerHealthbox.TakeEnvironmentalDamage(baseDamage, playerHealthbox.isImmuneToFireDamage ? 0 : 1, true, (int)finalStatusAmount, WeaponElementType.Fire);
+                        playerHealthbox.TakeEnvironmentalDamage(baseDamage, playerHealthbox.isImmuneToFireDamage ? 0 : 1, true, (int)finalStatusAmount, WeaponElementType.Fire);
+            */
 
             fireFx.transform.position = other.ClosestPoint(this.transform.position);
             fireFx.Play();

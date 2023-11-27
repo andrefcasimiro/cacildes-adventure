@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace AF
 {
-    public class CompanionsSceneManager : MonoBehaviour, ISaveable
+    public class CompanionsSceneManager : MonoBehaviour
     {
         NotificationManager notificationManager;
 

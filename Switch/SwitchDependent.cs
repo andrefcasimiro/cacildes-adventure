@@ -1,6 +1,6 @@
 using AF;
 
-public class SwitchDependent : SwitchListener, ISaveable
+public class SwitchDependent : SwitchListener
 {
     public bool value;
 

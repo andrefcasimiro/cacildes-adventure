@@ -214,13 +214,13 @@ namespace AF.UI.EquipmentMenu
                 {
                     foreach (var statusEffect in weapon.statusEffects)
                     {
-                        if (statusEffect.statusEffect.name.GetEnglishText() == "Bleed")
+                        if (statusEffect.statusEffect.name == "Bleed")
                         {
                             tooltipBleed.Q<Label>().text = $"Bleed per hit: {statusEffect.amountPerHit}";
                             tooltipBleed.style.display = DisplayStyle.Flex;
                         }
 
-                        if (statusEffect.statusEffect.name.GetEnglishText() == "Poison")
+                        if (statusEffect.statusEffect.name == "Poison")
                         {
                             tooltipPoison.Q<Label>().text = $"Poison per hit: {statusEffect.amountPerHit}";
                             tooltipPoison.style.display = DisplayStyle.Flex;
@@ -287,13 +287,13 @@ namespace AF.UI.EquipmentMenu
                 {
                     foreach (var statusEffect in armor.statusEffectResistances)
                     {
-                        if (statusEffect.statusEffect.name.GetEnglishText() == "Bleed")
+                        if (statusEffect.statusEffect.name == "Bleed")
                         {
                             tooltipBleed.Q<Label>().text = $"Bleed Resistance: {statusEffect.resistanceBonus}";
                             tooltipBleed.style.display = DisplayStyle.Flex;
                         }
 
-                        if (statusEffect.statusEffect.name.GetEnglishText() == "Poison")
+                        if (statusEffect.statusEffect.name == "Poison")
                         {
                             tooltipPoison.Q<Label>().text = $"Poison Resistance: {statusEffect.resistanceBonus}";
                             tooltipPoison.style.display = DisplayStyle.Flex;

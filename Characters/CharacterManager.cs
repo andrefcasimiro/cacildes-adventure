@@ -1,43 +1,66 @@
-﻿using AF.Combat;
-using AF.Events;
-using TigerForge;
+﻿using AF.Animations;
+using AF.Combat;
+using AF.Health;
+using AF.Shooting;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace AF
 {
-    public class CharacterManager : MonoBehaviour, ICharacter
+    public class CharacterManager : CharacterBaseManager
     {
 
-        [Header("Components")]
-        public Animator animator;
-        public NavMeshAgent agent;
-        public CharacterController characterController;
-
-        [Header("Audio Sources")]
-        public AudioSource combatAudioSource;
-
-        [Header("Components")]
         public CharacterCombatController characterCombatController;
         public TargetManager targetManager;
 
-        [Header("Flags")]
-        public bool isBusy = false;
+        public CharacterBaseShooter characterBaseShooter;
 
-        public void ResetStates()
+        // Animator Overrides
+        [HideInInspector] public AnimatorOverrideController animatorOverrideController;
+
+        private void Awake()
         {
-            EventManager.EmitEvent(EventMessages.ON_CHARACTER_RESET_STATE, this);
+            animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
+
+            animator.runtimeAnimatorController = animatorOverrideController;
         }
 
-        public bool IsBusy()
+        public override void ResetStates()
         {
-            return isBusy;
+            animator.applyRootMotion = false;
+            isBusy = false;
+
+            characterPosture.ResetStates();
+            characterCombatController.ResetStates();
         }
 
-        public void PlayAnimationWithCrossFade(string animationName)
+        public void UpdateAnimatorOverrideControllerClips(string animationName, AnimationClip animationClip)
         {
-            animator.CrossFade(animationName, 0.2f);
+            var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
+            animatorOverrideController.GetOverrides(clipOverrides);
+            clipOverrides[animationName] = animationClip;
+            animatorOverrideController.ApplyOverrides(clipOverrides);
         }
 
+        private void OnAnimatorMove()
+        {
+            if (animator.applyRootMotion)
+            {
+                agent.enabled = false;
+
+                // Extract root motion position and rotation from the Animator
+                Vector3 rootMotionPosition = animator.deltaPosition + new Vector3(0.0f, -9, 0.0f) * Time.deltaTime;
+
+                Quaternion rootMotionRotation = animator.deltaRotation;
+
+                // Apply root motion to the NavMesh Agent
+                characterController.Move(rootMotionPosition);
+                transform.rotation *= rootMotionRotation;
+            }
+        }
+
+        public override Damage GetAttackDamage()
+        {
+            return characterCombatController.currentCombatAction?.damage;
+        }
     }
 }

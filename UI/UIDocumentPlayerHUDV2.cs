@@ -1,7 +1,9 @@
 using AF.Events;
+using AF.Inventory;
 using AF.Stats;
 using TigerForge;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -23,13 +25,16 @@ namespace AF
         public float staminaContainerBaseWidth = 150;
         float _containerMultiplierPerLevel = 6.5f;
 
-        Label quickItemName;
+        Label quickItemName, arrowsLabel;
+        IMGUIContainer shieldBlockedIcon;
+
 
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;
 
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
+        public InventoryDatabase inventoryDatabase;
         public PlayerStatsDatabase playerStatsDatabase;
 
         [Header("Unequipped Textures")]
@@ -37,9 +42,10 @@ namespace AF
         public Texture2D unequippedWeaponSlot;
         public Texture2D unequippedConsumableSlot;
         public Texture2D unequippedShieldSlot;
+        public Texture2D unequippedArrowSlot;
 
         [Header("Components")]
-        public HealthStatManager healthStatManager;
+        public PlayerHealth healthStatManager;
         public StaminaStatManager staminaStatManager;
         public EquipmentGraphicsHandler equipmentGraphicsHandler;
 
@@ -47,6 +53,9 @@ namespace AF
 
         [Header("Animations")]
         public Vector3 popEffectWhenSwitchingSlots = new Vector3(0.8f, 0.8f, 0.8f);
+
+        VisualElement leftGamepad, alpha1, upGamepad, alpha2, rightGamepad, alpha3, downGamepad, alpha4;
+        VisualElement useKeyboard, useGamepad;
 
         private void Awake()
         {
@@ -64,11 +73,30 @@ namespace AF
             staminaFill = root.Q<VisualElement>("StaminaFill");
 
             quickItemName = root.Q<Label>("QuickItemName");
+            arrowsLabel = root.Q<Label>("ArrowsLabel");
 
             spellSlotContainer = root.Q<IMGUIContainer>("SpellSlot");
             consumableSlotContainer = root.Q<IMGUIContainer>("ConsumableSlot");
             weaponSlotContainer = root.Q<IMGUIContainer>("WeaponSlot");
             shieldSlotContainer = root.Q<IMGUIContainer>("ShieldSlot");
+
+            shieldBlockedIcon = shieldSlotContainer.Q<IMGUIContainer>("Blocked");
+
+            leftGamepad = shieldSlotContainer.Q<VisualElement>("Gamepad");
+            alpha1 = shieldSlotContainer.Q<VisualElement>("Keyboard");
+
+            upGamepad = spellSlotContainer.Q<VisualElement>("Gamepad");
+            alpha2 = spellSlotContainer.Q<VisualElement>("Keyboard");
+
+            rightGamepad = weaponSlotContainer.Q<VisualElement>("Gamepad");
+            alpha3 = weaponSlotContainer.Q<VisualElement>("Keyboard");
+
+            downGamepad = consumableSlotContainer.Q<VisualElement>("Gamepad");
+            alpha4 = consumableSlotContainer.Q<VisualElement>("Keyboard");
+
+            useKeyboard = consumableSlotContainer.Q<VisualElement>("UseKeyboard");
+            useGamepad = consumableSlotContainer.Q<VisualElement>("UseGamepad");
+
 
             UpdateFavoriteItems();
         }
@@ -89,11 +117,7 @@ namespace AF
             staminaContainer.style.width = staminaContainerBaseWidth + ((
                 playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * _containerMultiplierPerLevel);
 
-            float healthPercentage = Mathf.Clamp(
-                (playerStatsDatabase.currentHealth * 100) / healthStatManager.GetMaxHealth(),
-                0,
-                100
-            );
+            float healthPercentage = healthStatManager.GetCurrentHealthPercentage();
 
             Length formattedHp = new Length(healthPercentage, LengthUnit.Percent);
             this.healthFill.style.width = formattedHp;
@@ -117,36 +141,54 @@ namespace AF
             }
 
             quickItemName.text = "";
+            arrowsLabel.text = "";
 
-            quickItemName.text = equipmentDatabase.GetCurrentConsumable() != null ?
-                equipmentDatabase.GetCurrentConsumable().name.GetEnglishText()
-                : "";
 
-            if (equipmentDatabase.GetCurrentConsumable() != null)
+            alpha1.style.display = Gamepad.current == null ? DisplayStyle.Flex : DisplayStyle.None;
+            alpha2.style.display = Gamepad.current == null ? DisplayStyle.Flex : DisplayStyle.None;
+            alpha3.style.display = Gamepad.current == null ? DisplayStyle.Flex : DisplayStyle.None;
+            alpha4.style.display = Gamepad.current == null ? DisplayStyle.Flex : DisplayStyle.None;
+
+            leftGamepad.style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
+            upGamepad.style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
+            rightGamepad.style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
+            downGamepad.style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
+
+            useGamepad.style.display = equipmentDatabase.GetCurrentConsumable() != null && Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
+            useKeyboard.style.display = equipmentDatabase.GetCurrentConsumable() != null && Gamepad.current == null ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (equipmentDatabase.IsBowEquipped())
             {
-                /*if (equipmentDatabase.currentConsumable is Consumable c && c.notStackable == false)
-                {
-                    quickItemName.text += " (" + equipmentDatabase.amount.ToString() + ")";
-                }
-                else if (favItem.item is Spell s)
-                {
-                    var spellName = favItem.item.name.GetEnglishText();
+                arrowsLabel.text = equipmentDatabase.GetCurrentArrow() != null
+                    ? equipmentDatabase.GetCurrentArrow().name.GetEnglishText() + " (" + inventoryDatabase.GetItemAmount(equipmentDatabase.GetCurrentArrow()) + ")"
+                    : "";
 
-                    quickItemName.text += " (" + (favItem.amount).ToString() + ")";
-                }*/
+                spellSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentArrow() != null
+                    ? new StyleBackground(equipmentDatabase.GetCurrentArrow().sprite)
+                    : new StyleBackground(unequippedArrowSlot);
             }
-
-            spellSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentSpell() != null
-                ? new StyleBackground(equipmentDatabase.GetCurrentSpell().sprite)
-                : new StyleBackground(unequippedSpellSlot);
+            else
+            {
+                spellSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentSpell() != null
+                    ? new StyleBackground(equipmentDatabase.GetCurrentSpell().sprite)
+                    : new StyleBackground(unequippedSpellSlot);
+            }
 
             shieldSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentShield() != null
                 ? new StyleBackground(equipmentDatabase.GetCurrentShield().sprite)
                 : new StyleBackground(unequippedShieldSlot);
 
+            shieldBlockedIcon.style.display = equipmentDatabase.IsBowEquipped() || equipmentDatabase.IsStaffEquipped()
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+
             weaponSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentWeapon() != null
                 ? new StyleBackground(equipmentDatabase.GetCurrentWeapon().sprite)
                 : new StyleBackground(unequippedWeaponSlot);
+
+            quickItemName.text = equipmentDatabase.GetCurrentConsumable() != null ?
+                equipmentDatabase.GetCurrentConsumable().name.GetEnglishText()
+                : "";
 
             consumableSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentConsumable() != null
                 ? new StyleBackground(equipmentDatabase.GetCurrentConsumable().sprite)
@@ -173,8 +215,5 @@ namespace AF
             UIUtils.PlayPopAnimation(spellSlotContainer, popEffectWhenSwitchingSlots);
             UpdateFavoriteItems();
         }
-
-
     }
-
 }

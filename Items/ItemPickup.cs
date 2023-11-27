@@ -8,7 +8,7 @@ using AF.Stats;
 
 namespace AF
 {
-    public class ItemPickup : SwitchListener, IEventNavigatorCapturable, ISaveable
+    public class ItemPickup : SwitchListener, IEventNavigatorCapturable
     {
         public Item item;
 
@@ -203,11 +203,6 @@ namespace AF
             {
                 // Save Game to prevent us from dying and picking money infinitely
                 // SaveSystem.instance.SaveGameData(); //SceneManager.GetActiveScene().name);
-            }
-
-            if (!string.IsNullOrEmpty(analyticsMessage))
-            {
-                FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
             }
 
         }

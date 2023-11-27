@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 namespace AF
 {
-    public class ClockDependant : MonoBehaviour, IClockListener, ISaveable
+    public class ClockDependant : MonoBehaviour, IClockListener
     {
         public enum ClockDependency
         {

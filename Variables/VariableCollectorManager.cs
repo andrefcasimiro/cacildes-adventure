@@ -3,7 +3,7 @@ using UnityEngine.Events;
 
 namespace AF
 {
-    public class VariableCollectorManager : VariableListener, ISaveable
+    public class VariableCollectorManager : VariableListener
     {
         [Header("Switch Conditions")]
         public SwitchEntry switchEntry;

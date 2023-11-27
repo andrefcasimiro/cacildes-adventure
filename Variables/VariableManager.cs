@@ -12,7 +12,7 @@ namespace AF
         public int initialValue;
     }
 
-    public class VariableManager : MonoBehaviour, ISaveable
+    public class VariableManager : MonoBehaviour
     {
         public List<VariableEntryInstance> variableEntryInstances = new();
 

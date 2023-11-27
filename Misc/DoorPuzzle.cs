@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AF
 {
-    public class DoorPuzzle : SwitchListener, ISaveable
+    public class DoorPuzzle : SwitchListener
     {
         public GameObject leverInactive;
         public GameObject leverActive;

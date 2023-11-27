@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AF.Stats;
+using AF.Health;
 
 namespace AF
 {
@@ -30,6 +31,10 @@ namespace AF
         [Tooltip("Increased by buffs like potions, or equipment like accessories")]
         public float physicalAttackBonus = 0f;
 
+        [Header("Unarmed Attack Options")]
+        public int unarmedLightAttackPostureDamage = 18;
+        public int unarmedHeavyAttackPostureDamage = 35;
+
         [Header("Physical Attack")]
         public int basePhysicalAttack = 100;
         public float levelMultiplier = 3.25f;
@@ -40,7 +45,7 @@ namespace AF
         public PlayerCombatController playerCombatController;
         public DodgeController dodgeController;
         public EquipmentGraphicsHandler equipmentGraphicsHandler;
-        public HealthStatManager healthStatManager;
+        public PlayerHealth healthStatManager;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -68,6 +73,39 @@ namespace AF
         {
             return false;
             //            return playerCombatController.IsJumpAttacking() || playerCombatController.IsStartingJumpAttack();
+        }
+
+        public Damage GetAttackDamage()
+        {
+            Weapon weapon = equipmentDatabase.GetCurrentWeapon();
+            if (weapon != null)
+            {
+                return new Damage(
+                    physical: GetWeaponAttack(weapon),
+                    fire: (int)weapon.fireAttack,
+                    frost: (int)weapon.frostAttack,
+                    magic: (int)weapon.magicAttack,
+                    lightning: (int)weapon.lightningAttack,
+                    postureDamage: (IsHeavyAttacking() || IsJumpAttacking())
+                    ? weapon.heavyAttackPostureDamage
+                    : weapon.lightAttackPostureDamage,
+                    poiseDamage: weapon.poiseDamageBonus,
+                    weaponAttackType: weapon.weaponAttackType
+                );
+            }
+
+            return new Damage(
+                physical: GetCurrentPhysicalAttack(),
+                fire: 0,
+                frost: 0,
+                magic: 0,
+                lightning: 0,
+                postureDamage: (IsHeavyAttacking() || IsJumpAttacking())
+                    ? unarmedLightAttackPostureDamage
+                    : unarmedHeavyAttackPostureDamage,
+                poiseDamage: 1,
+                weaponAttackType: WeaponAttackType.Blunt
+            );
         }
 
         public int GetCurrentPhysicalAttack()

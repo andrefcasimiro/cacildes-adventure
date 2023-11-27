@@ -10,7 +10,7 @@ namespace AF
         public ThirdPersonController thirdPersonController;
         public PlayerCombatController playerCombatController;
         public DodgeController dodgeController;
-        public PlayerParryManager playerParryManager;
+        public PlayerBlockInput playerParryManager;
         public CharacterController characterController;
 
 
@@ -78,9 +78,8 @@ namespace AF
 
         public void CurePlayer()
         {
-            GetComponent<HealthStatManager>().RestoreHealthPercentage(100);
+            GetComponent<PlayerHealth>().RestoreHealthPercentage(100);
             GetComponent<StaminaStatManager>().RestoreStaminaPercentage(100);
-            GetComponent<PlayerStatusManager>().RemoveAllStatus();
         }
 
         public void UpdatePosition(Vector3 newPosition, Quaternion newRotation)

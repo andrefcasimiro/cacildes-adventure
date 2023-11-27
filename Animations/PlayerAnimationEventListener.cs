@@ -43,9 +43,9 @@ namespace AF.Animations
 
         public void OpenRightWeaponHitbox()
         {
-            if (playerManager.playerWeaponsManager.currentWeapon != null)
+            if (playerManager.playerWeaponsManager.currentWeaponInstance != null)
             {
-                playerManager.playerWeaponsManager.currentWeapon.EnableHitbox();
+                playerManager.playerWeaponsManager.currentWeaponInstance.EnableHitbox();
             }
             else if (playerManager.playerWeaponsManager.rightHandHitbox != null)
             {
@@ -57,9 +57,9 @@ namespace AF.Animations
 
         public void CloseRightWeaponHitbox()
         {
-            if (playerManager.playerWeaponsManager.currentWeapon != null)
+            if (playerManager.playerWeaponsManager.currentWeaponInstance != null)
             {
-                playerManager.playerWeaponsManager.currentWeapon.DisableHitbox();
+                playerManager.playerWeaponsManager.currentWeaponInstance.DisableHitbox();
             }
             if (playerManager.playerWeaponsManager.rightHandHitbox != null)
             {
@@ -120,5 +120,23 @@ namespace AF.Animations
             playerManager.animator.applyRootMotion = false;
         }
 
+        public void SetAnimatorBool_True(string parameterName)
+        {
+            playerManager.animator.SetBool(parameterName, true);
+        }
+
+        public void SetAnimatorBool_False(string parameterName)
+        {
+            playerManager.animator.SetBool(parameterName, false);
+        }
+
+        public void OnSpellCast()
+        {
+            playerManager.playerShootingManager.CastSpell();
+        }
+
+        public void OnFireArrow()
+        {
+        }
     }
 }

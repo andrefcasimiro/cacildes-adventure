@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using AF.Shooting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,6 +10,8 @@ namespace AF
     {
         public readonly int hashLightAttack1 = Animator.StringToHash("Light Attack 1");
         public readonly int hashLightAttack2 = Animator.StringToHash("Light Attack 2");
+        public readonly int hashLightAttack1WithShield = Animator.StringToHash("Light Attack 1 With Shield");
+        public readonly int hashLightAttack2WithShield = Animator.StringToHash("Light Attack 2 With Shield");
         public readonly int hashHeavyAttack1 = Animator.StringToHash("Heavy Attack 1");
         public readonly int hashJumpAttack = Animator.StringToHash("Jump Attack");
         public readonly int hashIsJumpAttacking = Animator.StringToHash("IsJumpAttacking");
@@ -31,16 +34,7 @@ namespace AF
         [Header("Components")]
         public PlayerManager playerManager;
         public Animator animator;
-        public EquipmentGraphicsHandler equipmentGraphicsHandler;
-        public StaminaStatManager staminaStatManager;
-        public StarterAssetsInputs starterAssetsInputs;
-        public ClimbController climbController;
-        public DodgeController dodgeController;
-        public ThirdPersonController thirdPersonController;
-        public PlayerParryManager playerParryManager;
         public UIDocumentDialogueWindow uIDocumentDialogueWindow;
-        public PlayerShootingManager playerShootingManager;
-        public PlayerComponentManager playerComponentManager;
 
 
         [Header("Heavy Attacks")]
@@ -58,7 +52,7 @@ namespace AF
 
         private void Start()
         {
-            equipmentGraphicsHandler.DeactivateAllHitboxes();
+            playerManager.equipmentGraphicsHandler.DeactivateAllHitboxes();
         }
 
         public void OnLightAttack()
@@ -68,6 +62,7 @@ namespace AF
                 HandleLightAttack();
             }
         }
+
         public void OnHeavyAttack()
         {
             if (CanHeavyAttack())
@@ -80,7 +75,7 @@ namespace AF
         {
             isHeavyAttacking = false;
 
-            if (thirdPersonController.Grounded)
+            if (playerManager.thirdPersonController.Grounded)
             {
                 if (lightAttackComboIndex > 2)
                 {
@@ -90,11 +85,26 @@ namespace AF
 
                 if (lightAttackComboIndex == 0)
                 {
-                    playerManager.PlayBusyAnimationWithRootMotion(hashLightAttack1);
+                    if (playerManager.playerWeaponsManager.currentShieldInstance != null)
+                    {
+                        playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack1WithShield);
+                    }
+                    else
+                    {
+                        playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack1);
+                    }
                 }
                 else if (lightAttackComboIndex == 1)
                 {
-                    playerManager.PlayBusyAnimationWithRootMotion(hashLightAttack2);
+                    if (playerManager.playerWeaponsManager.currentShieldInstance != null)
+                    {
+                        playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack2WithShield);
+
+                    }
+                    else
+                    {
+                        playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack2);
+                    }
                 }
             }
             else
@@ -103,7 +113,7 @@ namespace AF
             }
 
             lightAttackComboIndex++;
-            staminaStatManager.DecreaseLightAttackStamina();
+            playerManager.staminaStatManager.DecreaseLightAttackStamina();
 
             if (ResetLightAttackComboIndexCoroutine != null)
             {
@@ -120,22 +130,28 @@ namespace AF
 
         void HandleJumpAttack()
         {
-            animator.Play(hashJumpAttack);
-            playerComponentManager.DisableCollisionWithEnemies();
+            playerManager.playerWeaponsManager.HideShield();
+
+            playerManager.playerAnimationEventListener.OpenRightWeaponHitbox();
+
+            playerManager.PlayBusyHashedAnimationWithRootMotion(hashJumpAttack);
+            playerManager.playerComponentManager.DisableCollisionWithEnemies();
         }
 
         public void HandleHeavyAttack()
         {
-            if (isCombatting || thirdPersonController.Grounded == false)
+            if (isCombatting || playerManager.thirdPersonController.Grounded == false)
             {
                 return;
             }
 
             isHeavyAttacking = true;
 
-            playerManager.PlayBusyAnimationWithRootMotion(hashHeavyAttack1);
+            playerManager.playerWeaponsManager.HideShield();
 
-            staminaStatManager.DecreaseHeavyAttackStamina();
+            playerManager.PlayBusyHashedAnimationWithRootMotion(hashHeavyAttack1);
+
+            playerManager.staminaStatManager.DecreaseHeavyAttackStamina();
             heavyAttackComboIndex++;
 
             if (ResetHeavyAttackComboIndexCoroutine != null)
@@ -158,7 +174,7 @@ namespace AF
                 return false;
             }
 
-            return staminaStatManager.HasEnoughStaminaForLightAttack();
+            return playerManager.staminaStatManager.HasEnoughStaminaForLightAttack();
         }
 
         public bool CanHeavyAttack()
@@ -168,7 +184,7 @@ namespace AF
                 return false;
             }
 
-            return staminaStatManager.HasEnoughStaminaForHeavyAttack();
+            return playerManager.staminaStatManager.HasEnoughStaminaForHeavyAttack();
         }
 
         bool CanAttack()
@@ -178,22 +194,27 @@ namespace AF
                 return false;
             }
 
+            if (playerManager.characterBlockController.isBlocking)
+            {
+                return false;
+            }
+
             if (menuManager.IsMenuOpen())
             {
                 return false;
             }
 
-            if (playerShootingManager.IsShooting())
+            if (playerManager.playerShootingManager.isAiming)
             {
                 return false;
             }
 
-            if (climbController.climbState != ClimbController.ClimbState.NONE)
+            if (playerManager.climbController.climbState != ClimbController.ClimbState.NONE)
             {
                 return false;
             }
 
-            if (dodgeController.IsDodging())
+            if (playerManager.dodgeController.IsDodging())
             {
                 return false;
             }
@@ -204,10 +225,6 @@ namespace AF
                 return false;
             }
 
-            if (playerParryManager.IsBlocking())
-            {
-                return false;
-            }
 
             return true;
         }

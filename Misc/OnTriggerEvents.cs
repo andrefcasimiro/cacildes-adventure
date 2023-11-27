@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace AF
+namespace AF.Misc
 {
     public class OnTriggerEvents : MonoBehaviour
     {
-        public string tag = "Player";
+        public new string tag = "Player";
         public UnityEvent onTriggerEnterEvent;
         public UnityEvent onTriggerStayEvent;
         public UnityEvent onTriggerExitEvent;
 
         public bool disableOnTriggerEnter = false;
         public bool disableOnTriggerExit = false;
-        
+
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag(tag))

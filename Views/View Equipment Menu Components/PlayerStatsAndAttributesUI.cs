@@ -30,6 +30,7 @@ namespace AF.UI.EquipmentMenu
         Dictionary<string, Label> statsAndAttributesLabels = new();
 
         [Header("Components")]
+        public PlayerManager playerManager;
         public StatsBonusController playerStatsBonusController;
         public EquipmentGraphicsHandler equipmentGraphicsHandler;
         public AttackStatManager attackStatManager;
@@ -121,7 +122,7 @@ namespace AF.UI.EquipmentMenu
             int itemFrostDefense = -1;
             int itemLightningDefense = -1;
             int itemMagicDefense = -1;
-            int basePoise = playerPoiseController.GetMaxPoise();
+            int basePoise = playerManager.characterPoise.maxPoiseHits; // playerPoiseController.GetMaxPoise();
             int itemPoise = 0;
 
             float baseEquipLoad = equipmentGraphicsHandler.GetEquipLoad();

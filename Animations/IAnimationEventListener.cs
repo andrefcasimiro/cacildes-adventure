@@ -22,5 +22,8 @@ namespace AF.Animations
         public void EnableRootMotion();
         public void DisableRootMotion();
         public void DisableRotation();
+
+        public void OnSpellCast();
+        public void OnFireArrow();
     }
 }

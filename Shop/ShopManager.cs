@@ -23,7 +23,7 @@ namespace AF
         public float discountGivenByItemInInventory = 0.3f;
     }
 
-    public class ShopManager : MonoBehaviour, ISaveable
+    public class ShopManager : MonoBehaviour
     {
         public List<ShopEntryInstance> characterShopInstances = new();
 

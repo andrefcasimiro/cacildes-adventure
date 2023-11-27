@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using AF.StatusEffects;
 using UnityEngine;
 using static AF.ArmorBase;
 
@@ -32,9 +33,8 @@ namespace AF.Stats
         public int equipmentPoise = 0;
         public float equipmentPhysicalDefense = 0;
 
-        [Header("Negative Status Resistances")]
-        public List<StatusEffectResistance> statusEffectResistances = new List<StatusEffectResistance>();
-
+        [Header("Status Controller")]
+        public StatusController statusController;
 
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
@@ -136,7 +136,7 @@ namespace AF.Stats
 
         void UpdateStatusEffectResistances()
         {
-            statusEffectResistances.Clear();
+            statusController.statusEffectResistanceBonuses.Clear();
 
             HandleStatusEffectEntries(equipmentDatabase.helmet?.statusEffectResistances);
             HandleStatusEffectEntries(equipmentDatabase.armor?.statusEffectResistances);
@@ -163,20 +163,15 @@ namespace AF.Stats
 
         void HandleStatusEffectEntry(StatusEffectResistance statusEffectResistance)
         {
-            var clone = new StatusEffectResistance()
+            if (statusController.statusEffectResistanceBonuses.ContainsKey(statusEffectResistance.statusEffect))
             {
-                resistanceBonus = statusEffectResistance.resistanceBonus,
-                statusEffect = statusEffectResistance.statusEffect,
-            };
-
-            var idx = statusEffectResistances.FindIndex(x => x.statusEffect == clone.statusEffect);
-            if (idx != -1)
-            {
-                statusEffectResistances[idx].resistanceBonus += clone.resistanceBonus;
+                statusController.statusEffectResistanceBonuses[statusEffectResistance.statusEffect]
+                    += (int)statusEffectResistance.resistanceBonus;
             }
             else
             {
-                statusEffectResistances.Add(clone);
+                statusController.statusEffectResistanceBonuses.Add(
+                    statusEffectResistance.statusEffect, (int)statusEffectResistance.resistanceBonus);
             }
         }
 

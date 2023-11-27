@@ -78,18 +78,19 @@ namespace AF
                 }
             }
 
-            CharacterHealthHitbox enemyHealthHitbox = other.GetComponent<CharacterHealthHitbox>();
+            /*
+                        CharacterHealthHitbox enemyHealthHitbox = other.GetComponent<CharacterHealthHitbox>();
 
-            if (enemyHealthHitbox == null)
-            {
-                enemyHealthHitbox = other.GetComponentInChildren<CharacterHealthHitbox>();
+                        if (enemyHealthHitbox == null)
+                        {
+                            enemyHealthHitbox = other.GetComponentInChildren<CharacterHealthHitbox>();
 
-            }
-
-            if (enemyHealthHitbox == null)
-            {
-                return;
-            }
+                        }*/
+            /*
+                        if (enemyHealthHitbox == null)
+                        {
+                            return;
+                        }*/
 
             if (damageCooldownTimer <= maxTimerBeforeAllowingDamageAgain)
             {

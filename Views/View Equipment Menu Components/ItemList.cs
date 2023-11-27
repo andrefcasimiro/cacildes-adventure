@@ -113,7 +113,7 @@ namespace AF.UI.EquipmentMenu
             }
             else if (equipmentType == EquipmentType.ARROW)
             {
-                PopulateScrollView<ConsumableProjectile>(false, slotIndex);
+                PopulateScrollView<Arrow>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.SPELL)
             {
@@ -170,8 +170,10 @@ namespace AF.UI.EquipmentMenu
             bool isGauntlet = typeof(T) == typeof(Gauntlet);
             bool isLegwear = typeof(T) == typeof(Legwear);
             bool isAccessory = typeof(T) == typeof(Accessory);
+            bool isArrow = typeof(T) == typeof(Arrow);
+            bool isConsumable = typeof(T) == typeof(Consumable);
 
-            if (isWeapon || isShield || isHelmet || isArmor || isGauntlet || isLegwear || isAccessory)
+            if (isWeapon || isShield || isHelmet || isArmor || isGauntlet || isLegwear || isAccessory || isArrow || isConsumable)
             {
                 var instance = itemButtonPrefab.CloneTree();
                 instance.Q<VisualElement>("Sprite").style.display = DisplayStyle.None;
@@ -208,6 +210,14 @@ namespace AF.UI.EquipmentMenu
                     else if (isAccessory)
                     {
                         equipmentGraphicsHandler.UnequipAccessory(slotIndex);
+                    }
+                    else if (isArrow)
+                    {
+                        equipmentDatabase.UnequipArrow(slotIndex);
+                    }
+                    else if (isConsumable)
+                    {
+                        equipmentDatabase.UnequipConsumable(slotIndex);
                     }
 
                     Soundbank.instance.PlayUIUnequip();
@@ -285,6 +295,10 @@ namespace AF.UI.EquipmentMenu
                     else if (item.item is Accessory accessory)
                     {
                         equipmentGraphicsHandler.EquipAccessory(accessory, slotIndex);
+                    }
+                    else if (item.item is Arrow)
+                    {
+                        equipmentDatabase.EquipArrow(item.item as Arrow, slotIndex);
                     }
                     else if (item.item is Consumable)
                     {

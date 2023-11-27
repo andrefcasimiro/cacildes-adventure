@@ -12,7 +12,7 @@ namespace AF
 
         AudioSource audioSource => GetComponent<AudioSource>();
 
-        PlayerHealthbox playerHealthbox;
+        //PlayerHealthbox playerHealthbox;
 
         public void PlaySwingSound()
         {
@@ -30,7 +30,7 @@ namespace AF
             if (other.gameObject.CompareTag("PlayerHealthbox"))
             {
 
-                other.GetComponent<PlayerHealthbox>().TakeEnvironmentalDamage(damage, 0, false, 0, WeaponElementType.None);
+                //other.GetComponent<PlayerHealthbox>().TakeEnvironmentalDamage(damage, 0, false, 0, WeaponElementType.None);
             }
             else if (other.gameObject.CompareTag("Enemy"))
             {

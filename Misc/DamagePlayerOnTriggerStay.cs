@@ -12,7 +12,6 @@ namespace AF
         public float maxCooldownBeforeAnotherDamage = 2f;
         float cooldown = Mathf.Infinity;
 
-        PlayerHealthbox playerHealthbox;
         public ParticleSystem part => GetComponent<ParticleSystem>();
 
         public List<ParticleCollisionEvent> collisionEvents;
@@ -56,7 +55,6 @@ namespace AF
         {
             collisionEvents = new List<ParticleCollisionEvent>();
 
-            playerHealthbox = FindObjectOfType<PlayerHealthbox>(true);
         }
 
         private void OnEnable()
@@ -98,12 +96,6 @@ namespace AF
 
                     var finalElementalDamage = Formulas.CalculateIncomingElementalAttack((int)elementalDamage, weaponElementType, defenseStatManager);
 
-                    playerHealthbox.TakeEnvironmentalDamage(copiedDamage, poiseDamage, ignoreDodging, finalElementalDamage, weaponElementType);
-                }
-
-                if (statusEffect != null)
-                {
-                    FindObjectOfType<PlayerStatusManager>(true).InflictStatusEffect(statusEffect, statusEffectAmount, false);
                 }
 
                 cooldown = 0f;

@@ -19,6 +19,8 @@ namespace AF
         Slash,
         Pierce,
         Blunt,
+        Range,
+        Staff,
     }
 
     public enum WeaponElementType
@@ -79,8 +81,15 @@ namespace AF
         [Header("Block Absorption")]
         public bool hideShield = true;
         [Range(0, 100)] public int blockAbsorption = 75;
-        public int blockStaminaCost = 20;
+        public float blockStaminaCost = 30f;
+
         public float blockLayerWeight = 1f;
+
+
+        [Header("Posture Damage")]
+        public int lightAttackPostureDamage = 20;
+
+        public int heavyAttackPostureDamage = 35;
 
         [Header("Stamina")]
         public int lightAttackStaminaCost = 20;

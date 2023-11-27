@@ -13,7 +13,8 @@ public class EquipmentDatabase : ScriptableObject
 
     public Shield[] shields = new Shield[3]; // Fixed size array for shields
 
-    // Arrows    public List<Arrows> arrows;
+    public Arrow[] arrows = new Arrow[2];
+
     public Spell[] spells = new Spell[5];
 
     public Consumable[] consumables = new Consumable[5];
@@ -28,7 +29,9 @@ public class EquipmentDatabase : ScriptableObject
     [Header("Accessories")]
     public Accessory[] accessories = new Accessory[2];
 
-    public int currentWeaponIndex, currentShieldIndex, currentConsumableIndex, currentSpellIndex;
+    public int currentWeaponIndex, currentShieldIndex, currentConsumableIndex, currentSpellIndex, currentArrowIndex = 0;
+
+    public bool shouldClearOnExitPlayMode = false;
 
     private void OnEnable()
     {
@@ -38,7 +41,7 @@ public class EquipmentDatabase : ScriptableObject
 
     private void OnPlayModeStateChanged(PlayModeStateChange state)
     {
-        if (state == PlayModeStateChange.ExitingPlayMode)
+        if (state == PlayModeStateChange.ExitingPlayMode && shouldClearOnExitPlayMode)
         {
             // Clear the list when exiting play mode
             Clear();
@@ -48,6 +51,10 @@ public class EquipmentDatabase : ScriptableObject
     public void Clear()
     {
         currentWeaponIndex = 0;
+        currentShieldIndex = 0;
+        currentConsumableIndex = 0;
+        currentSpellIndex = 0;
+        currentArrowIndex = 0;
 
         for (int i = 0; i < weapons.Length; i++)
         {
@@ -72,6 +79,10 @@ public class EquipmentDatabase : ScriptableObject
         for (int i = 0; i < consumables.Length; i++)
         {
             consumables[i] = null;
+        }
+        for (int i = 0; i < arrows.Length; i++)
+        {
+            arrows[i] = null;
         }
 
         helmet = null;
@@ -116,6 +127,17 @@ public class EquipmentDatabase : ScriptableObject
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
+    public void EquipArrow(Arrow arrow, int slotIndex)
+    {
+        arrows[slotIndex] = arrow;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+    public void UnequipArrow(int slotIndex)
+    {
+        arrows[slotIndex] = null;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+
     public void SwitchToNextShield()
     {
         currentShieldIndex++;
@@ -124,12 +146,22 @@ public class EquipmentDatabase : ScriptableObject
         {
             currentShieldIndex = 0;
         }
+
+        EventManager.EmitEvent(EventMessages.ON_SHIELD_CHANGED);
     }
 
-    /*
-    public void EquipArrows(Arrows arrow) => arrows.Add(arrow);
-    public void UnequipArrows(Arrows arrow) => arrows.Remove(arrow);
-    */
+    public void SwitchToNextArrow()
+    {
+        currentArrowIndex++;
+
+        if (currentArrowIndex >= arrows.Length)
+        {
+            currentArrowIndex = 0;
+        }
+
+        EventManager.EmitEvent(EventMessages.ON_ARROW_CHANGED);
+    }
+
 
     public void EquipSpell(Spell spell, int slotIndex)
     {
@@ -152,6 +184,8 @@ public class EquipmentDatabase : ScriptableObject
         {
             currentSpellIndex = 0;
         }
+
+        EventManager.EmitEvent(EventMessages.ON_SPELL_CHANGED);
     }
 
     public void EquipConsumable(Consumable consumable, int slotIndex)
@@ -205,6 +239,10 @@ public class EquipmentDatabase : ScriptableObject
     {
         return spells[currentSpellIndex];
     }
+    public Arrow GetCurrentArrow()
+    {
+        return arrows[currentArrowIndex];
+    }
     public Consumable GetCurrentConsumable()
     {
         return consumables[currentConsumableIndex];
@@ -213,6 +251,16 @@ public class EquipmentDatabase : ScriptableObject
     public bool IsAccessoryEquiped(Accessory accessory)
     {
         return accessories.Contains(accessory);
+    }
+
+    public bool IsBowEquipped()
+    {
+        return GetCurrentWeapon() != null && GetCurrentWeapon().weaponAttackType == WeaponAttackType.Range;
+    }
+
+    public bool IsStaffEquipped()
+    {
+        return GetCurrentWeapon() != null && GetCurrentWeapon().weaponAttackType == WeaponAttackType.Staff;
     }
 
 }

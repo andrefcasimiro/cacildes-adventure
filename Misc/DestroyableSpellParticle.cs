@@ -1,14 +1,14 @@
 ﻿
+using AF.Shooting;
 using AF.Stats;
 using UnityEngine;
 
 namespace AF
 {
-    public class DestroyableSpellParticle : DestroyableParticle
+    public class DestroyableSpellParticle : DestroyableParticle, IProjectile
     {
         public Spell spell;
         [HideInInspector] public StatsBonusController statsBonusController;
-
 
         public bool collideOnlyOnce = true;
 
@@ -22,55 +22,53 @@ namespace AF
         public PlayerStatsDatabase playerStatsDatabase;
         public EquipmentDatabase equipmentDatabase;
 
+        public Rigidbody rigidBody;
+
+        [Header("Projectile Options")]
+
+        public ForceMode forceMode;
+        public float forwardVelocity = 10f;
+
         private void OnParticleCollision(GameObject other)
         {
             OnCollide(other);
         }
 
-        private void Update()
+        public void Shoot(Transform target, Vector3 aimForce, ForceMode forceMode)
         {
-            if (timeBetweenDamage < maxTimeBetweenDamage)
+            if (target == null)
             {
-                timeBetweenDamage += Time.deltaTime;
+                // Apply forces to the object
+                if (rigidBody != null)
+                {
+                    // Apply force to move the arrow towards the center of the screen
+                    rigidBody.AddForce(aimForce, forceMode);
+                    //source = GetComponent<Cinemachine.CinemachineImpulseSource>();
+
+                    //source.GenerateImpulse(Camera.main.transform.forward);
+                }
+                else
+                {
+                    Debug.LogError("Rigidbody component not found!");
+                }
+
+                return;
             }
         }
 
         public void OnCollide(GameObject other)
         {
-            if (spell == null)
-            {
-                return;
-            }
 
-            if (other.CompareTag("Explodable"))
-            {
-                other.TryGetComponent(out ExplodingBarrel explodingBarrel);
-
-                if (explodingBarrel != null)
-                {
-                    explodingBarrel.Explode();
-                    return;
-                }
-            }
-
-
-            if (other.CompareTag("Ignitable"))
-            {
-                other.TryGetComponent(out FireablePillar fireablePillar);
-
-                if (fireablePillar != null)
-                {
-                    fireablePillar.Explode();
-                    return;
-                }
-            }
-
-
-            if (collideOnlyOnce == false && timeBetweenDamage < maxTimeBetweenDamage)
-            {
-                return;
-            }
         }
 
+        public float GetForwardVelocity()
+        {
+            return forwardVelocity;
+        }
+
+        public ForceMode GetForceMode()
+        {
+            return forceMode;
+        }
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AF
 {
-    public class LostCoinsPickupParent : MonoBehaviour, ISaveable
+    public class LostCoinsPickupParent : MonoBehaviour
     {
 
         private void Start()

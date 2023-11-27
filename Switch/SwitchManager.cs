@@ -12,7 +12,7 @@ namespace AF
         public bool currentValue;
     }
 
-    public class SwitchManager : MonoBehaviour, ISaveable
+    public class SwitchManager : MonoBehaviour
     {
         public List<SwitchEntryInstance> switchEntryInstances = new();
 

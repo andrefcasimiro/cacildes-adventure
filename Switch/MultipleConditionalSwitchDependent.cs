@@ -1,7 +1,7 @@
 ﻿using AF;
 using UnityEngine;
 
-public class MultipleConditionalSwitchDependent : MonoBehaviour, ISaveable
+public class MultipleConditionalSwitchDependent : MonoBehaviour
 {
     [System.Serializable]
     public class MultipleSwitchEntry

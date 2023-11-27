@@ -8,7 +8,7 @@ namespace AF
     public class IllusionaryWall : MonoBehaviour
     {
         public bool hasBeenHit;
-         Material material;
+        Material material;
         public Material fadeMaterial;
         public float alpha;
         public float fadeTimer = 2.5f;
@@ -34,12 +34,6 @@ namespace AF
 
         public void FadeIllusionaryWall()
         {
-            if (!hasSentAnalyticsMessage && string.IsNullOrEmpty(analyticsMessage) == false)
-            {
-                FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
-                hasSentAnalyticsMessage = true;
-            }
-
             GetComponent<MeshRenderer>().material = this.material;
 
             alpha = material.color.a;

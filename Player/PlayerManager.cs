@@ -1,14 +1,14 @@
 using AF.Animations;
 using AF.Equipment;
+using AF.Health;
+using AF.Shooting;
 using AF.Stats;
 using UnityEngine;
 
 namespace AF
 {
-    public class PlayerManager : MonoBehaviour, ICharacter
+    public class PlayerManager : CharacterBaseManager
     {
-        public Animator animator;
-        public CharacterController characterController;
         public ThirdPersonController thirdPersonController;
         public PlayerWeaponsManager playerWeaponsManager;
         public ClimbController climbController;
@@ -16,55 +16,51 @@ namespace AF
         public StatsBonusController statsBonusController;
         public PlayerLevelManager playerLevelManager;
         public PlayerAchievementsManager playerAchievementsManager;
-        public HealthStatManager healthStatManager;
         public CombatNotificationsController combatNotificationsController;
         public PlayerCombatController playerCombatController;
         public StaminaStatManager staminaStatManager;
         public DefenseStatManager defenseStatManager;
-        public PlayerStatusManager playerStatusManager;
         public AttackStatManager attackStatManager;
         public PlayerInventory playerInventory;
         public FavoriteItemsManager favoriteItemsManager;
-        public PlayerConsumablesManager playerConsumablesManager;
         public PlayerSpellManager playerSpellManager;
-        public PlayerShootingManager playerShootingManager;
+        public PlayerShooter playerShootingManager;
         public EquipmentGraphicsHandler equipmentGraphicsHandler;
         public FootstepListener footstepListener;
         public PlayerComponentManager playerComponentManager;
         public PlayerPoiseController playerPoiseController;
         public EventNavigator eventNavigator;
-        public PlayerParryManager playerParryManager;
+        public PlayerBlockInput playerBlockInput;
+        public StarterAssetsInputs starterAssetsInputs;
+        public PlayerAnimationEventListener playerAnimationEventListener;
 
-        public bool isBusy = false;
+        [Header("Databases")]
+        public PlayerStatsDatabase playerStatsDatabase;
 
-        public void ResetStates()
+        public override void ResetStates()
         {
+            // First, reset all flags before calling the handlers
+            isBusy = false;
+            animator.applyRootMotion = false;
+            dodgeController.hasIframes = false;
+            thirdPersonController.canRotateCharacter = true;
+
             if (playerInventory.currentConsumedItem != null)
             {
                 playerInventory.FinishItemConsumption();
             }
 
-            animator.applyRootMotion = false;
-            dodgeController.hasIframes = false;
-            thirdPersonController.canRotateCharacter = true;
+            characterPosture.ResetStates();
+
             playerComponentManager.EnableCollisionWithEnemies();
-            isBusy = false;
+            playerWeaponsManager.ShowEquipment();
+
+            playerBlockInput.CheckQueuedInput();
         }
 
-        public bool IsBusy()
+        public override Damage GetAttackDamage()
         {
-            return isBusy;
-        }
-
-        public void PlayBusyAnimation(int animationHash)
-        {
-            animator.Play(animationHash);
-            isBusy = true;
-        }
-        public void PlayBusyAnimationWithRootMotion(int animationHash)
-        {
-            animator.applyRootMotion = true;
-            PlayBusyAnimation(animationHash);
+            return attackStatManager.GetAttackDamage();
         }
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace AF
 {
-    public class PartyDependant : MonoBehaviour, ISaveable
+    public class PartyDependant : MonoBehaviour
     {
         public Companion companion;
         public bool requireInParty;

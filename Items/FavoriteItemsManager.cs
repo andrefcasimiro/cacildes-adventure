@@ -90,7 +90,14 @@ namespace AF
         /// </summary>
         public void OnSwitchSpell()
         {
-            equipmentDatabase.SwitchToNextSpell();
+            if (equipmentDatabase.IsBowEquipped())
+            {
+                equipmentDatabase.SwitchToNextArrow();
+            }
+            else
+            {
+                equipmentDatabase.SwitchToNextSpell();
+            }
 
             uIDocumentPlayerHUDV2.OnSwitchSpell();
         }

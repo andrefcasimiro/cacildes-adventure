@@ -22,10 +22,6 @@ namespace AF
             Instantiate(mineCartColliderExplosion, transform.position, Quaternion.identity);
             SwitchManager.instance.UpdateSwitch(switchToActivateUponCollision, true, null);
 
-            if (string.IsNullOrEmpty(analyticsMessage) == false)
-            {
-                FindObjectOfType<Analytics>(true).TrackAnalyticsEvent(analyticsMessage);
-            }
         }
     }
 }

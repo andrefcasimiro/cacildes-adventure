@@ -28,7 +28,7 @@ namespace AF
         ClimbController climbController => GetComponent<ClimbController>();
         ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
         PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
-        PlayerParryManager playerParryManager => GetComponent<PlayerParryManager>();
+        PlayerBlockInput playerParryManager => GetComponent<PlayerBlockInput>();
         PlayerInventory playerInventory => GetComponent<PlayerInventory>();
         PlayerPoiseController playerPoiseController => GetComponent<PlayerPoiseController>();
 
@@ -47,7 +47,7 @@ namespace AF
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
         public InventoryDatabase inventoryDatabase;
-        public StatusDatabase statusDatabase;
+        //  public StatusDatabase statusDatabase;
 
         private void Awake()
         {
@@ -340,11 +340,6 @@ namespace AF
                 return;
             }
 
-            if (playerParryManager.IsBlocking())
-            {
-                animator.SetBool(playerParryManager.hashIsBlocking, false);
-
-            }
 
             if (playerPoiseController.isStunned)
             {
@@ -500,12 +495,12 @@ namespace AF
             }
 
 
-            currentConsumedItem.OnConsumeSuccess(this, statusDatabase);
-
-            if (currentConsumedItem.destroyItemOnConsumeMoment)
-            {
-                FinishItemConsumption();
-            }
+            //      currentConsumedItem.OnConsumeSuccess(this, statusDatabase);
+            /*
+                        if (currentConsumedItem.destroyItemOnConsumeMoment)
+                        {
+                            FinishItemConsumption();
+                        }*/
         }
     }
 

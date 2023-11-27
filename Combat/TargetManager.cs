@@ -1,41 +1,34 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF.Combat
 {
 
     public class TargetManager : MonoBehaviour
     {
-        Transform m_currentTarget;
-        public Transform CurrentTarget
+        public UnityEvent onTargetSet_Event;
+
+        public CharacterBaseManager currentTarget;
+
+        public void SetTarget(CharacterBaseManager target)
         {
-            get
+            if (currentTarget == target)
             {
-                return m_currentTarget;
+                return;
             }
 
-            set
-            {
-                m_currentTarget = value;
-
-                value.TryGetComponent(out targetCharacter);
-            }
-        }
-
-        ICharacter targetCharacter;
-
-        public void SetTarget(Transform target)
-        {
-            CurrentTarget = target;
+            currentTarget = target;
+            onTargetSet_Event?.Invoke();
         }
 
         public bool IsTargetBusy()
         {
-            if (targetCharacter == null)
+            if (currentTarget == null)
             {
                 return false;
             }
 
-            return targetCharacter.IsBusy();
+            return currentTarget.IsBusy();
         }
     }
 }

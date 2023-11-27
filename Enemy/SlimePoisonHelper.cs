@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using AF.StatusEffects;
 using UnityEngine;
 
 namespace AF
@@ -10,22 +11,22 @@ namespace AF
         public float statusEffectAmount;
         public StatusEffect statusEffect;
 
-        PlayerHealthbox playerHealthbox;
-        PlayerStatusManager playerStatusManager;
+        //PlayerHealthbox playerHealthbox;
+        StatusController statusController;
 
         private void Awake()
         {
-            playerHealthbox = FindObjectOfType<PlayerHealthbox>(true);
-            playerStatusManager = FindObjectOfType<PlayerStatusManager>(true);
+            //  playerHealthbox = FindObjectOfType<PlayerHealthbox>(true);
+            statusController = FindObjectOfType<StatusController>(true);
         }
 
         public void DamagePlayer()
         {
-            playerHealthbox.Event_TakeDamage(damagePerHit);
+            //playerHealthbox.Event_TakeDamage(damagePerHit);
 
             if (statusEffect != null)
             {
-                playerStatusManager.InflictStatusEffect(statusEffect, statusEffectAmount, false);
+                statusController.InflictStatusEffect(statusEffect, statusEffectAmount, false);
             }
         }
 

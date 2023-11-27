@@ -25,7 +25,7 @@ namespace AF
         public int currentPlayerAffinityWithFaction = 0;
     }
 
-    public class FactionManager : MonoBehaviour, ISaveable
+    public class FactionManager : MonoBehaviour
     {
         // Only used to construct the factions list, dont use this for operations
         [SerializeField] private List<FactionEntry> factionEntries = new();

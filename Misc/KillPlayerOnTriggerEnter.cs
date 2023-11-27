@@ -50,7 +50,6 @@ namespace AF
                     return;
                 }
 
-                other.GetComponentInChildren<PlayerHealthbox>(true).Die();
             }
 
             if (other.gameObject.CompareTag("Enemy") && ignoreEnemies == false)

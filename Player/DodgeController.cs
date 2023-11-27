@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 namespace AF
@@ -8,19 +9,10 @@ namespace AF
     {
         // Animation hash values
         public readonly int hashRoll = Animator.StringToHash("Roll");
-        public readonly int hashCrouchRoll = Animator.StringToHash("Dodge Crouch");
         public readonly int hashBackStep = Animator.StringToHash("BackStep");
-        public readonly int hashIsDodging = Animator.StringToHash("IsDodging");
 
         [Header("Components")]
-        public Animator animator;
-        public StarterAssetsInputs starterAssetsInputs;
-        public ClimbController climbController;
-        public PlayerCombatController playerCombatController;
-        public ThirdPersonController thirdPersonController;
-        public EquipmentGraphicsHandler equipmentGraphicsHandler;
-        public StaminaStatManager staminaStatManager;
-        public PlayerShootingManager playerShootingManager;
+        public PlayerManager playerManager;
 
         [Header("Stamina Settings")]
         public int dodgeCost = 15;
@@ -34,23 +26,28 @@ namespace AF
         [Header("Dodge Attacks")]
         public int dodgeAttackBonus = 30;
 
-        #region Input System
-        public void OnDodge(InputValue inputValue)
+        [Header("Unity Events")]
+        public UnityEvent onDodge;
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnDodgeInput()
         {
-            if (inputValue.isPressed && CanDodge() && !IsDodging())
+            if (CanDodge() && !IsDodging())
             {
-                staminaStatManager.DecreaseStamina(dodgeCost);
+                playerManager.staminaStatManager.DecreaseStamina(dodgeCost);
+                playerManager.playerBlockInput.OnBlockInput_Cancelled();
                 Tick();
+                onDodge?.Invoke();
             }
         }
-        #endregion
 
-        #region Handlers
         void Tick()
         {
             if (ShouldBackstep())
             {
-                animator.Play(hashBackStep);
+                playerManager.PlayBusyHashedAnimationWithRootMotion(hashBackStep);
                 return;
             }
 
@@ -61,19 +58,13 @@ namespace AF
         {
             hasIframes = true;
 
-            if (thirdPersonController.skateRotation)
-            {
-                animator.Play(hashCrouchRoll);
-                return;
-            }
+            playerManager.PlayBusyHashedAnimationWithRootMotion(hashRoll);
 
-            animator.Play(hashRoll);
-
-            if (equipmentGraphicsHandler.IsHeavyWeight())
+            if (playerManager.equipmentGraphicsHandler.IsHeavyWeight())
             {
                 StartCoroutine(StopHeavyRollRootmotion());
             }
-            else if (equipmentGraphicsHandler.IsMidWeight())
+            else if (playerManager.equipmentGraphicsHandler.IsMidWeight())
             {
                 StartCoroutine(StopMidRollRootmotion());
             }
@@ -82,7 +73,7 @@ namespace AF
         IEnumerator StopMidRollRootmotion()
         {
             yield return new WaitForSeconds(0.75f);
-            animator.applyRootMotion = false;
+            playerManager.animator.applyRootMotion = false;
         }
 
         IEnumerator StopHeavyRollRootmotion()
@@ -91,14 +82,12 @@ namespace AF
             StopIframes();
 
             yield return new WaitForSeconds(0.3f);
-            animator.applyRootMotion = false;
+            playerManager.animator.applyRootMotion = false;
         }
-        #endregion
 
-        #region Booleans
         public bool ShouldBackstep()
         {
-            return starterAssetsInputs.move == Vector2.zero && thirdPersonController.skateRotation == false;
+            return playerManager.starterAssetsInputs.move == Vector2.zero && playerManager.thirdPersonController.skateRotation == false;
         }
 
         private void OnTriggerStay(Collider other)
@@ -122,8 +111,8 @@ namespace AF
             }
 
             if (
-                starterAssetsInputs.move == Vector2.zero
-                && thirdPersonController.skateRotation == false
+                playerManager.starterAssetsInputs.move == Vector2.zero
+                && playerManager.thirdPersonController.skateRotation == false
                 // Is Backstepping, give slight offset
                 && currentRequestForRollDuration > maxRequestForRollDuration - 0.1f)
             {
@@ -140,27 +129,27 @@ namespace AF
 
         private bool CanDodge()
         {
-            if (playerShootingManager.IsShooting())
+            if (playerManager.IsBusy())
             {
                 return false;
             }
 
-            if (climbController.climbState != ClimbController.ClimbState.NONE)
+            if (playerManager.climbController.climbState != ClimbController.ClimbState.NONE)
             {
                 return false;
             }
 
-            if (playerCombatController.isCombatting)
+            if (playerManager.playerCombatController.isCombatting)
             {
                 return false;
             }
 
-            if (!thirdPersonController.Grounded || !thirdPersonController.canMove)
+            if (!playerManager.thirdPersonController.Grounded || !playerManager.thirdPersonController.canMove)
             {
                 return false;
             }
 
-            if (!staminaStatManager.HasEnoughStaminaForAction(dodgeCost))
+            if (!playerManager.staminaStatManager.HasEnoughStaminaForAction(dodgeCost))
             {
                 return false;
             }
@@ -179,7 +168,6 @@ namespace AF
             return false;
             //            return animator.GetBool("IsRollAttacking");
         }
-        #endregion
 
 
         #region Animation Events

@@ -1,10 +1,12 @@
-﻿using System.Runtime.Serialization.Json;
+﻿using System.Collections;
+using AF.Shooting;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
 
-    public class Projectile : MonoBehaviour
+    public class Projectile : MonoBehaviour, IProjectile
     {
         [Header("Lifespan")]
         public float flyingDuration = 2;
@@ -64,13 +66,53 @@ namespace AF
         public bool isConfettiTrap = false;
         public StatusEffect[] possibleStatusEffects;
 
+        [Header("Events")]
+
+        [Tooltip("Fires immediately after instatied")] public UnityEvent onFired;
+
+        [Tooltip("Fires after 0.1ms")] public UnityEvent onFired_After;
+        public float onFired_AfterDelay = 0.1f;
+
         private void Start()
         {
             hasCollidedAlready = false;
         }
 
-        public void Shoot(Transform target)
+        private void OnEnable()
         {
+            onFired?.Invoke();
+
+            StartCoroutine(HandleOnFiredAfter_Coroutine());
+        }
+
+        IEnumerator HandleOnFiredAfter_Coroutine()
+        {
+            yield return new WaitForSeconds(onFired_AfterDelay);
+            onFired_After?.Invoke();
+        }
+
+        public void Shoot(Transform target, Vector3 aimForce, ForceMode forceMode)
+        {
+            if (target == null)
+            {
+                // Apply forces to the object
+                if (rigidBody != null)
+                {
+                    // Apply force to move the arrow towards the center of the screen
+                    rigidBody.AddForce(aimForce, forceMode);
+                    //source = GetComponent<Cinemachine.CinemachineImpulseSource>();
+
+                    //source.GenerateImpulse(Camera.main.transform.forward);
+                }
+                else
+                {
+                    Debug.LogError("Rigidbody component not found!");
+                }
+
+                return;
+            }
+
+
             this.currentTarget = target;
             targetDestination = target.transform.position;
 
@@ -133,16 +175,6 @@ namespace AF
                 return;
             }
 
-            var playerHealthbox = other.GetComponent<PlayerHealthbox>();
-            if (playerHealthbox == null)
-            {
-                playerHealthbox = other.GetComponentInChildren<PlayerHealthbox>();
-            }
-
-            if (playerHealthbox == null)
-            {
-                return;
-            }
 
             // We have a player to hit. Begin.
 
@@ -155,11 +187,11 @@ namespace AF
             hasCollidedAlready = true;
 
             // Check if player is blocking
-            var playerParrymanager = FindObjectOfType<PlayerParryManager>(true);
-            if (playerParrymanager.IsBlocking() && Vector3.Angle(transform.forward, playerParrymanager.transform.forward * -1) <= 90f)
+            var playerParrymanager = FindObjectOfType<PlayerBlockInput>(true);
+            /*if (playerParrymanager.IsBlocking() && Vector3.Angle(transform.forward, playerParrymanager.transform.forward * -1) <= 90f)
             {
                 // Instantiate(Player.instance.equippedShield.blockFx, other.transform.position, Quaternion.identity);
-            }
+            }*/
 
             if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.EASY)
             {
@@ -172,7 +204,6 @@ namespace AF
 
 
             // Take damage
-            playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage, projectileAttackElement, projectileAttackElementType);
 
             // Check if projectile should be destroyed
             if (destroyOnCollision)
@@ -355,13 +386,6 @@ namespace AF
 
             if (other.CompareTag("Ignitable"))
             {
-                other.TryGetComponent(out FireablePillar fireablePillar);
-
-                if (fireablePillar != null)
-                {
-                    fireablePillar.Explode();
-                    return;
-                }
             }
 
 
@@ -404,10 +428,10 @@ namespace AF
             // Is Player ?
             if (isFromPlayer)
             {
-                CharacterHealthHitbox enemyHealthHitbox = other.gameObject.GetComponentInChildren<CharacterHealthHitbox>(true);
+                //CharacterHealthHitbox enemyHealthHitbox = other.gameObject.GetComponentInChildren<CharacterHealthHitbox>(true);
 
                 // Colliding with something else
-                if (enemyHealthHitbox == null)
+                if (false) //enemyHealthHitbox == null)
                 {
                     if (projectileImpactOnBodySfx != null)
                     {
@@ -467,41 +491,32 @@ namespace AF
                 return;
             }
 
-            PlayerHealthbox playerHealthbox = null;
 
             if (other.gameObject.tag == "PlayerHealthbox")
             {
-                playerHealthbox = other.gameObject.GetComponent<PlayerHealthbox>();
             }
             else if (other.gameObject.tag == "Player")
             {
-                playerHealthbox = other.gameObject.GetComponentInChildren<PlayerHealthbox>(true);
             }
 
-            if (playerHealthbox != null)
-            {
-                var playerParrymanager = FindObjectOfType<PlayerParryManager>(true);
-
-                if (playerParrymanager.IsBlocking() && Vector3.Angle(transform.forward, playerParrymanager.transform.forward * -1) <= 90f)
-                {
-                    // Instantiate(Player.instance.equippedShield.blockFx, other.transform.position, Quaternion.identity);
-
-                    if (destroyOnCollision)
-                    {
-                        Destroy(this.gameObject);
-                    }
-
-                    return;
-                }
-
-                playerHealthbox.TakeDamage(projectileDamage, this.transform, projectileImpactOnBodySfx, projectilePoiseDamage, projectileAttackElement, projectileAttackElementType);
-            }
 
             if (destroyOnCollision && hasCollidedAlready)
             {
                 Destroy(this.gameObject);
             }
 
+        }
+
+
+
+        public float GetForwardVelocity()
+        {
+            return forwardVelocity;
+        }
+
+        public ForceMode GetForceMode()
+        {
+            return forceMode;
         }
     }
 }

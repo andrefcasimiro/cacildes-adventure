@@ -6,7 +6,7 @@ using UnityEngine.AI;
 namespace AF
 {
 
-    public class TimedObject : MonoBehaviour, IClockListener, ISaveable
+    public class TimedObject : MonoBehaviour, IClockListener
     {
         public string dayHours = "05-20";
         public string nightHours = "20-5";

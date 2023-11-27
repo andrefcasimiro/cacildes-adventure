@@ -7,7 +7,7 @@ using System;
 namespace AF
 {
 
-    public class Event : MonoBehaviour, IClockListener, ISaveable
+    public class Event : MonoBehaviour, IClockListener
     {
         public string eventName;
 

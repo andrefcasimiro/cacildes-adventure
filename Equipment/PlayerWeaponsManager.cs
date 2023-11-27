@@ -1,25 +1,29 @@
 using System.Collections.Generic;
+using System.Linq;
 using AF.Animations;
 using AF.Events;
 using AF.Stats;
 using TigerForge;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace AF.Equipment
 {
     public class PlayerWeaponsManager : MonoBehaviour
     {
         [Header("Unarmed Weapon References In-World")]
-        public PlayerWeaponHitbox leftHandHitbox;
-        public PlayerWeaponHitbox rightHandHitbox;
-        public PlayerWeaponHitbox leftFootHitbox;
-        public PlayerWeaponHitbox rightFootHitbox;
+        public CharacterWeaponHitbox leftHandHitbox;
+        public CharacterWeaponHitbox rightHandHitbox;
+        public CharacterWeaponHitbox leftFootHitbox;
+        public CharacterWeaponHitbox rightFootHitbox;
 
         [Header("Weapon References In-World")]
-        public List<PlayerWeaponHitbox> weaponInstances;
+        public List<CharacterWeaponHitbox> weaponInstances;
+        public List<ShieldInstance> shieldInstances;
 
         [Header("Current Weapon")]
-        public PlayerWeaponHitbox currentWeapon;
+        public CharacterWeaponHitbox currentWeaponInstance;
+        public ShieldInstance currentShieldInstance;
 
         [Header("Database")]
         public EquipmentDatabase equipmentDatabase;
@@ -37,13 +41,120 @@ namespace AF.Equipment
             defaultAnimatorController = playerManager.animator.runtimeAnimatorController;
             animatorOverrideController = new AnimatorOverrideController(playerManager.animator.runtimeAnimatorController);
 
-            UpdateAnimatorOverrideControllerClips();
-
             statsBonusController = playerManager.statsBonusController;
 
             EventManager.StartListening(
                 EventMessages.ON_WEAPON_CHANGED,
                 UpdateCurrentWeapon);
+
+            EventManager.StartListening(
+                EventMessages.ON_SHIELD_CHANGED,
+                UpdateCurrentShield);
+
+            EventManager.StartListening(
+                EventMessages.ON_ARROW_CHANGED,
+                UpdateCurrentArrows);
+
+            EventManager.StartListening(
+                EventMessages.ON_SPELL_CHANGED,
+                UpdateCurrentSpells);
+        }
+
+        private void Start()
+        {
+            UpdateCurrentWeapon();
+            UpdateCurrentShield();
+            UpdateCurrentArrows();
+            UpdateCurrentSpells();
+        }
+
+        void UpdateCurrentWeapon()
+        {
+            var CurrentWeapon = equipmentDatabase.GetCurrentWeapon();
+
+            if (currentWeaponInstance != null)
+            {
+                currentWeaponInstance = null;
+            }
+
+            foreach (CharacterWeaponHitbox weaponHitbox in weaponInstances)
+            {
+                weaponHitbox.DisableHitbox();
+                weaponHitbox.gameObject.SetActive(false);
+            }
+
+            if (CurrentWeapon != null)
+            {
+                var gameObjectWeapon = weaponInstances.FirstOrDefault(x => x.weapon.name.GetEnglishText() == CurrentWeapon.name.GetEnglishText());
+                currentWeaponInstance = gameObjectWeapon;
+                currentWeaponInstance.gameObject.SetActive(true);
+            }
+
+            UpdateAnimatorOverrideControllerClips();
+
+            // If we equipped a bow, we must hide any active shield
+            if (equipmentDatabase.IsBowEquipped() || equipmentDatabase.IsStaffEquipped())
+            {
+                UnassignShield();
+            }
+            // Otherwise, we need to check if we should activate a bow if we just switched from a bow to other weapon that might allow a shield
+            else
+            {
+                UpdateCurrentShield();
+            }
+        }
+
+        void UpdateCurrentArrows()
+        {
+            if (equipmentDatabase.IsBowEquipped() == false)
+            {
+                return;
+            }
+
+            UnassignShield();
+        }
+
+        void UpdateCurrentSpells()
+        {
+            if (equipmentDatabase.IsStaffEquipped() == false)
+            {
+                return;
+            }
+
+            UnassignShield();
+        }
+
+        void UpdateCurrentShield()
+        {
+            var CurrentShield = equipmentDatabase.GetCurrentShield();
+
+            statsBonusController.RecalculateEquipmentBonus();
+
+            if (currentShieldInstance != null)
+            {
+                currentShieldInstance = null;
+            }
+
+            foreach (ShieldInstance shieldInstance in shieldInstances)
+            {
+                shieldInstance.gameObject.SetActive(false);
+            }
+
+            if (CurrentShield != null)
+            {
+                var gameObjectShield = shieldInstances.FirstOrDefault(x => x.shield.name.GetEnglishText() == CurrentShield.name.GetEnglishText());
+                currentShieldInstance = gameObjectShield;
+                currentShieldInstance.gameObject.SetActive(true);
+            }
+        }
+
+        void UnassignShield()
+        {
+            if (currentShieldInstance != null)
+            {
+                currentShieldInstance.gameObject.SetActive(false);
+                currentShieldInstance = null;
+            }
         }
 
         public void EquipWeapon(Weapon weaponToEquip, int slot)
@@ -60,18 +171,6 @@ namespace AF.Equipment
             UpdateCurrentWeapon();
         }
 
-        void UpdateCurrentWeapon()
-        {
-            var CurrentWeapon = equipmentDatabase.GetCurrentWeapon();
-
-            foreach (PlayerWeaponHitbox weaponHitbox in weaponInstances)
-            {
-                weaponHitbox.gameObject.SetActive(weaponHitbox.weapon?.name?.GetEnglishText() == CurrentWeapon?.name?.GetEnglishText());
-            }
-
-            UpdateAnimatorOverrideControllerClips();
-        }
-
         public void EquipShield(Shield shieldToEquip, int slot)
         {
             equipmentDatabase.EquipShield(shieldToEquip, slot);
@@ -86,39 +185,56 @@ namespace AF.Equipment
             UpdateCurrentShield();
         }
 
-        void UpdateCurrentShield()
-        {
-            var CurrentShield = equipmentDatabase.GetCurrentShield();
-
-            statsBonusController.RecalculateEquipmentBonus();
-
-            /*foreach (Pla weaponHitbox in shieldInstances)
-            {
-                weaponHitbox.gameObject.SetActive(weaponHitbox.weapon == CurrentWeapon);
-            }*/
-        }
-
         public void UpdateAnimatorOverrideControllerClips()
         {
-
             var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
             animatorOverrideController.GetOverrides(clipOverrides);
 
-            if (equipmentDatabase.GetCurrentWeapon() != null)
+            playerManager.animator.runtimeAnimatorController = defaultAnimatorController;
+
+            if (equipmentDatabase.GetCurrentWeapon() != null && equipmentDatabase.GetCurrentWeapon().animationOverrides.Count > 0)
             {
                 foreach (var animationOverride in equipmentDatabase.GetCurrentWeapon().animationOverrides)
                 {
-
                     clipOverrides[animationOverride.animationName] = animationOverride.animationClip;
                     animatorOverrideController.ApplyOverrides(clipOverrides);
-
                 }
 
                 playerManager.animator.runtimeAnimatorController = animatorOverrideController;
             }
-            else
+        }
+
+        public void ShowEquipment()
+        {
+            if (currentWeaponInstance != null)
             {
-                playerManager.animator.runtimeAnimatorController = defaultAnimatorController;
+                currentWeaponInstance.ShowWeapon();
+            }
+
+            if (currentShieldInstance != null)
+            {
+                currentShieldInstance.ShowShield();
+            }
+        }
+
+        public void HideEquipment()
+        {
+            if (currentWeaponInstance != null)
+            {
+                currentWeaponInstance.HideWeapon();
+            }
+
+            if (currentShieldInstance != null)
+            {
+                currentShieldInstance.HideShield();
+            }
+        }
+
+        public void HideShield()
+        {
+            if (currentShieldInstance != null)
+            {
+                currentShieldInstance.HideShield();
             }
         }
     }

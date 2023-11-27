@@ -7,7 +7,7 @@ namespace AF
 
     public class ViewObjectivesMenu : ViewMenu
     {
-        [System.Serializable]   
+        [System.Serializable]
         public class VideoTutorial
         {
             public LocalizedText title;
@@ -35,8 +35,6 @@ namespace AF
         public VisualTreeAsset questPrefab;
 
         public Font vecnaFont;
-
-        public TutorialsManager tutorialsManager;
 
         [Header("Tutorial Videos")]
         public VideoTutorial[] tutorialVideos;
@@ -142,13 +140,6 @@ namespace AF
 
                 DrawQuestsMenu();
             }
-            else if (activeMenu == ActiveMenu.TUTORIALS)
-            {
-                tutorialsContainer.style.display = DisplayStyle.Flex;
-                tutorialsMenu.style.opacity = 1.5f;
-
-                DrawTutorialsMenu();
-            }
             else if (activeMenu == ActiveMenu.ACHIEVEMENTS)
             {
                 achievementsContainer.style.display = DisplayStyle.Flex;
@@ -196,7 +187,7 @@ namespace AF
                     clone.style.opacity = 1;
                     hasHighlightedObjective = true;
                 }
-               else
+                else
                 {
                     clone.style.opacity = 0.25f;
                 }
@@ -206,91 +197,6 @@ namespace AF
                 scrollView.Add(clone);
             }
         }
-
-
-        void DrawTutorialsMenu()
-        {
-
-            tutorialsContainer.Clear();
-            ScrollView tutorialsScroll = new ScrollView();
-            tutorialsScroll.verticalScrollerVisibility = ScrollerVisibility.Auto;
-            tutorialsScroll.style.flexGrow = 1;
-            tutorialsScroll.style.flexShrink = 0;
-            tutorialsScroll.Q<VisualElement>("unity-content-and-vertical-scroll-container").style.width =
-                new Length(100, LengthUnit.Percent);
-
-            tutorialsContainer.Add(tutorialsScroll);
-
-            var tutorials = tutorialsManager.GetTutorials();
-            
-            foreach (var tutorialCategory in tutorials)
-            {
-                Foldout foldout = new Foldout();
-                foldout.style.flexGrow = 1;
-                foldout.style.flexShrink = 0;
-                foldout.focusable = false;
-
-                foldout.text = tutorialCategory.category;
-                foldout.style.unityFont = vecnaFont;
-                foldout.style.fontSize = 16;
-                foldout.style.unityFontStyleAndWeight = FontStyle.Bold;
-                foldout.style.unityFontDefinition = new StyleFontDefinition(vecnaFont);
-
-                ScrollView foldoutScrollView = new ScrollView();
-                foldoutScrollView.verticalScrollerVisibility = ScrollerVisibility.Auto;
-                foldout.contentContainer.Add(foldoutScrollView);
-
-                foldout.delegatesFocus = false;
-                foldout.pickingMode = PickingMode.Ignore;
-
-                foldout.value = false;
-                foldout.SetValueWithoutNotify(true);
-
-                tutorialsScroll.Add(foldout);
-
-                foreach (var tutorial in tutorialCategory.tutorials)
-                {
-                    Foldout tutorialFoldout = new Foldout();
-                    tutorialFoldout.style.width = new Length(100, LengthUnit.Percent);
-                    tutorialFoldout.style.flexGrow = 1;
-                    tutorialFoldout.style.flexShrink = 0;
-                    tutorialFoldout.style.unityFont = vecnaFont;
-                    tutorialFoldout.style.fontSize = 14;
-                    tutorialFoldout.style.unityFontStyleAndWeight = FontStyle.Bold;
-                    tutorialFoldout.style.unityFontDefinition = new StyleFontDefinition(vecnaFont);
-                    tutorialFoldout.text = tutorial.title;
-                    tutorialFoldout.focusable = false;
-                    tutorialFoldout.delegatesFocus = false;
-                    tutorialFoldout.pickingMode = PickingMode.Ignore;
-
-                    tutorialFoldout.SetValueWithoutNotify(true);
-
-                    VisualElement clone = questPrefab.CloneTree();
-                    clone.style.opacity = 1;
-                    clone.focusable = false;
-
-                    clone.Q<VisualElement>("Icon").style.opacity = 0;
-
-                    var description = clone.Q<Label>("Description");
-                    description.text = tutorial.text;
-                    description.style.opacity = 1;
-                    description.style.unityFont = vecnaFont;
-                    description.style.unityFontStyleAndWeight = FontStyle.Normal;
-
-                    description.style.unityFontDefinition = new StyleFontDefinition(vecnaFont);
-                    description.style.color = Color.white;
-                    tutorialFoldout.value = false;
-
-                    tutorialFoldout.contentContainer.Add(clone);
-
-                    tutorialFoldout.style.marginTop = 10;
-                    tutorialFoldout.style.marginBottom = 10;
-
-                    foldout.Add(tutorialFoldout);
-                }
-            }
-        }
-
 
         void TranslateControlsUI()
         {
@@ -317,7 +223,7 @@ namespace AF
             root.Q<Label>("Spacebar").text = isEnglish ? "Spacebar" : "Barra de Espaços";
 
         }
-    
+
         public void PopulateTutorialVideos()
         {
             videoTutorialsContainer.Q<ScrollView>().Clear();

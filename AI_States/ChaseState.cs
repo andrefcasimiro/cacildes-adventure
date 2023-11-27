@@ -22,8 +22,16 @@ namespace AF
         public UnityEvent onTargetReached;
         public UnityEvent onTargetLost;
 
+
+        [Header("Chase Actions Settings")]
+        public float maxIntervalBetweenDecidingChaseActions = 5f;
+        float currentIntervalBetweenChaseActions = 0f;
+
+
         public override void OnStateEnter(StateManager stateManager)
         {
+            currentIntervalBetweenChaseActions = 0f;
+
             onStateEnter?.Invoke();
         }
 
@@ -33,10 +41,20 @@ namespace AF
 
         public override State Tick(StateManager stateManager)
         {
-            if (characterManager.targetManager.CurrentTarget != null)
+            if (characterManager.IsBusy())
             {
+                return this;
+            }
+
+            if (characterManager.targetManager.currentTarget != null)
+            {
+                if (characterManager.agent.enabled)
+                {
+                    characterManager.agent.SetDestination(characterManager.targetManager.currentTarget.transform.position);
+                }
+
                 // Calculate the distance between the agent and the target
-                float distanceToTarget = Vector3.Distance(characterManager.agent.transform.position, characterManager.targetManager.CurrentTarget.transform.position);
+                float distanceToTarget = Vector3.Distance(characterManager.agent.transform.position, characterManager.targetManager.currentTarget.transform.position);
 
                 if (distanceToTarget < characterManager.agent.stoppingDistance)
                 {
@@ -50,9 +68,16 @@ namespace AF
                     return patrolOrIdleState;
                 }
 
-                if (characterManager.agent.enabled)
+                currentIntervalBetweenChaseActions += Time.deltaTime;
+                if (currentIntervalBetweenChaseActions >= maxIntervalBetweenDecidingChaseActions)
                 {
-                    characterManager.agent.SetDestination(characterManager.targetManager.CurrentTarget.transform.position);
+                    currentIntervalBetweenChaseActions = 0f;
+
+                    if (characterManager.characterCombatController != null)
+                    {
+                        characterManager.characterCombatController.UseChaseAction();
+                        return this;
+                    }
                 }
             }
 

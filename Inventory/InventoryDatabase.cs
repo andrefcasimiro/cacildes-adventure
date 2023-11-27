@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -29,6 +30,35 @@ namespace AF.Inventory
         public void Clear()
         {
             ownedItems.Clear();
+        }
+
+        public void RemoveItem(Item itemToRemove, int quantity)
+        {
+            int idx = this.ownedItems.FindIndex(item => item.item == itemToRemove);
+            if (idx == -1)
+            {
+                return;
+            }
+
+            this.ownedItems[idx].amount -= quantity;
+
+            if (
+                this.ownedItems[idx].amount <= 0
+                && this.ownedItems[idx].item.lostUponUse)
+            {
+                this.ownedItems.RemoveAt(idx);
+            }
+        }
+
+        public int GetItemAmount(Item itemToFind)
+        {
+            int idx = this.ownedItems.FindIndex(item => item.item == itemToFind);
+            if (idx == -1)
+            {
+                return 0;
+            }
+
+            return this.ownedItems[idx].amount;
         }
     }
 }

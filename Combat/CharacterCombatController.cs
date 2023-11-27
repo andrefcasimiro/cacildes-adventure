@@ -4,6 +4,7 @@ using System.Linq;
 using AF.Events;
 using TigerForge;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF.Combat
 {
@@ -13,49 +14,27 @@ namespace AF.Combat
         public CharacterManager characterManager;
 
         [Header("Combat Actions")]
-
-        public Transform reactionsToTargetContainer;
-        public Transform combatActionsContainer;
-        List<CombatAction> reactionsToTarget = new();
-        List<CombatAction> combatActions = new();
-        public CombatAction currentCombatAction;
+        public List<CombatAction> reactionsToTarget = new();
+        public List<CombatAction> combatActions = new();
+        public List<CombatAction> chaseActions = new();
+        [HideInInspector] public CombatAction currentCombatAction;
 
         [Header("Cooldowns")]
         [HideInInspector] public List<CombatAction> usedCombatActions = new();
 
         [Header("Animation Settings")]
-        public string ANIMATION_CLIP_TO_OVERRIDE_NAME = "Light Attack 1";
+        public string ANIMATION_CLIP_TO_OVERRIDE_NAME = "Cacildes - Light Attack - 1";
+        public readonly string hashLightAttack1 = "Light Attack 1";
 
-        private void Awake()
+        [Header("Unity Events")]
+        public UnityEvent onResetState;
+
+
+        public void ResetStates()
         {
-            SetupReferences();
+            onResetState?.Invoke();
 
-            EventManager.StartListening(EventMessages.ON_CHARACTER_RESET_STATE, () =>
-            {
-                if (EventManager.GetGameObject(EventMessages.ON_CHARACTER_RESET_STATE) == this.characterManager)
-                {
-                    OnAttackEnd();
-                }
-            });
-        }
-
-        void SetupReferences()
-        {
-            foreach (Transform reaction in reactionsToTargetContainer.transform)
-            {
-                if (reaction.TryGetComponent<CombatAction>(out var reactionToAdd))
-                {
-                    reactionsToTarget.Add(reactionToAdd);
-                }
-            }
-            foreach (Transform combatAction in combatActionsContainer.transform)
-            {
-                if (combatAction.TryGetComponent<CombatAction>(out var combatActionToAdd))
-                {
-                    reactionsToTarget.Add(combatActionToAdd);
-                }
-            }
-
+            OnAttackEnd();
         }
 
         CombatAction GetCombatAction()
@@ -97,10 +76,51 @@ namespace AF.Combat
                 return;
             }
 
-            this.usedCombatActions.Add(newCombatAction);
-            StartCoroutine(ClearCombatActionFromCooldownList(newCombatAction));
+            this.currentCombatAction = newCombatAction;
+            ExecuteCurrentCombatAction();
+        }
 
-            characterManager.animator.Play(ANIMATION_CLIP_TO_OVERRIDE_NAME);
+        public void UseChaseAction()
+        {
+            CombatAction newCombatAction = null;
+
+            if (chaseActions.Count > 0)
+            {
+                var shuffledChaseActions = Randomize(chaseActions.ToArray());
+
+                foreach (CombatAction possibleChaseAction in shuffledChaseActions)
+                {
+                    if (possibleChaseAction.CanUseCombatAction())
+                    {
+                        newCombatAction = possibleChaseAction;
+                        break;
+                    }
+                }
+            }
+
+            if (newCombatAction != null)
+            {
+                this.currentCombatAction = newCombatAction;
+                ExecuteCurrentCombatAction();
+            }
+        }
+
+        public void ExecuteCurrentCombatAction()
+        {
+            if (currentCombatAction.attackAnimationClip != null)
+            {
+                characterManager.UpdateAnimatorOverrideControllerClips(ANIMATION_CLIP_TO_OVERRIDE_NAME, currentCombatAction.attackAnimationClip);
+                characterManager.PlayBusyAnimationWithRootMotion(hashLightAttack1);
+            }
+            else if (!string.IsNullOrEmpty(currentCombatAction.attackAnimationName))
+            {
+                characterManager.PlayBusyAnimationWithRootMotion(currentCombatAction.attackAnimationName);
+            }
+
+            StartCoroutine(ClearCombatActionFromCooldownList(currentCombatAction));
+
+            this.usedCombatActions.Add(currentCombatAction);
+
             OnAttackStart();
         }
 
@@ -121,7 +141,7 @@ namespace AF.Combat
                 currentCombatAction.onAttack_Start?.Invoke();
             }
         }
-        public void OnAttack_HitStart()
+        public void OnAttack_HitboxOpen()
         {
             if (currentCombatAction != null)
             {

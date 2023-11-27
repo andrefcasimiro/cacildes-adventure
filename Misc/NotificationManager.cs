@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace AF
 {
-    public class NotificationManager : MonoBehaviour, ISaveable
+    public class NotificationManager : MonoBehaviour
     {
         public const float MAX_ITEM_DURATION = 4f;
         public const float MAX_ITEMS_IN_QUEUE = 5;
