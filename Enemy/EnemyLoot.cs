@@ -77,7 +77,6 @@ namespace AF
 
             yield return new WaitForSeconds(0.2f);
 
-            uIDocumentPlayerGold.PlayCoinsFX(transform);
             // uIDocumentPlayerGold.NotifyGold(goldToReceive);
             // playerStatsDatabase.gold += (int)goldToReceive;
         }

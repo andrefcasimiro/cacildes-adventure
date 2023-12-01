@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AF.Inventory;
+using AF.Ladders;
+using AF.StatusEffects;
 using UnityEngine;
 
 namespace AF
@@ -13,47 +15,33 @@ namespace AF
         public readonly int hashClock = Animator.StringToHash("Clock");
         public readonly int hashIsConsumingItem = Animator.StringToHash("IsConsumingItem");
 
-        FavoriteItemsManager favoriteItemsManager => GetComponent<FavoriteItemsManager>();
-
         public Consumable currentConsumedItem;
         GameObject consumableGraphicInstance;
 
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
-
-        Animator animator => GetComponent<Animator>();
-
-        PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
-
-        DodgeController dodgeController => GetComponent<DodgeController>();
-        ClimbController climbController => GetComponent<ClimbController>();
-        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
-        PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
-        PlayerBlockInput playerParryManager => GetComponent<PlayerBlockInput>();
-        PlayerInventory playerInventory => GetComponent<PlayerInventory>();
-        PlayerPoiseController playerPoiseController => GetComponent<PlayerPoiseController>();
-
         public Transform handItemRef;
 
-        NotificationManager notificationManager;
-
-        ViewClockMenu viewClockMenu;
+        [Header("UI Components")]
+        public NotificationManager notificationManager;
+        public ViewClockMenu viewClockMenu;
+        public UIDocumentPlayerHUDV2 uIDocumentPlayerHUDV2;
 
         [SerializeField] private UIManager uIManager;
         [SerializeField] private MenuManager menuManager;
 
         [Header("Components")]
-        public PlayerAchievementsManager playerAchievementsManager;
+        public PlayerManager playerManager;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
         public InventoryDatabase inventoryDatabase;
-        //  public StatusDatabase statusDatabase;
+        public StatusDatabase statusDatabase;
 
-        private void Awake()
+        [Header("Flags")]
+        public bool isConsumingItem = false;
+
+        public void ResetStates()
         {
-            notificationManager = FindObjectOfType<NotificationManager>(true);
-
-            viewClockMenu = FindAnyObjectByType<ViewClockMenu>(FindObjectsInactive.Include);
+            isConsumingItem = false;
         }
 
         public void ReplenishItems()
@@ -69,7 +57,7 @@ namespace AF
                 }
             }
 
-            // favoriteItemsManager.UpdateFavoriteItems();
+            uIDocumentPlayerHUDV2.UpdateEquipment();
         }
 
         void HandleItemAchievements(Item item)
@@ -80,11 +68,11 @@ namespace AF
 
                 if (numberOfWeapons <= 0)
                 {
-                    playerAchievementsManager.achievementOnAcquiringFirstWeapon.AwardAchievement();
+                    playerManager.playerAchievementsManager.achievementOnAcquiringFirstWeapon.AwardAchievement();
                 }
                 else if (numberOfWeapons == 10)
                 {
-                    playerAchievementsManager.achievementOnAcquiringTenWeapons.AwardAchievement();
+                    playerManager.playerAchievementsManager.achievementOnAcquiringTenWeapons.AwardAchievement();
                 }
             }
             else if (item is Spell)
@@ -93,7 +81,7 @@ namespace AF
 
                 if (numberOfSpells <= 0)
                 {
-                    playerAchievementsManager.achievementOnAcquiringFirstSpell.AwardAchievement();
+                    playerManager.playerAchievementsManager.achievementOnAcquiringFirstSpell.AwardAchievement();
                 }
             }
         }
@@ -118,7 +106,7 @@ namespace AF
                 inventoryDatabase.ownedItems.Add(itemEntry);
             }
 
-            FindObjectOfType<UIDocumentPlayerHUDV2>(true).UpdateFavoriteItems();
+            uIDocumentPlayerHUDV2.UpdateEquipment();
         }
 
         public void RemoveItem(Item item, int amount)
@@ -155,7 +143,7 @@ namespace AF
 
             }
 
-            FindObjectOfType<UIDocumentPlayerHUDV2>(true).UpdateFavoriteItems();
+            uIDocumentPlayerHUDV2.UpdateEquipment();
         }
 
         public int GetItemQuantity(Item item)
@@ -170,208 +158,57 @@ namespace AF
             return entry.amount;
         }
 
-        public List<Weapon> GetWeapons()
-        {
-            List<Weapon> weapons = new List<Weapon>();
-
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                var possibleWeapon = item.item as Weapon;
-                if (possibleWeapon != null)
-                {
-                    weapons.Add(possibleWeapon);
-                }
-            }
-
-            return weapons;
-        }
-
-        public List<Shield> GetShields()
-        {
-            List<Shield> shields = new List<Shield>();
-
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                var possibleShield = item.item as Shield;
-                if (possibleShield != null)
-                {
-                    shields.Add(possibleShield);
-                }
-            }
-
-            return shields;
-        }
-
-        public List<Accessory> GetAccessories()
-        {
-            List<Accessory> accessories = new List<Accessory>();
-
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                var possibleAccessory = item.item as Accessory;
-                if (possibleAccessory != null)
-                {
-                    accessories.Add(possibleAccessory);
-                }
-            }
-
-            return accessories;
-        }
-
-        public List<Helmet> GetHelmets()
-        {
-            List<Helmet> items = new List<Helmet>();
-
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                var possibleItem = item.item as Helmet;
-                if (possibleItem != null)
-                {
-                    items.Add(possibleItem);
-                }
-            }
-
-            return items;
-        }
-
-        public List<Armor> GetArmors()
-        {
-            List<Armor> items = new List<Armor>();
-
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                var possibleItem = item.item as Armor;
-                if (possibleItem != null)
-                {
-                    items.Add(possibleItem);
-                }
-            }
-
-            return items;
-        }
-
-        public List<Legwear> GetLegwears()
-        {
-            List<Legwear> items = new List<Legwear>();
-
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                var possibleItem = item.item as Legwear;
-                if (possibleItem != null)
-                {
-                    items.Add(possibleItem);
-                }
-            }
-
-            return items;
-        }
-
-
-        public List<Gauntlet> GetGauntlets()
-        {
-            List<Gauntlet> items = new List<Gauntlet>();
-
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                var possibleItem = item.item as Gauntlet;
-                if (possibleItem != null)
-                {
-                    items.Add(possibleItem);
-                }
-            }
-
-            return items;
-        }
-
-        public List<Consumable> GetConsumables()
-        {
-            List<Consumable> items = new List<Consumable>();
-
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                var possibleItem = item.item as Consumable;
-                if (possibleItem != null)
-                {
-                    items.Add(possibleItem);
-                }
-            }
-
-            return items;
-        }
-
-        public List<Spell> GetSpells()
-        {
-            List<Spell> items = new();
-
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                var possibleItem = item.item as Spell;
-                if (possibleItem != null)
-                {
-                    items.Add(possibleItem);
-                }
-            }
-
-            return items;
-        }
-
-        public bool IsConsumingItem()
-        {
-            return animator.GetBool(hashIsConsumingItem);
-        }
-
         public void PrepareItemForConsuming(Consumable consumable)
         {
-            if (IsConsumingItem())
+            if (isConsumingItem)
             {
                 return;
             }
 
-
-            if (consumable.lostUponUse == false && playerInventory.GetItemQuantity(consumable) <= 0)
+            if (consumable.lostUponUse == false && inventoryDatabase.GetItemAmount(consumable) <= 0)
             {
                 notificationManager.ShowNotification(LocalizedTerms.DepletedConsumable(), notificationManager.notEnoughSpells);
                 return;
             }
 
-            if (playerCombatController.isCombatting)
+            if (playerManager.playerCombatController.isCombatting)
             {
                 notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
 
-            if (playerPoiseController.isStunned)
+            if (playerManager.playerPoiseController.isStunned)
             {
                 notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
-            if (playerPoiseController.IsTakingDamage())
+            if (playerManager.playerPoiseController.IsTakingDamage())
             {
                 notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
-            if (dodgeController.IsDodging())
+            if (playerManager.dodgeController.IsDodging())
             {
                 notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
-            if (!thirdPersonController.Grounded)
+            if (!playerManager.thirdPersonController.Grounded)
             {
                 notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
-            if (climbController.climbState != ClimbController.ClimbState.NONE)
+            if (playerManager.climbController.climbState != ClimbState.NONE)
             {
                 notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
             }
 
-            if (playerComponentManager.isInBonfire)
+            if (playerManager.isBusy)
             {
                 return;
             }
@@ -381,21 +218,21 @@ namespace AF
                 return;
             }
 
-
             this.currentConsumedItem = consumable;
+            isConsumingItem = true;
 
             if (consumable.isAlcoholic)
             {
-                playerAchievementsManager.achievementForDrinkingFirstAlcoholicBeverage.AwardAchievement();
+                playerManager.playerAchievementsManager.achievementForDrinkingFirstAlcoholicBeverage.AwardAchievement();
             }
 
             if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.DRINK)
             {
-                animator.Play(hashDrinking);
+                playerManager.PlayBusyHashedAnimationWithRootMotion(hashDrinking);
             }
             else if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.EAT)
             {
-                animator.Play(hashEating);
+                playerManager.PlayBusyHashedAnimationWithRootMotion(hashEating);
             }
             else if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.CLOCK)
             {
@@ -417,15 +254,15 @@ namespace AF
                 return;
             }
 
-            equipmentGraphicsHandler.HideWeapons();
+            playerManager.playerWeaponsManager.HideEquipment();
 
             if (consumable.graphic != null)
             {
                 consumableGraphicInstance = Instantiate(consumable.graphic, handItemRef);
             }
 
-            playerComponentManager.DisableCharacterController();
-            playerComponentManager.DisableComponents();
+            playerManager.playerComponentManager.DisableCharacterController();
+            playerManager.playerComponentManager.DisableComponents();
         }
 
         public void FinishItemConsumption()
@@ -454,16 +291,16 @@ namespace AF
         {
             yield return new WaitForSeconds(waitTime);
 
-            playerComponentManager.EnableCharacterController();
-            playerComponentManager.EnableComponents();
+            playerManager.playerComponentManager.EnableCharacterController();
+            playerManager.playerComponentManager.EnableComponents();
         }
 
         IEnumerator RecoverWatchControl(float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
 
-            playerComponentManager.EnableCharacterController();
-            playerComponentManager.EnableComponents();
+            playerManager.playerComponentManager.EnableCharacterController();
+            playerManager.playerComponentManager.EnableComponents();
 
             currentConsumedItem = null;
             Destroy(this.consumableGraphicInstance);

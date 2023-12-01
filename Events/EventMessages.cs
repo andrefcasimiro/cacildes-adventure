@@ -7,5 +7,9 @@ namespace AF.Events
         public static readonly string ON_SPELL_CHANGED = "ON_SPELL_CHANGED";
         public static readonly string ON_ARROW_CHANGED = "ON_ARROW_CHANGED";
         public static readonly string ON_EQUIPMENT_CHANGED = "ON_EQUIPMENT_CHANGED";
+
+        // Events
+        public static readonly string ON_MOMENT_START = "ON_MOMENT_START";
+
     }
 }

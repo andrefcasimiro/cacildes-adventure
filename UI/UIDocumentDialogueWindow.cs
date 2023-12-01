@@ -1,75 +1,130 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
 using System.Linq;
 using DG.Tweening;
-using System;
-using System.IO;
-using UnityEngine.Video;
+using UnityEngine.Events;
+using AF.Dialogue;
 
 namespace AF
 {
+    // Deprecate
+    [System.Serializable]
+    public class DialogueChoice
+    {
+        public LocalizedText choiceText;
+
+        [Header("Use Sub Events")]
+        public GameObject subEventPage;
+
+        [Header("Use Quick Response")]
+        public Character replier;
+        public LocalizedText response;
+        public UnityEvent onResponseFinished;
+
+        [Header("Depends on Switch?")]
+        public SwitchEntry switchEntry;
+        public bool switchValue = false;
+
+        public SwitchEntry switchEntry2;
+        public bool switchValue2;
+
+
+        [Header("Reputation")]
+        public int reputationAmountToIncrease = 0;
+        public int reputationAmountToDecrease = 0;
+        public SwitchEntry reputationSwitchEntry;
+    }
+
     public class UIDocumentDialogueWindow : MonoBehaviour
     {
+        [Header("UI Documents")]
         public UIDocument uiDocument;
         public VisualTreeAsset dialogueChoiceItem;
 
-        [Header("SFX")]
-        public AudioClip choiceClickSfx;
-
-        [Header("Debug Only")]
-        public string actorName;
-        public string dialogueText;
-
-        [Header("Localization")]
-        public LocalizedText pressKeyToContinueText;
-
-        [HideInInspector] public string actorTitle;
-        [HideInInspector] public Sprite actorAvatar;
-        [HideInInspector] public List<DialogueChoice> dialogueChoices = new List<DialogueChoice>();
-
         VisualElement root;
         VisualElement dialogueChoicePanel;
-        Label messageText;
 
+        // Flags
         [HideInInspector] public bool hasFinishedTypewriter = false;
-        [HideInInspector] public float textDelay = 0.5f;
-        [HideInInspector] public bool showHint = false;
 
-
-        DialogueManager dialogueManager;
-
-        PlayerComponentManager playerComponentManager;
-
-        CursorManager cursorManager;
-
-        public GameObject videoCanvasManager;
-
-        [Header("Show Image")]
-        public Texture2D image;
-
-        [Header("Show Video")]
-        public VideoPlayer video;
+        [Header("Settings")]
+        public float textDelay = 0.05f;
 
         [Header("Components")]
-        public UIManager uiManager;
+        public StarterAssetsInputs inputs;
+
+        [Header("Unity Events")]
+        public UnityEvent onEnableEvent;
+        public UnityEvent onDisableEvent;
+
+        // Internal
+        Label actorNameLabel, actorTitleLabel, messageTextLabel, pressToContinueLabel;
+        IMGUIContainer actorSprite;
+        VisualElement actorInfoContainer;
 
         private void Awake()
         {
-            dialogueManager = FindObjectOfType<DialogueManager>(true);
-            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
-            cursorManager = FindObjectOfType<CursorManager>(true);
-
             this.gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
-            hasFinishedTypewriter = false;
-
             this.root = uiDocument.rootVisualElement;
+            this.dialogueChoicePanel = this.root.Q<VisualElement>("ChoiceContainer");
+            this.actorNameLabel = this.root.Q<Label>("ActorName");
+            this.actorTitleLabel = this.root.Q<Label>("ActorTitle");
+            this.messageTextLabel = this.root.Q<Label>("MessageText");
+            this.actorSprite = this.root.Q<IMGUIContainer>("ActorSprite");
+            this.pressToContinueLabel = this.root.Q<Label>("PressToContinue");
+            this.actorInfoContainer = this.root.Q<VisualElement>("ActorInfoContainer");
+
+        }
+
+        public IEnumerator DisplayMessage(
+                    Character character,
+                    string message,
+                    Response[] responses
+                )
+        {
+            gameObject.SetActive(true);
+            onEnableEvent?.Invoke();
+
+            ShowMessage(character, message);
+
+            // Create a new copy to prevent mutation
+            Response[] clonedResponses = responses.ToArray();
+
+            yield return new WaitUntil(() => inputs.interact == false);
+
+            while (hasFinishedTypewriter == false)
+            {
+                if (inputs.interact)
+                {
+                    ShowAllTextAtOnce(message);
+                }
+
+                yield return null;
+            }
+
+            yield return new WaitUntil(() => inputs.interact == false);
+            yield return new WaitUntil(() => inputs.interact == true);
+
+            if (clonedResponses != null && clonedResponses.Length > 0)
+            {
+                yield return ShowResponses(clonedResponses);
+            }
+
+            yield return new WaitUntil(() => inputs.interact == false);
+
+            onDisableEvent?.Invoke();
+            gameObject.SetActive(false);
+        }
+
+        private void ShowMessage(Character character, string message)
+        {
+            hasFinishedTypewriter = false;
 
             Soundbank.instance.PlayUIDialogue();
 
@@ -89,71 +144,44 @@ namespace AF
             // Tween the position from the starting position to the ending position
             DOTween.To(() => startPosition, position => root.contentContainer.transform.position = position, endPosition, 0.5f);
 
-            this.root.Q<VisualElement>("ImageContainer").style.display = DisplayStyle.None;
-
-            this.dialogueChoicePanel = this.root.Q<VisualElement>("ChoiceContainer");
             dialogueChoicePanel.Clear();
             dialogueChoicePanel.style.display = DisplayStyle.None;
 
-            var actorNameLabel = this.root.Q<Label>("ActorName");
-            var actorTitleLabel = this.root.Q<Label>("ActorTitle");
-            messageText = this.root.Q<Label>("MessageText");
-            var actorSprite = this.root.Q<IMGUIContainer>("ActorSprite");
-            #region Hint
-            if (showHint)
-            {
-                this.root.Q<Label>("HintMessageText").text = pressKeyToContinueText.GetText();
-                this.root.Q<VisualElement>("HintMessage").style.display = Gamepad.current != null ? DisplayStyle.None : DisplayStyle.Flex;
-                this.root.Q<VisualElement>("HintMessageGamePad").style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
-
-                if (Gamepad.current != null)
-                {
-                    this.root.Q<Label>("HintMessageTextGamepad").text = GamePreferences.instance.IsEnglish() ? "Press to continue" : "Pressiona para continuar";
-                }
-
-            }
-
-            this.root.Q<VisualElement>("Hint").style.display = showHint ? DisplayStyle.Flex : DisplayStyle.None;
-            #endregion
-
-
-            this.root.Q<Label>("HintMessageText").text = pressKeyToContinueText.GetText();
-            this.root.Q<IMGUIContainer>("GamepadIcon").style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
 
             if (Gamepad.current != null)
             {
-                this.root.Q<Label>("PressToContinue").text = GamePreferences.instance.IsEnglish() ? "Speed up / Continue" : "Acelerar / Continuar";
+                pressToContinueLabel.text = GamePreferences.instance.IsEnglish() ? "Speed up / Continue" : "Acelerar / Continuar";
             }
             else
             {
-                this.root.Q<Label>("PressToContinue").text = GamePreferences.instance.IsEnglish() ? "E) Speed up / Continue" : "E) Acelerar / Continuar";
+                pressToContinueLabel.text = GamePreferences.instance.IsEnglish() ? "E) Speed up / Continue" : "E) Acelerar / Continuar";
             }
 
-            if (string.IsNullOrEmpty(actorName) == false)
+            if (string.IsNullOrEmpty(character.name) == false)
             {
                 actorNameLabel.style.display = DisplayStyle.Flex;
-                actorNameLabel.text = actorName;
-                this.root.Q<VisualElement>("ActorInfoContainer").style.display = DisplayStyle.Flex;
+                actorNameLabel.text = character.name;
+                actorInfoContainer.style.display = DisplayStyle.Flex;
             }
             else
             {
-                this.root.Q<VisualElement>("ActorInfoContainer").style.display = DisplayStyle.None;
+                actorInfoContainer.style.display = DisplayStyle.None;
                 actorNameLabel.style.display = DisplayStyle.None;
             }
 
-            if (System.String.IsNullOrEmpty(actorTitle) == false)
+            if (string.IsNullOrEmpty(character.title.GetText()) == false)
             {
                 actorTitleLabel.style.display = DisplayStyle.Flex;
-                actorTitleLabel.text = actorTitle;
+                actorTitleLabel.text = character.title.GetText();
             }
             else
             {
                 actorTitleLabel.style.display = DisplayStyle.None;
             }
 
-            if (actorAvatar != null)
+            if (character.avatar != null)
             {
-                actorSprite.style.backgroundImage = new StyleBackground(actorAvatar);
+                actorSprite.style.backgroundImage = new StyleBackground(character.avatar);
                 actorSprite.style.display = DisplayStyle.Flex;
             }
             else
@@ -161,199 +189,87 @@ namespace AF
                 actorSprite.style.display = DisplayStyle.None;
             }
 
-
-            if (image != null)
-            {
-                this.root.Q<VisualElement>("ImageContainer").style.display = DisplayStyle.Flex;
-                this.root.Q<VisualElement>("ImageContainer").Q<IMGUIContainer>().style.backgroundImage = new StyleBackground(image);
-                this.root.Q<VisualElement>("ImageContainer").Q<IMGUIContainer>().style.width = image.width / 2;
-                this.root.Q<VisualElement>("ImageContainer").Q<IMGUIContainer>().style.height = image.height / 2;
-            }
-
-            if (video != null)
-            {
-                video.gameObject.SetActive(true);
-
-                CanvasGroup canvasGroup = videoCanvasManager.GetComponent<CanvasGroup>();
-                canvasGroup.alpha = 0f;
-
-                videoCanvasManager.gameObject.SetActive(true);
-                canvasGroup.DOFade(1f, 0.5f);
-
-
-            }
-
-            StartCoroutine(Typewrite());
+            StartCoroutine(Typewrite(message, messageTextLabel));
         }
 
-
-        private void Update()
+        public IEnumerator Typewrite(string dialogueText, Label messageTextLabel)
         {
-            if (dialogueChoices.Count > 0)
-            {
-                cursorManager.ShowCursor();
-            }
-        }
 
-        private void OnDisable()
-        {
-            videoCanvasManager.SetActive(false);
-
-            if (video != null)
-            {
-                video.gameObject.SetActive(false);
-                video = null;
-            }
-
-            cursorManager.HideCursor();
-        }
-
-        public IEnumerator Typewrite()
-        {
             for (int i = 0; i < dialogueText.Length + 1; i++)
             {
                 var letter = dialogueText.Substring(0, i);
-                messageText.text = letter;
+                messageTextLabel.text = letter;
                 yield return new WaitForSeconds(textDelay);
             }
 
             hasFinishedTypewriter = true;
         }
 
-        public void ShowAllTextAtOnce()
+        public void ShowAllTextAtOnce(string dialogueText)
         {
             StopAllCoroutines();
             hasFinishedTypewriter = true;
-
-            messageText.text = dialogueText;
+            messageTextLabel.text = dialogueText;
         }
 
-        public IEnumerator ShowChoices()
+        public IEnumerator ShowResponses(Response[] responses)
         {
-            dialogueChoicePanel = this.root.Q<VisualElement>("ChoiceContainer");
             dialogueChoicePanel.Clear();
             dialogueChoicePanel.style.display = DisplayStyle.None;
 
-            if (Gamepad.current != null)
-            {
-                yield return new WaitUntil(() => Gamepad.current.buttonWest.IsActuated() == false);
-            }
-
-            if (dialogueChoices.Count > 0)
-            {
-                cursorManager.ShowCursor();
-
-                dialogueChoicePanel.style.display = DisplayStyle.Flex;
-
-                DialogueChoice selectedChoice = null;
-
-                Button elementToFocus = null;
-                foreach (var dialogueChoice in dialogueChoices)
-                {
-                    var newDialogueChoiceItem = dialogueChoiceItem.CloneTree();
-                    newDialogueChoiceItem.Q<Button>().text = EvaluateDialogueChoiceText(dialogueChoice.choiceText.GetText());
-
-                    UIUtils.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
-                    {
-                        selectedChoice = dialogueChoice;
-                    });
-
-                    if (elementToFocus == null)
-                    {
-                        elementToFocus = newDialogueChoiceItem.Q<Button>();
-                    }
-
-                    dialogueChoicePanel.Add(newDialogueChoiceItem);
-                }
-                elementToFocus.Focus();
-
-                playerComponentManager.DisableCharacterController();
-                playerComponentManager.DisableComponents();
-
-                playerComponentManager.GetComponent<ThirdPersonController>().LockCameraPosition = true;
-
-                yield return new WaitUntil(() => selectedChoice != null);
-
-                playerComponentManager.GetComponent<ThirdPersonController>().LockCameraPosition = false;
-
-                #region Reputation on response
-                if (selectedChoice.reputationAmountToIncrease != 0 || selectedChoice.reputationAmountToDecrease != 0)
-                {
-
-                    if (SwitchManager.instance.GetSwitchCurrentValue(selectedChoice.reputationSwitchEntry) == false)
-                    {
-                        if (selectedChoice.reputationAmountToIncrease != 0)
-                        {
-                            FindObjectOfType<NotificationManager>(true).IncreaseReputation(selectedChoice.reputationAmountToIncrease);
-                        }
-                        else if (selectedChoice.reputationAmountToDecrease != 0)
-                        {
-                            FindObjectOfType<NotificationManager>(true).DecreaseReputation(selectedChoice.reputationAmountToDecrease);
-                        }
-                        SwitchManager.instance.UpdateSwitchWithoutRefreshingEvents(selectedChoice.reputationSwitchEntry, true);
-                    }
-                }
-                #endregion
-
-                cursorManager.HideCursor();
-
-                #region Reeenable player movement
-
-
-                playerComponentManager.EnableCharacterController();
-                playerComponentManager.EnableComponents();
-                #endregion
-
-                // Use Sub Events Option
-                if (selectedChoice.subEventPage != null)
-                {
-                    EventBase[] choiceEvents = selectedChoice.subEventPage.GetComponents<EventBase>();
-
-                    if (choiceEvents.Length > 0)
-                    {
-                        foreach (EventBase subEvent in choiceEvents)
-                        {
-                            yield return subEvent.Dispatch();
-                        }
-                    }
-                }
-                else if (selectedChoice.response.localizedTexts.Count() > 0)
-                {
-                    yield return dialogueManager.ShowDialogueWithChoices(selectedChoice.replier, selectedChoice.response, new List<DialogueChoice>(), 0.05f, false, null, null);
-
-                    if (selectedChoice.onResponseFinished != null)
-                    {
-                        selectedChoice.onResponseFinished.Invoke();
-                    }
-                }
-
-            }
-            else
+            if (responses.Length <= 0)
             {
                 dialogueChoicePanel.style.display = DisplayStyle.None;
+                yield break;
             }
-        }
 
-        public string EvaluateDialogueChoiceText(string text)
-        {
-            if (text.StartsWith("[companion_wait="))
+            dialogueChoicePanel.style.display = DisplayStyle.Flex;
+
+            Response selectedResponse = null;
+            Button elementToFocus = null;
+
+            foreach (var response in responses)
             {
-                var str = text.Split('=');
-                var companionId = str[1];
-                var companions = FindObjectsOfType<CompanionManager>(true);
-                var companion = companions.FirstOrDefault(x => x.companion.companionId.StartsWith(companionId));
+                var newDialogueChoiceItem = dialogueChoiceItem.CloneTree();
+                newDialogueChoiceItem.Q<Button>().text = response.text;
 
-                if (companion.waitingForPlayer)
+                UIUtils.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
                 {
-                    return LocalizedTerms.FollowMe();
-                }
-                else
+                    selectedResponse = response;
+                    response.onResponseSelected?.Invoke();
+                });
+
+                if (elementToFocus == null)
                 {
-                    return LocalizedTerms.WaitHere();
+                    elementToFocus = newDialogueChoiceItem.Q<Button>();
                 }
+
+                dialogueChoicePanel.Add(newDialogueChoiceItem);
             }
 
-            return text;
+            elementToFocus?.Focus();
+
+            yield return new WaitUntil(() => selectedResponse != null);
+
+            // Use Sub Events Option
+            if (selectedResponse.subEventPage != null)
+            {
+                EventBase[] choiceEvents = selectedResponse.subEventPage.GetComponents<EventBase>();
+
+                if (choiceEvents.Length > 0)
+                {
+                    foreach (EventBase subEvent in choiceEvents)
+                    {
+                        yield return subEvent.Dispatch();
+                    }
+                }
+            }
+            else if (string.IsNullOrEmpty(selectedResponse.reply) == false)
+            {
+                yield return DisplayMessage(selectedResponse.replier, selectedResponse.reply, new Response[] { });
+            }
+
+            selectedResponse.onResponseFinished?.Invoke();
         }
     }
 }

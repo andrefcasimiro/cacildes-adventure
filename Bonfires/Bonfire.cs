@@ -1,45 +1,35 @@
 using System.Collections;
+using AF.Health;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
     public class Bonfire : MonoBehaviour
     {
+        [Header("Events")]
+        public UnityEvent onBonfire_Enter;
+        public UnityEvent onBonfire_Exit;
+
         [Header("UI")]
         public UIDocumentBonfireMenu uiDocumentBonfireMenu;
         public LocalizedText bonfireName;
 
-        public GenericTrigger bonfireTrigger;
-        public Transform playerTransformRef;
 
-        public GameObject fireFx;
-
-        ThirdPersonController thirdPersonController;
-        PlayerComponentManager playerComponentManager;
-        PlayerInventory playerInventory;
-
-        private Animator playerAnimator;
-
+        [HideInInspector]
         public bool canBeTravelledTo = true;
-
-        CursorManager cursorManager;
 
         [Header("Databases")]
         public BonfiresDatabase bonfiresDatabase;
+        public SaveManager saveManager;
 
+        [Header("Components")]
+        public PlayerManager playerManager;
+        public CursorManager cursorManager;
 
-        private void Awake()
-        {
-            cursorManager = FindObjectOfType<CursorManager>(true);
-        }
+        [Header("References")]
+        public Transform playerTransformRef;
 
-        private void Start()
-        {
-            playerInventory = FindObjectOfType<PlayerInventory>(true);
-            playerComponentManager = playerInventory.GetComponent<PlayerComponentManager>();
-            thirdPersonController = playerComponentManager.GetComponent<ThirdPersonController>();
-            playerAnimator = playerComponentManager.GetComponent<Animator>();
-        }
 
         public void UnlockBonfire(string bonfireName)
         {
@@ -51,13 +41,35 @@ namespace AF
             bonfiresDatabase.unlockedBonfires.Add(bonfireName);
         }
 
+        void CurePlayer()
+        {
+            playerManager.health.RestoreFullHealth();
+            playerManager.staminaStatManager.RestoreStaminaPercentage(100);
+            playerManager.statusController.RemoveAllStatuses();
+        }
+
+        bool CanUseBonfire()
+        {
+            if (playerManager.IsBusy())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public void ActivateBonfire()
         {
-            playerAnimator.Play("Idle Walk Run Blend");
-            playerInventory.ReplenishItems();
+            if (!CanUseBonfire())
+            {
+                return;
+            }
 
-            // Cure playerManager
-            playerComponentManager.CurePlayer();
+            onBonfire_Enter?.Invoke();
+            playerManager.ResetStates();
+            CurePlayer();
+
+            playerManager.playerInventory.ReplenishItems();
 
             if (canBeTravelledTo)
             {
@@ -65,7 +77,8 @@ namespace AF
             }
 
             // Find all active enemies in scene
-            var allEnemiesInScene = FindObjectsOfType<CharacterManager>();
+            var allEnemiesInScene = FindObjectsByType<CharacterManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+
             foreach (var enemy in allEnemiesInScene)
             {
                 if (enemy.GetComponent<EnemyBossController>() != null)
@@ -74,63 +87,59 @@ namespace AF
                 }
 
                 enemy.enabled = true;
-                // enemy.Revive();
+                enemy.ResetStates();
+
+                CharacterHealth characterHealth = enemy.health as CharacterHealth;
+                if (characterHealth != null)
+                {
+                    characterHealth.Revive();
+                }
             }
 
-            fireFx.gameObject.SetActive(true);
+            SetPlayerLockState(true);
 
-            playerComponentManager.DisableCharacterController();
-            playerComponentManager.DisableComponents();
-
-            playerComponentManager.transform.position = playerTransformRef.transform.position;
-            var rot = fireFx.transform.position - playerComponentManager.transform.position;
+            playerManager.playerComponentManager.transform.position = playerTransformRef.transform.position;
+            var rot = transform.position - playerManager.transform.position;
             rot.y = 0;
-            playerComponentManager.transform.rotation = Quaternion.LookRotation(rot);
+            playerManager.playerComponentManager.transform.rotation = Quaternion.LookRotation(rot);
 
-            playerComponentManager.isInBonfire = true;
-
-            playerComponentManager.GetComponent<Animator>().SetBool("IsSitting", true);
-
-            thirdPersonController.LockCameraPosition = true;
-
-            StartCoroutine(ShowBonfireUI());
+            uiDocumentBonfireMenu.SetCurrentBonfire(this);
+            uiDocumentBonfireMenu.gameObject.SetActive(true);
         }
 
         public void ExitBonfire()
         {
-            // Save Game
-            // SaveSystem.instance.SaveGameData(); //bonfireName.GetText());
+            saveManager.SaveGameData();
 
             uiDocumentBonfireMenu.gameObject.SetActive(false);
 
-            playerComponentManager.GetComponent<Animator>().SetBool("IsSitting", false);
+            CurePlayer();
 
-            playerComponentManager.isInBonfire = false;
+            onBonfire_Exit?.Invoke();
 
-            StartCoroutine(PutFireOut());
-
-            playerComponentManager.CurePlayer();
-        }
-
-        IEnumerator ShowBonfireUI()
-        {
-            yield return new WaitForSeconds(0.5f);
-
-            uiDocumentBonfireMenu.gameObject.SetActive(true);
-        }
-
-        IEnumerator PutFireOut()
-        {
-            yield return new WaitForSeconds(0.5f);
-            fireFx.gameObject.SetActive(false);
-            bonfireTrigger.gameObject.SetActive(true);
-
-            yield return new WaitForSeconds(0.25f);
-
-            playerComponentManager.EnableCharacterController();
-            playerComponentManager.EnableComponents();
+            SetPlayerLockState(false);
 
             cursorManager.HideCursor();
         }
+
+        void SetPlayerLockState(bool isLocked)
+        {
+            if (isLocked)
+            {
+                playerManager.playerComponentManager.DisableCharacterController();
+                playerManager.playerComponentManager.DisableComponents();
+            }
+            else
+            {
+                playerManager.playerComponentManager.EnableCharacterController();
+                playerManager.playerComponentManager.EnableComponents();
+            }
+
+            playerManager.thirdPersonController.LockCameraPosition = isLocked;
+            playerManager.thirdPersonController.canRotateCharacter = !isLocked;
+
+            playerManager.playerComponentManager.isInBonfire = isLocked;
+        }
+
     }
 }

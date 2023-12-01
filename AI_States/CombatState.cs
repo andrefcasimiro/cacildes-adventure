@@ -9,6 +9,9 @@ namespace AF
         [Header("Components")]
         public CharacterManager characterManager;
 
+        [Header("Agent Settings")]
+        public float agentSpeed = 0f;
+
         [Header("States")]
         public ChaseState chaseState;
 
@@ -22,6 +25,8 @@ namespace AF
         public override void OnStateEnter(StateManager stateManager)
         {
             onStateEnter?.Invoke();
+
+            characterManager.agent.speed = agentSpeed;
         }
 
         public override void OnStateExit(StateManager stateManager)

@@ -12,6 +12,9 @@ namespace AF
         [Header("Chase Settings")]
         public float maxChaseDistance = 20f;
 
+        [Header("Agent Settings")]
+        public float agentSpeed = 4.5f;
+
         [Header("States")]
         public State patrolOrIdleState;
         public CombatState combatState;
@@ -33,6 +36,8 @@ namespace AF
             currentIntervalBetweenChaseActions = 0f;
 
             onStateEnter?.Invoke();
+
+            characterManager.agent.speed = agentSpeed;
         }
 
         public override void OnStateExit(StateManager stateManager)

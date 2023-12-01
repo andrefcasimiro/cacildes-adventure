@@ -1,3 +1,4 @@
+using AF.Ladders;
 using AF.UI.EquipmentMenu;
 using UnityEngine;
 
@@ -24,16 +25,15 @@ namespace AF
 
         public CursorManager cursorManager;
         public StarterAssetsInputs starterAssetsInputs;
-        public PlayerComponentManager playerComponentManager;
-        public UIDocumentAlchemyCraftScreen alchemyCraftScreen;
-        public ClimbController climbController;
+        public UIDocumentCraftScreen craftScreen;
         public TitleScreenManager titleScreenManager;
         public UIDocumentBook uIDocumentBook;
         public UIDocumentGameOver uIDocumentGameOver;
-        public ThirdPersonController thirdPersonController;
         public ViewEquipmentMenu viewEquipmentMenu;
         public ViewSettingsMenu viewSettingsMenu;
         public ViewObjectivesMenu viewObjectivesMenu;
+
+        public PlayerManager playerManager;
 
         private void Start()
         {
@@ -69,7 +69,7 @@ namespace AF
                 return false;
             }
 
-            if (playerComponentManager.IsBusy())
+            if (playerManager.IsBusy())
             {
                 return false;
             }
@@ -98,23 +98,12 @@ namespace AF
                 }
             }
 
-
-            if (alchemyCraftScreen.isActiveAndEnabled)
+            if (craftScreen.isActiveAndEnabled)
             {
                 return false;
             }
 
-            if (climbController.climbState != ClimbController.ClimbState.NONE)
-            {
-                return false;
-            }
-
-            if (FindFirstObjectByType<UIDocumentShopMenu>())
-            {
-                return false;
-            }
-
-            if (FindFirstObjectByType<UIDocumentBlacksmithScreen>())
+            if (playerManager.climbController.climbState != ClimbState.NONE)
             {
                 return false;
             }
@@ -146,7 +135,7 @@ namespace AF
         {
             cursorManager.ShowCursor();
 
-            thirdPersonController.LockCameraPosition = true;
+            playerManager.thirdPersonController.LockCameraPosition = true;
 
             SetMenuView(activeMenu);
         }
@@ -160,7 +149,7 @@ namespace AF
 
         public void CloseMenu()
         {
-            thirdPersonController.LockCameraPosition = false;
+            playerManager.thirdPersonController.LockCameraPosition = false;
             CloseMenuViews();
 
             return;

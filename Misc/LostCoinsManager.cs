@@ -90,7 +90,6 @@ namespace AF
 
         public void CollectLostCoins(int amount)
         {
-            FindObjectOfType<UIDocumentPlayerGold>(true).NotifyGold(amount);
 
             playerStatsDatabase.gold += amount;
 

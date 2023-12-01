@@ -18,7 +18,7 @@ namespace AF
         public bool deactivateIfIsDemo = false;
 
         [Header("Demo Edge Case")]
-        DialogueManager dialogueManager;
+        //DialogueManager dialogueManager;
         public LocalizedText demoLocalizedText;
 
         [Header("Audio Clips")]

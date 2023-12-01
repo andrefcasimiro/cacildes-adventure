@@ -15,7 +15,7 @@ namespace AF
 
         [Header("Components")]
         public NavMeshAgent agent;
-
+        public float agentSpeed = 2;
 
         [Header("Events")]
         public UnityEvent onStateEnter;
@@ -55,6 +55,8 @@ namespace AF
             onStateEnter?.Invoke();
 
             agent.ResetPath();
+
+            agent.speed = agentSpeed;
         }
 
         public override void OnStateExit(StateManager stateManager)

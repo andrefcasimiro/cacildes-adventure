@@ -26,6 +26,7 @@ namespace AF
 
         public override void ResetStates()
         {
+            agent.enabled = true;
             animator.applyRootMotion = false;
             isBusy = false;
 

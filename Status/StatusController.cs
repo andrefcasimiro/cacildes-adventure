@@ -189,6 +189,16 @@ namespace AF.StatusEffects
             statusEffectUI.RemoveEntry(appliedStatus);
             appliedStatusEffects.Remove(appliedStatus);
         }
+
+        public void RemoveAllStatuses()
+        {
+            AppliedStatusEffect[] appliedStatusEffectsClone = appliedStatusEffects.ToArray();
+            foreach (var appliedStatusEffect in appliedStatusEffectsClone)
+            {
+                RemoveAppliedStatus(appliedStatusEffect);
+            }
+        }
+
     }
 
 }

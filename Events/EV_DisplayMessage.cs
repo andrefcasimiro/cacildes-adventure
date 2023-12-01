@@ -60,7 +60,7 @@ namespace AF
         public Animator animator;
         public string animationClip;
 
-        DialogueManager dialogueManager;
+        //DialogueManager dialogueManager;
 
         [Header("Companion Settings")]
         public bool shouldCheckIfAnEnemyWasKilledAndCommentOnThat = false;
@@ -80,7 +80,7 @@ namespace AF
 
         private void Awake()
         {
-            dialogueManager = FindObjectOfType<DialogueManager>(true);
+            //dialogueManager = FindObjectOfType<DialogueManager>(true);
 
             if (isCompanion)
             {
@@ -126,10 +126,11 @@ namespace AF
             if (skip == false)
             {
                 // In the case where we have enemies like Petra that may have very nested events in them, sometimes dialogue manager is null on Awake
-                if (dialogueManager == null)
-                {
-                    dialogueManager = FindObjectOfType<DialogueManager>(true);
-                }
+                /* if (dialogueManager == null)
+                 {
+                     dialogueManager = FindObjectOfType<DialogueManager>(true);
+                 }
+                 */
 
                 if (facePlayer)
                 {
@@ -216,14 +217,16 @@ namespace AF
 
                 }
 
-                yield return dialogueManager.ShowDialogueWithChoices(
-                    character, displayMessage, choices, textDelay, showHint, image, video);
-
+                /* yield return dialogueManager.ShowDialogueWithChoices(
+                     character, displayMessage, choices, textDelay, showHint, image, video);
+ */
 
                 if (!string.IsNullOrEmpty(animationClip))
                 {
                     animator.Play("NoGesture");
                 }
+
+                yield return null;
             }
         }
 

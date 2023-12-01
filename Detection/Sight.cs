@@ -1,5 +1,5 @@
 
-using System.Linq;
+using System.Collections.Generic;
 using AF.Combat;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,7 +18,7 @@ namespace AF.Detection
         public TargetManager targetManager;
 
         [Header("Tags")]
-        public string[] tagsToDetect;
+        public List<string> tagsToDetect = new();
 
         [Header("Events")]
         public UnityEvent OnTargetSighted;
@@ -55,7 +55,7 @@ namespace AF.Detection
             {
                 // Check if the hit object's tag is in the list of tags to detect
 
-                if (tagsToDetect.Length > 0)
+                if (tagsToDetect.Count > 0)
                 {
                     isSighted = tagsToDetect.Contains(hit.transform.gameObject.tag);
                 }
@@ -72,6 +72,12 @@ namespace AF.Detection
         public void SetDetectionLayer(string layerName)
         {
             this.targetLayer = LayerMask.GetMask(layerName);
+        }
+
+        public void SetTagsToDetect(List<string> tagsToDetect)
+        {
+            this.tagsToDetect.Clear();
+            this.tagsToDetect = tagsToDetect;
         }
     }
 }

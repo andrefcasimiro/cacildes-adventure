@@ -1,3 +1,4 @@
+using AF.Shops;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
@@ -10,8 +11,7 @@ namespace AF
     {
 
         [Header("Critical UIs")]
-        [SerializeField] private UIDocumentAlchemyCraftScreen alchemyCraftScreen;
-        [SerializeField] private UIDocumentBlacksmithScreen blacksmithScreen;
+        [SerializeField] private UIDocumentCraftScreen craftScreen;
         [SerializeField] private UIDocumentBook book;
         [SerializeField] private UIDocumentDialogueWindow dialogueWindow;
         [SerializeField] private UIDocumentGameOver gameOver;
@@ -20,47 +20,32 @@ namespace AF
         [SerializeField] private ViewClockMenu viewClockMenu;
 
 
-        UIDocumentBonfireMenu[] bonfireMenu;
-        UIDocumentBonfireTravel[] bonfireTravel;
-        UIDocumentLevelUp[] levelUp;
-        UIDocumentShopMenu[] shopMenu;
+        [SerializeField] private UIDocumentBonfireMenu bonfireMenu;
+        [SerializeField] private UIDocumentBonfireTravel bonfireTravel;
+        [SerializeField] private UIDocumentLevelUp levelUp;
+        [SerializeField] private UIDocumentShopMenu shopMenu;
         ViewMenu[] viewMenu;
         ReadableUIDocument[] readableUIDocuments;
 
-        private UIDocumentTitleScreen titleScreen;
-        private UIDocumentTitleScreenControls screenControls;
-        private UIDocumentTitleScreenCredits screenCredits;
-        private UIDocumentTitleScreenLoadMenu loadMenu;
-        private UIDocumentTitleScreenOptions options;
+        [SerializeField] private UIDocumentTitleScreen titleScreen;
+        [SerializeField] private UIDocumentTitleScreenControls screenControls;
+        [SerializeField] private UIDocumentTitleScreenCredits screenCredits;
+        [SerializeField] private UIDocumentTitleScreenLoadMenu loadMenu;
+        [SerializeField] private UIDocumentTitleScreenOptions options;
 
         [Header("Components")]
         public NotificationManager notificationManager;
 
         private void Awake()
         {
-            bonfireMenu = FindObjectsByType<UIDocumentBonfireMenu>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            bonfireTravel = FindObjectsByType<UIDocumentBonfireTravel>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            levelUp = FindObjectsByType<UIDocumentLevelUp>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            shopMenu = FindObjectsByType<UIDocumentShopMenu>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             viewMenu = FindObjectsByType<ViewMenu>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             readableUIDocuments = FindObjectsByType<ReadableUIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-
-            titleScreen = FindAnyObjectByType<UIDocumentTitleScreen>(FindObjectsInactive.Include);
-            screenControls = FindAnyObjectByType<UIDocumentTitleScreenControls>(FindObjectsInactive.Include);
-            screenCredits = FindAnyObjectByType<UIDocumentTitleScreenCredits>(FindObjectsInactive.Include);
-            loadMenu = FindAnyObjectByType<UIDocumentTitleScreenLoadMenu>(FindObjectsInactive.Include);
-            options = FindAnyObjectByType<UIDocumentTitleScreenOptions>(FindObjectsInactive.Include);
         }
 
         public bool CanShowGUI()
         {
             // Check non-array UI elements
-            if (alchemyCraftScreen != null && alchemyCraftScreen.isActiveAndEnabled)
-            {
-                return false;
-            }
-
-            if (blacksmithScreen != null && blacksmithScreen.isActiveAndEnabled)
+            if (craftScreen != null && craftScreen.isActiveAndEnabled)
             {
                 return false;
             }
@@ -115,37 +100,25 @@ namespace AF
                 return false;
             }
 
-            // Check array UI elements
-            foreach (var element in bonfireMenu)
+
+            if (bonfireMenu != null && bonfireMenu.isActiveAndEnabled)
             {
-                if (element != null && element.isActiveAndEnabled)
-                {
-                    return false;
-                }
+                return false;
             }
 
-            foreach (var element in bonfireTravel)
+            if (bonfireTravel != null && bonfireTravel.isActiveAndEnabled)
             {
-                if (element != null && element.isActiveAndEnabled)
-                {
-                    return false;
-                }
+                return false;
             }
 
-            foreach (var element in levelUp)
+            if (levelUp != null && levelUp.isActiveAndEnabled)
             {
-                if (element != null && element.isActiveAndEnabled)
-                {
-                    return false;
-                }
+                return false;
             }
 
-            foreach (var element in shopMenu)
+            if (shopMenu != null && shopMenu.isActiveAndEnabled)
             {
-                if (element != null && element.isActiveAndEnabled)
-                {
-                    return false;
-                }
+                return false;
             }
 
             foreach (var element in viewMenu)

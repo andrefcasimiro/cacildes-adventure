@@ -73,7 +73,7 @@ namespace AF
                     GamePreferences.instance.SetGameLanguage(GamePreferences.GameLanguage.PORTUGUESE);
                 }
 
-                uiDocumentPlayerHUDV2.UpdateFavoriteItems();
+                uiDocumentPlayerHUDV2.UpdateEquipment();
                 onLanguageChanged?.Invoke();
 
 

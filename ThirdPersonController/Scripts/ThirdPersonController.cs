@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 using AF.Stats;
 using AF.Shooting;
+using AF.Ladders;
 
 namespace AF
 {
@@ -110,20 +111,6 @@ namespace AF
         public GameObject _mainCamera;
         public UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
 
-        Animator _animator;
-        CharacterController _controller;
-        ClimbController climbController;
-
-        DodgeController dodgeController;
-        PlayerCombatController playerCombatController;
-        PlayerComponentManager playerComponentManager;
-        StaminaStatManager staminaStatManager;
-        EquipmentGraphicsHandler equipmentGraphicsHandler;
-        FootstepListener footstepListener;
-        PlayerShooter playerShootingManager;
-        PlayerBlockInput playerParryManager;
-        StatsBonusController playerStatsBonusController;
-
         public ViewClockMenu viewClockMenu;
 
         public MenuManager menuManager;
@@ -179,26 +166,13 @@ namespace AF
         private void Awake()
         {
             defaultFieldOfView = virtualCamera.m_Lens.FieldOfView;
-
-            _animator = playerManager.animator;
-            _controller = playerManager.characterController;
-            climbController = playerManager.climbController;
-            dodgeController = playerManager.dodgeController;
-            playerCombatController = playerManager.playerCombatController;
-            playerComponentManager = playerManager.playerComponentManager;
-            staminaStatManager = playerManager.staminaStatManager;
-            equipmentGraphicsHandler = playerManager.equipmentGraphicsHandler;
-            footstepListener = playerManager.footstepListener;
-            playerShootingManager = playerManager.playerShootingManager;
-            playerParryManager = playerManager.playerBlockInput;
-            playerStatsBonusController = playerManager.statsBonusController;
         }
 
         private void Start()
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
 
-            _hasAnimator = _animator;
+            _hasAnimator = playerManager.animator;
 
             _input = GetComponent<StarterAssetsInputs>();
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
@@ -221,7 +195,7 @@ namespace AF
                 enableCooldown += Time.deltaTime;
             }
 
-            bool isClimbing = climbController.climbState != ClimbController.ClimbState.NONE;
+            bool isClimbing = playerManager.climbController.climbState != ClimbState.NONE;
 
             if (isClimbing == false)
             {
@@ -239,7 +213,7 @@ namespace AF
             if (Grounded == false)
             {
                 RaycastHit hit;
-                if (Physics.Raycast(transform.position, _controller.transform.up * -1f, out hit))
+                if (Physics.Raycast(transform.position, playerManager.characterController.transform.up * -1f, out hit))
                 {
                     if (hit.transform.tag == "Enemy")
                     {
@@ -266,8 +240,8 @@ namespace AF
         private void GroundedCheck()
         {
             // set sphere position, with offset
-            Vector3 spherePosition = new Vector3(transform.position.x, _controller.transform.position.y - GroundedOffset,
-               _controller.transform.position.z);
+            Vector3 spherePosition = new Vector3(transform.position.x, playerManager.characterController.transform.position.y - GroundedOffset,
+               playerManager.characterController.transform.position.z);
             Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
 
@@ -276,12 +250,12 @@ namespace AF
 
                 if (PreviousGrounded == true && Grounded == false)
                 {
-                    fallBeganHeight = _controller.transform.position.y;
+                    fallBeganHeight = playerManager.characterController.transform.position.y;
 
                 }
                 else if (PreviousGrounded == false && Grounded == true)
                 {
-                    float fallEndHeight = _controller.transform.position.y;
+                    float fallEndHeight = playerManager.characterController.transform.position.y;
 
                     var currentFallHeight = Mathf.Abs(fallBeganHeight - fallEndHeight);
 
@@ -295,12 +269,10 @@ namespace AF
                 PreviousGrounded = Grounded;
             }
 
-
-
             // update animator if using character
             if (_hasAnimator)
             {
-                _animator.SetBool(_animIDGrounded, Grounded);
+                playerManager.animator.SetBool(_animIDGrounded, Grounded);
             }
         }
 
@@ -380,20 +352,20 @@ namespace AF
                 _verticalVelocity = 0f;
             }
 
-            climbController.Climb(_speed * Time.deltaTime * direction);
+            playerManager.climbController.Climb(_speed * Time.deltaTime * direction);
 
             // move the player
-            if (_controller.enabled)
+            if (playerManager.characterController.enabled)
             {
-                _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
+                playerManager.characterController.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                                  new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
             }
 
             // update animator if using character
             if (_hasAnimator)
             {
-                _animator.SetFloat(_animIDSpeed, _animationBlend);
-                _animator.SetBool(_animIDIsMoving, _animationBlend > 0);
+                playerManager.animator.SetFloat(_animIDSpeed, _animationBlend);
+                playerManager.animator.SetBool(_animIDIsMoving, _animationBlend > 0);
             }
         }
 
@@ -413,14 +385,14 @@ namespace AF
             else if (_input.move != Vector2.zero && canRotateCharacter == true)
             {
 
-                if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn && dodgeController.IsDodging() == false)
+                if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn && playerManager.dodgeController.IsDodging() == false)
                 {
 
-                    Vector3 targetRot = lockOnManager.nearestLockOnTarget.transform.position - _controller.transform.position;
+                    Vector3 targetRot = lockOnManager.nearestLockOnTarget.transform.position - playerManager.characterController.transform.position;
                     targetRot.y = 0;
                     var t = Quaternion.LookRotation(targetRot);
 
-                    _controller.transform.rotation = Quaternion.Lerp(transform.rotation, t, 100f * Time.deltaTime);
+                    playerManager.characterController.transform.rotation = Quaternion.Lerp(transform.rotation, t, 100f * Time.deltaTime);
                 }
                 else
                 {
@@ -435,7 +407,7 @@ namespace AF
                     }
 
                     // rotate to face input direction relative to camera position
-                    _controller.transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                    playerManager.characterController.transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
                 }
             }
         }
@@ -463,13 +435,13 @@ namespace AF
                 }
             }
 
-            var weightSpeed = playerStatsBonusController.weightPenalty > 0 ? playerStatsBonusController.weightPenalty : 0;
+            var weightSpeed = playerManager.statsBonusController.weightPenalty > 0 ? playerManager.statsBonusController.weightPenalty : 0;
 
             targetSpeed -= weightSpeed;
 
             if (_input.sprint)
             {
-                staminaStatManager.DecreaseStamina(runStaminaCost * Time.deltaTime);
+                playerManager.staminaStatManager.DecreaseStamina(runStaminaCost * Time.deltaTime);
             }
 
             if (isSprinting)
@@ -490,9 +462,9 @@ namespace AF
             float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
 
             if (
-                climbController.climbState == ClimbController.ClimbState.ENTERING
-                || climbController.climbState == ClimbController.ClimbState.EXITING
-                || playerCombatController.isCombatting
+                playerManager.climbController.climbState == ClimbState.ENTERING
+                || playerManager.climbController.climbState == ClimbState.EXITING
+                || playerManager.playerCombatController.isCombatting
             )
             {
                 _speed = 0f;
@@ -509,7 +481,7 @@ namespace AF
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
-            if (climbController.climbState == ClimbController.ClimbState.CLIMBING)
+            if (playerManager.climbController.climbState == ClimbState.CLIMBING)
             {
                 targetDirection.x = 0;
                 targetDirection.z = 0;
@@ -530,44 +502,44 @@ namespace AF
                 }
 
                 _animIDMotionSpeed = (int)(_speed * 2f);
-                climbController.Climb(_speed * Time.deltaTime * direction);
+                playerManager.climbController.Climb(_speed * Time.deltaTime * direction);
             }
 
-            if (dodgeController.IsDodging() || playerManager.IsBusy())
+            if (playerManager.dodgeController.IsDodging() || playerManager.IsBusy())
             {
                 targetDirection = Vector3.zero;
             }
 
             if (isSlidingOnIce)
             {
-                _controller.Move(transform.forward * 10f * Time.deltaTime +
+                playerManager.characterController.Move(transform.forward * 10f * Time.deltaTime +
                                  new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
             }
             else if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn || rotateWithCamera)
             {
                 float lockOnSpeed = _input.move.x != 0 && _input.move.y != 0 ? _speed : _speed * 1.5f;
 
-                Vector3 targetPos = (transform.forward * (lockOnSpeed) * _input.move.y + _controller.transform.right * (lockOnSpeed) * _input.move.x);
+                Vector3 targetPos = (transform.forward * (lockOnSpeed) * _input.move.y + playerManager.characterController.transform.right * (lockOnSpeed) * _input.move.x);
                 targetPos.y = _verticalVelocity + verticalVelocityBonus;
 
-                _controller.Move(targetPos * Time.deltaTime);
+                playerManager.characterController.Move(targetPos * Time.deltaTime);
             }
-            else
+            else if (playerManager.characterController.enabled)
             {
-                _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
+                playerManager.characterController.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                                  new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
             }
 
             // update animator if using character
             if (_hasAnimator)
             {
-                _animator.SetFloat(_animIDSpeed, _animationBlend);
-                _animator.SetBool(_animIDIsMoving, _input.move.magnitude > 0);
+                playerManager.animator.SetFloat(_animIDSpeed, _animationBlend);
+                playerManager.animator.SetBool(_animIDIsMoving, _input.move.magnitude > 0);
 
                 // Get movement penalties
-                var jumpWeightSpeed = playerStatsBonusController.weightPenalty > 0 ? playerStatsBonusController.weightPenalty : 0;
+                var jumpWeightSpeed = playerManager.statsBonusController.weightPenalty > 0 ? playerManager.statsBonusController.weightPenalty : 0;
 
-                _animator.SetFloat(_animIDMotionSpeed, inputMagnitude - jumpWeightSpeed);
+                playerManager.animator.SetFloat(_animIDMotionSpeed, inputMagnitude - jumpWeightSpeed);
             }
         }
 
@@ -576,8 +548,8 @@ namespace AF
             // update animator if using character
             if (_hasAnimator)
             {
-                _animator.SetFloat(_animIDSpeed, 0f);
-                _animator.SetFloat(_animIDMotionSpeed, 0f);
+                playerManager.animator.SetFloat(_animIDSpeed, 0f);
+                playerManager.animator.SetFloat(_animIDMotionSpeed, 0f);
             }
         }
 
@@ -591,8 +563,8 @@ namespace AF
                 // update animator if using character
                 if (_hasAnimator)
                 {
-                    _animator.SetBool(_animIDJump, false);
-                    _animator.SetBool(_animIDFreeFall, false);
+                    playerManager.animator.SetBool(_animIDJump, false);
+                    playerManager.animator.SetBool(_animIDFreeFall, false);
                 }
 
                 // stop our velocity dropping infinitely when grounded
@@ -616,11 +588,11 @@ namespace AF
                         //lockOnManager.DisableLockOn();
 
                         float JumpWeightBonus = 0;
-                        if (equipmentGraphicsHandler.IsLightWeight())
+                        if (playerManager.equipmentGraphicsHandler.IsLightWeight())
                         {
                             JumpWeightBonus = .5f;
                         }
-                        else if (equipmentGraphicsHandler.IsHeavyWeight())
+                        else if (playerManager.equipmentGraphicsHandler.IsHeavyWeight())
                         {
                             JumpWeightBonus = -1;
                         }
@@ -629,7 +601,7 @@ namespace AF
                         // the square root of H * -2 * G = how much velocity needed to reach desired height
                         _verticalVelocity = Mathf.Sqrt((JumpHeight + JumpHeightBonus + JumpWeightBonus) * -2f * Gravity);
 
-                        var weightSpeed = playerStatsBonusController.weightPenalty > 0 ? playerStatsBonusController.weightPenalty : 0;
+                        var weightSpeed = playerManager.statsBonusController.weightPenalty > 0 ? playerManager.statsBonusController.weightPenalty : 0;
 
                         _verticalVelocity -= weightSpeed;
 
@@ -637,15 +609,15 @@ namespace AF
                         if (isSliding || isSlidingOnIce)
                         {
 
-                            _controller.Move(transform.forward * (5f * Time.deltaTime));
+                            playerManager.characterController.Move(transform.forward * (5f * Time.deltaTime));
                         }
 
                         // update animator if using character
                         if (_hasAnimator)
                         {
-                            staminaStatManager.DecreaseStamina(jumpStaminaCost);
+                            playerManager.staminaStatManager.DecreaseStamina(jumpStaminaCost);
 
-                            _animator.Play("JumpStart");
+                            playerManager.animator.Play("JumpStart");
                         }
                     }
                     else
@@ -679,7 +651,7 @@ namespace AF
                     // update animator if using character
                     if (_hasAnimator)
                     {
-                        _animator.SetBool(_animIDFreeFall, true);
+                        playerManager.animator.SetBool(_animIDFreeFall, true);
                     }
                 }
 
@@ -687,7 +659,7 @@ namespace AF
                 _input.jump = false;
             }
 
-            if (!playerCombatController.IsStartingJumpAttack())
+            if (!playerManager.playerCombatController.IsStartingJumpAttack())
             {
                 // apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
                 if (_verticalVelocity < _terminalVelocity)
@@ -698,7 +670,7 @@ namespace AF
                         jumpAttackVelocityFinal = equipmentDatabase.GetCurrentWeapon().jumpAttackVelocity;
                     }
 
-                    _verticalVelocity += (Gravity * Time.deltaTime) + (playerCombatController.IsJumpAttacking() ? jumpAttackVelocityFinal : 0f);
+                    _verticalVelocity += (Gravity * Time.deltaTime) + (playerManager.playerCombatController.IsJumpAttacking() ? jumpAttackVelocityFinal : 0f);
                 }
             }
             else if ((equipmentDatabase.GetCurrentWeapon() == null) || (equipmentDatabase.GetCurrentWeapon() != null && equipmentDatabase.GetCurrentWeapon().stopInAir == true))
@@ -723,9 +695,9 @@ namespace AF
                 return false;
             }
 
-            return staminaStatManager.HasEnoughStaminaForAction(jumpStaminaCost) &&
-                        dodgeController.IsDodging() == false &&
-                        playerCombatController.isCombatting == false
+            return playerManager.staminaStatManager.HasEnoughStaminaForAction(jumpStaminaCost) &&
+                        playerManager.dodgeController.IsDodging() == false &&
+                        playerManager.playerCombatController.isCombatting == false
                         && canMove;
         }
 

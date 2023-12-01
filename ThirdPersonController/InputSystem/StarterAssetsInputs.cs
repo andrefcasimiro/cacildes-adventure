@@ -9,6 +9,8 @@ namespace AF
 	{
 		[Header("Character Input Values")]
 		public Vector2 move;
+		public UnityEvent onMoveInput;
+
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
@@ -47,6 +49,8 @@ namespace AF
 		public void OnMove(InputValue value)
 		{
 			move = value.Get<Vector2>();
+
+			onMoveInput?.Invoke();
 		}
 
 		public void OnLook(InputValue value)
@@ -134,6 +138,8 @@ namespace AF
 
 		public void OnInteract(InputValue value)
 		{
+			interact = value.isPressed;
+
 			if (value.isPressed)
 			{
 				onInteract?.Invoke();

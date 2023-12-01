@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF.Health
 {
@@ -18,6 +19,9 @@ namespace AF.Health
                 m_currentHealth = Mathf.Clamp(value, 0, GetMaxHealth());
             }
         }
+
+        [Header("Events")]
+        public UnityEvent onRevive;
 
         public void Awake()
         {
@@ -55,6 +59,17 @@ namespace AF.Health
         public override float GetCurrentHealth()
         {
             return CurrentHealth;
+        }
+
+        public override void RestoreFullHealth()
+        {
+            RestoreHealth(GetMaxHealth());
+        }
+
+        public void Revive()
+        {
+            RestoreFullHealth();
+            onRevive?.Invoke();
         }
     }
 

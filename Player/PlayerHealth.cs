@@ -127,6 +127,11 @@ namespace AF
 
             return 0f;
         }
+
+        public override void RestoreFullHealth()
+        {
+            RestoreHealthPercentage(100);
+        }
     }
 
 }

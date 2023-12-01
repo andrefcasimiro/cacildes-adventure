@@ -6,57 +6,39 @@ namespace AF
 {
     public class UIDocumentPlayerGold : MonoBehaviour
     {
-        UIDocument uiDocument => GetComponent<UIDocument>();
+        [Header("UI Components")]
+        public UIDocument uiDocument;
 
         VisualElement root;
 
-        int currentReceivedAmount = 0;
-        int currentDeductedAmount = 0;
-        int playerGold = 0;
+        int currentReceivedAmount, currentDeductedAmount, playerGold = 0;
 
         bool counterEnabled = false;
 
-        public float scoreIncreaseRate = 1.25f;
         float ScoreIncrement = 0;
 
-        [HideInInspector] public ParticlePoolManager particlePoolManager;
-
-        ParticleSystem currentGold;
+        [Header("Settings")]
+        public float scoreIncreaseRate = 1.25f;
 
         [Header("Stats Database")]
         public PlayerStatsDatabase playerStatsDatabase;
 
+        Label goldReceived, actualGold;
+
         private void Awake()
         {
-            particlePoolManager = FindAnyObjectByType<ParticlePoolManager>(FindObjectsInactive.Include);
-
             this.gameObject.SetActive(false);
         }
 
-        #region Positive Gold
-        public void PlayCoinsFX(Transform origin)
+        private void OnEnable()
         {
-            if (currentGold != null)
-            {
-                currentGold.Stop();
-                particlePoolManager.goldPool.Pool.Release(currentGold);
-            }
+            this.root = uiDocument.rootVisualElement;
 
-            currentGold = particlePoolManager.goldPool.Pool.Get();
-
-
-            if (currentGold == null)
-            {
-                return;
-            }
-
-            currentGold.transform.position = origin.position;
-            currentGold.Play();
-            var m = currentGold.main;
-            m.loop = false;
+            goldReceived = root.Q<Label>("GoldReceived");
+            actualGold = root.Q<Label>("ActualGold");
         }
 
-        public void NotifyGold(int amount)
+        public void AddGold(int amount)
         {
             Soundbank.instance.PlayCoin();
             counterEnabled = false;
@@ -69,23 +51,15 @@ namespace AF
 
             this.gameObject.SetActive(true);
 
-            this.root = uiDocument.rootVisualElement;
+            goldReceived.text = "+ " + currentReceivedAmount;
+            actualGold.text = "" + playerGold + " " + LocalizedTerms.Gold();
 
-            root.Q<Label>("GoldReceived").text = "+ " + currentReceivedAmount;
-            root.Q<Label>("ActualGold").text = "" + playerGold + " " + LocalizedTerms.Gold();
+            playerStatsDatabase.gold += amount;
 
             StartCoroutine(EnableCounter());
         }
 
-        IEnumerator EnableCounter()
-        {
-            yield return new WaitForSeconds(1f);
-            counterEnabled = true;
-        }
-        #endregion
-
-        #region Negative Gold
-        public void NotifyGoldLost(int amount)
+        public void LoseGold(int amount)
         {
             Soundbank.instance.PlayCoin();
             counterEnabled = false;
@@ -98,14 +72,19 @@ namespace AF
 
             this.gameObject.SetActive(true);
 
-            this.root = uiDocument.rootVisualElement;
+            goldReceived.text = "- " + currentDeductedAmount;
+            actualGold.text = "" + playerGold + " " + LocalizedTerms.Gold();
 
-            root.Q<Label>("GoldReceived").text = "- " + currentDeductedAmount;
-            root.Q<Label>("ActualGold").text = "" + playerGold + " " + LocalizedTerms.Gold();
+            playerStatsDatabase.gold -= amount;
 
             StartCoroutine(EnableCounter());
         }
-        #endregion
+
+        IEnumerator EnableCounter()
+        {
+            yield return new WaitForSeconds(1f);
+            counterEnabled = true;
+        }
 
         private void Update()
         {
@@ -119,56 +98,47 @@ namespace AF
                 ScoreIncrement += Time.deltaTime * scoreIncreaseRate;
 
                 currentReceivedAmount -= (int)ScoreIncrement;
-                if (currentReceivedAmount < 0) { currentReceivedAmount = 0; }
+                if (currentReceivedAmount < 0)
+                {
+                    currentReceivedAmount = 0;
+                }
 
                 playerGold += (int)ScoreIncrement;
 
-                if (playerGold > playerStatsDatabase.gold) { playerGold = playerStatsDatabase.gold; }
+                if (playerGold > playerStatsDatabase.gold)
+                {
+                    playerGold = playerStatsDatabase.gold;
+                }
 
-
-                root.Q<Label>("GoldReceived").text = "+ " + currentReceivedAmount;
-                root.Q<Label>("ActualGold").text = "" + playerGold + " " + LocalizedTerms.Gold();
+                goldReceived.text = "+ " + currentReceivedAmount;
+                actualGold.text = "" + playerGold + " " + LocalizedTerms.Gold();
             }
             else if (currentDeductedAmount > 0)
             {
                 ScoreIncrement += Time.deltaTime * scoreIncreaseRate;
 
                 currentDeductedAmount -= (int)ScoreIncrement;
-                if (currentDeductedAmount < 0) { currentDeductedAmount = 0; }
+                if (currentDeductedAmount < 0)
+                {
+                    currentDeductedAmount = 0;
+                }
 
                 playerGold -= (int)ScoreIncrement;
 
-                if (playerGold <= playerStatsDatabase.gold) { playerGold = playerStatsDatabase.gold; }
+                if (playerGold <= playerStatsDatabase.gold)
+                {
+                    playerGold = playerStatsDatabase.gold;
+                }
 
-
-                root.Q<Label>("GoldReceived").text = "- " + currentDeductedAmount;
-                root.Q<Label>("ActualGold").text = "" + playerGold + " " + LocalizedTerms.Gold();
+                goldReceived.text = "- " + currentDeductedAmount;
+                actualGold.text = "" + playerGold + " " + LocalizedTerms.Gold();
             }
             else
             {
                 counterEnabled = false;
-                root.Q<Label>("GoldReceived").text = "";
-                StartCoroutine(Exit());
+                goldReceived.text = "";
+                this.gameObject.SetActive(false);
             }
-        }
-
-        IEnumerator Exit()
-        {
-            if (currentGold != null)
-            {
-                currentGold.Stop();
-            }
-
-            yield return new WaitForSeconds(3f);
-
-            if (currentGold != null)
-            {
-
-                particlePoolManager.goldPool.Pool.Release(currentGold);
-                currentGold = null;
-            }
-
-            this.gameObject.SetActive(false);
         }
     }
 }

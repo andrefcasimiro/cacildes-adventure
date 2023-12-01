@@ -4,22 +4,16 @@ using UnityEngine.SceneManagement;
 
 namespace AF.Pickups
 {
-    public class Pickup : MonoBehaviour, IEventNavigatorCapturable
+    public class Pickup : MonoBehaviour
     {
         [Header("Components")]
         public MonoBehaviourID monoBehaviourID;
-        public UIDocumentKeyPrompt uIDocumentKeyPrompt;
 
         [Header("Systems")]
         public PickupDatabase pickupDatabase;
 
         [Header("Events")]
-        public UnityEvent onChestPickup;
         public UnityEvent onAlreadyPickedUp;
-
-        [Header("Prompt")]
-        public string key = "E";
-        public string action = "Pickup";
 
         public void OnEnable()
         {
@@ -30,22 +24,12 @@ namespace AF.Pickups
             }
         }
 
-        public void OnCaptured()
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void UpdatePickupDatabase()
         {
-            uIDocumentKeyPrompt.DisplayPrompt(key, action);
-        }
-
-        public void OnInvoked()
-        {
-            uIDocumentKeyPrompt.gameObject.SetActive(false);
-
             pickupDatabase.Add(monoBehaviourID.ID, SceneManager.GetActiveScene().name + "-" + name);
-            onChestPickup?.Invoke();
-        }
-
-        public void OnReleased()
-        {
-            uIDocumentKeyPrompt.gameObject.SetActive(false);
         }
     }
 }

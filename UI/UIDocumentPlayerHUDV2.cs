@@ -56,12 +56,13 @@ namespace AF
 
         VisualElement leftGamepad, alpha1, upGamepad, alpha2, rightGamepad, alpha3, downGamepad, alpha4;
         VisualElement useKeyboard, useGamepad;
+        VisualElement equipmentContainer;
 
         private void Awake()
         {
             EventManager.StartListening(
                 EventMessages.ON_EQUIPMENT_CHANGED,
-                UpdateFavoriteItems);
+                UpdateEquipment);
         }
 
         private void OnEnable()
@@ -97,8 +98,9 @@ namespace AF
             useKeyboard = consumableSlotContainer.Q<VisualElement>("UseKeyboard");
             useGamepad = consumableSlotContainer.Q<VisualElement>("UseGamepad");
 
+            equipmentContainer = root.Q<VisualElement>("EquipmentContainer");
 
-            UpdateFavoriteItems();
+            UpdateEquipment();
         }
 
         public void HideHUD()
@@ -133,7 +135,16 @@ namespace AF
             this.staminaFill.style.width = formattedStamina;
         }
 
-        public void UpdateFavoriteItems()
+        public void ShowEquipment()
+        {
+            equipmentContainer.style.display = DisplayStyle.Flex;
+        }
+        public void HideEquipment()
+        {
+            equipmentContainer.style.display = DisplayStyle.None;
+        }
+
+        public void UpdateEquipment()
         {
             if (!this.isActiveAndEnabled)
             {
@@ -198,22 +209,22 @@ namespace AF
         public void OnSwitchWeapon()
         {
             UIUtils.PlayPopAnimation(weaponSlotContainer, popEffectWhenSwitchingSlots);
-            UpdateFavoriteItems();
+            UpdateEquipment();
         }
         public void OnSwitchShield()
         {
             UIUtils.PlayPopAnimation(shieldSlotContainer, popEffectWhenSwitchingSlots);
-            UpdateFavoriteItems();
+            UpdateEquipment();
         }
         public void OnSwitchConsumable()
         {
             UIUtils.PlayPopAnimation(consumableSlotContainer, popEffectWhenSwitchingSlots);
-            UpdateFavoriteItems();
+            UpdateEquipment();
         }
         public void OnSwitchSpell()
         {
             UIUtils.PlayPopAnimation(spellSlotContainer, popEffectWhenSwitchingSlots);
-            UpdateFavoriteItems();
+            UpdateEquipment();
         }
     }
 }

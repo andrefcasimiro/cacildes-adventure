@@ -10,6 +10,9 @@ public class RecipesDatabase : ScriptableObject
 
     public List<CookingRecipe> cookingRecipes = new();
 
+    [Header("Settings")]
+    public bool shouldClearOnExitPlayMode = false;
+
     private void OnEnable()
     {
         // No need to populate the list; it's serialized directly
@@ -18,7 +21,7 @@ public class RecipesDatabase : ScriptableObject
 
     private void OnPlayModeStateChanged(PlayModeStateChange state)
     {
-        if (state == PlayModeStateChange.ExitingPlayMode)
+        if (state == PlayModeStateChange.ExitingPlayMode && shouldClearOnExitPlayMode)
         {
             Clear();
         }
@@ -28,5 +31,14 @@ public class RecipesDatabase : ScriptableObject
     {
         alchemyRecipes.Clear();
         cookingRecipes.Clear();
+    }
+
+    public void AddAlchemyRecipe(AlchemyRecipe recipe)
+    {
+        alchemyRecipes.Add(recipe);
+    }
+    public void AddCookingRecipe(CookingRecipe recipe)
+    {
+        cookingRecipes.Add(recipe);
     }
 }

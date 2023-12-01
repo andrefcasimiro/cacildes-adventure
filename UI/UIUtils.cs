@@ -88,5 +88,6 @@ namespace AF
                 0.5f
             ).SetEase(Ease.OutElastic);
         }
+
     }
 }

@@ -64,7 +64,7 @@ namespace AF
         public UnityEvent onEnd;
 
         // Components
-        DialogueManager dialogueManager;
+        //        DialogueManager dialogueManager;
 
         Vector3 originalDesiredCameraPosition;
         Quaternion originalDesiredCameraRotatin;
@@ -73,7 +73,7 @@ namespace AF
         public PlayerStatsDatabase playerStatsDatabase;
         private void Awake()
         {
-            dialogueManager = FindObjectOfType<DialogueManager>(true);
+            // dialogueManager = FindObjectOfType<DialogueManager>(true);
 
             if (desiredCamera != null)
             {
@@ -199,7 +199,7 @@ namespace AF
             }
 
 
-            yield return dialogueManager.ShowDialogueWithChoices(character, message, choices, 0.05f, false, null, null);
+            // yield return dialogueManager.ShowDialogueWithChoices(character, message, choices, 0.05f, false, null, null);
 
             yield return EndMoment();
         }

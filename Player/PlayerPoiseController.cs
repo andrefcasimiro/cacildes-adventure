@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using AF.Ladders;
 using AF.Stats;
 using UnityEngine;
 
@@ -12,6 +13,10 @@ namespace AF
         public readonly int hashIsStunned = Animator.StringToHash("IsStunned");
         public readonly int hashParried = Animator.StringToHash("Parried");
 
+        [Header("Components")]
+        public PlayerManager playerManager;
+        public LockOnManager lockOnManager;
+
         [Header("Posture")]
         public int unarmedPoiseHits = 1;
         public int poiseBonus = 0;
@@ -21,12 +26,6 @@ namespace AF
 
         [Header("Sounds")]
         public AudioClip damageSfx;
-
-        PlayerCombatController playerCombatController => GetComponent<PlayerCombatController>();
-        PlayerComponentManager playerComponentManager => GetComponent<PlayerComponentManager>();
-        ThirdPersonController tps => GetComponent<ThirdPersonController>();
-
-        ClimbController climbController => GetComponent<ClimbController>();
 
         Animator animator => GetComponent<Animator>();
 
@@ -39,23 +38,11 @@ namespace AF
 
         public bool isStunned = false;
 
-        PlayerSpellManager playerSpellManager => GetComponent<PlayerSpellManager>();
-
-        LockOnManager lockOnManager;
-
-
         float characterSlopeLimit, characterStepOffset;
 
-        [Header("Components")]
-        public CharacterController characterController;
-        public StatsBonusController playerStatsBonusController;
 
         private void Awake()
         {
-            characterSlopeLimit = characterController.slopeLimit;
-            characterStepOffset = characterController.stepOffset;
-
-            lockOnManager = FindAnyObjectByType<LockOnManager>(FindObjectsInactive.Include);
         }
 
         private void Update()
@@ -78,14 +65,13 @@ namespace AF
         {
             currentPoiseHitCount += Mathf.Abs(poiseDamage) + 1;
 
-            if (climbController.climbState != ClimbController.ClimbState.NONE)
+            if (playerManager.climbController.climbState != ClimbState.NONE)
             {
                 return;
             }
 
             var playerMaxPoise = GetMaxPoise();
             var poiseDamageReceived = Mathf.Abs(poiseDamage - playerMaxPoise);
-
         }
 
         public void ActivateMaxPoiseDamage()
@@ -97,10 +83,6 @@ namespace AF
 
         public void ActivatePoiseDamage()
         {
-            characterController.detectCollisions = false;
-            characterController.slopeLimit = 0;
-            characterController.stepOffset = 0;
-            //characterController.enabled = false;
             if (damageParticlePrefab != null)
             {
                 Instantiate(damageParticlePrefab, transform.position, Quaternion.identity);
@@ -122,14 +104,7 @@ namespace AF
             StartCoroutine(PlayHurtSfx());
 
             currentPoiseHitCount = 0;
-            playerComponentManager.DisableComponents();
-
-            // Prevent enemies from pushing player
-
-            if (!tps.skateRotation)
-            {
-                //playerComponentManager.DisableCharacterController();
-            }
+            playerManager.playerComponentManager.DisableComponents();
         }
 
         public void MarkAsStunned()
@@ -141,12 +116,8 @@ namespace AF
         {
             yield return new WaitForSeconds(waitTime);
 
-            playerComponentManager.EnableCharacterController();
-            playerComponentManager.EnableComponents();
-            characterController.detectCollisions = true;
-
-            characterController.slopeLimit = characterSlopeLimit;
-            characterController.stepOffset = characterStepOffset;
+            playerManager.playerComponentManager.EnableCharacterController();
+            playerManager.playerComponentManager.EnableComponents();
 
             yield return new WaitForSeconds(0.25f);
             isStunned = false;
@@ -156,12 +127,12 @@ namespace AF
         {
             yield return new WaitForSeconds(0.1f);
 
-            BGMManager.instance.PlaySoundWithPitchVariation(damageSfx, playerCombatController.combatAudioSource);
+            BGMManager.instance.PlaySoundWithPitchVariation(damageSfx, playerManager.playerCombatController.combatAudioSource);
         }
 
         public int GetMaxPoise()
         {
-            return unarmedPoiseHits + playerStatsBonusController.equipmentPoise + poiseBonus;
+            return unarmedPoiseHits + playerManager.statsBonusController.equipmentPoise + poiseBonus;
         }
 
         public bool IsTakingDamage()

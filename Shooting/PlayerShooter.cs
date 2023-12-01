@@ -99,7 +99,7 @@ namespace AF.Shooting
 
             GetPlayerManager().staminaStatManager.DecreaseStamina(minimumStaminaToShoot);
 
-            FireProjectile(consumableProjectile.projectile.gameObject, origin, lockOnTarget);
+            FireProjectile(consumableProjectile.projectile.gameObject, 1f, lockOnTarget);
         }
 
 
@@ -124,15 +124,15 @@ namespace AF.Shooting
 
             GetPlayerManager().staminaStatManager.DecreaseStamina(minimumStaminaToShoot);
 
-            FireProjectile(spell.spellCastParticle.gameObject, origin, lockOnTarget);
+            FireProjectile(spell.spellCastParticle.gameObject, 10f, lockOnTarget);
         }
 
-        void FireProjectile(GameObject projectile, Transform origin, Transform lockOnTarget)
+        void FireProjectile(GameObject projectile, float originDistanceFromCamera, Transform lockOnTarget)
         {
             Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
             Vector3 lookPosition = ray.direction;
 
-            GameObject projectileInstance = Instantiate(projectile.gameObject, ray.GetPoint(10f), Quaternion.LookRotation(lookPosition));
+            GameObject projectileInstance = Instantiate(projectile.gameObject, ray.GetPoint(originDistanceFromCamera), Quaternion.LookRotation(lookPosition));
 
             projectileInstance.TryGetComponent(out IProjectile componentProjectile);
             if (componentProjectile == null)

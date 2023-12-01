@@ -17,12 +17,10 @@ namespace AF.Tests
             pickup = go.AddComponent<Pickup>();
 
             pickup.monoBehaviourID = pickup.gameObject.AddComponent<MonoBehaviourID>();
-            pickup.uIDocumentKeyPrompt = pickup.gameObject.AddComponent<UIDocumentKeyPrompt>();
 
             PickupDatabase pickupDatabase = ScriptableObject.CreateInstance<PickupDatabase>();
             pickup.pickupDatabase = pickupDatabase;
 
-            pickup.onChestPickup = new UnityEngine.Events.UnityEvent();
             pickup.onAlreadyPickedUp = new UnityEngine.Events.UnityEvent();
         }
 

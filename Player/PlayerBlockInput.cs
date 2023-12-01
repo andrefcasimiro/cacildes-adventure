@@ -1,4 +1,5 @@
 using System.Collections;
+using AF.Ladders;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -169,7 +170,7 @@ namespace AF
                 return false;
             }
 
-            if (playerManager.climbController.climbState != ClimbController.ClimbState.NONE)
+            if (playerManager.climbController.climbState != ClimbState.NONE)
             {
                 return false;
             }

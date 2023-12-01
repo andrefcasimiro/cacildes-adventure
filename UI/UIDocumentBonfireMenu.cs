@@ -1,4 +1,5 @@
 using System.Collections;
+using AF.Inventory;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,172 +7,162 @@ namespace AF
 {
     public class UIDocumentBonfireMenu : MonoBehaviour
     {
-        public Bonfire bonfire;
-
+        [Header("UI Components")]
+        public UIDocument uIDocument;
         public UIDocumentLevelUp uiDocumentLevelUp;
         public UIDocumentBonfireTravel uiDocumentTravel;
+        public UIDocumentCraftScreen uIDocumentCraftScreen;
 
-        bool isPassingTime = false;
-        float originalDaySpeed = 0f;
+        [Header("Components")]
+        public CursorManager cursorManager;
+        public PlayerManager playerManager;
 
-        [Header("Localization")]
-        public LocalizedText bonfireNameLabel;
-        public LocalizedText levelUpText;
-        public LocalizedText passTimeText;
-        public LocalizedText travelText;
-        public LocalizedText exitBonfireText;
-
-        CursorManager cursorManager;
-        ThirdPersonController thirdPersonController;
-        SceneSettings sceneSettings;
-        DayNightManager dayNightManager;
-
-        PlayerLevelManager playerLevelManager;
-        PlayerInventory playerInventory;
-
-        bool hasEnoughForLevellingUp = false;
-
-        public Item blacksmithKit;
-        public Item alchemyKit;
 
         [Header("Databases")]
+        public InventoryDatabase inventoryDatabase;
         public PlayerStatsDatabase playerStatsDatabase;
 
-        [Header("Systems")]
+        [Header("References")]
+        public Item blacksmithKit;
+        public Item alchemyKit;
         public WorldSettings worldSettings;
 
-        private void Awake()
-        {
-            cursorManager = FindAnyObjectByType<CursorManager>(FindObjectsInactive.Include);
-            thirdPersonController = FindAnyObjectByType<ThirdPersonController>(FindObjectsInactive.Include);
-            playerLevelManager = thirdPersonController.GetComponent<PlayerLevelManager>();
-            sceneSettings = FindAnyObjectByType<SceneSettings>(FindObjectsInactive.Include);
-            dayNightManager = FindAnyObjectByType<DayNightManager>(FindObjectsInactive.Include);
-            playerInventory = playerLevelManager.GetComponent<PlayerInventory>();
-        }
+        [Header("UI Elements")]
+        VisualElement root;
+        Button levelUpButton, passTimeButton, exitBonfireButton, travelButton, upgradeWeapons, brewPotions;
+        Label bonfireName, bonfireNameLabelUI, levelUpAvailableLabel, currentGoldAndRequiredLabel, goldAndRequiredForNextLevel;
+
+        // Flags
+        bool isPassingTime = false;
+        float originalDaySpeed = 0f;
+        bool hasEnoughForLevellingUp = false;
+
+        Bonfire currentBonfire;
 
         private void Start()
         {
             originalDaySpeed = worldSettings.daySpeed;
             gameObject.SetActive(false);
-
         }
 
-        // THIS RUNS ONCE ON START. Maybe move gameObjectSetActive to Awake
+        void SetupRefs()
+        {
+            this.root = uIDocument.rootVisualElement;
+
+            bonfireName = root.Q<Label>("BonfireName");
+            bonfireNameLabelUI = root.Q<Label>("BonfireNameLabel");
+            levelUpAvailableLabel = root.Q<Label>("LevelUpAvailableLabel");
+            currentGoldAndRequiredLabel = root.Q<Label>("CurrentGoldAndRequiredLabel");
+            goldAndRequiredForNextLevel = root.Q<Label>("GoldAndRequiredFornextLevel");
+
+            levelUpButton = root.Q<Button>("LevelUpButton");
+            passTimeButton = root.Q<Button>("PassTimeButton");
+            exitBonfireButton = root.Q<Button>("LeaveButton");
+            travelButton = root.Q<Button>("TravelButton");
+            upgradeWeapons = root.Q<Button>("UpgradeWeapons");
+            brewPotions = root.Q<Button>("BrewPotions");
+        }
+
         private void OnEnable()
         {
+            SetupRefs();
+            DrawUI();
+        }
+
+        public void SetCurrentBonfire(Bonfire bonfire)
+        {
+            this.currentBonfire = bonfire;
+        }
+
+        public void DrawUI()
+        {
+            cursorManager.ShowCursor();
             isPassingTime = false;
 
-            var root = GetComponent<UIDocument>().rootVisualElement;
-
-            root.Q<Label>("BonfireName").text = bonfire.bonfireName.GetText();
-
-            root.Q<Label>("BonfireNameLabel").text = bonfireNameLabel.GetText();
-
-            hasEnoughForLevellingUp = playerStatsDatabase.gold >= playerLevelManager.GetRequiredExperienceForNextLevel();
-
-            root.Q<Label>("LevelUpAvailableLabel").style.display = hasEnoughForLevellingUp ? DisplayStyle.Flex : DisplayStyle.None;
-
-            #region Bonfire UI Buttons
-            var levelUpButton = root.Q<Button>("LevelUpButton");
-            var passTimeButton = root.Q<Button>("PassTimeButton");
-            var exitBonfireButton = root.Q<Button>("LeaveButton");
-            var travelButton = root.Q<Button>("TravelButton");
-            var upgradeWeapons = root.Q<Button>("UpgradeWeapons");
-            var brewPotions = root.Q<Button>("BrewPotions");
-            upgradeWeapons.style.display = playerInventory.GetItemQuantity(blacksmithKit) <= 0 ? DisplayStyle.None : DisplayStyle.Flex;
-            brewPotions.style.display = playerInventory.GetItemQuantity(alchemyKit) <= 0 ? DisplayStyle.None : DisplayStyle.Flex;
-
-            levelUpButton.text = levelUpText.GetText();
-
-            if (hasEnoughForLevellingUp)
+            if (currentBonfire != null)
             {
-                levelUpButton.text += " *";
+                bonfireName.text = currentBonfire.bonfireName.GetText();
             }
 
-            passTimeButton.text = passTimeText.GetText();
-            travelButton.text = travelText.GetText();
-            upgradeWeapons.text = GamePreferences.instance.IsEnglish() ? "Upgrade Weapons" : "Melhorar Armas";
-            brewPotions.text = GamePreferences.instance.IsEnglish() ? "Brew Potions" : "Criar Poções";
-            travelButton.text = travelText.GetText();
-            exitBonfireButton.text = exitBonfireText.GetText();
+            bonfireNameLabelUI.text = "Bonfire Name";
+            hasEnoughForLevellingUp = playerStatsDatabase.gold >= playerManager.playerLevelManager.GetRequiredExperienceForNextLevel();
+            levelUpAvailableLabel.style.display = hasEnoughForLevellingUp ? DisplayStyle.Flex : DisplayStyle.None;
 
+            SetupButtons();
+        }
 
-            root.Q<Label>("CurrentGoldAndRequiredLabel").text = GamePreferences.instance.IsEnglish() ? "Your gold / Amount for next level" : "Moedas / Necessárias para próx. nível";
-            root.Q<Label>("GoldAndRequiredFornextLevel").text = playerStatsDatabase.gold + " / " + playerLevelManager.GetRequiredExperienceForNextLevel();
+        void SetupButtons()
+        {
+            levelUpButton.text = "Level Up" + (hasEnoughForLevellingUp ? " *" : "");
+            passTimeButton.text = "Wait 1 hour";
+            travelButton.text = "Travel";
+            upgradeWeapons.style.display = inventoryDatabase.HasItem(blacksmithKit) ? DisplayStyle.None : DisplayStyle.Flex;
+            brewPotions.style.display = inventoryDatabase.HasItem(alchemyKit) ? DisplayStyle.None : DisplayStyle.Flex;
+            SetButtonTexts();
+            RegisterButtonCallbacks();
 
-            levelUpButton.RegisterCallback<ClickEvent>(ev =>
+            exitBonfireButton.Focus();
+        }
+
+        void SetButtonTexts()
+        {
+            upgradeWeapons.text = "Upgrade Weapons";
+            brewPotions.text = "Craft Items";
+            exitBonfireButton.text = "Exit Bonfire";
+            currentGoldAndRequiredLabel.text = "Your gold / Amount for next level";
+            goldAndRequiredForNextLevel.text = $"{playerStatsDatabase.gold} / {playerManager.playerLevelManager.GetRequiredExperienceForNextLevel()}";
+        }
+
+        void RegisterButtonCallbacks()
+        {
+            UIUtils.SetupButton(levelUpButton, () =>
             {
                 uiDocumentLevelUp.gameObject.SetActive(true);
-                this.gameObject.SetActive(false);
+                gameObject.SetActive(false);
             });
 
-            passTimeButton.RegisterCallback<ClickEvent>(ev =>
+            UIUtils.SetupButton(passTimeButton, () =>
             {
-                if (isPassingTime)
-                {
-                    return;
-                }
-
-                StartCoroutine(MoveTime());
+                if (!isPassingTime)
+                    StartCoroutine(MoveTime());
             });
 
-            travelButton.RegisterCallback<ClickEvent>(ev =>
+            UIUtils.SetupButton(travelButton, () =>
             {
                 uiDocumentTravel.gameObject.SetActive(true);
                 this.gameObject.SetActive(false);
             });
 
-
-            upgradeWeapons.RegisterCallback<ClickEvent>(ev =>
+            UIUtils.SetupButton(upgradeWeapons, () =>
             {
-                var blackSmithScreen = FindAnyObjectByType<UIDocumentBlacksmithScreen>(FindObjectsInactive.Include);
-                blackSmithScreen.returnToBonfire = true;
+                uIDocumentCraftScreen.craftActivity = UIDocumentCraftScreen.CraftActivity.BLACKSMITH;
+                uIDocumentCraftScreen.returnToBonfire = true;
 
-                blackSmithScreen.gameObject.SetActive(true);
-                this.gameObject.SetActive(false);
-            });
-            brewPotions.RegisterCallback<ClickEvent>(ev =>
-            {
-                var alchemyCraftScreen = FindAnyObjectByType<UIDocumentAlchemyCraftScreen>(FindObjectsInactive.Include);
-                alchemyCraftScreen.returnToBonfire = true;
-
-                alchemyCraftScreen.gameObject.SetActive(true);
+                uIDocumentCraftScreen.gameObject.SetActive(true);
                 this.gameObject.SetActive(false);
             });
 
-            exitBonfireButton.RegisterCallback<ClickEvent>(ev =>
+            UIUtils.SetupButton(brewPotions, () =>
+            {
+                uIDocumentCraftScreen.craftActivity = UIDocumentCraftScreen.CraftActivity.ALCHEMY;
+                uIDocumentCraftScreen.returnToBonfire = true;
+
+                uIDocumentCraftScreen.gameObject.SetActive(true);
+                this.gameObject.SetActive(false);
+            });
+
+            UIUtils.SetupButton(exitBonfireButton, () =>
             {
                 ExitBonfire();
             });
-            #endregion
-
-            cursorManager.ShowCursor();
         }
 
         void ExitBonfire()
         {
-
-            worldSettings.daySpeed = originalDaySpeed;
-
-            bonfire.ExitBonfire();
-            StartCoroutine(DisableCursor());
-
-            thirdPersonController.LockCameraPosition = false;
-        }
-
-        private void Update()
-        {
-            if (UnityEngine.Cursor.visible == false)
-            {
-                cursorManager.ShowCursor();
-            }
-        }
-
-        IEnumerator DisableCursor()
-        {
-            yield return new WaitForSeconds(1f);
             cursorManager.HideCursor();
+            worldSettings.daySpeed = originalDaySpeed;
+            currentBonfire.ExitBonfire();
+            currentBonfire = null;
         }
 
         IEnumerator MoveTime()
@@ -179,13 +170,7 @@ namespace AF
             if (!isPassingTime)
             {
                 isPassingTime = true;
-
-                bool isInteriorOriginal = sceneSettings.isInterior;
-
-                sceneSettings.isInterior = false;
-                dayNightManager.tick = true;
                 var originalDaySpeed = worldSettings.daySpeed;
-
                 var targetHour = Mathf.Floor(worldSettings.timeOfDay) + 1;
 
                 if (targetHour > 23)
@@ -195,21 +180,13 @@ namespace AF
                 }
 
                 yield return null;
-
                 worldSettings.daySpeed = 2;
 
                 yield return new WaitUntil(() => Mathf.FloorToInt(worldSettings.timeOfDay) == Mathf.FloorToInt(targetHour));
 
                 worldSettings.daySpeed = originalDaySpeed;
-
-                dayNightManager.tick = dayNightManager.TimePassageAllowed();
-                sceneSettings.isInterior = isInteriorOriginal;
-
                 isPassingTime = false;
             }
-
-            yield return null;
         }
     }
-
 }

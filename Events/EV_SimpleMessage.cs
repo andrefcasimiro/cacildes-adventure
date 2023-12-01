@@ -1,12 +1,14 @@
 using System.Collections;
+using System.Linq;
 using AF;
+using AF.Dialogue;
 using UnityEngine;
 
 public class EV_SimpleMessage : EventBase
 {
 
     [Header("Components")]
-    public DialogueManager dialogueManager;
+    public UIDocumentDialogueWindow uIDocumentDialogueWindow;
 
     [Header("Actor")]
     public Character character;
@@ -14,29 +16,15 @@ public class EV_SimpleMessage : EventBase
     [TextArea]
     public string message;
 
+    [Header("Responses")]
+    public Response[] responses;
+
     public override IEnumerator Dispatch()
     {
+        // Only consider responses that are active - we hide responses based on composition of nested objects
+        Response[] filteredResponses = responses.Where(response => response.gameObject.activeInHierarchy).ToArray();
 
-        // TODO: For now, keep this wrapper until we remove localization
-
-        LocalizedTextEntry enLocalizedTextEntry = new()
-        {
-            gameLanguage = AF.GamePreferences.GameLanguage.ENGLISH,
-            text = message,
-        };
-        LocalizedTextEntry ptLocalizedTextEntry = new()
-        {
-            gameLanguage = AF.GamePreferences.GameLanguage.PORTUGUESE,
-            text = message,
-        };
-
-        LocalizedText localizedText = new LocalizedText()
-        {
-            localizedTexts = new LocalizedTextEntry[] { enLocalizedTextEntry, ptLocalizedTextEntry }
-        };
-
-        yield return dialogueManager.ShowDialogueWithChoices(
-            character, localizedText, null, 0.05f, false, null, null);
-
+        yield return uIDocumentDialogueWindow.DisplayMessage(
+            character, message, filteredResponses);
     }
 }

@@ -5,7 +5,12 @@ namespace AF.Animations
 {
     public class CharacterAnimationEventListener : MonoBehaviour, IAnimationEventListener
     {
+
+        [Header("Components")]
         public CharacterManager characterManager;
+
+        [Header("Animator Settings")]
+        public string speedParameter = "Speed";
 
         [Header("Unity Events")]
         public UnityEvent onLeftFootstep;
@@ -14,6 +19,11 @@ namespace AF.Animations
         public UnityEvent onRightWeaponHitboxOpen;
         public UnityEvent onLeftFootHitboxOpen;
         public UnityEvent onRightFootHitboxOpen;
+
+        private void OnAnimatorMove()
+        {
+            characterManager.animator.SetFloat(speedParameter, characterManager.agent.speed);
+        }
 
         public void OnLeftFootstep()
         {

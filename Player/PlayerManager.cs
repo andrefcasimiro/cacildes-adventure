@@ -1,6 +1,7 @@
 using AF.Animations;
 using AF.Equipment;
 using AF.Health;
+using AF.Ladders;
 using AF.Shooting;
 using AF.Stats;
 using UnityEngine;
@@ -50,6 +51,7 @@ namespace AF
                 playerInventory.FinishItemConsumption();
             }
 
+            playerInventory.ResetStates();
             characterPosture.ResetStates();
 
             playerComponentManager.EnableCollisionWithEnemies();

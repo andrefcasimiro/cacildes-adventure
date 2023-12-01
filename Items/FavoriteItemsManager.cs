@@ -52,7 +52,7 @@ namespace AF
                 consumableItem.OnConsume();
             }
 
-            uIDocumentPlayerHUDV2.UpdateFavoriteItems();
+            uIDocumentPlayerHUDV2.UpdateEquipment();
         }
 
         /// <summary>

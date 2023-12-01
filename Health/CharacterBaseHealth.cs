@@ -22,6 +22,7 @@ namespace AF.Health
         }
 
         public abstract void RestoreHealth(int value);
+        public abstract void RestoreFullHealth();
 
         public float GetCurrentHealthPercentage()
         {

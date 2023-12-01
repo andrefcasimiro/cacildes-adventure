@@ -164,7 +164,7 @@ namespace AF
             else if (currentRound % 3 == 0 && playerInventory != null && Random.Range(0, 100f) > 50f)
             {
 
-                playerComponentManager.CurePlayer();
+                // playerComponentManager.CurePlayer();
 
                 Soundbank.instance.PlayItemReceived();
                 notificationManager.ShowNotification(GamePreferences.instance.IsEnglish()
@@ -189,8 +189,8 @@ namespace AF
 
         public void ExitTournament()
         {
-            playerComponentManager.isInBonfire = true;
-            playerComponentManager.CurePlayer();
+            //            playerComponentManager.isInBonfire = true;
+            //            playerComponentManager.CurePlayer();
 
             TeleportManager.instance.Teleport(sceneToReturnWhenExitingTournament, "A");
 

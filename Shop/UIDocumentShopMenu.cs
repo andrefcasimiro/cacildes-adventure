@@ -1,273 +1,303 @@
 using System.Collections.Generic;
-using System.Linq;
+using AF.Inventory;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Cursor = UnityEngine.Cursor;
 
-namespace AF
+namespace AF.Shops
 {
     public class UIDocumentShopMenu : MonoBehaviour
     {
-        CursorManager cursorManager;
+        [Header("Player Settings")]
+        public Character playerCharacter;
 
-        [Header("Day / Night Manager")]
-        public int daysToRestock = 3;
-        [Range(0, 23)] public int hourToReplenish = 6;
+        [Header("Components")]
+        public CursorManager cursorManager;
+        public PlayerManager playerManager;
 
-        public ShopEntry shopEntry;
-
-        [Header("Localization")]
-        public LocalizedText shopName;
-
-        public bool isBuying = true;
-
-        UIDocument uiDocument => GetComponent<UIDocument>();
-        VisualElement root;
-
+        [Header("UI Components")]
+        public UIDocument uiDocument;
         public VisualTreeAsset buySellButton;
-
-        StarterAssetsInputs inputs;
+        public UIDocumentPlayerGold uIDocumentPlayerGold;
+        public NotificationManager notificationManager;
+        VisualElement root;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public InventoryDatabase inventoryDatabase;
+
         [Header("Systems")]
         public WorldSettings worldSettings;
 
-        private void Awake()
-        {
-            inputs = FindObjectOfType<StarterAssetsInputs>(true);
+        Label buyerName, buyerGold, sellerName, sellerGold;
+        VisualElement buyerIcon, sellerIcon;
 
-            cursorManager = FindObjectOfType<CursorManager>(true);
-        }
+        // Item Preview
+        VisualElement itemPreview;
+        IMGUIContainer itemPreviewItemIcon;
+        Label itemPreviewItemDescription;
 
         private void Start()
         {
             this.gameObject.SetActive(false);
         }
 
-        public void Open()
+        void SetupRefs()
         {
+            this.root = uiDocument.rootVisualElement;
+
+            var buyer = root.Q<VisualElement>("Buyer");
+            buyerName = buyer.Q<Label>("Name");
+            buyerGold = buyer.Q<Label>("Gold");
+            buyerIcon = buyer.Q<VisualElement>("BuyerIcon");
+
+            var seller = root.Q<VisualElement>("Seller");
+            sellerName = seller.Q<Label>("Name");
+            sellerGold = seller.Q<Label>("Gold");
+            sellerIcon = seller.Q<VisualElement>("SellerIcon");
+
+            this.itemPreview = root.Q<VisualElement>("ItemPreview");
+            this.itemPreviewItemIcon = itemPreview.Q<IMGUIContainer>("ItemIcon");
+            this.itemPreviewItemDescription = itemPreview.Q<Label>("Description");
+        }
+
+        public void BuyFromCharacter(CharacterShop characterShop)
+        {
+            characterShop?.onShopOpen?.Invoke();
+
+            gameObject.SetActive(true);
+
             cursorManager.ShowCursor();
 
-            FindObjectOfType<PlayerComponentManager>(true).DisableComponents();
-            FindObjectOfType<EventNavigator>(true).enabled = false;
+            playerManager.playerComponentManager.DisableComponents();
 
-            if (ShouldReplenish())
-            {
-                Replenish();
-            }
+            DrawBuyMenu(characterShop);
         }
 
-        private void Update()
+        public void SellToCharacter(CharacterShop characterShop)
         {
-            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Tab))
-            {
-                ExitShop();
-            }
+            characterShop?.onShopOpen?.Invoke();
 
-            if (Cursor.visible == false)
-            {
-                cursorManager.ShowCursor();
-            }
-        }
+            gameObject.SetActive(true);
 
-        private void OnDisable()
-        {
-            cursorManager.HideCursor();
-        }
+            cursorManager.ShowCursor();
 
-        void ExitShop()
-        {
-            FindObjectOfType<PlayerComponentManager>(true).EnableComponents();
-            FindObjectOfType<EventNavigator>(true).enabled = true;
+            playerManager.playerComponentManager.DisableComponents();
 
-            cursorManager.HideCursor();
-            this.gameObject.SetActive(false);
+            DrawSellMenu(characterShop);
         }
 
         private void OnEnable()
         {
-            this.root = uiDocument.rootVisualElement;
+            SetupRefs();
+        }
 
-            root.Q<Button>("ButtonExit").text = LocalizedTerms.ExitShop();
-            root.Q<Button>("ButtonExit").RegisterCallback<ClickEvent>((ev) => { ExitShop(); });
+        void SetupExitButton(CharacterShop characterShop, ScrollView scrollView)
+        {
+            Button exitButton = new() { text = "Exit shop" };
+            exitButton.AddToClassList("primary-button");
 
-            OnHourChanged();
-
-            if (isBuying)
+            UIUtils.SetupButton(exitButton, () =>
             {
-                DrawBuyMenu();
+                ExitShop();
+                characterShop.onShopExit?.Invoke();
+            }
+            , () =>
+            {
+                root.Q<ScrollView>().ScrollTo(exitButton);
+                exitButton.Focus();
+            },
+            () =>
+            {
+
+            },
+            true);
+
+            exitButton.Focus();
+            scrollView.Add(exitButton);
+            scrollView.ScrollTo(exitButton);
+        }
+
+        void ExitShop()
+        {
+            playerManager.playerComponentManager.EnableComponents();
+            cursorManager.HideCursor();
+            this.gameObject.SetActive(false);
+        }
+
+        void SetupCharactersGUI(CharacterShop characterShop, bool playerIsBuying)
+        {
+            if (playerIsBuying)
+            {
+                buyerName.text = playerCharacter.name;
+                buyerGold.text = playerStatsDatabase.gold.ToString();
+                buyerIcon.style.backgroundImage = new StyleBackground(playerCharacter.avatar);
+
+                sellerName.text = characterShop.character.name;
+                sellerGold.text = characterShop.shopGold.ToString();
+                sellerIcon.style.backgroundImage = new StyleBackground(characterShop.character.avatar);
             }
             else
             {
-                DrawSellMenu();
-            }
+                buyerName.text = characterShop.character.name;
+                buyerGold.text = characterShop.shopGold.ToString();
+                buyerIcon.style.backgroundImage = new StyleBackground(characterShop.character.avatar);
 
-            cursorManager.ShowCursor();
+                sellerName.text = playerCharacter.name;
+                sellerGold.text = playerStatsDatabase.gold.ToString();
+                sellerIcon.style.backgroundImage = new StyleBackground(playerCharacter.avatar);
+            }
         }
 
-        void DrawBuyMenu()
+        void DrawBuyMenu(CharacterShop characterShop)
         {
-            root.Q<Label>("ShopName").text = shopName.GetText();
+            SetupCharactersGUI(characterShop, true);
 
-            List<ShopItem> itemsToShow = new();
+            List<Item> shopItemsToDisplay = new();
 
-            var shopEntry = ShopManager.instance.GetShopInstanceByName(this.shopEntry.name);
-
-            foreach (var stockItem in shopEntry.itemStock)
+            foreach (var item in characterShop.itemsToSell)
             {
-                if (!ShopManager.instance.HasPlayerBoughtNonRestockableItem(shopEntry, stockItem))
+                if (item.isUnique && inventoryDatabase.HasItem(item.item))
                 {
-                    itemsToShow.Add(stockItem);
+                    continue;
                 }
-            }
-            foreach (var boughtItemFromPlayer in shopEntry.boughtItemsFromPlayer)
-            {
-                itemsToShow.Add(boughtItemFromPlayer);
+
+                ShopItemEntry shopItemEntryClone = item;
+                if (characterShop.requiredItemForDiscounts != null && inventoryDatabase.HasItem(characterShop.requiredItemForDiscounts))
+                {
+                    shopItemEntryClone.item.value *= characterShop.discountGivenByItemInInventory;
+                }
+
+                shopItemsToDisplay.Add(shopItemEntryClone.item);
             }
 
-            root.Q<Label>("PlayerGold").text = LocalizedTerms.YourCurrentGold() + ": " + playerStatsDatabase.gold + " " + LocalizedTerms.Coins();
-
-            UpdateItemsList(itemsToShow);
+            DrawItemsList(shopItemsToDisplay, true, characterShop);
         }
 
-        void DrawSellMenu()
+        void DrawSellMenu(CharacterShop characterShop)
         {
+            SetupCharactersGUI(characterShop, false);
 
+            List<Item> shopItemsToDisplay = new();
+
+            foreach (var item in inventoryDatabase.ownedItems)
+            {
+                if (item.item is KeyItem)
+                {
+                    continue;
+                }
+
+
+                shopItemsToDisplay.Add(item.item);
+            }
+
+            DrawItemsList(shopItemsToDisplay, false, characterShop);
         }
 
-        void UpdateItemsList(List<ShopItem> itemsToShow)
+        void DrawItemsList(List<Item> itemsToSell, bool playerIsBuying, CharacterShop characterShop)
         {
             root.Q<ScrollView>().Clear();
-            var shop = ShopManager.instance.GetShopInstanceByName(shopEntry.name);
 
-            foreach (var item in itemsToShow)
+            SetupExitButton(characterShop, root.Q<ScrollView>());
+
+            foreach (var item in itemsToSell)
             {
                 VisualElement cloneButton = buySellButton.CloneTree();
-                cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.item.sprite);
-                cloneButton.Q<Label>("ItemName").text = item.item.name.GetText() + " ( " + item.quantity + " )";
+                cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.sprite);
+                cloneButton.Q<Label>("ItemName").text = item.name.GetEnglishText();
 
-                bool canBuy = item.quantity > 0 && playerStatsDatabase.gold >= ShopManager.instance.GetItemToBuyPrice(item, shop);
+                bool canBuy = playerIsBuying && playerStatsDatabase.gold >= item.value;
+                bool canSell = !playerIsBuying && characterShop.shopGold >= item.value;
 
-                cloneButton.Q<Button>("BuySellItem").SetEnabled(canBuy);
-                cloneButton.Q<Button>("BuySellItem").style.opacity = (canBuy ? 1 : 0.5f);
-                cloneButton.Q<Button>("BuySellItem").text = LocalizedTerms.Buy() + " (" + ShopManager.instance.GetItemToBuyPrice(item, shop) + " " + LocalizedTerms.Coins() + ")";
+                Button buySellItemButton = cloneButton.Q<Button>("BuySellItem");
+                buySellItemButton.style.opacity = playerIsBuying && canBuy || !playerIsBuying && canSell ? 1 : 0.5f;
+                buySellItemButton.text = playerIsBuying ? "Buy " : "Sell " + " (" + item.value + " Coins)";
 
-                cloneButton.RegisterCallback<PointerOverEvent>(ev =>
+                cloneButton.RegisterCallback<PointerEnterEvent>((ev) =>
                 {
-                    RenderItemPreview(root, item.item);
+                    RenderItemPreview(item);
                 });
 
-                cloneButton.RegisterCallback<PointerOutEvent>(ev =>
+                cloneButton.RegisterCallback<PointerOutEvent>((ev) =>
                 {
-                    HideItemPreview(root);
+                    HideItemPreview();
                 });
 
-                cloneButton.RegisterCallback<FocusInEvent>(ev =>
+                UIUtils.SetupButton(cloneButton.Q<Button>("BuySellItem"), () =>
                 {
-                    RenderItemPreview(root, item.item);
-
-                    root.Q<ScrollView>().ScrollTo(cloneButton);
-                });
-
-                cloneButton.RegisterCallback<FocusOutEvent>(ev =>
+                    if (canBuy)
+                    {
+                        BuyItem(item, characterShop);
+                    }
+                    else if (canSell)
+                    {
+                        SellItem(item, characterShop);
+                    }
+                },
+                () =>
                 {
-                    HideItemPreview(root);
-                });
+                    RenderItemPreview(item);
 
-                cloneButton.Q<Button>("BuySellItem").RegisterCallback<ClickEvent>(ev =>
+                    root.Q<ScrollView>().ScrollTo(buySellItemButton);
+                    buySellItemButton.Focus();
+                },
+                () =>
                 {
-                    BuyItem(item);
-                });
+                    HideItemPreview();
+                },
+                false);
 
                 root.Q<ScrollView>().Add(cloneButton);
             }
 
         }
 
-        void BuyItem(ShopItem item)
+        void BuyItem(Item item, CharacterShop characterShop)
         {
-            var shop = ShopManager.instance.GetShopInstanceByName(shopEntry.name);
 
-            if (playerStatsDatabase.gold >= ShopManager.instance.GetItemToBuyPrice(item, shop))
+            if (playerStatsDatabase.gold >= item.value)
             {
-                if (!ShopManager.instance.HasStock(shopEntry.name, item))
-                {
-                    return;
-                }
+                uIDocumentPlayerGold.LoseGold((int)item.value);
+                characterShop.shopGold += (int)item.value;
 
-                ShopManager.instance.BuyFromShop(shopEntry.name, item);
+                // Give item to player
+                playerManager.playerInventory.AddItem(item, 1);
 
                 Soundbank.instance.PlayItemReceived();
-                FindObjectOfType<NotificationManager>(true).ShowNotification(LocalizedTerms.Bought() + " x" + 1 + " " + item.item.name.GetText() + "", item.item.sprite);
+                notificationManager.ShowNotification(LocalizedTerms.Bought() + " x" + 1 + " " + item.name.GetEnglishText() + "", item.sprite);
 
-                DrawBuyMenu();
+                DrawBuyMenu(characterShop);
             }
         }
 
-        void RenderItemPreview(VisualElement root, Item item)
+        void SellItem(Item item, CharacterShop characterShop)
         {
-            var itemPreview = root.Q<VisualElement>("ItemPreview");
-            itemPreview.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.sprite);
-            itemPreview.Q<Label>("Title").text = item.name.GetText();
-            itemPreview.Q<Label>("Description").text = item.description.GetText();
+            uIDocumentPlayerGold.AddGold((int)item.value);
+            characterShop.shopGold -= (int)item.value;
+
+            // Give item to player
+            playerManager.playerInventory.RemoveItem(item, 1);
+
+            Soundbank.instance.PlayItemReceived();
+            notificationManager.ShowNotification("Sold " + item.name.GetEnglishText() + "", item.sprite);
+
+            DrawSellMenu(characterShop);
+        }
+
+        void RenderItemPreview(Item item)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            itemPreviewItemIcon.style.backgroundImage = new StyleBackground(item.sprite);
+            itemPreviewItemDescription.text = item.description.GetText();
             itemPreview.style.opacity = 1;
         }
 
-        void HideItemPreview(VisualElement root)
+        void HideItemPreview()
         {
-            root.Q<VisualElement>("ItemPreview").style.opacity = 0;
+            itemPreview.style.opacity = 0;
         }
-
-        public void OnHourChanged()
-        {
-            if (ShouldReplenish())
-            {
-                // If is only one day passed, only enable after passing the hour threshold
-                var shopRefreshValue = ShopManager.instance.GetShopInstanceByName(shopEntry.name).dayThatTradingBegan;
-
-                if ((worldSettings.daysPassed - 1) == shopRefreshValue)
-                {
-                    if (worldSettings.timeOfDay >= hourToReplenish)
-                    {
-                        Replenish();
-                    }
-                }
-                else
-                {
-                    Replenish();
-                }
-            }
-        }
-
-        void Replenish()
-        {
-            ShopManager.instance.ReplenishShopStock(shopEntry.name, shopEntry.itemStock);
-        }
-
-        bool ShouldReplenish()
-        {
-            if (shopEntry == null)
-            {
-                return false;
-            }
-
-            var shop = ShopManager.instance.GetShopInstanceByName(shopEntry.name);
-            if (shop == null)
-            {
-                return false;
-            }
-
-            var shopRefreshValue = shop != null ? shop.dayThatTradingBegan : -1;
-
-            if (shopRefreshValue == -1)
-            {
-                return true;
-            }
-
-            return worldSettings.daysPassed > shopRefreshValue + daysToRestock;
-        }
-
     }
-
 }

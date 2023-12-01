@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,7 +7,7 @@ namespace AF
     [System.Serializable]
     public class BonfireLocation
     {
-        public LocalizedText bonfireName;
+        public string bonfireId;
         public Sprite image;
 
         public TeleportManager.SceneName sceneName;
@@ -19,33 +18,27 @@ namespace AF
     {
         public List<BonfireLocation> bonfireLocations = new();
 
-
+        [Header("UI Documents")]
+        public UIDocument uIDocument;
         public VisualTreeAsset travelOptionAsset;
         public UIDocumentBonfireMenu uIDocumentBonfireMenu;
+        public CursorManager cursorManager;
+        public PlayerManager playerManager;
 
-        VisualElement root;
-
-        CursorManager cursorManager;
-        ThirdPersonController thirdPersonController;
 
         [Header("Databases")]
         public BonfiresDatabase bonfiresDatabase;
 
+        // Internal
+        VisualElement root;
+
         private void Awake()
         {
-
-            cursorManager = FindAnyObjectByType<CursorManager>(FindObjectsInactive.Include);
-            thirdPersonController = FindAnyObjectByType<ThirdPersonController>(FindObjectsInactive.Include);
-
-
             gameObject.SetActive(false);
         }
 
         void Close()
         {
-
-            thirdPersonController.LockCameraPosition = false;
-
             uIDocumentBonfireMenu.gameObject.SetActive(true);
             this.gameObject.SetActive(false);
         }
@@ -54,36 +47,55 @@ namespace AF
         {
             root = GetComponent<UIDocument>().rootVisualElement;
 
-            root.Q<Button>("CloseBtn").RegisterCallback<ClickEvent>(ev =>
-            {
-                Close();
-            });
-
-
             root.Q<ScrollView>().Clear();
             root.Q<IMGUIContainer>().style.opacity = 0;
+
+            // The exit button
+            var exitOption = travelOptionAsset.CloneTree();
+            exitOption.Q<Button>().text = "Return";
+
+            UIUtils.SetupButton(exitOption.Q<Button>(), () =>
+            {
+                Close();
+            },
+            () =>
+            {
+                {
+                    root.Q<IMGUIContainer>().style.opacity = 0;
+                }
+            },
+            () =>
+            {
+                root.Q<IMGUIContainer>().style.opacity = 0;
+            },
+            true);
+            root.Q<ScrollView>().Add(exitOption);
 
             // Add callbacks
             foreach (var location in bonfireLocations)
             {
-                if (bonfiresDatabase.unlockedBonfires.Contains(location.bonfireName.GetEnglishText()))
+                if (bonfiresDatabase.unlockedBonfires.Contains(location.bonfireId))
                 {
                     var clonedBonfireOption = travelOptionAsset.CloneTree();
-                    clonedBonfireOption.Q<Button>().text = location.bonfireName.GetText();
-                    clonedBonfireOption.Q<Button>().RegisterCallback<MouseOverEvent>(ev =>
-                    {
-                        root.Q<IMGUIContainer>().style.backgroundImage = new StyleBackground(location.image);
-                        root.Q<IMGUIContainer>().style.opacity = 1;
-                    });
-                    clonedBonfireOption.Q<Button>().RegisterCallback<MouseOutEvent>(ev =>
-                    {
-                        root.Q<IMGUIContainer>().style.opacity = 0;
-                    });
+                    clonedBonfireOption.Q<Button>().text = location.bonfireId;
 
-                    clonedBonfireOption.Q<Button>().RegisterCallback<ClickEvent>(ev =>
+                    UIUtils.SetupButton(clonedBonfireOption.Q<Button>(), () =>
                     {
                         TeleportManager.instance.Teleport(location.sceneName, location.spawnGameObjectNameRef);
-                    });
+                    },
+                    () =>
+                    {
+                        {
+                            root.Q<IMGUIContainer>().style.backgroundImage = new StyleBackground(location.image);
+                            root.Q<IMGUIContainer>().style.opacity = 1;
+                        }
+                    },
+                    () =>
+                    {
+                        root.Q<IMGUIContainer>().style.opacity = 0;
+                    },
+                    true);
+
 
                     root.Q<ScrollView>().Add(clonedBonfireOption);
                 }
@@ -91,7 +103,6 @@ namespace AF
             }
 
             cursorManager.ShowCursor();
-            thirdPersonController.LockCameraPosition = true;
         }
     }
 

@@ -60,5 +60,10 @@ namespace AF.Inventory
 
             return this.ownedItems[idx].amount;
         }
+
+        public bool HasItem(Item itemToFind)
+        {
+            return this.ownedItems.FirstOrDefault(item => item.item == itemToFind) != null;
+        }
     }
 }
