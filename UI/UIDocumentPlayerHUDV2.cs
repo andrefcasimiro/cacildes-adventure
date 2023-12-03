@@ -36,6 +36,7 @@ namespace AF
         public EquipmentDatabase equipmentDatabase;
         public InventoryDatabase inventoryDatabase;
         public PlayerStatsDatabase playerStatsDatabase;
+        public QuestsDatabase questsDatabase;
 
         [Header("Unequipped Textures")]
         public Texture2D unequippedSpellSlot;
@@ -58,11 +59,16 @@ namespace AF
         VisualElement useKeyboard, useGamepad;
         VisualElement equipmentContainer;
 
+        Label currentObjectiveLabel, currentObjectiveValue;
+
         private void Awake()
         {
             EventManager.StartListening(
                 EventMessages.ON_EQUIPMENT_CHANGED,
                 UpdateEquipment);
+            EventManager.StartListening(
+                EventMessages.ON_QUEST_TRACKED,
+                UpdateQuestTracking);
         }
 
         private void OnEnable()
@@ -100,6 +106,11 @@ namespace AF
 
             equipmentContainer = root.Q<VisualElement>("EquipmentContainer");
 
+            currentObjectiveLabel = root.Q<Label>("CurrentObjectiveLabel");
+            currentObjectiveValue = root.Q<Label>("CurrentObjectiveValue");
+            currentObjectiveLabel.style.display = DisplayStyle.None;
+            currentObjectiveValue.text = "";
+
             UpdateEquipment();
         }
 
@@ -135,10 +146,17 @@ namespace AF
             this.staminaFill.style.width = formattedStamina;
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
         public void ShowEquipment()
         {
             equipmentContainer.style.display = DisplayStyle.Flex;
         }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
         public void HideEquipment()
         {
             equipmentContainer.style.display = DisplayStyle.None;
@@ -225,6 +243,25 @@ namespace AF
         {
             UIUtils.PlayPopAnimation(spellSlotContainer, popEffectWhenSwitchingSlots);
             UpdateEquipment();
+        }
+
+        public bool IsEquipmentDisplayed()
+        {
+            return equipmentContainer.style.display == DisplayStyle.Flex || root.style.opacity == 1;
+        }
+
+        void UpdateQuestTracking()
+        {
+            currentObjectiveLabel.style.display = DisplayStyle.None;
+            currentObjectiveValue.text = "";
+
+            QuestObjective currentQuestObjective = questsDatabase.GetCurrentTrackedQuestObjective();
+
+            if (currentQuestObjective != null)
+            {
+                currentObjectiveValue.text = currentQuestObjective.objective;
+                currentObjectiveLabel.style.display = DisplayStyle.Flex;
+            }
         }
     }
 }

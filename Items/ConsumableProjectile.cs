@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
@@ -19,20 +17,6 @@ namespace AF
 
         public ProjectileType projectileType = ProjectileType.BOW;
 
-        public override void OnConsume()
-        {
-
-            /*            var playerShootingManager = FindObjectOfType<PlayerShootingManager>(true);
-
-                        if (projectileType == ProjectileType.BOW)
-                        {
-                            playerShootingManager.ShootBow(this);
-                        }
-                        else if (projectileType == ProjectileType.THROWABLE)
-                        {
-                            playerShootingManager.ThrowConsumable(this);
-                        }*/
-        }
 
     }
 

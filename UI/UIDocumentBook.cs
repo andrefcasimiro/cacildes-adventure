@@ -1,4 +1,6 @@
+using AF.Journals;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
@@ -8,199 +10,288 @@ namespace AF
     {
         VisualElement root;
 
-        [HideInInspector] public ReadBook readBook;
 
-        [Header("Localization")]
-        public LocalizedText movePagesText;
-        public LocalizedText arrowKeysText;
-        public LocalizedText closeBookText;
-        public LocalizedText tabText;
+        Journal currentJournal;
 
-        StarterAssetsInputs inputs;
+        VisualElement bookFront, bookPage, bookBack, notePage, leftPage, rightPage;
+        Label bookTitle, bookAuthor, notePageTitle, notePageText, leftPageTitle, leftPageText, rightPageTitle, rightPageText;
+
+        [Header("Indexes")]
+        public int currentPage = -1;
+
+        [Header("Events")]
+        public UnityEvent onJournalOpen;
+        public UnityEvent onJournalClose;
 
         private void Awake()
         {
-            inputs = FindObjectOfType<StarterAssetsInputs>(true);
-
             this.gameObject.SetActive(false);
         }
 
-        private void Update()
+        void SetupRefs()
         {
-            this.root.Focus();
+            bookFront = this.root.Q<VisualElement>("BookFront");
+            bookPage = this.root.Q<VisualElement>("BookPage");
+            bookBack = this.root.Q<VisualElement>("BookBack");
+            notePage = this.root.Q<VisualElement>("NotePage");
+
+            bookTitle = this.root.Q<Label>("BookTitle");
+            bookAuthor = this.root.Q<Label>("BookAuthor");
+
+            notePageTitle = notePage.Q<Label>("ChapterTitle");
+            notePageText = notePage.Q<Label>("PageText");
+
+            leftPage = this.root.Q<VisualElement>("LeftPage");
+            leftPageTitle = leftPage.Q<Label>("ChapterTitle");
+            leftPageText = leftPage.Q<Label>("PageText");
+
+            rightPage = this.root.Q<VisualElement>("RightPage");
+            rightPageTitle = rightPage.Q<Label>("ChapterTitle");
+            rightPageText = rightPage.Q<Label>("PageText");
         }
 
-        void Translate(VisualElement root)
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnClose()
         {
-            root.Q<Label>("MovePages").text = movePagesText.GetText();
-            root.Q<Label>("ArrowKeys").text = arrowKeysText.GetText();
-            root.Q<Label>("CloseBook").text = closeBookText.GetText();
-            root.Q<Label>("Tab").text = tabText.GetText();
+            if (currentJournal == null)
+            {
+                return;
+            }
+
+            onJournalClose.Invoke();
+            currentJournal.CloseBook();
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnSwitchNextPage()
+        {
+            if (currentJournal == null)
+            {
+                return;
+            }
+
+            NavigateBook(true);
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnSwitchPreviousPage()
+        {
+            if (currentJournal == null)
+            {
+                return;
+            }
+
+            NavigateBook(false);
         }
 
         private void OnEnable()
         {
             this.root = GetComponent<UIDocument>().rootVisualElement;
-            this.root.focusable = true;
-            this.root.Focus();
-
-            Translate(this.root);
-
-            this.root.RegisterCallback<NavigationCancelEvent>(ev =>
-            {
-                GetReadBook().CloseBook();
-            });
-
-            this.root.RegisterCallback<NavigationMoveEvent>(ev =>
-            {
-                GetReadBook().NavigateBook(ev.direction == NavigationMoveEvent.Direction.Right);
-            });
-
-            this.root.RegisterCallback<KeyDownEvent>(ev =>
-            {
-                if (ev.keyCode == KeyCode.Tab || ev.keyCode == KeyCode.Escape || inputs.menu || Gamepad.current != null && Gamepad.current.buttonEast.isPressed)
-                {
-                    GetReadBook().CloseBook();
-                }
-                else if (ev.keyCode == KeyCode.RightArrow || Gamepad.current != null && Gamepad.current.leftStick.right.IsActuated())
-                {
-                    GetReadBook().NavigateBook(true);
-                }
-                else if (ev.keyCode == KeyCode.LeftArrow || Gamepad.current != null && Gamepad.current.leftStick.left.IsActuated())
-                {
-                    GetReadBook().NavigateBook(false);
-                }
-            });
+            SetupRefs();
         }
 
-        ReadBook GetReadBook() { return this.readBook; }
-
-        public void ShowCover(Book book)
+        public void BeginRead(Journal journal)
         {
-            if (this.root.Q<VisualElement>("BookFront").style.display != DisplayStyle.Flex)
+            this.currentJournal = journal;
+            this.gameObject.SetActive(true);
+
+            if (journal.isNote)
+            {
+                currentPage = 0;
+                ShowNote();
+            }
+            else
+            {
+                currentPage = -1;
+                ShowCover();
+            }
+
+            onJournalOpen?.Invoke();
+        }
+
+        public void ShowCover()
+        {
+
+            if (bookFront.style.display != DisplayStyle.Flex)
             {
                 Soundbank.instance.PlayBookFlip();
             }
 
-            this.root.Q<VisualElement>("BookFront").style.display = DisplayStyle.Flex;
-            this.root.Q<VisualElement>("BookPage").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("BookBack").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("NotePage").style.display = DisplayStyle.None;
+            bookFront.style.display = DisplayStyle.Flex;
+            bookPage.style.display = DisplayStyle.None;
+            bookBack.style.display = DisplayStyle.None;
+            notePage.style.display = DisplayStyle.None;
 
-            this.root.Q<Label>("BookTitle").text = book.bookTitle.GetText();
-            this.root.Q<Label>("BookAuthor").text = book.bookAuthor.GetText();
+            bookTitle.text = currentJournal.title;
+            bookAuthor.text = currentJournal.author;
 
-            this.root.Q<VisualElement>("BookFront").style.backgroundColor = book.coverColor;
+            bookFront.style.backgroundColor = currentJournal.coverColor;
         }
 
-        public void ShowBack(Book book)
+        public void ShowBack()
         {
             if (this.root.Q<VisualElement>("BookBack").style.display != DisplayStyle.Flex)
             {
                 Soundbank.instance.PlayBookFlip();
             }
 
-            this.root.Q<VisualElement>("BookFront").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("BookPage").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("BookBack").style.display = DisplayStyle.Flex;
-            this.root.Q<VisualElement>("NotePage").style.display = DisplayStyle.None;
+            bookFront.style.display = DisplayStyle.None;
+            bookPage.style.display = DisplayStyle.None;
+            bookBack.style.display = DisplayStyle.Flex;
+            notePage.style.display = DisplayStyle.None;
 
-            this.root.Q<VisualElement>("BookBack").style.backgroundColor = book.coverColor;
+            bookBack.style.backgroundColor = currentJournal.coverColor;
         }
 
-        public void ShowNote(string noteTitle, string noteText)
+        public void ShowNote()
         {
             Soundbank.instance.PlayBookFlip();
 
-            this.root.Q<VisualElement>("BookFront").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("BookPage").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("BookBack").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("NotePage").style.display = DisplayStyle.Flex;
+            bookFront.style.display = DisplayStyle.None;
+            bookPage.style.display = DisplayStyle.None;
+            bookBack.style.display = DisplayStyle.None;
+            notePage.style.display = DisplayStyle.Flex;
 
-            this.root.Q<VisualElement>("Page").Q<Label>("ChapterTitle").text = noteTitle;
-            this.root.Q<VisualElement>("Page").Q<Label>("PageText").text = noteText;
-
+            notePageTitle.text = currentJournal.pages[currentPage].pageTitle;
+            notePageText.text = currentJournal.pages[currentPage].pageText;
         }
 
-        public void ShowSinglePage(BookPage page, bool renderOnRight)
+        public void ShowSinglePage(JournalPage page, bool renderOnRight)
         {
             Soundbank.instance.PlayBookFlip();
 
-            this.root.Q<VisualElement>("BookFront").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("BookPage").style.display = DisplayStyle.Flex;
-            this.root.Q<VisualElement>("BookBack").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("NotePage").style.display = DisplayStyle.None;
+            bookFront.style.display = DisplayStyle.None;
+            bookPage.style.display = DisplayStyle.Flex;
+            bookBack.style.display = DisplayStyle.None;
+            notePage.style.display = DisplayStyle.None;
 
             if (renderOnRight)
             {
-                this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = "";
-                this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = "";
+                leftPageTitle.text = "";
+                leftPageText.text = "";
 
-                if (System.String.IsNullOrEmpty(page.chapterTitle.GetText()))
+                if (string.IsNullOrEmpty(page.pageTitle))
                 {
-                    this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.None;
+                    rightPageTitle.style.display = DisplayStyle.None;
                 }
                 else
                 {
-                    this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = page.chapterTitle.GetText();
-                    this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = "";
-                    this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.Flex;
+                    rightPageTitle.text = page.pageTitle;
+                    leftPageTitle.text = "";
+                    rightPageTitle.style.display = DisplayStyle.Flex;
                 }
-                this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = FormatText(page.pageText.GetText());
-                this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = "";
+                rightPageText.text = FormatText(page.pageText);
+                leftPageText.text = "";
             }
             else
             {
-                this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = "";
-                this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = "";
+                rightPageTitle.text = "";
+                rightPageText.text = "";
 
-                if (System.String.IsNullOrEmpty(page.chapterTitle.GetText()))
+                if (string.IsNullOrEmpty(page.pageTitle))
                 {
-                    this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.None;
+                    leftPageTitle.style.display = DisplayStyle.None;
                 }
                 else
                 {
-                    this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = page.chapterTitle.GetText();
-                    this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = "";
-                    this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.Flex;
+                    leftPageTitle.text = page.pageTitle;
+                    rightPageTitle.text = "";
+                    leftPageTitle.style.display = DisplayStyle.Flex;
                 }
-                this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = FormatText(page.pageText.GetText());
-                this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = "";
+                leftPageText.text = FormatText(page.pageText);
+                rightPageText.text = "";
             }
 
         }
 
-        public void ShowPages(BookPage leftPage, BookPage rightPage)
+        public void ShowPages(JournalPage journalLeftPage, JournalPage journalRightPage)
         {
             Soundbank.instance.PlayBookFlip();
 
-            this.root.Q<VisualElement>("BookFront").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("BookPage").style.display = DisplayStyle.Flex;
-            this.root.Q<VisualElement>("BookBack").style.display = DisplayStyle.None;
-            this.root.Q<VisualElement>("NotePage").style.display = DisplayStyle.None;
+            bookFront.style.display = DisplayStyle.None;
+            bookPage.style.display = DisplayStyle.Flex;
+            bookBack.style.display = DisplayStyle.None;
+            notePage.style.display = DisplayStyle.None;
 
-            if (System.String.IsNullOrEmpty(leftPage.chapterTitle.GetText()))
+            if (string.IsNullOrEmpty(journalLeftPage.pageTitle))
             {
-                this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.None;
+                leftPageTitle.style.display = DisplayStyle.None;
             }
             else
             {
-                this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").text = leftPage.chapterTitle.GetText();
-                this.root.Q<VisualElement>("LeftPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.Flex;
+                leftPageTitle.text = journalLeftPage.pageTitle;
+                leftPageTitle.style.display = DisplayStyle.Flex;
             }
-            this.root.Q<VisualElement>("LeftPage").Q<Label>("PageText").text = FormatText(leftPage.pageText.GetText());
+            leftPageText.text = FormatText(journalLeftPage.pageText);
 
 
-            if (System.String.IsNullOrEmpty(rightPage.chapterTitle.GetText()))
+            if (string.IsNullOrEmpty(journalRightPage.pageTitle))
             {
-                this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.None;
+                rightPageTitle.style.display = DisplayStyle.None;
             }
             else
             {
-                this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").text = rightPage.chapterTitle.GetText();
-                this.root.Q<VisualElement>("RightPage").Q<Label>("ChapterTitle").style.display = DisplayStyle.Flex;
+                rightPageTitle.text = journalRightPage.pageTitle;
+                rightPageTitle.style.display = DisplayStyle.Flex;
             }
-            this.root.Q<VisualElement>("RightPage").Q<Label>("PageText").text = FormatText(rightPage.pageText.GetText());
+            rightPageText.text = FormatText(journalRightPage.pageText);
+        }
+
+
+        void NavigateBook(bool readForward)
+        {
+            if (currentJournal == null)
+            {
+                return;
+            }
+
+            if (currentJournal.isNote)
+            {
+                currentPage = 0;
+                ShowNote();
+                return;
+            }
+
+            if (readForward)
+            {
+                currentPage = Mathf.Clamp(
+                    currentPage == -1 ? 0 : currentPage + 2,
+                    -1,
+                    currentJournal.pages.Count % 2 == 0 ? currentJournal.pages.Count : currentJournal.pages.Count + 1);
+            }
+            else
+            {
+                currentPage = Mathf.Clamp(
+                    currentPage - 2,
+                    -1,
+                    currentJournal.pages.Count % 2 == 0 ? currentJournal.pages.Count : currentJournal.pages.Count + 1);
+            }
+
+            if (currentPage == -1)
+            {
+                ShowCover();
+            }
+            else if (currentPage > currentJournal.pages.Count - 1)
+            {
+                ShowBack();
+            }
+            else
+            {
+                if (currentPage + 1 > currentJournal.pages.Count - 1)
+                {
+                    ShowSinglePage(currentJournal.pages[currentPage], false);
+                }
+                else
+                {
+                    ShowPages(currentJournal.pages[currentPage], currentJournal.pages[currentPage + 1]);
+                }
+            }
         }
 
         string FormatText(string text)

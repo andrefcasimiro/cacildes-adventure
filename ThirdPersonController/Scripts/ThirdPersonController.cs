@@ -578,7 +578,7 @@ namespace AF
                     && _jumpTimeoutDelta <= 0.0f
                     && enableCooldown >= maxEnableCooldown
                     && uIDocumentReceivedItemPrompt.isActiveAndEnabled == false
-                    && menuManager.IsMenuOpen() == false
+                    && menuManager.isMenuOpen == false
                 )
                 {
                     if (CanJump())

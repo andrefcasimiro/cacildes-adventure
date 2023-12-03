@@ -40,20 +40,22 @@ namespace AF
             optionsButton.RemoveFromClassList("active");
             exitButton.RemoveFromClassList("active");
 
-            switch (menuManager.activeMenu)
+            switch (menuManager.viewMenuIndex)
             {
-                case ActiveMenu.EQUIPMENT:
+                case 0:
                     equipmentButton.AddToClassList("active");
                     break;
-                case ActiveMenu.OBJECTIVES:
+                case 1:
                     objectivesButton.AddToClassList("active");
                     break;
-                case ActiveMenu.EXIT_GAME:
-                    exitButton.AddToClassList("active");
-                    break;
-                case ActiveMenu.OPTIONS:
+                case 2:
                     optionsButton.AddToClassList("active");
                     break;
+                case 3:
+                    exitButton.AddToClassList("active");
+                    break;
+                default:
+                    return;
             }
 
         }
@@ -87,34 +89,38 @@ namespace AF
 
             }
 
-
             equipmentButton = root.Q<Button>(EQUIPMENT_BUTTON);
-            equipmentButton.clicked += () =>
+            UIUtils.SetupButton(equipmentButton, () =>
             {
+
                 Soundbank.instance.PlayUIHover();
-                menuManager.SetMenuView(ActiveMenu.EQUIPMENT);
-            };
+                menuManager.viewMenuIndex = 0;
+                menuManager.SetMenuView();
+            });
 
             objectivesButton = root.Q<Button>(OBJECTIVES_BUTTON);
-            objectivesButton.clicked += () =>
+            UIUtils.SetupButton(objectivesButton, () =>
             {
+
                 Soundbank.instance.PlayUIHover();
-                menuManager.SetMenuView(ActiveMenu.OBJECTIVES);
-            };
+                menuManager.viewMenuIndex = 1;
+                menuManager.SetMenuView();
+            });
 
             optionsButton = root.Q<Button>(OPTIONS_BUTTON);
-            optionsButton.clicked += () =>
+            UIUtils.SetupButton(optionsButton, () =>
             {
+
                 Soundbank.instance.PlayUIHover();
-                menuManager.SetMenuView(ActiveMenu.OPTIONS);
-            };
+                menuManager.viewMenuIndex = 2;
+                menuManager.SetMenuView();
+            });
 
             exitButton = root.Q<Button>(EXIT_BUTTON);
-
-            exitButton.clicked += () =>
+            UIUtils.SetupButton(exitButton, () =>
             {
                 Application.Quit();
-            };
+            });
 
         }
     }

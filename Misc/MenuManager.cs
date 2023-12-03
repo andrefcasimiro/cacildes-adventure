@@ -1,20 +1,13 @@
+using System;
 using AF.Ladders;
 using AF.UI.EquipmentMenu;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
-    public enum ActiveMenu
-    {
-        EQUIPMENT,
-        OPTIONS,
-        OBJECTIVES,
-        EXIT_GAME,
-    }
-
     public class MenuManager : MonoBehaviour
     {
-        public ActiveMenu activeMenu = ActiveMenu.EQUIPMENT;
 
         public bool canUseMenu = true;
 
@@ -29,37 +22,107 @@ namespace AF
         public TitleScreenManager titleScreenManager;
         public UIDocumentBook uIDocumentBook;
         public UIDocumentGameOver uIDocumentGameOver;
-        public ViewEquipmentMenu viewEquipmentMenu;
-        public ViewSettingsMenu viewSettingsMenu;
-        public ViewObjectivesMenu viewObjectivesMenu;
 
         public PlayerManager playerManager;
 
-        private void Start()
-        {
-            starterAssetsInputs.onMenuInput += EvaluateMenu;
-        }
+        [Header("Events")]
+        public UnityEvent onMenuOpen;
+        public UnityEvent onMenuClose;
 
-        void EvaluateMenu()
-        {
-            starterAssetsInputs.menu = false;
+        [Header("Flags")]
+        public bool isMenuOpen;
 
+        [Header("Menu Views")]
+        public ViewMenu[] viewMenus;
+        public int viewMenuIndex = 0;
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnMenuInput()
+        {
             if (!CanUseMenu())
             {
                 return;
             }
 
             hasPlayedFadeIn = false;
-            if (IsMenuOpen())
+
+            if (isMenuOpen)
             {
                 CloseMenu();
-                cursorManager.HideCursor();
             }
             else
             {
                 OpenMenu();
-                cursorManager.ShowCursor();
             }
+        }
+
+        public void SetMenuView()
+        {
+            CloseMenuViews();
+
+            if (viewMenuIndex >= viewMenus.Length)
+            {
+                viewMenuIndex = 0;
+            }
+            else if (viewMenuIndex < 0)
+            {
+                viewMenuIndex = viewMenus.Length - 1;
+            }
+
+            viewMenus[viewMenuIndex].gameObject.SetActive(true);
+        }
+
+        public void OpenMenu()
+        {
+            isMenuOpen = true;
+            cursorManager.ShowCursor();
+
+            viewMenuIndex = 0;
+            SetMenuView();
+
+            playerManager.thirdPersonController.LockCameraPosition = true;
+            onMenuOpen?.Invoke();
+        }
+
+        public void CloseMenu()
+        {
+            isMenuOpen = false;
+
+            cursorManager.HideCursor();
+
+            CloseMenuViews();
+
+            playerManager.thirdPersonController.LockCameraPosition = false;
+            onMenuClose?.Invoke();
+        }
+
+        void CloseMenuViews()
+        {
+            foreach (ViewMenu viewMenu in viewMenus)
+            {
+                viewMenu.gameObject.SetActive(false);
+            }
+        }
+
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnNextMenu()
+        {
+            viewMenuIndex++;
+            SetMenuView();
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnPreviousMenu()
+        {
+            viewMenuIndex--;
+            SetMenuView();
         }
 
         bool CanUseMenu()
@@ -109,70 +172,6 @@ namespace AF
             }
 
             return true;
-        }
-
-        public void SetMenuView(ActiveMenu activeMenu)
-        {
-            this.activeMenu = activeMenu;
-
-            CloseMenuViews();
-
-            if (activeMenu == ActiveMenu.EQUIPMENT)
-            {
-                viewEquipmentMenu.gameObject.SetActive(true);
-            }
-            if (activeMenu == ActiveMenu.OPTIONS)
-            {
-                viewSettingsMenu.gameObject.SetActive(true);
-            }
-            if (activeMenu == ActiveMenu.OBJECTIVES)
-            {
-                viewObjectivesMenu.gameObject.SetActive(true);
-            }
-        }
-
-        public void OpenMenu()
-        {
-            cursorManager.ShowCursor();
-
-            playerManager.thirdPersonController.LockCameraPosition = true;
-
-            SetMenuView(activeMenu);
-        }
-
-        void CloseMenuViews()
-        {
-            viewEquipmentMenu.gameObject.SetActive(false);
-            viewSettingsMenu.gameObject.SetActive(false);
-            viewObjectivesMenu.gameObject.SetActive(false);
-        }
-
-        public void CloseMenu()
-        {
-            playerManager.thirdPersonController.LockCameraPosition = false;
-            CloseMenuViews();
-
-            return;
-        }
-
-        public bool IsMenuOpen()
-        {
-            if (viewEquipmentMenu.isActiveAndEnabled)
-            {
-                return true;
-            }
-
-            if (viewSettingsMenu.isActiveAndEnabled)
-            {
-                return true;
-            }
-
-            if (viewObjectivesMenu.isActiveAndEnabled)
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }

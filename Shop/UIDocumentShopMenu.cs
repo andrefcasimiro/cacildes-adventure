@@ -181,13 +181,13 @@ namespace AF.Shops
 
             foreach (var item in inventoryDatabase.ownedItems)
             {
-                if (item.item is KeyItem)
+                if (item.Key is KeyItem)
                 {
                     continue;
                 }
 
 
-                shopItemsToDisplay.Add(item.item);
+                shopItemsToDisplay.Add(item.Key);
             }
 
             DrawItemsList(shopItemsToDisplay, false, characterShop);
@@ -210,7 +210,7 @@ namespace AF.Shops
 
                 Button buySellItemButton = cloneButton.Q<Button>("BuySellItem");
                 buySellItemButton.style.opacity = playerIsBuying && canBuy || !playerIsBuying && canSell ? 1 : 0.5f;
-                buySellItemButton.text = playerIsBuying ? "Buy " : "Sell " + " (" + item.value + " Coins)";
+                buySellItemButton.text = (playerIsBuying ? "Buy " : "Sell ") + " (" + item.value + " Coins)";
 
                 cloneButton.RegisterCallback<PointerEnterEvent>((ev) =>
                 {

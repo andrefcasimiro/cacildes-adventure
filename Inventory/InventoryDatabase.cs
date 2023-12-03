@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using AYellowpaper.SerializedCollections;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +9,10 @@ namespace AF.Inventory
     [CreateAssetMenu(fileName = "Inventory Database", menuName = "System/New Inventory Database", order = 0)]
     public class InventoryDatabase : ScriptableObject
     {
-        public List<ItemEntry> ownedItems = new();
+
+        [Header("Effect Instances")]
+        [SerializedDictionary("Item", "Quantity")]
+        public SerializedDictionary<Item, ItemAmount> ownedItems;
 
         public bool shouldClearOnExitPlayMode = false;
 
@@ -34,36 +38,48 @@ namespace AF.Inventory
 
         public void RemoveItem(Item itemToRemove, int quantity)
         {
-            int idx = this.ownedItems.FindIndex(item => item.item == itemToRemove);
-            if (idx == -1)
+            if (!ownedItems.ContainsKey(itemToRemove))
             {
                 return;
             }
 
-            this.ownedItems[idx].amount -= quantity;
-
-            if (
-                this.ownedItems[idx].amount <= 0
-                && this.ownedItems[idx].item.lostUponUse)
+            if (ownedItems[itemToRemove].amount <= 1)
             {
-                this.ownedItems.RemoveAt(idx);
+                // If not reusable item
+                if (itemToRemove.lostUponUse)
+                {
+                    // Remove item 
+                    ownedItems.Remove(itemToRemove);
+                }
+                else
+                {
+                    ownedItems[itemToRemove].amount = 0;
+                    ownedItems[itemToRemove].usages++;
+                }
+            }
+            else
+            {
+                ownedItems[itemToRemove].amount -= quantity;
+                if (itemToRemove.lostUponUse == false)
+                {
+                    ownedItems[itemToRemove].usages++;
+                }
             }
         }
 
         public int GetItemAmount(Item itemToFind)
         {
-            int idx = this.ownedItems.FindIndex(item => item.item == itemToFind);
-            if (idx == -1)
+            if (!ownedItems.ContainsKey(itemToFind))
             {
-                return 0;
+                return -1;
             }
 
-            return this.ownedItems[idx].amount;
+            return this.ownedItems[itemToFind].amount;
         }
 
         public bool HasItem(Item itemToFind)
         {
-            return this.ownedItems.FirstOrDefault(item => item.item == itemToFind) != null;
+            return this.ownedItems.ContainsKey(itemToFind);
         }
     }
 }

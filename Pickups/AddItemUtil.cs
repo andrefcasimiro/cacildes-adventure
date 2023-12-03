@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AF.Inventory;
+using AYellowpaper.SerializedCollections;
 using UnityEngine;
 
 namespace AF.Pickups
@@ -7,7 +8,10 @@ namespace AF.Pickups
     public class AddItemUtil : MonoBehaviour
     {
         [Header("Data")]
-        public ItemEntry[] itemsToAdd;
+
+        [Header("Effect Instances")]
+        [SerializedDictionary("Item", "Quantity")]
+        public SerializedDictionary<Item, ItemAmount> itemsToAdd;
 
         [Header("UI Components")]
         public UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
@@ -24,12 +28,12 @@ namespace AF.Pickups
             {
                 itemsToDisplay.Add(new()
                 {
-                    itemName = item.item.name.GetText(),
-                    quantity = item.amount,
-                    sprite = item.item.sprite
+                    itemName = item.Key.name.GetEnglishText(),
+                    quantity = item.Value.amount,
+                    sprite = item.Key.sprite
                 });
 
-                playerInventory.AddItem(item.item, item.amount);
+                playerInventory.AddItem(item.Key, item.Value.amount);
             }
 
             uIDocumentReceivedItemPrompt.gameObject.SetActive(true);

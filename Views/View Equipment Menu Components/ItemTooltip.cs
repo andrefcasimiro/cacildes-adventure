@@ -113,7 +113,7 @@ namespace AF.UI.EquipmentMenu
             }
 
             tooltipItemSprite.style.backgroundImage = new StyleBackground(item.sprite);
-            tooltipItemDescription.text = item.name.GetText().ToUpper() + " \n" + '"' + item.description.GetText() + '"';
+            tooltipItemDescription.text = item.name.GetEnglishText().ToUpper() + " \n" + '"' + item.itemDescription + '"';
 
             if (item is Weapon weapon)
             {

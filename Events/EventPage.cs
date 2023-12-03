@@ -154,11 +154,6 @@ namespace AF
                 return;
             }
 
-            if (FindObjectOfType<MenuManager>(true).IsMenuOpen())
-            {
-                return;
-            }
-
             if (dayNightManager.TimePassageAllowed() && allowTimePassage == false)
             {
                 dayNightManager.tick = false;

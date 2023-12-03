@@ -141,6 +141,24 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "NextMenu",
+                    "type": "Button",
+                    "id": "37b9b6d8-3901-42dc-8714-70ebe676acdb",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "PreviousMenu",
+                    "type": "Button",
+                    "id": "85b151d2-98ec-468a-9917-dde521f476c2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "SwitchShield",
                     "type": "Button",
                     "id": "02c2fb91-d01e-4507-b160-283a87d179fe",
@@ -552,6 +570,17 @@
                 },
                 {
                     "name": "",
+                    "id": "42ed1313-c530-4ac5-bf86-f115931afb85",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchSpell",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "4a3ee357-83b7-46bf-9144-c7dc1db4f1c7",
                     "path": "<Keyboard>/r",
                     "interactions": "",
@@ -640,6 +669,17 @@
                 },
                 {
                     "name": "",
+                    "id": "744d29ef-b6c8-4288-9a3f-ebb94dab327b",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchConsumable",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "3ffb8cd2-ab97-4d50-800f-ea1cae7a6cc9",
                     "path": "<Keyboard>/tab",
                     "interactions": "",
@@ -695,6 +735,17 @@
                 },
                 {
                     "name": "",
+                    "id": "d6fcedb0-cd7f-44df-b096-a765863a5166",
+                    "path": "<Keyboard>/rightArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchWeapon",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "ae368de7-395e-4dd9-87bd-eaf3f0c83d93",
                     "path": "<Gamepad>/dpad/left",
                     "interactions": "",
@@ -712,6 +763,61 @@
                     "processors": "",
                     "groups": "",
                     "action": "SwitchShield",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ff2c37b2-b06f-4043-a0e5-3fc08732e982",
+                    "path": "<Keyboard>/leftArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SwitchShield",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "27814c8d-4816-4c81-981c-dd6a98196218",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0d699b6b-5d10-42dc-b1bf-3fa36393d851",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "NextMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "00528cd7-c15b-49d2-aa54-1968fcbd24f9",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PreviousMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ab869c0a-be28-4ab2-a22c-41674e1547dd",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PreviousMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -1,0 +1,127 @@
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace AF
+{
+
+    public class ViewQuestsMenu : ViewMenu
+    {
+        [Header("Prefabs")]
+        public VisualTreeAsset questPrefabButton;
+        public VisualTreeAsset questObjectivePrefab;
+
+        [Header("Quests")]
+        public QuestsDatabase questsDatabase;
+
+        ScrollView questsScrollView;
+
+        VisualElement questPreview, questIcon, questObjectivesContainer;
+        Label questTitle;
+
+        int elementToFocusIndex = 0;
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            SetupRefs();
+
+            RedrawUI();
+        }
+
+        void SetupRefs()
+        {
+            questsScrollView = root.Q<VisualElement>("QuestlogContainer").Q<ScrollView>();
+            questPreview = root.Q<VisualElement>("QuestPreview");
+            questPreview.style.opacity = 0;
+
+            questIcon = questPreview.Q<VisualElement>("QuestIcon");
+            questTitle = questPreview.Q<Label>("QuestTitle");
+            questObjectivesContainer = questPreview.Q<VisualElement>("QuestObjectivesContainer");
+            questObjectivesContainer.Clear();
+        }
+
+        void RedrawUI()
+        {
+            DrawQuestsMenu();
+        }
+
+        void DrawQuestsMenu()
+        {
+            questsScrollView.Clear();
+
+            List<QuestParent> questParentsReversed = questsDatabase.questsReceived.ToList();
+            questParentsReversed.Reverse();
+
+            for (int i = 0; i < questsDatabase.questsReceived.Count; i++)
+            {
+                var quest = questParentsReversed[i];
+
+                VisualElement clone = questPrefabButton.CloneTree();
+                clone.Q<Label>("QuestName").text = quest.name;
+                clone.Q<VisualElement>("TrackIcon").style.display = questsDatabase.IsQuestTracked(quest) ? DisplayStyle.Flex : DisplayStyle.None;
+
+                int index = i; // Store the current value of 'i' in a separate variable to avoid closure issues
+
+                UIUtils.SetupButton(
+                    clone.Q<Button>("QuestButton"),
+                    () =>
+                    {
+                        questsDatabase.SetQuestToTrack(quest);
+                        elementToFocusIndex = index;
+                        RedrawUI();
+                    },
+                    () =>
+                    {
+                        PreviewQuest(quest);
+                        questsScrollView.ScrollTo(clone.Q<Button>("QuestButton"));
+                    },
+                    () =>
+                    {
+                        questPreview.style.opacity = 0;
+                    },
+                    true
+                );
+
+                if (quest.IsCompleted())
+                {
+                    clone.style.opacity = 0.5f;
+
+                }
+
+                questsScrollView.Add(clone);
+            }
+
+            if (questsScrollView.ElementAt(elementToFocusIndex) != null)
+            {
+                var btn = questsScrollView.ElementAt(elementToFocusIndex).Q<Button>("QuestButton");
+                btn.Focus();
+                questsScrollView.ScrollTo(btn);
+            }
+        }
+
+        void PreviewQuest(QuestParent questParent)
+        {
+            questIcon.style.backgroundImage = new StyleBackground(questParent.questIcon as Texture2D);
+            questTitle.text = questParent.name;
+
+            questObjectivesContainer.Clear();
+
+            foreach (var questObjective in questParent.questObjectives)
+            {
+                var questObjectiveEntry = questObjectivePrefab.CloneTree();
+                questObjectiveEntry.Q<Label>("QuestObjectiveLabel").text = questObjective.name;
+                questObjectiveEntry.Q<VisualElement>("QuestObjectiveComplete").style.display = questObjective.isCompleted ? DisplayStyle.Flex : DisplayStyle.None;
+                questObjectiveEntry.Q<VisualElement>("QuestObjectiveIncomplete").style.display = !questObjective.isCompleted ? DisplayStyle.Flex : DisplayStyle.None;
+
+                questObjectiveEntry.style.opacity = 1;
+
+                questObjectivesContainer.Add(questObjectiveEntry);
+            }
+
+            questObjectivesContainer.style.opacity = 1;
+            questPreview.style.opacity = 1;
+        }
+    }
+}

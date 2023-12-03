@@ -42,14 +42,7 @@ namespace AF.UI.EquipmentMenu
         [Header("Components")]
         public MenuManager menuManager;
         public CursorManager cursorManager;
-        public StatsBonusController playerStatsBonusController;
-        public AttackStatManager attackStatManager;
-        public PlayerWeaponsManager playerWeaponsManager;
-        public EquipmentGraphicsHandler equipmentGraphicsHandler;
-        public PlayerLevelManager playerLevelManager;
-        public DefenseStatManager defenseStatManager;
-        public PlayerPoiseController playerPoiseController;
-        public FavoriteItemsManager favoriteItemsManager;
+        public PlayerManager playerManager;
 
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
@@ -185,31 +178,31 @@ namespace AF.UI.EquipmentMenu
                 {
                     if (isWeapon)
                     {
-                        playerWeaponsManager.UnequipWeapon(slotIndex);
+                        playerManager.playerWeaponsManager.UnequipWeapon(slotIndex);
                     }
                     else if (isShield)
                     {
-                        playerWeaponsManager.UnequipShield(slotIndex);
+                        playerManager.playerWeaponsManager.UnequipShield(slotIndex);
                     }
                     else if (isHelmet)
                     {
-                        equipmentGraphicsHandler.UnequipHelmet();
+                        playerManager.equipmentGraphicsHandler.UnequipHelmet();
                     }
                     else if (isArmor)
                     {
-                        equipmentGraphicsHandler.UnequipArmor();
+                        playerManager.equipmentGraphicsHandler.UnequipArmor();
                     }
                     else if (isGauntlet)
                     {
-                        equipmentGraphicsHandler.UnequipGauntlet();
+                        playerManager.equipmentGraphicsHandler.UnequipGauntlet();
                     }
                     else if (isLegwear)
                     {
-                        equipmentGraphicsHandler.UnequipLegwear();
+                        playerManager.equipmentGraphicsHandler.UnequipLegwear();
                     }
                     else if (isAccessory)
                     {
-                        equipmentGraphicsHandler.UnequipAccessory(slotIndex);
+                        playerManager.equipmentGraphicsHandler.UnequipAccessory(slotIndex);
                     }
                     else if (isArrow)
                     {
@@ -222,7 +215,7 @@ namespace AF.UI.EquipmentMenu
 
                     Soundbank.instance.PlayUIUnequip();
 
-                    ReturnToEquipmentSlots();
+                    //ReturnToEquipmentSlots();
                     //  RedrawUI();
                 };
 
@@ -233,33 +226,34 @@ namespace AF.UI.EquipmentMenu
 
             foreach (var item in inventoryDatabase.ownedItems)
             {
-                if (item.item is not T typedItem)
+
+                if (item.Key is not T typedItem)
                 {
                     continue;
                 }
 
                 if (showOnlyKeyItems)
                 {
-                    if (item.item is Weapon || item.item is Shield || item.item is Helmet || item.item is Armor || item.item is Gauntlet || item.item is Legwear
-                        || item.item is Accessory || item.item is Consumable || item.item is Spell)
+                    if (item.Key is Weapon || item.Key is Shield || item.Key is Helmet || item.Key is Armor || item.Key is Gauntlet || item.Key is Legwear
+                        || item.Key is Accessory || item.Key is Consumable || item.Key is Spell)
                     {
                         continue;
                     }
                 }
 
                 var instance = itemButtonPrefab.CloneTree();
-                instance.Q<VisualElement>("Sprite").style.backgroundImage = new StyleBackground(item.item.sprite);
+                instance.Q<VisualElement>("Sprite").style.backgroundImage = new StyleBackground(item.Key.sprite);
                 var itemName = instance.Q<Label>("ItemName");
-                itemName.text = item.item.name.GetText();
+                itemName.text = item.Key.name.GetText();
 
-                var equipmentColorIndicator = GetEquipmentColorIndicator(item.item);
+                var equipmentColorIndicator = GetEquipmentColorIndicator(item.Key);
                 if (equipmentColorIndicator == Color.black)
                 {
                     instance.Q<VisualElement>("Indicator").style.display = DisplayStyle.None;
                 }
                 else
                 {
-                    instance.Q<VisualElement>("Indicator").style.backgroundColor = GetEquipmentColorIndicator(item.item);
+                    instance.Q<VisualElement>("Indicator").style.backgroundColor = GetEquipmentColorIndicator(item.Key);
                     instance.Q<VisualElement>("Indicator").style.display = DisplayStyle.Flex;
                 }
 
@@ -268,57 +262,57 @@ namespace AF.UI.EquipmentMenu
                 {
                     Soundbank.instance.PlayUIEquip();
 
-                    if (item.item is Weapon weapon)
+                    if (item.Key is Weapon weapon)
                     {
-                        playerWeaponsManager.EquipWeapon(weapon, slotIndex);
+                        playerManager.playerWeaponsManager.EquipWeapon(weapon, slotIndex);
                     }
-                    else if (item.item is Shield shield)
+                    else if (item.Key is Shield shield)
                     {
-                        playerWeaponsManager.EquipShield(shield, slotIndex);
+                        playerManager.playerWeaponsManager.EquipShield(shield, slotIndex);
                     }
-                    else if (item.item is Helmet helmet)
+                    else if (item.Key is Helmet helmet)
                     {
-                        equipmentGraphicsHandler.EquipHelmet(helmet);
+                        playerManager.equipmentGraphicsHandler.EquipHelmet(helmet);
                     }
-                    else if (item.item is Armor armor)
+                    else if (item.Key is Armor armor)
                     {
-                        equipmentGraphicsHandler.EquipArmor(armor);
+                        playerManager.equipmentGraphicsHandler.EquipArmor(armor);
                     }
-                    else if (item.item is Gauntlet gauntlet)
+                    else if (item.Key is Gauntlet gauntlet)
                     {
-                        equipmentGraphicsHandler.EquipGauntlet(gauntlet);
+                        playerManager.equipmentGraphicsHandler.EquipGauntlet(gauntlet);
                     }
-                    else if (item.item is Legwear legwear)
+                    else if (item.Key is Legwear legwear)
                     {
-                        equipmentGraphicsHandler.EquipLegwear(legwear);
+                        playerManager.equipmentGraphicsHandler.EquipLegwear(legwear);
                     }
-                    else if (item.item is Accessory accessory)
+                    else if (item.Key is Accessory accessory)
                     {
-                        equipmentGraphicsHandler.EquipAccessory(accessory, slotIndex);
+                        playerManager.equipmentGraphicsHandler.EquipAccessory(accessory, slotIndex);
                     }
-                    else if (item.item is Arrow)
+                    else if (item.Key is Arrow)
                     {
-                        equipmentDatabase.EquipArrow(item.item as Arrow, slotIndex);
+                        equipmentDatabase.EquipArrow(item.Key as Arrow, slotIndex);
                     }
-                    else if (item.item is Consumable)
+                    else if (item.Key is Consumable)
                     {
-                        equipmentDatabase.EquipConsumable(item.item as Consumable, slotIndex);
+                        equipmentDatabase.EquipConsumable(item.Key as Consumable, slotIndex);
                     }
-                    else if (item.item is Spell)
+                    else if (item.Key is Spell)
                     {
-                        equipmentDatabase.EquipSpell(item.item as Spell, slotIndex);
+                        equipmentDatabase.EquipSpell(item.Key as Spell, slotIndex);
                     }
 
-                    ReturnToEquipmentSlots();
+                    //ReturnToEquipmentSlots();
                 };
 
                 instance.RegisterCallback<MouseEnterEvent>(ev =>
                 {
                     itemTooltip.gameObject.SetActive(true);
-                    itemTooltip.PrepareTooltipForItem(item.item);
+                    itemTooltip.PrepareTooltipForItem(item.Key);
                     itemTooltip.DisplayTooltip(btn);
 
-                    playerStatsAndAttributesUI.DrawStats(item.item);
+                    playerStatsAndAttributesUI.DrawStats(item.Key);
                 });
                 instance.RegisterCallback<MouseOutEvent>(ev =>
                 {
@@ -327,7 +321,7 @@ namespace AF.UI.EquipmentMenu
                     playerStatsAndAttributesUI.DrawStats(null);
                 });
 
-                if (item.item is Consumable consumable)
+                if (item.Key is Consumable consumable)
                 {
                     var useItemButton = instance.Q<Button>("UseItemButton");
                     useItemButton.Q<Label>().text = "Use";
@@ -340,10 +334,8 @@ namespace AF.UI.EquipmentMenu
                             return;
                         }
 
-                        consumable.OnConsume();
-
+                        playerManager.playerInventory.PrepareItemForConsuming(consumable);
                         menuManager.CloseMenu();
-
                         cursorManager.HideCursor();
                     };
                 }
@@ -362,27 +354,27 @@ namespace AF.UI.EquipmentMenu
             int value = 0;
             if (item is Weapon weapon)
             {
-                value = attackStatManager.CompareWeapon(weapon);
+                value = playerManager.attackStatManager.CompareWeapon(weapon);
                 shouldReturn = true;
             }
             else if (item is Helmet helmet)
             {
-                value = defenseStatManager.CompareHelmet(helmet);
+                value = playerManager.defenseStatManager.CompareHelmet(helmet);
                 shouldReturn = true;
             }
             else if (item is Armor armor)
             {
-                value = defenseStatManager.CompareArmor(armor);
+                value = playerManager.defenseStatManager.CompareArmor(armor);
                 shouldReturn = true;
             }
             else if (item is Gauntlet gauntlet)
             {
-                value = defenseStatManager.CompareGauntlet(gauntlet);
+                value = playerManager.defenseStatManager.CompareGauntlet(gauntlet);
                 shouldReturn = true;
             }
             else if (item is Legwear legwear)
             {
-                value = defenseStatManager.CompareLegwear(legwear);
+                value = playerManager.defenseStatManager.CompareLegwear(legwear);
                 shouldReturn = true;
             }
 

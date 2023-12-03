@@ -258,20 +258,20 @@ namespace AF
             var scrollView = this.root.Q<ScrollView>();
             scrollView.Clear();
 
-            List<ItemEntry> weapons = new();
+            List<Item> weapons = new();
 
             foreach (var it in inventoryDatabase.ownedItems)
             {
-                Weapon wp = it.item as Weapon;
+                Weapon wp = it.Key as Weapon;
                 if (wp != null && wp.canBeUpgraded)
                 {
-                    weapons.Add(it);
+                    weapons.Add(it.Key);
                 }
             }
 
             foreach (var itemEntry in weapons)
             {
-                Weapon wp = itemEntry.item as Weapon;
+                Weapon wp = itemEntry as Weapon;
                 var nextLevel = wp.level;
                 nextLevel++;
 
@@ -351,7 +351,7 @@ namespace AF
                 ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(ingredient.ingredient.sprite);
                 ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name.GetText();
 
-                var playerOwnedIngredient = inventoryDatabase.ownedItems.Find(x => x.item.name.GetEnglishText() == ingredient.ingredient.name.GetEnglishText());
+                var playerOwnedIngredient = inventoryDatabase.ownedItems[ingredient.ingredient];
                 var playerOwnedIngredientAmount = 0;
                 if (playerOwnedIngredient != null)
                 {
@@ -372,7 +372,7 @@ namespace AF
 
             foreach (var ingredient in recipe.ingredients)
             {
-                var itemEntry = inventoryDatabase.ownedItems.Find(x => x.item.name.GetEnglishText() == ingredient.ingredient.name.GetEnglishText());
+                var itemEntry = inventoryDatabase.ownedItems[ingredient.ingredient];
 
                 if (itemEntry == null)
                 {
@@ -446,7 +446,7 @@ namespace AF
             ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(weapon.upgradeMaterial.sprite);
             ingredientItemEntry.Q<Label>("Title").text = weapon.upgradeMaterial.name.GetText();
 
-            var playerOwnedIngredient = inventoryDatabase.ownedItems.Find(x => x.item.name.GetEnglishText() == weapon.upgradeMaterial.name.GetEnglishText());
+            var playerOwnedIngredient = inventoryDatabase.ownedItems[weapon.upgradeMaterial];
             var playerOwnedIngredientAmount = 0;
             if (playerOwnedIngredient != null)
             {
@@ -480,7 +480,7 @@ namespace AF
                 return false;
             }
 
-            var itemEntry = inventoryDatabase.ownedItems.Find(x => x.item.name.GetEnglishText() == weapon.upgradeMaterial.name.GetEnglishText());
+            var itemEntry = inventoryDatabase.ownedItems[weapon.upgradeMaterial];
 
             if (itemEntry == null)
             {

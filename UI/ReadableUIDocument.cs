@@ -33,21 +33,6 @@ namespace AF
 
         private void Start()
         {
-            inputs.onMenuInput += () =>
-            {
-                if (document.enabled)
-                {
-                    CloseBook();
-                }
-            };
-
-            inputs.onTabInput += () =>
-            {
-                if (document.enabled)
-                {
-                    CloseBook();
-                }
-            };
         }
 
         public void Read()

@@ -105,10 +105,10 @@ namespace AF
 
                 if (dropCurrency.item is ArmorBase || dropCurrency.item is Weapon)
                 {
-                    if (playerInventory.GetItemQuantity(dropCurrency.item) > 0)
+                    // if (playerInventory.GetItemQuantity(dropCurrency.item) > 0)
                     {
                         // If player owns armor, dont allow him to have multiple armors of that kind
-                        continue;
+                        //    continue;
                     }
                 }
 

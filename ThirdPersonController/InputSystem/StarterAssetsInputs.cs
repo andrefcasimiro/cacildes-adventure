@@ -35,7 +35,7 @@ namespace AF
 		public UnityEvent onSwitchConsumableInput;
 
 		[Header("UI")]
-		public bool menu;
+		public UnityEvent onMenuEvent;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -43,8 +43,9 @@ namespace AF
 		[Header("Mouse Cursor Settings")]
 		public bool cursorInputForLook = true;
 
-		public UnityAction onMenuInput;
-		public UnityAction onTabInput;
+		[Header("Main Menu")]
+		public UnityEvent onNextMenu;
+		public UnityEvent onPreviousMenu;
 
 		public void OnMove(InputValue value)
 		{
@@ -89,17 +90,13 @@ namespace AF
 		{
 			if (value.isPressed)
 			{
-				onMenuInput.Invoke();
+				onMenuEvent?.Invoke();
+
 			}
 		}
 
 		public void OnTab(InputValue value)
 		{
-			if (value.isPressed)
-			{
-				// onViewInGameControlsInput.Invoke();
-				onTabInput?.Invoke();
-			}
 		}
 
 		public void OnLightAttack(InputValue value)
@@ -187,6 +184,15 @@ namespace AF
 		}
 		public void OnQuickLoad(InputValue value)
 		{
+		}
+
+		public void OnNextMenu(InputValue value)
+		{
+			onNextMenu?.Invoke();
+		}
+		public void OnPreviousMenu(InputValue value)
+		{
+			onPreviousMenu?.Invoke();
 		}
 
 	}

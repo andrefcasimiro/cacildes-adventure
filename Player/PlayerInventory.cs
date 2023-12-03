@@ -48,12 +48,10 @@ namespace AF
         {
             foreach (var item in inventoryDatabase.ownedItems)
             {
-                if (item.usages > 0)
+                if (item.Value.usages > 0)
                 {
-                    var idx = inventoryDatabase.ownedItems.IndexOf(item);
-
-                    inventoryDatabase.ownedItems[idx].amount += item.usages;
-                    inventoryDatabase.ownedItems[idx].usages = 0;
+                    item.Value.amount += item.Value.usages;
+                    item.Value.usages = 0;
                 }
             }
 
@@ -64,7 +62,7 @@ namespace AF
         {
             if (item is Weapon)
             {
-                int numberOfWeapons = inventoryDatabase.ownedItems.Count(x => x.item is Weapon);
+                int numberOfWeapons = inventoryDatabase.ownedItems.Count(x => x.Key is Weapon);
 
                 if (numberOfWeapons <= 0)
                 {
@@ -77,7 +75,7 @@ namespace AF
             }
             else if (item is Spell)
             {
-                int numberOfSpells = inventoryDatabase.ownedItems.Count(x => x.item is Spell);
+                int numberOfSpells = inventoryDatabase.ownedItems.Count(x => x.Key is Spell);
 
                 if (numberOfSpells <= 0)
                 {
@@ -90,72 +88,24 @@ namespace AF
         {
             HandleItemAchievements(item);
 
-            ItemEntry itemEntry = new()
+            if (inventoryDatabase.HasItem(item))
             {
-                item = item,
-                amount = quantity
-            };
-
-            var idx = inventoryDatabase.ownedItems.FindIndex(x => x.item.name.GetEnglishText() == item.name.GetEnglishText());
-            if (idx != -1)
-            {
-                inventoryDatabase.ownedItems[idx].amount += itemEntry.amount;
+                inventoryDatabase.ownedItems[item].amount += quantity;
             }
             else
             {
-                inventoryDatabase.ownedItems.Add(itemEntry);
+                inventoryDatabase.ownedItems.Add(item, new ItemAmount() { amount = quantity, usages = 0 });
             }
+
 
             uIDocumentPlayerHUDV2.UpdateEquipment();
         }
 
-        public void RemoveItem(Item item, int amount)
+        public void RemoveItem(Item item, int quantity)
         {
-            int itemEntryIndex = inventoryDatabase.ownedItems.FindIndex(_itemEntry => _itemEntry.item.name.GetEnglishText() == item.name.GetEnglishText());
-
-            if (itemEntryIndex == -1)
-            {
-                return;
-            }
-
-            if (inventoryDatabase.ownedItems[itemEntryIndex].amount <= 1)
-            {
-                // If not reusable item
-                if (item.lostUponUse)
-                {
-                    // Remove item 
-                    inventoryDatabase.ownedItems.RemoveAt(itemEntryIndex);
-                }
-                else
-                {
-                    inventoryDatabase.ownedItems[itemEntryIndex].amount = 0;
-                    inventoryDatabase.ownedItems[itemEntryIndex].usages++;
-                }
-            }
-            else
-            {
-                inventoryDatabase.ownedItems[itemEntryIndex].amount -= amount;
-
-                if (item.lostUponUse == false)
-                {
-                    inventoryDatabase.ownedItems[itemEntryIndex].usages++;
-                }
-
-            }
+            inventoryDatabase.RemoveItem(item, quantity);
 
             uIDocumentPlayerHUDV2.UpdateEquipment();
-        }
-
-        public int GetItemQuantity(Item item)
-        {
-            var entry = inventoryDatabase.ownedItems.FirstOrDefault(x => x.item.name.GetEnglishText() == item.name.GetEnglishText());
-
-            if (entry == null)
-            {
-                return 0;
-            }
-
-            return entry.amount;
         }
 
         public void PrepareItemForConsuming(Consumable consumable)
@@ -178,13 +128,7 @@ namespace AF
             }
 
 
-            if (playerManager.playerPoiseController.isStunned)
-            {
-                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
-                return;
-            }
-
-            if (playerManager.playerPoiseController.IsTakingDamage())
+            if (playerManager.characterPosture.IsStunned())
             {
                 notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
                 return;
@@ -237,7 +181,7 @@ namespace AF
             else if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.CLOCK)
             {
 
-                if (menuManager.IsMenuOpen())
+                if (menuManager.isMenuOpen)
                 {
                     menuManager.CloseMenu();
                 }
@@ -267,6 +211,30 @@ namespace AF
 
         public void FinishItemConsumption()
         {
+            if (currentConsumedItem.shouldNotRemoveOnUse == false)
+            {
+                playerManager.playerInventory.RemoveItem(currentConsumedItem, 1);
+            }
+
+            if (currentConsumedItem.statusesToRemove.Length > 0)
+            {
+                foreach (StatusEffect statusEffectToRemove in currentConsumedItem.statusesToRemove)
+                {
+                    AppliedStatusEffect appliedStatusEffect = playerManager.statusController.appliedStatusEffects.FirstOrDefault(
+                        x => x.statusEffect == statusEffectToRemove);
+
+                    if (appliedStatusEffect != null)
+                    {
+                        playerManager.statusController.RemoveAppliedStatus(appliedStatusEffect);
+                    }
+                }
+            }
+
+            foreach (StatusEffect statusEffect in currentConsumedItem.statusEffectsWhenConsumed)
+            {
+                playerManager.statusController.InflictStatusEffect(statusEffect, currentConsumedItem.effectsDuration, true);
+            }
+
             if (currentConsumedItem.onConsumeActionType == Consumable.OnConsumeActionType.CLOCK)
             {
                 StartCoroutine(RecoverWatchControl(1.2f));

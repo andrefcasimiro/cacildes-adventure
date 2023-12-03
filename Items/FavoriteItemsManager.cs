@@ -5,6 +5,7 @@ using System.Linq;
 using TigerForge;
 using AF.Events;
 using AF.Inventory;
+using AF.StatusEffects;
 
 namespace AF
 {
@@ -22,11 +23,19 @@ namespace AF
         public PlayerStatsDatabase playerStatsDatabase;
         public InventoryDatabase inventoryDatabase;
 
+        [Header("Components")]
+        public PlayerManager playerManager;
+
         /// <summary>
         /// Unity Event
         /// </summary>
         public void OnConsumableUse()
         {
+            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            {
+                return;
+            }
+
             if (playerStatsDatabase.currentHealth <= 0)
             {
                 return;
@@ -39,18 +48,15 @@ namespace AF
                 return;
             }
 
-            ItemEntry itemEntry = inventoryDatabase.ownedItems.Find(item => item.item.name.GetEnglishText() == currentItem.name.GetEnglishText());
+            int itemAmount = inventoryDatabase.GetItemAmount(currentItem);
 
-            if (itemEntry.amount <= 1 && itemEntry.item.lostUponUse)
+            if (itemAmount <= 1 && currentItem.lostUponUse)
             {
                 equipmentDatabase.UnequipConsumable(equipmentDatabase.currentConsumableIndex);
             }
 
             Consumable consumableItem = currentItem as Consumable;
-            if (consumableItem != null)
-            {
-                consumableItem.OnConsume();
-            }
+            playerManager.playerInventory.PrepareItemForConsuming(consumableItem);
 
             uIDocumentPlayerHUDV2.UpdateEquipment();
         }
@@ -60,6 +66,11 @@ namespace AF
         /// </summary>
         public void OnSwitchWeapon()
         {
+            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            {
+                return;
+            }
+
             equipmentDatabase.SwitchToNextWeapon();
 
             uIDocumentPlayerHUDV2.OnSwitchWeapon();
@@ -70,6 +81,11 @@ namespace AF
         /// </summary>
         public void OnSwitchShield()
         {
+            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            {
+                return;
+            }
+
             equipmentDatabase.SwitchToNextShield();
 
             uIDocumentPlayerHUDV2.OnSwitchShield();
@@ -80,6 +96,11 @@ namespace AF
         /// </summary>
         public void OnSwitchConsumable()
         {
+            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            {
+                return;
+            }
+
             equipmentDatabase.SwitchToNextConsumable();
 
             uIDocumentPlayerHUDV2.OnSwitchConsumable();
@@ -90,6 +111,11 @@ namespace AF
         /// </summary>
         public void OnSwitchSpell()
         {
+            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            {
+                return;
+            }
+
             if (equipmentDatabase.IsBowEquipped())
             {
                 equipmentDatabase.SwitchToNextArrow();

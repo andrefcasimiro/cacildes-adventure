@@ -29,7 +29,6 @@ namespace AF
         public EquipmentGraphicsHandler equipmentGraphicsHandler;
         public FootstepListener footstepListener;
         public PlayerComponentManager playerComponentManager;
-        public PlayerPoiseController playerPoiseController;
         public EventNavigator eventNavigator;
         public PlayerBlockInput playerBlockInput;
         public StarterAssetsInputs starterAssetsInputs;

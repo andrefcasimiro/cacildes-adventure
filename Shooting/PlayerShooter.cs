@@ -33,7 +33,7 @@ namespace AF.Shooting
 
         public void OnFireInput()
         {
-            if (CanShoot())
+            if (CanShoot() && isAiming)
             {
                 if (equipmentDatabase.IsBowEquipped())
                 {
@@ -117,9 +117,9 @@ namespace AF.Shooting
 
         public void ShootSpell(Spell spell, Transform origin, Transform lockOnTarget)
         {
-            if (equipmentDatabase.IsBowEquipped())
+            if (spell == null)
             {
-                achievementOnShootingBowForFirstTime.AwardAchievement();
+                return;
             }
 
             GetPlayerManager().staminaStatManager.DecreaseStamina(minimumStaminaToShoot);

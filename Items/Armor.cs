@@ -7,16 +7,5 @@ namespace AF
     public class Armor : ArmorBase
     {
 
-        public void OnEquip()
-        {
-
-
-        }
-
-        public void OnUnequip()
-        {
-
-        }
-
     }
 }

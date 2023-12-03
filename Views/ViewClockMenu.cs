@@ -43,15 +43,6 @@ namespace AF
 
         private void Start()
         {
-            starterAssetsInputs.onMenuInput += () =>
-            {
-                Close();
-            };
-
-            starterAssetsInputs.onTabInput += () =>
-            {
-                Close();
-            };
 
         }
 

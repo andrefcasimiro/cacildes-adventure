@@ -11,5 +11,8 @@ namespace AF.Events
         // Events
         public static readonly string ON_MOMENT_START = "ON_MOMENT_START";
 
+        // Quests
+        public static readonly string ON_QUEST_TRACKED = "ON_QUEST_TRACKED";
+
     }
 }

@@ -35,7 +35,6 @@ namespace AF.UI.EquipmentMenu
         public EquipmentGraphicsHandler equipmentGraphicsHandler;
         public AttackStatManager attackStatManager;
         public DefenseStatManager defenseStatManager;
-        public PlayerPoiseController playerPoiseController;
 
         [Header("UI Documents")]
         public UIDocument uIDocument;
@@ -423,7 +422,7 @@ namespace AF.UI.EquipmentMenu
 
         int GetPoiseFromItem(ArmorBase armorBase)
         {
-            var currentPoise = playerPoiseController.GetMaxPoise();
+            var currentPoise = playerManager.characterPoise.currentPoiseHitCount;
             if (armorBase is Helmet helmet)
             {
                 var poiseFromEquippedItem = equipmentDatabase.helmet != null ? equipmentDatabase.helmet.poiseBonus : 0;

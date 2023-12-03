@@ -78,7 +78,7 @@ namespace AF
 
             if (playerManager.thirdPersonController.Grounded)
             {
-                if (lightAttackComboIndex > 2)
+                if (lightAttackComboIndex > 1)
                 {
                     lightAttackComboIndex = 0;
                 }
@@ -200,7 +200,7 @@ namespace AF
                 return false;
             }
 
-            if (menuManager.IsMenuOpen())
+            if (menuManager.isMenuOpen)
             {
                 return false;
             }
