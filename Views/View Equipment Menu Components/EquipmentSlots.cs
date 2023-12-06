@@ -7,6 +7,9 @@ namespace AF.UI.EquipmentMenu
 {
     public class EquipmentSlots : MonoBehaviour
     {
+        [Header("Components")]
+        public Soundbank soundbank;
+
         [Header("UI Documents")]
         public UIDocument uIDocument;
         public VisualElement root;
@@ -59,6 +62,10 @@ namespace AF.UI.EquipmentMenu
 
         [HideInInspector] public bool shouldRerender = true;
 
+        VisualElement keyboardHints;
+
+        Button activeButton;
+
         private void OnEnable()
         {
             if (shouldRerender)
@@ -74,11 +81,15 @@ namespace AF.UI.EquipmentMenu
 
         private void OnDisable()
         {
+            keyboardHints.style.display = DisplayStyle.None;
+
             root.Q<VisualElement>("EquipmentSlots").style.display = DisplayStyle.None;
         }
 
         public void SetupRefs()
         {
+            activeButton = null;
+
             root = uIDocument.rootVisualElement;
 
             weaponButtonSlot1 = root.Q<Button>("WeaponButton_Slot1");
@@ -114,6 +125,9 @@ namespace AF.UI.EquipmentMenu
 
             otherItemsButton = root.Q<Button>("OtherItemsButton");
 
+            keyboardHints = root.Q<VisualElement>("EquipmentSlotsKeyboardHints");
+            keyboardHints.style.display = DisplayStyle.None;
+
             AssignWeaponButtonCallbacks();
             AssignShieldButtonCallbacks();
             AssignArrowButtonCallbacks();
@@ -139,7 +153,12 @@ namespace AF.UI.EquipmentMenu
                 int localSlotIndex = slotIndex;  // Create a local variable to capture the correct value
 
                 UIUtils.SetupButton(entry.Key,
-                    () => SetupEquipmentButton(ItemList.EquipmentType.WEAPON, localSlotIndex, "Weapons"),
+                    () =>
+                    {
+                        activeButton = entry.Key;
+
+                        SetupEquipmentButton(ItemList.EquipmentType.WEAPON, localSlotIndex, "Weapons");
+                    },
                     () =>
                     {
                         OnSlotFocus("Weapons", entry.Value());
@@ -148,7 +167,8 @@ namespace AF.UI.EquipmentMenu
                     {
                         OnSlotFocusOut();
                     },
-                    false);
+                    false,
+                    soundbank);
 
                 slotIndex++;
             }
@@ -169,7 +189,12 @@ namespace AF.UI.EquipmentMenu
                 int localSlotIndex = slotIndex;  // Create a local variable to capture the correct value
 
                 UIUtils.SetupButton(entry.Key,
-                    () => SetupEquipmentButton(ItemList.EquipmentType.SHIELD, localSlotIndex, "Shields"),
+                    () =>
+                    {
+                        activeButton = entry.Key;
+
+                        SetupEquipmentButton(ItemList.EquipmentType.SHIELD, localSlotIndex, "Shields");
+                    },
                     () =>
                     {
                         OnSlotFocus("Shields", entry.Value());
@@ -178,7 +203,8 @@ namespace AF.UI.EquipmentMenu
                     {
                         OnSlotFocusOut();
                     },
-                    false);
+                    false,
+                    soundbank);
 
                 slotIndex++;
             }
@@ -198,7 +224,12 @@ namespace AF.UI.EquipmentMenu
                 int localSlotIndex = slotIndex;  // Create a local variable to capture the correct value
 
                 UIUtils.SetupButton(entry.Key,
-                    () => SetupEquipmentButton(ItemList.EquipmentType.ARROW, localSlotIndex, "Arrow"),
+                    () =>
+                    {
+                        activeButton = entry.Key;
+
+                        SetupEquipmentButton(ItemList.EquipmentType.ARROW, localSlotIndex, "Arrow");
+                    },
                     () =>
                     {
                         OnSlotFocus("Arrows", entry.Value());
@@ -207,7 +238,8 @@ namespace AF.UI.EquipmentMenu
                     {
                         OnSlotFocusOut();
                     },
-                    false);
+                    false,
+                    soundbank);
 
                 slotIndex++;
             }
@@ -230,7 +262,11 @@ namespace AF.UI.EquipmentMenu
                 int localSlotIndex = slotIndex;  // Create a local variable to capture the correct value
 
                 UIUtils.SetupButton(entry.Key,
-                    () => SetupEquipmentButton(ItemList.EquipmentType.SPELL, localSlotIndex, "Spell"),
+                    () =>
+                    {
+                        activeButton = entry.Key;
+                        SetupEquipmentButton(ItemList.EquipmentType.SPELL, localSlotIndex, "Spell");
+                    },
                     () =>
                     {
                         OnSlotFocus("Spells", entry.Value());
@@ -239,7 +275,8 @@ namespace AF.UI.EquipmentMenu
                     {
                         OnSlotFocusOut();
                     },
-                    false);
+                    false,
+                    soundbank);
 
                 slotIndex++;
             }
@@ -259,40 +296,64 @@ namespace AF.UI.EquipmentMenu
             Item Get() { return equipmentDatabase.helmet; }
 
             UIUtils.SetupButton(helmetButtonSlot,
-            () => SetupEquipmentButton(ItemList.EquipmentType.HELMET, 0, "Helmet"),
+            () =>
+            {
+                activeButton = helmetButtonSlot;
+
+                SetupEquipmentButton(ItemList.EquipmentType.HELMET, 0, "Helmet");
+            },
             () => { OnSlotFocus("Helmet", Get()); },
             OnSlotFocusOut,
-            false);
+            false,
+            soundbank);
         }
         void AssignArmorButtonCallback()
         {
             Item Get() { return equipmentDatabase.armor; }
 
             UIUtils.SetupButton(armorButtonSlot,
-            () => SetupEquipmentButton(ItemList.EquipmentType.ARMOR, 0, "Armor"),
+            () =>
+            {
+                activeButton = armorButtonSlot;
+
+                SetupEquipmentButton(ItemList.EquipmentType.ARMOR, 0, "Armor");
+            },
             () => { OnSlotFocus("Armor", Get()); },
             OnSlotFocusOut,
-            false);
+            false,
+            soundbank);
         }
         void AssignGauntletsButtonCallback()
         {
             Item Get() { return equipmentDatabase.gauntlet; }
 
             UIUtils.SetupButton(gauntletsButtonSlot,
-            () => SetupEquipmentButton(ItemList.EquipmentType.GAUNTLET, 0, "Gauntlets"),
+            () =>
+            {
+                activeButton = gauntletsButtonSlot;
+
+                SetupEquipmentButton(ItemList.EquipmentType.GAUNTLET, 0, "Gauntlets");
+            },
             () => { OnSlotFocus("Gauntlets", Get()); },
             OnSlotFocusOut,
-            false);
+            false,
+            soundbank);
         }
         void AssignLegwearButtonCallback()
         {
             Item Get() { return equipmentDatabase.legwear; }
 
             UIUtils.SetupButton(bootsButtonSlot,
-            () => SetupEquipmentButton(ItemList.EquipmentType.BOOTS, 0, "Boots"),
+            () =>
+            {
+                activeButton = bootsButtonSlot;
+
+                SetupEquipmentButton(ItemList.EquipmentType.BOOTS, 0, "Boots");
+            },
             () => { OnSlotFocus("Boots", Get()); },
             OnSlotFocusOut,
-            false);
+            false,
+            soundbank);
         }
 
         void AssignAccessoryButtonCallbacks()
@@ -309,7 +370,12 @@ namespace AF.UI.EquipmentMenu
                 int localSlotIndex = slotIndex;  // Create a local variable to capture the correct value
 
                 UIUtils.SetupButton(entry.Key,
-                    () => SetupEquipmentButton(ItemList.EquipmentType.ACCESSORIES, localSlotIndex, "Accessories"),
+                    () =>
+                    {
+                        activeButton = entry.Key;
+
+                        SetupEquipmentButton(ItemList.EquipmentType.ACCESSORIES, localSlotIndex, "Accessories");
+                    },
                     () =>
                     {
                         OnSlotFocus("Accessories", entry.Value());
@@ -318,7 +384,8 @@ namespace AF.UI.EquipmentMenu
                     {
                         OnSlotFocusOut();
                     },
-                    false);
+                    false,
+                    soundbank);
 
                 slotIndex++;
             }
@@ -341,7 +408,12 @@ namespace AF.UI.EquipmentMenu
                 int localSlotIndex = slotIndex;  // Create a local variable to capture the correct value
 
                 UIUtils.SetupButton(entry.Key,
-                    () => SetupEquipmentButton(ItemList.EquipmentType.CONSUMABLES, localSlotIndex, "Consumables"),
+                    () =>
+                    {
+                        activeButton = entry.Key;
+
+                        SetupEquipmentButton(ItemList.EquipmentType.CONSUMABLES, localSlotIndex, "Consumables");
+                    },
                     () =>
                     {
                         OnSlotFocus("Consumables", entry.Value());
@@ -350,7 +422,8 @@ namespace AF.UI.EquipmentMenu
                     {
                         OnSlotFocusOut();
                     },
-                    false);
+                    false,
+                    soundbank);
 
                 slotIndex++;
             }
@@ -359,7 +432,11 @@ namespace AF.UI.EquipmentMenu
         void AssignOtherItemsButtonCallbacks()
         {
             UIUtils.SetupButton(otherItemsButton,
-            () => SetupEquipmentButton(ItemList.EquipmentType.OTHER_ITEMS, 0, "All Items"),
+            () =>
+            {
+                activeButton = otherItemsButton;
+                SetupEquipmentButton(ItemList.EquipmentType.OTHER_ITEMS, 0, "All Items");
+            },
             () =>
             {
                 OnSlotFocus("All Items", null);
@@ -368,11 +445,14 @@ namespace AF.UI.EquipmentMenu
             {
                 OnSlotFocusOut();
             },
-            false);
+            false,
+            soundbank);
         }
 
         void DrawUI()
         {
+            keyboardHints.style.display = DisplayStyle.Flex;
+
             DrawSlotSprites();
 
             menuLabel = root.Q<Label>("MenuLabel");
@@ -385,7 +465,14 @@ namespace AF.UI.EquipmentMenu
 
         void GiveFocus()
         {
-            weaponButtonSlot1.Focus();
+            if (activeButton != null)
+            {
+                activeButton.Focus();
+            }
+            else
+            {
+                weaponButtonSlot1.Focus();
+            }
         }
 
         void OnSlotFocus(string activeSlotMenuLabel, Item item)

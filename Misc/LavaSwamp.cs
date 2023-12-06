@@ -59,7 +59,7 @@ namespace AF
             }
 
             var finalStatusAmount = fireDamage;
-            if (other.GetComponent<DodgeController>().IsDodging())
+            if (other.GetComponent<DodgeController>().isDodging)
             {
                 finalStatusAmount *= dodgeBonusMultiplier;
             }

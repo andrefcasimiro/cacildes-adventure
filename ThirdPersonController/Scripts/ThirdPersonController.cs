@@ -210,18 +210,6 @@ namespace AF
                 Climb();
             }
 
-            if (Grounded == false)
-            {
-                RaycastHit hit;
-                if (Physics.Raycast(transform.position, playerManager.characterController.transform.up * -1f, out hit))
-                {
-                    if (hit.transform.tag == "Enemy")
-                    {
-                        lockOnManager.DisableLockOn();
-                    }
-                }
-            }
-
             Rotate();
             CameraRotation();
 
@@ -385,7 +373,10 @@ namespace AF
             else if (_input.move != Vector2.zero && canRotateCharacter == true)
             {
 
-                if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn && playerManager.dodgeController.IsDodging() == false)
+                if (
+                    lockOnManager.nearestLockOnTarget != null
+                    && lockOnManager.isLockedOn
+                    && playerManager.dodgeController.isDodging == false)
                 {
 
                     Vector3 targetRot = lockOnManager.nearestLockOnTarget.transform.position - playerManager.characterController.transform.position;
@@ -505,17 +496,18 @@ namespace AF
                 playerManager.climbController.Climb(_speed * Time.deltaTime * direction);
             }
 
-            if (playerManager.dodgeController.IsDodging() || playerManager.IsBusy())
+            if (playerManager.dodgeController.isDodging || playerManager.IsBusy())
             {
                 targetDirection = Vector3.zero;
             }
 
-            if (isSlidingOnIce)
-            {
-                playerManager.characterController.Move(transform.forward * 10f * Time.deltaTime +
-                                 new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
-            }
-            else if (lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn || rotateWithCamera)
+
+            if ((
+                // If is locked on
+                lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn
+                // Or aiming with camera for bow or spell casting
+                || rotateWithCamera
+                ) && playerManager.isBusy == false)
             {
                 float lockOnSpeed = _input.move.x != 0 && _input.move.y != 0 ? _speed : _speed * 1.5f;
 
@@ -584,8 +576,6 @@ namespace AF
                     if (CanJump())
                     {
                         _input.jump = false;
-
-                        //lockOnManager.DisableLockOn();
 
                         float JumpWeightBonus = 0;
                         if (playerManager.equipmentGraphicsHandler.IsLightWeight())
@@ -696,7 +686,7 @@ namespace AF
             }
 
             return playerManager.staminaStatManager.HasEnoughStaminaForAction(jumpStaminaCost) &&
-                        playerManager.dodgeController.IsDodging() == false &&
+                        playerManager.dodgeController.isDodging == false &&
                         playerManager.playerCombatController.isCombatting == false
                         && canMove;
         }
@@ -708,21 +698,5 @@ namespace AF
             return Mathf.Clamp(lfAngle, lfMin, lfMax);
         }
 
-        /// <summary>
-        ///  Animation Event
-        /// </summary>
-        public void DisableCharacterRotation()
-        {
-            //canRotateCharacter = false;
-        }
-
-        /// <summary>
-        /// Unity Event
-        /// </summary>
-        /// <param name="value"></param>
-        public void SetCanRotateCharacter(bool value)
-        {
-            canRotateCharacter = value;
-        }
     }
 }

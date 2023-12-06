@@ -1,19 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AF.Events;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UIElements;
 
 namespace AF
 {
-    public interface IClockListener
-    {
-
-        public void OnHourChanged();
-
-    }
-
     [ExecuteInEditMode]
     public class DayNightManager : MonoBehaviour
     {
@@ -51,17 +46,10 @@ namespace AF
         [HideInInspector] public Label dayNightText;
 
         public SceneSettings sceneSettings;
-
-        IEnumerable<IClockListener> iClockListenersInScene;
-
         public bool canUpdateLighting = true;
+
         [Header("Systems")]
         public WorldSettings worldSettings;
-
-        private void Awake()
-        {
-            iClockListenersInScene = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None).OfType<IClockListener>();
-        }
 
         private void Start()
         {
@@ -87,18 +75,7 @@ namespace AF
 
             if (oldHour != Mathf.Round(newValue))
             {
-                foreach (IClockListener iClockListener in iClockListenersInScene)
-                {
-                    iClockListener.OnHourChanged();
-                }
-            }
-        }
-
-        public void NotifyClockListeners()
-        {
-            foreach (IClockListener iClockListener in iClockListenersInScene)
-            {
-                iClockListener.OnHourChanged();
+                EventManager.EmitEvent(EventMessages.ON_HOUR_CHANGED);
             }
         }
 

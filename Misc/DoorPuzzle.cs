@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 
 namespace AF
@@ -10,31 +9,22 @@ namespace AF
         public GameObject key;
         public GameObject door;
 
-        NotificationManager notificationManager;
+        [Header("Components")]
+        public NotificationManager notificationManager;
+        public Soundbank soundbank;
 
         [Header("Localization")]
         public LocalizedText doorOpenedText;
 
-        private void Awake()
-        {
-            notificationManager = FindObjectOfType<NotificationManager>(true);
-        }
-
         private void Start()
         {
-            Refresh();
-        }
-
-        public void OnGameLoaded(object gameData)
-        {
-            Refresh();
         }
 
         public void Unlock()
         {
             SwitchManager.instance.UpdateSwitch(switchEntry, true, null);
 
-            Soundbank.instance.PlayLeverActivated();
+            soundbank.PlaySound(soundbank.activateLever);
 
             if (doorOpenedText != null && doorOpenedText.localizedTexts.Length > 0)
             {

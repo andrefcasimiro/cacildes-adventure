@@ -9,20 +9,24 @@ namespace AF.Dialogue
         [TextArea] public string greetingMessage;
 
         [Header("Components")]
-        public CanvasGroup content;
+        public CanvasGroup canvasGroup;
         public TMPro.TextMeshProUGUI textMeshPro;
+
+        private void Awake()
+        {
+            canvasGroup.alpha = 0;
+        }
 
         public void Display()
         {
             textMeshPro.text = greetingMessage;
 
-            content.DOFade(1f, 0.5f);
+            canvasGroup.DOFade(1f, 0.5f);
         }
 
         public void Hide()
         {
-            content.DOFade(0f, 0.5f);
-
+            canvasGroup.DOFade(0f, 0.5f);
         }
     }
 }

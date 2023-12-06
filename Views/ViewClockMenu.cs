@@ -94,7 +94,7 @@ namespace AF
             root = GetComponent<UIDocument>().rootVisualElement;
             this.root.style.display = DisplayStyle.Flex;
 
-            bool isEnglish = GamePreferences.instance.IsEnglish();
+
 
             thirdPersonController.GetComponent<PlayerCombatController>().enabled = false;
 
@@ -132,7 +132,7 @@ namespace AF
             });
 
             passTimeButton = root.Q<Button>("PassTime");
-            passTimeButton.text = isEnglish ? "Confirm" : "Confirmar";
+            passTimeButton.text = "Confirm";
             passTimeButton.SetEnabled(true);
             passTimeButton.clicked += () =>
             {
@@ -140,12 +140,12 @@ namespace AF
             };
 
             rest1HourButton = root.Q<Button>("Rest1Hour");
-            rest1HourButton.text = isEnglish ? "Wait 1 Hour" : "Esperar 1 Hora";
+            rest1HourButton.text = "Wait 1 Hour";
             rest1HourButton.SetEnabled(true);
             rest1HourButton.clicked += Wait1Hour;
 
             cancelButton = root.Q<Button>("Cancel");
-            cancelButton.text = isEnglish ? "Cancel" : "Cancelar";
+            cancelButton.text = "Cancel";
             cancelButton.SetEnabled(true);
             cancelButton.clicked += () =>
             {

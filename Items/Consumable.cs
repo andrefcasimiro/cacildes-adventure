@@ -28,7 +28,7 @@ namespace AF
 
         [Header("Consume Effects")]
         public StatusEffect[] statusEffectsWhenConsumed;
-        public float effectsDuration = 60f;
+        public float effectsDurationInSeconds = 6;
 
         public OnConsumeActionType onConsumeActionType = OnConsumeActionType.DRINK;
     }

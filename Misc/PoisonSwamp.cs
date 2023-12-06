@@ -19,7 +19,7 @@ namespace AF
             if (other.gameObject.tag == "Player")
             {
                 var finalStatusAmount = amount;
-                if (other.GetComponent<DodgeController>().IsDodging())
+                if (other.GetComponent<DodgeController>().isDodging)
                 {
                     finalStatusAmount *= dodgeBonusMultiplier;
                 }

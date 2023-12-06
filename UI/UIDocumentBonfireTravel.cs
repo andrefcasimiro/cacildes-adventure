@@ -10,7 +10,7 @@ namespace AF
         public string bonfireId;
         public Sprite image;
 
-        public TeleportManager.SceneName sceneName;
+        public string sceneName;
         public string spawnGameObjectNameRef;
     }
 
@@ -18,12 +18,16 @@ namespace AF
     {
         public List<BonfireLocation> bonfireLocations = new();
 
+        [Header("Components")]
+        public Soundbank soundbank;
+        public CursorManager cursorManager;
+        public PlayerManager playerManager;
+        public TeleportManager teleportManager;
+
         [Header("UI Documents")]
         public UIDocument uIDocument;
         public VisualTreeAsset travelOptionAsset;
         public UIDocumentBonfireMenu uIDocumentBonfireMenu;
-        public CursorManager cursorManager;
-        public PlayerManager playerManager;
 
 
         [Header("Databases")]
@@ -68,7 +72,9 @@ namespace AF
             {
                 root.Q<IMGUIContainer>().style.opacity = 0;
             },
-            true);
+            true,
+            soundbank);
+
             root.Q<ScrollView>().Add(exitOption);
 
             // Add callbacks
@@ -81,7 +87,7 @@ namespace AF
 
                     UIUtils.SetupButton(clonedBonfireOption.Q<Button>(), () =>
                     {
-                        TeleportManager.instance.Teleport(location.sceneName, location.spawnGameObjectNameRef);
+                        teleportManager.Teleport(location.sceneName, location.spawnGameObjectNameRef);
                     },
                     () =>
                     {
@@ -94,7 +100,8 @@ namespace AF
                     {
                         root.Q<IMGUIContainer>().style.opacity = 0;
                     },
-                    true);
+                    true,
+                    soundbank);
 
 
                     root.Q<ScrollView>().Add(clonedBonfireOption);

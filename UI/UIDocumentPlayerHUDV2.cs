@@ -116,11 +116,11 @@ namespace AF
 
         public void HideHUD()
         {
-            root.style.opacity = 0;
+            root.visible = false;
         }
         public void ShowHUD()
         {
-            root.style.opacity = 1;
+            root.visible = true;
         }
 
         private void Update()
@@ -151,7 +151,7 @@ namespace AF
         /// </summary>
         public void ShowEquipment()
         {
-            equipmentContainer.style.display = DisplayStyle.Flex;
+            equipmentContainer.visible = true;
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace AF
         /// </summary>
         public void HideEquipment()
         {
-            equipmentContainer.style.display = DisplayStyle.None;
+            equipmentContainer.visible = false;
         }
 
         public void UpdateEquipment()
@@ -216,7 +216,7 @@ namespace AF
                 : new StyleBackground(unequippedWeaponSlot);
 
             quickItemName.text = equipmentDatabase.GetCurrentConsumable() != null ?
-                equipmentDatabase.GetCurrentConsumable().name.GetEnglishText()
+                equipmentDatabase.GetCurrentConsumable().name.GetEnglishText() + $" ({inventoryDatabase.GetItemAmount(equipmentDatabase.GetCurrentConsumable())})"
                 : "";
 
             consumableSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentConsumable() != null
@@ -247,8 +247,14 @@ namespace AF
 
         public bool IsEquipmentDisplayed()
         {
-            return equipmentContainer.style.display == DisplayStyle.Flex || root.style.opacity == 1;
+            if (!root.visible)
+            {
+                return false;
+            }
+
+            return equipmentContainer.visible;
         }
+
 
         void UpdateQuestTracking()
         {

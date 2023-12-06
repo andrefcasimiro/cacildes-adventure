@@ -81,7 +81,8 @@ namespace AF
                     {
                         questPreview.style.opacity = 0;
                     },
-                    true
+                    true,
+                    soundbank
                 );
 
                 if (quest.IsCompleted())

@@ -11,6 +11,7 @@ namespace AF
 
         public VisualTreeAsset sectionTitle;
         public VisualTreeAsset sectionEntry;
+        ScrollView scrollPanel;
 
         [Header("Localization")]
         public LocalizedText creditsText;
@@ -18,6 +19,10 @@ namespace AF
 
         [Header("Components")]
         public UIManager uiManager;
+        public Soundbank soundbank;
+
+        [Header("UI Components")]
+        public UIDocumentTitleScreen uIDocumentTitleScreen;
 
         private void Awake()
         {
@@ -28,24 +33,36 @@ namespace AF
         {
             root = GetComponent<UIDocument>().rootVisualElement;
 
-            root.Q<Label>("CreditsTitle").text = creditsText.GetText();
+            root.Q<Label>("CreditsTitle").text = "Credits";
             root.Q<Label>("RequestCreditsLabel").text = creditsRequestNoteText.GetText();
+            scrollPanel = root.Q<ScrollView>();
 
-            root.RegisterCallback<NavigationCancelEvent>(ev =>
-            {
-                Close();
-            });
 
             DrawUI();
         }
 
         void DrawUI()
         {
-            var closeBtn = root.Q<Button>("CloseBtn");
-
-            var scrollPanel = root.Q<ScrollView>();
-
             scrollPanel.Clear();
+
+            Button exitButton = new()
+            {
+                text = "Return to Title Screen"
+            };
+            scrollPanel.Add(exitButton);
+
+            exitButton.AddToClassList("primary-button");
+            UIUtils.SetupButton(exitButton, () =>
+            {
+                Close();
+            }, soundbank);
+
+            exitButton.RegisterCallback<FocusInEvent>((ev) =>
+            {
+                scrollPanel.ScrollTo(exitButton);
+            });
+
+            exitButton.Focus();
 
             foreach (var creditSection in credits.creditsSections)
             {
@@ -65,18 +82,18 @@ namespace AF
                     sectionEntryClone.Q<Label>("Description").text = creditEntry.contribution;
 
                     sectionTitleClone.Add(sectionEntryClone);
+
+                    sectionEntryClone.RegisterCallback<FocusInEvent>((ev) =>
+                    {
+                        scrollPanel.ScrollTo(sectionEntryClone);
+                    });
                 }
             }
-
-            UIUtils.SetupButton(closeBtn, () =>
-            {
-                Close();
-            });
         }
 
         void Close()
         {
-            FindObjectOfType<UIDocumentTitleScreen>(true).gameObject.SetActive(true);
+            uIDocumentTitleScreen.gameObject.SetActive(true);
             gameObject.SetActive(false);
         }
 

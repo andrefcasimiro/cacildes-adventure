@@ -21,7 +21,7 @@ namespace AF.Health
             onStart?.Invoke();
         }
 
-        public abstract void RestoreHealth(int value);
+        public abstract void RestoreHealth(float value);
         public abstract void RestoreFullHealth();
 
         public float GetCurrentHealthPercentage()

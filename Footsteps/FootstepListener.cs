@@ -1,127 +1,27 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace AF
+namespace AF.Footsteps
 {
 
     public class FootstepListener : MonoBehaviour
     {
-        FootstepSystem footstepSystem;
 
-        public AudioSource footstepAudioSource;
+        [Header("Footstep Receivers")]
+        public FootstepReceiver leftFootReceiver;
+        public FootstepReceiver rightFootReceiver;
 
-        [Header("Jump & Gravity")]
-        public AudioClip onJumpSfx;
-        public AudioClip onLandSfx;
-        public AudioClip landingSfx;
-
-        public AudioClip footstepOverrideSfx;
-
-        ThirdPersonController thirdPersonController => GetComponent<ThirdPersonController>();
-        LockOnManager lockOnManager;
-
-        float maxCooldown = 0.1f;
-        float cooldown = Mathf.Infinity;
-
-        private void Awake()
+        public void PlayFootstep(bool isLeft)
         {
-            lockOnManager = FindObjectOfType<LockOnManager>(true);
-            footstepSystem = FindObjectOfType<FootstepSystem>(true);
-        }
-
-        private void Update()
-        {
-            if (cooldown < maxCooldown)
+            if (isLeft && leftFootReceiver != null)
             {
-                cooldown += Time.deltaTime;
+                leftFootReceiver.Trigger();
+            }
+            else if (rightFootReceiver != null)
+            {
+                rightFootReceiver.Trigger();
             }
         }
 
-        public void PlayLanding(AnimationEvent animationEvent)
-        {
-            if (animationEvent.animatorClipInfo.weight <= 0.5f)
-            {
-                return;
-            }
-
-            BGMManager.instance.PlaySound(landingSfx, thirdPersonController.jumpAndDodgeAudiosource);
-        }
-
-        public void PlayCloth(AnimationEvent animationEvent)
-        {
-            if (animationEvent.animatorClipInfo.weight <= 0.5f)
-            {
-                return;
-            }
-
-            if (thirdPersonController != null)
-            {
-                BGMManager.instance.PlaySound(onJumpSfx, thirdPersonController.jumpAndDodgeAudiosource);
-            }
-        }
-
-        /// <summary>
-        /// Animation Event
-        /// </summary>
-        public void PlayFootstep(AnimationEvent animationEvent)
-        {
-            if (cooldown < maxCooldown) { return; }
-
-            bool bypassWeight = false;
-         
-            // Strafe diagonally edge-case
-            if (thirdPersonController != null)
-            {
-                // Is Player
-                if (lockOnManager.isLockedOn)
-                {
-                    if (thirdPersonController._input.move.x != 0 && thirdPersonController._input.move.y != 0)
-                    {
-                        bypassWeight = true;
-                    }
-                }
-            }
-
-            if (footstepOverrideSfx != null)
-            {
-                BGMManager.instance.PlaySound(footstepOverrideSfx, footstepAudioSource);
-                cooldown = 0f;
-                return;
-            }
-
-            // Avoid blends so we don't play double sounds if running and walking with blend at the same time
-            if (animationEvent.animatorClipInfo.weight <= 0.5f && bypassWeight == false)
-            {
-                return;
-            }
-
-            string groundTag = GetGroundTag();
-            if (groundTag == null)
-            {
-                return;
-            }
-
-            if (thirdPersonController != null && thirdPersonController.Grounded == false)
-            {
-                return;
-            }
-
-            AudioClip clip = footstepSystem.GetFootstepClip(groundTag);
-            BGMManager.instance.PlaySound(clip, footstepAudioSource);
-            cooldown = 0f;
-        }
-
-        private string GetGroundTag()
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(footstepAudioSource.transform.position, -Vector3.up, out hit))
-            {
-                if (hit.transform != null)
-                {
-                    return hit.transform.gameObject.tag;
-                }
-            }
-
-            return null;
-        }
     }
 }

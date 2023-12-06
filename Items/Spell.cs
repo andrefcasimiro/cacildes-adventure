@@ -21,6 +21,8 @@ namespace AF
         public int spellPoise;
         public int spellPostureDamage;
 
+        [Header("Animations")]
+        public AnimationClip castAnimationOverride;
 
         [Header("Negative Effects Upon Usage")]
         public float selfDamageAmount = -1f;

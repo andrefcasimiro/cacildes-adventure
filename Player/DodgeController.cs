@@ -14,12 +14,13 @@ namespace AF
 
         [Header("Components")]
         public PlayerManager playerManager;
+        public LockOnManager lockOnManager;
 
         [Header("Stamina Settings")]
         public int dodgeCost = 15;
 
         [Header("In-game flags")]
-        public bool hasIframes = false;
+        public bool isDodging = false;
 
         public float maxRequestForRollDuration = 0.4f;
         [HideInInspector] public float currentRequestForRollDuration = Mathf.Infinity;
@@ -30,12 +31,17 @@ namespace AF
         [Header("Unity Events")]
         public UnityEvent onDodge;
 
+        public void ResetStates()
+        {
+            isDodging = false;
+        }
+
         /// <summary>
         /// Unity Event
         /// </summary>
         public void OnDodgeInput()
         {
-            if (CanDodge() && !IsDodging())
+            if (CanDodge())
             {
                 playerManager.staminaStatManager.DecreaseStamina(dodgeCost);
                 playerManager.playerBlockInput.OnBlockInput_Cancelled();
@@ -57,7 +63,7 @@ namespace AF
 
         void HandleDodge()
         {
-            hasIframes = true;
+            isDodging = true;
 
             playerManager.PlayBusyHashedAnimationWithRootMotion(hashRoll);
 
@@ -80,7 +86,7 @@ namespace AF
         IEnumerator StopHeavyRollRootmotion()
         {
             yield return new WaitForSeconds(0.3f);
-            StopIframes();
+            isDodging = false;
 
             yield return new WaitForSeconds(0.3f);
             playerManager.animator.applyRootMotion = false;
@@ -93,7 +99,7 @@ namespace AF
 
         private void OnTriggerStay(Collider other)
         {
-            if (!IsDodging())
+            if (!isDodging)
             {
                 return;
             }
@@ -104,32 +110,13 @@ namespace AF
             }
         }
 
-        public bool CanRollAttack()
-        {
-            if (IsRollAttacking())
-            {
-                return false;
-            }
-
-            if (
-                playerManager.starterAssetsInputs.move == Vector2.zero
-                && playerManager.thirdPersonController.skateRotation == false
-                // Is Backstepping, give slight offset
-                && currentRequestForRollDuration > maxRequestForRollDuration - 0.1f)
-            {
-                return false;
-            }
-
-            if (currentRequestForRollDuration > maxRequestForRollDuration)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         private bool CanDodge()
         {
+            if (isDodging)
+            {
+                return false;
+            }
+
             if (playerManager.IsBusy())
             {
                 return false;
@@ -157,28 +144,5 @@ namespace AF
 
             return true;
         }
-
-        public bool IsDodging()
-        {
-            return false;
-            ///            return animator.GetBool(hashIsDodging);
-        }
-
-        public bool IsRollAttacking()
-        {
-            return false;
-            //            return animator.GetBool("IsRollAttacking");
-        }
-
-
-        #region Animation Events
-        /// <summary>
-        /// Animation Event
-        /// </summary>
-        public void StopIframes()
-        {
-            hasIframes = false;
-        }
-        #endregion
     }
 }

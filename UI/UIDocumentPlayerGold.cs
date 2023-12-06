@@ -6,6 +6,9 @@ namespace AF
 {
     public class UIDocumentPlayerGold : MonoBehaviour
     {
+        [Header("Components")]
+        public Soundbank soundbank;
+
         [Header("UI Components")]
         public UIDocument uiDocument;
 
@@ -40,7 +43,7 @@ namespace AF
 
         public void AddGold(int amount)
         {
-            Soundbank.instance.PlayCoin();
+            soundbank.PlaySound(soundbank.coin);
             counterEnabled = false;
             ScoreIncrement = 0;
 
@@ -52,8 +55,7 @@ namespace AF
             this.gameObject.SetActive(true);
 
             goldReceived.text = "+ " + currentReceivedAmount;
-            actualGold.text = "" + playerGold + " " + LocalizedTerms.Gold();
-
+            actualGold.text = "" + playerGold + " Gold";
             playerStatsDatabase.gold += amount;
 
             StartCoroutine(EnableCounter());
@@ -61,7 +63,7 @@ namespace AF
 
         public void LoseGold(int amount)
         {
-            Soundbank.instance.PlayCoin();
+            soundbank.PlaySound(soundbank.coin);
             counterEnabled = false;
             ScoreIncrement = 0;
 
@@ -73,7 +75,7 @@ namespace AF
             this.gameObject.SetActive(true);
 
             goldReceived.text = "- " + currentDeductedAmount;
-            actualGold.text = "" + playerGold + " " + LocalizedTerms.Gold();
+            actualGold.text = "" + playerGold + " Gold";
 
             playerStatsDatabase.gold -= amount;
 
@@ -111,7 +113,7 @@ namespace AF
                 }
 
                 goldReceived.text = "+ " + currentReceivedAmount;
-                actualGold.text = "" + playerGold + " " + LocalizedTerms.Gold();
+                actualGold.text = "" + playerGold + " Gold";
             }
             else if (currentDeductedAmount > 0)
             {
@@ -131,7 +133,7 @@ namespace AF
                 }
 
                 goldReceived.text = "- " + currentDeductedAmount;
-                actualGold.text = "" + playerGold + " " + LocalizedTerms.Gold();
+                actualGold.text = "" + playerGold + " Gold";
             }
             else
             {

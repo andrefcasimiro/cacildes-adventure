@@ -15,6 +15,7 @@ namespace AF
 
         [Header("Components")]
         public UIManager uiManager;
+        public Soundbank soundbank;
 
         private void Awake()
         {
@@ -35,7 +36,7 @@ namespace AF
             UIUtils.SetupButton(root.Q<Button>("CloseBtn"), () =>
             {
                 Close();
-            });
+            }, soundbank);
 
             viewComponent_GameSettings.SetupRefs(root);
             viewComponent_GameSettings.TranslateSettingsUI(root);

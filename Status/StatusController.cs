@@ -8,17 +8,21 @@ namespace AF.StatusEffects
 {
     public class StatusController : MonoBehaviour
     {
+        // TODO: Refactor to be in database when we have cross scene teleport to test
+
+        [Header("Resistances")]
+
+        [SerializedDictionary("Status Resistances", "Duration (seconds)")]
+        public SerializedDictionary<StatusEffect, float> statusEffectResistances = new();
+        public Dictionary<StatusEffect, float> statusEffectResistanceBonuses = new();
+
         public List<AppliedStatusEffect> appliedStatusEffects = new();
+
+        // END TODO
 
         [Header("Effect Instances")]
         [SerializedDictionary("Status Effect", "World Instance")]
         public SerializedDictionary<StatusEffect, StatusEffectInstance> statusEffectInstances;
-
-        [Header("Resistances")]
-
-        [SerializedDictionary("Status Resistances", "Value")]
-        public SerializedDictionary<StatusEffect, int> statusEffectResistances = new();
-        public Dictionary<StatusEffect, int> statusEffectResistanceBonuses = new();
 
         [Header("UI")]
         public GameObject statusEffectUIGameObject;

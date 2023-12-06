@@ -36,6 +36,7 @@ namespace AF
         public void EnableComponents()
         {
             thirdPersonController.enabled = true;
+            thirdPersonController.canRotateCharacter = true;
             thirdPersonController.canMove = true;
             playerCombatController.enabled = true;
             dodgeController.enabled = true;
@@ -46,6 +47,7 @@ namespace AF
         {
             thirdPersonController.StopMovement();
             thirdPersonController.canMove = false;
+            thirdPersonController.canRotateCharacter = false;
             playerCombatController.enabled = false;
             dodgeController.enabled = false;
             playerParryManager.enabled = false;

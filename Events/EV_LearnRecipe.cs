@@ -9,6 +9,9 @@ namespace AF
         public bool showNotificationText = true;
         public AudioClip pickUpSfx;
 
+        [Header("Components")]
+        public Soundbank soundbank;
+
         [Header("Databases")]
         public RecipesDatabase recipesDatabase;
 
@@ -23,10 +26,10 @@ namespace AF
 
             if (showNotificationText)
             {
-                Soundbank.instance.PlayItemReceived();
+                soundbank.PlaySound(soundbank.uiItemReceived);
 
                 var notf = FindObjectOfType<NotificationManager>(true);
-                notf.ShowNotification(LocalizedTerms.LearnedRecipe() + recipe.name.GetText(), notf.recipeIcon);
+                notf.ShowNotification("Learned recipe: " + recipe.name.GetText(), notf.recipeIcon);
             }
 
             yield return null;

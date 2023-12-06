@@ -1,3 +1,4 @@
+using AF.Music;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -22,6 +23,9 @@ namespace AF
         NotificationManager notificationManager;
         public AudioClip onCollectSfx;
 
+        [Header("Components")]
+        public BGMManager bgmManager;
+
         private void Awake()
         {
             notificationManager = FindObjectOfType<NotificationManager>(true);
@@ -45,7 +49,7 @@ namespace AF
 
             if (onCollectSfx != null)
             {
-                BGMManager.instance.PlaySound(onCollectSfx, null);
+                bgmManager.PlaySound(onCollectSfx, null);
             }
 
             if (showNotification)

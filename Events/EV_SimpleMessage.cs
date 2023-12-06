@@ -13,7 +13,7 @@ public class EV_SimpleMessage : EventBase
     [Header("Actor")]
     public Character character;
 
-    [TextArea]
+    [TextAreaAttribute(minLines: 10, maxLines: 20)]
     public string message;
 
     [Header("Responses")]

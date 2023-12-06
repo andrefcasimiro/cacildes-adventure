@@ -7,9 +7,9 @@ namespace AF
 {
     public static class UIUtils
     {
-        public static void SetupButton(Button button, UnityAction callback)
+        public static void SetupButton(Button button, UnityAction callback, Soundbank soundbank)
         {
-            SetupButton(button, callback, null, null, true);
+            SetupButton(button, callback, null, null, true, soundbank);
         }
 
         public static void SetupButton(
@@ -17,7 +17,8 @@ namespace AF
             UnityAction callback,
             UnityAction onFocusInCallback,
             UnityAction onFocusOutCallback,
-            bool hasPopupAnimation)
+            bool hasPopupAnimation,
+            Soundbank soundbank)
         {
             button.RegisterCallback<ClickEvent>(ev =>
             {
@@ -26,7 +27,7 @@ namespace AF
                     PlayPopAnimation(button);
                 }
 
-                Soundbank.instance.PlayUIDecision();
+                soundbank.PlaySound(soundbank.uiHover);
                 callback.Invoke();
             });
             button.RegisterCallback<NavigationSubmitEvent>(ev =>
@@ -36,7 +37,7 @@ namespace AF
                     PlayPopAnimation(button);
                 }
 
-                Soundbank.instance.PlayUIDecision();
+                soundbank.PlaySound(soundbank.uiDecision);
                 callback.Invoke();
             });
 
@@ -47,17 +48,13 @@ namespace AF
                     PlayPopAnimation(button);
                 }
 
-                Soundbank.instance.PlayUIHover();
+                soundbank.PlaySound(soundbank.uiHover);
                 onFocusInCallback?.Invoke();
             });
             button.RegisterCallback<PointerEnterEvent>(ev =>
             {
-                if (hasPopupAnimation)
-                {
-                    PlayPopAnimation(button);
-                }
 
-                Soundbank.instance.PlayUIHover();
+                soundbank.PlaySound(soundbank.uiHover);
                 onFocusInCallback?.Invoke();
             });
 

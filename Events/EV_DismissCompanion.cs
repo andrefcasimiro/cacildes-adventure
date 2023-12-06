@@ -11,7 +11,7 @@ namespace AF
         {
             yield return null;
 
-            FindObjectOfType<CompanionsSceneManager>(true).DismissCompanion(companionToDismiss);
+            // FindObjectOfType<CompanionsSceneManager>(true).DismissCompanion(companionToDismiss);
         }
 
     }

@@ -5,50 +5,10 @@ namespace AF
 {
     public class TeleportManager : MonoBehaviour
     {
-        public static TeleportManager instance;
 
         public string spawnGameObjectNameRef = null;
 
-        public enum SceneName
-        {
-            CACILDES_HOME = 0,
-            CECILY_FIELDS = 1,
-            PATH_TO_SLEPBONE_PATHWAY = 2,
-            THIEF_CAVERN = 3,
-            SLEPBONE_BOAT = 4,
-            BEAR_CAVERN = 5,
-            MOUNTAINPASS = 6,
-            SNAILCLIFF = 7,
-            UNUSED = 999,
-            CECILY_TOWN = 8,
-            WEST_BRIDGE = 9,
-            ORC_CAVE = 10,
-            ORC_CAVE_2 = 11,
-            ARUN_VILLAGE = 12,
-            ARUN_TEMPLE_ENTRANCE = 13,
-            ARUN_TEMPLE = 14,
-            SNOWY_MOUNTAINS_OF_BRR = 15,
-            CECILY_TOWN_UPPER = 16,
-            CECILY_TOWN_CASTLE = 17,
-            SNOWY_MOUNTAIN_TEMPLE = 18,
-            DRUIDS_FOREST = 19,
-            HELL = 20,
-            COLLISEUM = 6 //22 for production
-        }
-
-        private void Awake()
-        {
-            if (instance != null && instance != this)
-            {
-                Destroy(this.gameObject);
-            }
-            else
-            {
-                instance = this;
-            }
-        }
-
-        public void Teleport(SceneName sceneName, string spawnGameObjectNameRef)
+        public void Teleport(string sceneName, string spawnGameObjectNameRef)
         {
             if (string.IsNullOrEmpty(this.spawnGameObjectNameRef))
             {
@@ -102,13 +62,9 @@ namespace AF
                     tps._cinemachineTargetYaw = activeCamera.transform.eulerAngles.y;
                     tps.enabled = true;
                 }
-
             }
-
 
             this.spawnGameObjectNameRef = null;
         }
-
     }
-
 }

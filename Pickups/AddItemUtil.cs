@@ -18,10 +18,10 @@ namespace AF.Pickups
 
         [Header("Components")]
         public PlayerInventory playerInventory;
+        public Soundbank soundbank;
 
         public void OnAddItem()
         {
-
             List<UIDocumentReceivedItemPrompt.ItemsReceived> itemsToDisplay = new();
 
             foreach (var item in itemsToAdd)
@@ -39,7 +39,7 @@ namespace AF.Pickups
             uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
             uIDocumentReceivedItemPrompt.DisplayItemsReceived(itemsToDisplay);
 
-            Soundbank.instance.PlayItemReceived();
+            soundbank.PlaySound(soundbank.uiItemReceived);
         }
     }
 }

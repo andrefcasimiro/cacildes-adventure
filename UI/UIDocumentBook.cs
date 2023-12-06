@@ -10,7 +10,6 @@ namespace AF
     {
         VisualElement root;
 
-
         Journal currentJournal;
 
         VisualElement bookFront, bookPage, bookBack, notePage, leftPage, rightPage;
@@ -22,6 +21,9 @@ namespace AF
         [Header("Events")]
         public UnityEvent onJournalOpen;
         public UnityEvent onJournalClose;
+
+        [Header("Components")]
+        public Soundbank soundbank;
 
         private void Awake()
         {
@@ -120,7 +122,7 @@ namespace AF
 
             if (bookFront.style.display != DisplayStyle.Flex)
             {
-                Soundbank.instance.PlayBookFlip();
+                soundbank.PlaySound(soundbank.bookFlip);
             }
 
             bookFront.style.display = DisplayStyle.Flex;
@@ -138,7 +140,7 @@ namespace AF
         {
             if (this.root.Q<VisualElement>("BookBack").style.display != DisplayStyle.Flex)
             {
-                Soundbank.instance.PlayBookFlip();
+                soundbank.PlaySound(soundbank.bookFlip);
             }
 
             bookFront.style.display = DisplayStyle.None;
@@ -151,7 +153,7 @@ namespace AF
 
         public void ShowNote()
         {
-            Soundbank.instance.PlayBookFlip();
+            soundbank.PlaySound(soundbank.bookFlip);
 
             bookFront.style.display = DisplayStyle.None;
             bookPage.style.display = DisplayStyle.None;
@@ -164,7 +166,7 @@ namespace AF
 
         public void ShowSinglePage(JournalPage page, bool renderOnRight)
         {
-            Soundbank.instance.PlayBookFlip();
+            soundbank.PlaySound(soundbank.bookFlip);
 
             bookFront.style.display = DisplayStyle.None;
             bookPage.style.display = DisplayStyle.Flex;
@@ -212,7 +214,7 @@ namespace AF
 
         public void ShowPages(JournalPage journalLeftPage, JournalPage journalRightPage)
         {
-            Soundbank.instance.PlayBookFlip();
+            soundbank.PlaySound(soundbank.bookFlip);
 
             bookFront.style.display = DisplayStyle.None;
             bookPage.style.display = DisplayStyle.Flex;

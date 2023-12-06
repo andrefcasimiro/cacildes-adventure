@@ -12,16 +12,6 @@ namespace AF.Animations
         public UnityEvent onLeftFootstep;
         public UnityEvent onRightFootstep;
 
-        public void OnLeftFootstep()
-        {
-            onLeftFootstep?.Invoke();
-        }
-
-        public void OnRightFootstep()
-        {
-            onRightFootstep?.Invoke();
-        }
-
         public void OpenLeftWeaponHitbox()
         {
             if (playerManager.playerWeaponsManager.leftHandHitbox != null)
@@ -138,5 +128,17 @@ namespace AF.Animations
         public void OnFireArrow()
         {
         }
+
+        public void OnLeftFootstep()
+        {
+
+            onLeftFootstep?.Invoke();
+        }
+
+        public void OnRightFootstep()
+        {
+            onRightFootstep?.Invoke();
+        }
+
     }
 }

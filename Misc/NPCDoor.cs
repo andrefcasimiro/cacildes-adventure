@@ -13,14 +13,13 @@ namespace AF
         public bool requireBadReputation = false;
         public bool noReputationRequired = false;
 
-        NotificationManager notificationManager;
-
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
-        private void Awake()
-        {
-            notificationManager = FindObjectOfType<NotificationManager>(true);
-        }
+
+        [Header("Components")]
+        public NotificationManager notificationManager;
+        public Soundbank soundbank;
+
 
         public void ActivateDoor()
         {
@@ -52,9 +51,9 @@ namespace AF
 
             if (showNotification)
             {
-                Soundbank.instance.PlayUICancel();
+                soundbank.PlaySound(soundbank.uiCancel);
 
-                notificationManager.ShowNotification(LocalizedTerms.InsufficientReputationToEnterThisHouse(), notificationManager.personBusy);
+                notificationManager.ShowNotification("Your bad reputation prevents you from entering this house.", notificationManager.personBusy);
             }
 
             if (shouldOpen)

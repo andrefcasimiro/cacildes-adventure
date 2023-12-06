@@ -14,6 +14,7 @@ namespace AF
 
         [Header("Components")]
         public UIManager uiManager;
+        public Soundbank soundbank;
 
         private void Awake()
         {
@@ -43,7 +44,8 @@ namespace AF
             UIUtils.SetupButton(closeBtn, () =>
             {
                 Close();
-            });
+            },
+            soundbank);
         }
 
         void Close()

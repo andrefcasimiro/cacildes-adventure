@@ -16,7 +16,7 @@ namespace AF
         [Header("Components")]
         public CursorManager cursorManager;
         public PlayerManager playerManager;
-
+        public Soundbank soundbank;
 
         [Header("Databases")]
         public InventoryDatabase inventoryDatabase;
@@ -119,19 +119,19 @@ namespace AF
             {
                 uiDocumentLevelUp.gameObject.SetActive(true);
                 gameObject.SetActive(false);
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(passTimeButton, () =>
             {
                 if (!isPassingTime)
                     StartCoroutine(MoveTime());
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(travelButton, () =>
             {
                 uiDocumentTravel.gameObject.SetActive(true);
                 this.gameObject.SetActive(false);
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(upgradeWeapons, () =>
             {
@@ -140,7 +140,7 @@ namespace AF
 
                 uIDocumentCraftScreen.gameObject.SetActive(true);
                 this.gameObject.SetActive(false);
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(brewPotions, () =>
             {
@@ -149,12 +149,12 @@ namespace AF
 
                 uIDocumentCraftScreen.gameObject.SetActive(true);
                 this.gameObject.SetActive(false);
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(exitBonfireButton, () =>
             {
                 ExitBonfire();
-            });
+            }, soundbank);
         }
 
         void ExitBonfire()

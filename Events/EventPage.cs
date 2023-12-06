@@ -35,7 +35,6 @@ namespace AF
 
         [Header("Key Prompt")]
         public LocalizedText notificationText;
-        public LocalizedTerms.LocalizedAction localizedAction;
 
         [Header("Cancel Event")]
         [Tooltip("For events with move route, you need to set the transform of the navmesh agent")]
@@ -192,7 +191,6 @@ namespace AF
                     notificationManager = FindObjectOfType<NotificationManager>(true);
                 }
 
-                notificationManager.ShowNotification(LocalizedTerms.ThisPersonIsBusy(), notificationManager.personBusy);
             }
             else
             {
@@ -297,14 +295,6 @@ namespace AF
 
             string key = "E";
             string action = "";
-            if (localizedAction != LocalizedTerms.LocalizedAction.NONE)
-            {
-                action = LocalizedTerms.GetActionText(localizedAction);
-            }
-            else
-            {
-                action = notificationText.GetText();
-            }
 
             documentKeyPrompt.DisplayPrompt(key, action);
         }

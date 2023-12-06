@@ -6,7 +6,7 @@ namespace AF.Health
 {
     public class CharacterHealth : CharacterBaseHealth
     {
-        float m_currentHealth;
+        [SerializeField] float m_currentHealth;
         protected float CurrentHealth
         {
             get
@@ -28,7 +28,7 @@ namespace AF.Health
             CurrentHealth = GetMaxHealth();
         }
 
-        public override void RestoreHealth(int value)
+        public override void RestoreHealth(float value)
         {
             CurrentHealth += value;
 

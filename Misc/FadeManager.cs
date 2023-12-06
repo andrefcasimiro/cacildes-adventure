@@ -1,49 +1,58 @@
 using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.Events;
 
 namespace AF
 {
     public class FadeManager : MonoBehaviour
     {
-        public Canvas canvas;
-        public Image image;
+        public CanvasGroup canvasGroup;
 
-        public float fadeSpeed;
-        
-        public void Fade()
+        [Header("Settings")]
+        public float sceneFadeInSpeed = 1f;
+
+        private void Awake()
         {
-            StartCoroutine(BeginFade());
+            canvasGroup.alpha = 1;
+
+            FadeOut(sceneFadeInSpeed);
         }
 
-        IEnumerator BeginFade()
+
+        public void FadeIn(float fadeDuration)
         {
-            canvas.sortingOrder = 999;
-            while (image.color.a < 1)
+            canvasGroup.DOFade(1f, fadeDuration);
+        }
+
+        public void FadeOut(float fadeDuration)
+        {
+            canvasGroup.DOFade(0f, fadeDuration);
+        }
+
+        public void FadeIn(float fadeDuration, UnityAction callback)
+        {
+            FadeIn(fadeDuration);
+
+            HandleCallback(fadeDuration, callback);
+        }
+
+        public void FadeOut(float fadeDuration, UnityAction callback)
+        {
+            FadeOut(fadeDuration);
+            HandleCallback(fadeDuration, callback);
+        }
+
+        void HandleCallback(float fadeDuration, UnityAction callback)
+        {
+            StartCoroutine(ExecuteCallback_Coroutine());
+
+            IEnumerator ExecuteCallback_Coroutine()
             {
-                var newColor = new Color(image.color.r, image.color.g, image.color.b, image.color.a + Time.deltaTime * fadeSpeed);
-                image.color = newColor;
-                yield return null;
+                yield return new WaitForSeconds(fadeDuration);
+                callback?.Invoke();
             }
-
-            StartCoroutine(EndFade());
         }
-
-        IEnumerator EndFade()
-        {
-            yield return new WaitForSeconds(1f);
-
-            while (image.color.a > 0)
-            {
-                var newColor = new Color(image.color.r, image.color.g, image.color.b, image.color.a - Time.deltaTime * fadeSpeed);
-                image.color = newColor;
-                yield return null;
-            }
-
-            canvas.sortingOrder = 0;
-        }
-
     }
 
 }

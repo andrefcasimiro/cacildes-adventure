@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using AF.Music;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
@@ -7,6 +8,8 @@ namespace AF
 {
     public class ViewComponent_GameSettings : MonoBehaviour
     {
+        [Header("Components")]
+        public BGMManager bgmManager;
 
         // Gameplay
         RadioButtonGroup gameDifficulty;
@@ -46,39 +49,13 @@ namespace AF
             {
                 var newValue = ev.newValue;
 
-                if (newValue == 0)
-                {
-                    GamePreferences.instance.SetGameDifficulty(GamePreferences.GameDifficulty.EASY);
-                }
-                else if (newValue == 1)
-                {
-                    GamePreferences.instance.SetGameDifficulty(GamePreferences.GameDifficulty.MEDIUM);
-                }
-                else if (newValue == 2)
-                {
-                    GamePreferences.instance.SetGameDifficulty(GamePreferences.GameDifficulty.HARD);
-                }
+
             });
 
             languageOptions.RegisterValueChangedCallback(ev =>
             {
                 var newValue = ev.newValue;
 
-                if (newValue == 0)
-                {
-                    GamePreferences.instance.SetGameLanguage(GamePreferences.GameLanguage.ENGLISH);
-                }
-                else if (newValue == 1)
-                {
-                    GamePreferences.instance.SetGameLanguage(GamePreferences.GameLanguage.PORTUGUESE);
-                }
-
-                uiDocumentPlayerHUDV2.UpdateEquipment();
-                onLanguageChanged?.Invoke();
-
-
-                root.Q<Label>("RestartToSeeChanges").text = GamePreferences.instance.IsEnglish() ? "* Reopen the menu to see the changes" : "* Reabre o menu para ver as alterações";
-                root.Q("RestartToSeeChanges").style.display = DisplayStyle.Flex;
 
             });
 
@@ -86,22 +63,6 @@ namespace AF
             {
                 var newValue = ev.newValue;
 
-                if (newValue == 0)
-                {
-                    GamePreferences.instance.SetGraphicsQuality(GamePreferences.GraphicsQuality.LOW);
-                }
-                else if (newValue == 1)
-                {
-                    GamePreferences.instance.SetGraphicsQuality(GamePreferences.GraphicsQuality.MEDIUM);
-                }
-                else if (newValue == 2)
-                {
-                    GamePreferences.instance.SetGraphicsQuality(GamePreferences.GraphicsQuality.GOOD);
-                }
-                else if (newValue == 3)
-                {
-                    GamePreferences.instance.SetGraphicsQuality(GamePreferences.GraphicsQuality.ULTRA);
-                }
             });
 
             musicVolumeSlider.RegisterValueChangedCallback(ev =>
@@ -109,53 +70,52 @@ namespace AF
                 var newValue = ev.newValue;
                 PlayerPrefs.SetFloat("musicVolume", newValue);
 
-                GamePreferences.instance.UpdateAudio();
             });
 
         }
 
         public void SetupDefaultValues()
         {
+            /*
+                        if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.EASY)
+                        {
+                            gameDifficulty.value = 0;
+                        }
+                        else if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.MEDIUM)
+                        {
+                            gameDifficulty.value = 1;
+                        }
+                        else
+                        {
+                            gameDifficulty.value = 2;
+                        }
 
-            if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.EASY)
-            {
-                gameDifficulty.value = 0;
-            }
-            else if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.MEDIUM)
-            {
-                gameDifficulty.value = 1;
-            }
-            else
-            {
-                gameDifficulty.value = 2;
-            }
+                        languageOptions.value = GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.ENGLISH ? 0 : 1;
+                        if (GamePreferences.instance.graphicsQuality == GamePreferences.GraphicsQuality.LOW)
+                        {
+                            graphicsOptions.value = 0;
+                        }
+                        else if (GamePreferences.instance.graphicsQuality == GamePreferences.GraphicsQuality.MEDIUM)
+                        {
+                            graphicsOptions.value = 1;
+                        }
+                        else if (GamePreferences.instance.graphicsQuality == GamePreferences.GraphicsQuality.GOOD)
+                        {
+                            graphicsOptions.value = 2;
+                        }
+                        else
+                        {
+                            graphicsOptions.value = 3;
+                        }
 
-            languageOptions.value = GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.ENGLISH ? 0 : 1;
-            if (GamePreferences.instance.graphicsQuality == GamePreferences.GraphicsQuality.LOW)
-            {
-                graphicsOptions.value = 0;
-            }
-            else if (GamePreferences.instance.graphicsQuality == GamePreferences.GraphicsQuality.MEDIUM)
-            {
-                graphicsOptions.value = 1;
-            }
-            else if (GamePreferences.instance.graphicsQuality == GamePreferences.GraphicsQuality.GOOD)
-            {
-                graphicsOptions.value = 2;
-            }
-            else
-            {
-                graphicsOptions.value = 3;
-            }
-
-            musicVolumeSlider.value = PlayerPrefs.HasKey("musicVolume") ? PlayerPrefs.GetFloat("musicVolume") : BGMManager.instance.bgmAudioSource.volume;
-
+                        musicVolumeSlider.value = PlayerPrefs.HasKey("musicVolume") ? PlayerPrefs.GetFloat("musicVolume") : bgmManager.bgmAudioSource.volume;
+            */
         }
 
 
         public void TranslateSettingsUI(VisualElement root)
         {
-            bool isEnglish = GamePreferences.instance.IsEnglish();
+            bool isEnglish = true;// GamePreferences.instance.IsEnglish();
 
             #region Headers
             root.Q<Foldout>("FoldoutGameplay").text = isEnglish ? "Gameplay" : "Jogabilidade";
@@ -176,7 +136,7 @@ namespace AF
                 isEnglish ? "English" : "Inglês",
                 isEnglish ? "Portuguese" : "Português"
             };
-            languageOptions.value = GamePreferences.instance.gameLanguage == GamePreferences.GameLanguage.ENGLISH ? 0 : 1;
+            languageOptions.value = 0;
 
             graphicsOptions.Q<Label>().text = isEnglish ? "Select video quality" : "Selecionar qualidade de vídeo";
             graphicsOptions.choices = new[] {

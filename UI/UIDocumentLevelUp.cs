@@ -1,3 +1,4 @@
+using AF.Music;
 using AF.Stats;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,6 +16,8 @@ namespace AF
         [Header("Components")]
         public PlayerManager playerManager;
         public NotificationManager notificationManager;
+        public BGMManager bgmManager;
+        public Soundbank soundbank;
 
         [Header("SFX")]
         public AudioClip levelUpSound;
@@ -45,8 +48,8 @@ namespace AF
 
         void SetupAttributeButtonCallbacks(VisualElement attributeRoot, UnityEngine.Events.UnityAction decreaseAction, UnityEngine.Events.UnityAction increaseAction)
         {
-            UIUtils.SetupButton(attributeRoot.Q<Button>("DecreaseBtn"), decreaseAction);
-            UIUtils.SetupButton(attributeRoot.Q<Button>("IncreaseBtn"), increaseAction);
+            UIUtils.SetupButton(attributeRoot.Q<Button>("DecreaseBtn"), decreaseAction, soundbank);
+            UIUtils.SetupButton(attributeRoot.Q<Button>("IncreaseBtn"), increaseAction, soundbank);
         }
 
         private void OnEnable()
@@ -61,7 +64,7 @@ namespace AF
 
             root = GetComponent<UIDocument>().rootVisualElement;
             Button buttonExit = root.Q<Button>("ButtonExit");
-            UIUtils.SetupButton(buttonExit, () => { Close(); });
+            UIUtils.SetupButton(buttonExit, () => { Close(); }, soundbank);
 
             SetupAttributeButtonCallbacks(
                 root.Q<VisualElement>("Vitality"),
@@ -158,12 +161,12 @@ namespace AF
 
                 if (oldLevel != newLevel)
                 {
-                    BGMManager.instance.PlaySound(levelUpSound, null);
-                    notificationManager.ShowNotification(LocalizedTerms.CacildesLeveledUp(), notificationManager.levelUp);
+                    bgmManager.PlaySound(levelUpSound, null);
+                    notificationManager.ShowNotification("Cacildes leveled up!", notificationManager.levelUp);
                 }
 
                 DrawUI(root);
-            });
+            }, soundbank);
 
             root.Q<Button>("ConfirmButton").SetEnabled(HasEnoughExperienceForLevelling(virtualGold, GetDesiredLevelsAmount() + 1));
 

@@ -51,11 +51,6 @@ namespace AF
         // Coroutines
         Coroutine ResetLightAttackComboIndexCoroutine, ResetHeavyAttackComboIndexCoroutine;
 
-        private void Start()
-        {
-            playerManager.equipmentGraphicsHandler.DeactivateAllHitboxes();
-        }
-
         public void OnLightAttack()
         {
             if (CanLightAttack())
@@ -215,7 +210,7 @@ namespace AF
                 return false;
             }
 
-            if (playerManager.dodgeController.IsDodging())
+            if (playerManager.dodgeController.isDodging)
             {
                 return false;
             }

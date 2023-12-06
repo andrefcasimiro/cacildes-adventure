@@ -33,6 +33,8 @@ namespace AF
 
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;
+        public Soundbank soundbank;
+
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -126,7 +128,7 @@ namespace AF
                     if (hasPlayedFanfare == false)
                     {
 
-                        Soundbank.instance.PlayItemReceived();
+                        soundbank.PlaySound(soundbank.uiItemReceived);
                         hasPlayedFanfare = true;
                     }
 
@@ -163,7 +165,7 @@ namespace AF
                 }
                 else
                 {
-                    notificationManager.ShowNotification(LocalizedTerms.Found() + " " + item.name.GetText(), item.sprite);
+                    notificationManager.ShowNotification("Found " + item.name.GetText(), item.sprite);
                 }
             }
 

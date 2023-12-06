@@ -49,9 +49,9 @@ namespace AF
             return GetCurrentHealth() + (int)(vitality * levelMultiplier);
         }
 
-        public override void RestoreHealth(int value)
+        public override void RestoreHealth(float value)
         {
-            playerStatsDatabase.currentHealth += Mathf.Clamp(
+            playerStatsDatabase.currentHealth = Mathf.Clamp(
                 playerStatsDatabase.currentHealth + value, 0, GetMaxHealth());
 
             onRestoreHealth?.Invoke();

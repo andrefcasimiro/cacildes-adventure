@@ -204,6 +204,19 @@ namespace AF.Equipment
             }
         }
 
+        public void UpdateAnimatorOverrideControllerClip(string animationName, AnimationClip animationClip)
+        {
+            var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
+            animatorOverrideController.GetOverrides(clipOverrides);
+
+            playerManager.animator.runtimeAnimatorController = defaultAnimatorController;
+
+            clipOverrides[animationName] = animationClip;
+
+            animatorOverrideController.ApplyOverrides(clipOverrides);
+            playerManager.animator.runtimeAnimatorController = animatorOverrideController;
+        }
+
         public void ShowEquipment()
         {
             if (currentWeaponInstance != null)

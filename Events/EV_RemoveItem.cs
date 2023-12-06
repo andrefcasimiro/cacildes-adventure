@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using AF.Music;
 using UnityEngine;
 
 namespace AF
@@ -14,6 +15,12 @@ namespace AF
 
         public AudioClip pickUpSfx;
 
+        [Header("Components")]
+        public BGMManager bgmManager;
+        public Soundbank soundbank;
+        public NotificationManager notificationManager;
+        public PlayerManager playerManager;
+
         public override IEnumerator Dispatch()
         {
             yield return StartCoroutine(RemoveItem());
@@ -21,17 +28,18 @@ namespace AF
 
         IEnumerator RemoveItem()
         {
-            FindObjectOfType<PlayerInventory>(true).RemoveItem(item, amount);
+            playerManager.playerInventory.RemoveItem(item, amount);
 
             if (pickUpSfx != null)
             {
-                BGMManager.instance.PlaySound(pickUpSfx, null);
+                bgmManager.PlaySound(pickUpSfx, null);
             }
 
             if (showNotificationText)
             {
-                Soundbank.instance.PlayUICancel();
-                FindObjectOfType<NotificationManager>(true).ShowNotification(LocalizedTerms.Used() + " x" + amount + " " + item.name.GetText() + "", item.sprite);
+                soundbank.PlaySound(soundbank.uiCancel);
+
+                notificationManager.ShowNotification("Used x" + amount + " " + item.name.GetText() + "", item.sprite);
             }
 
             yield return null;

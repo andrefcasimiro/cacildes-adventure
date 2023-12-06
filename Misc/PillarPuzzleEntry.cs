@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using AF.Music;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,6 +9,8 @@ namespace AF
 
     public class PillarPuzzleEntry : SwitchListener
     {
+        [Header("Components")]
+        public BGMManager bgmManager;
         public int pillarOrder = 1;
 
         PillarPuzzleManager pillarPuzzleManager;
@@ -50,7 +53,7 @@ namespace AF
             if (pillarPuzzleManager.currentScore + 1 == pillarOrder)
             {
                 // Correct order
-                BGMManager.instance.PlaySound(activateSfx, null);
+                bgmManager.PlaySound(activateSfx, null);
                 pillarPuzzleManager.IncreaseScore();
 
                 MarkAsActive();

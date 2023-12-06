@@ -1,7 +1,9 @@
 using System.Collections;
 using AF.Inventory;
+using Cinemachine;
 using UnityEngine;
 using UnityEngine.Animations;
+using UnityEngine.Events;
 
 namespace AF.Shooting
 {
@@ -24,12 +26,22 @@ namespace AF.Shooting
 
         public LookAtConstraint lookAtConstraint;
 
+        public float bowAimCameraDistance = 1.25f;
+        public float spellAimCameraDistance = 2.25f;
+
         [Header("Flags")]
         public bool isAiming = false;
 
         public Transform fireTransform;
 
         public StarterAssetsInputs starterAssetsInputs;
+
+        // For cache purposes
+        Spell previousSpell;
+
+        [Header("Events")]
+        public UnityEvent onSpellAim_Begin;
+        public UnityEvent onBowAim_Begin;
 
         public void OnFireInput()
         {
@@ -39,10 +51,29 @@ namespace AF.Shooting
                 {
                     ShootBow(equipmentDatabase.GetCurrentArrow(), transform, null);
                 }
-                else if (equipmentDatabase.IsStaffEquipped())
+                else if (equipmentDatabase.IsStaffEquipped() && equipmentDatabase.GetCurrentSpell() != null)
                 {
+                    HandleSpellCastAnimationOverrides();
+
                     GetPlayerManager().PlayBusyHashedAnimationWithRootMotion(hashCast);
                 }
+            }
+        }
+
+        void HandleSpellCastAnimationOverrides()
+        {
+            Spell currentSpell = equipmentDatabase.GetCurrentSpell();
+
+            if (currentSpell == previousSpell)
+            {
+                return;
+            }
+
+            previousSpell = currentSpell;
+
+            if (currentSpell.castAnimationOverride != null)
+            {
+                GetPlayerManager().playerWeaponsManager.UpdateAnimatorOverrideControllerClip("Cacildes - Spell - Cast", currentSpell.castAnimationOverride);
             }
         }
 
@@ -60,6 +91,15 @@ namespace AF.Shooting
             if (equipmentDatabase.IsBowEquipped())
             {
                 GetPlayerManager().animator.SetBool(hashIsAiming, true);
+
+                aimingCamera.GetComponent<CinemachineVirtualCamera>().GetCinemachineComponent<Cinemachine3rdPersonFollow>().CameraDistance = bowAimCameraDistance;
+
+                onBowAim_Begin?.Invoke();
+            }
+            else if (equipmentDatabase.IsStaffEquipped())
+            {
+                aimingCamera.GetComponent<CinemachineVirtualCamera>().GetCinemachineComponent<Cinemachine3rdPersonFollow>().CameraDistance = spellAimCameraDistance;
+                onSpellAim_Begin?.Invoke();
             }
 
             GetPlayerManager().thirdPersonController.virtualCamera.gameObject.SetActive(false);
@@ -75,6 +115,11 @@ namespace AF.Shooting
 
         public void Aim_End()
         {
+            if (!isAiming)
+            {
+                return;
+            }
+
             isAiming = false;
             aimingCamera.SetActive(false);
             lookAtConstraint.constraintActive = false;

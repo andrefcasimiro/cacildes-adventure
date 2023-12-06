@@ -3,7 +3,7 @@ using UnityEngine;
 namespace AF
 {
     [CreateAssetMenu(menuName = "Items / Item / New Consumable Projectile")]
-    public class ConsumableProjectile : Consumable
+    public class ConsumableProjectile : Item
     {
         public enum ProjectileType
         {

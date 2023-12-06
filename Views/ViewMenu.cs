@@ -21,15 +21,10 @@ namespace AF
 
         // Components
         protected MenuManager menuManager;
-        public CursorManager cursorManager;
 
-        private void OnApplicationFocus(bool focus)
-        {
-            if (focus && root != null)
-            {
-                root.Focus();
-            }
-        }
+        [Header("Components")]
+        public CursorManager cursorManager;
+        public Soundbank soundbank;
 
         protected virtual void OnEnable()
         {
@@ -60,7 +55,6 @@ namespace AF
 
         }
 
-
         private void Update()
         {
             if (UnityEngine.Cursor.visible == false)
@@ -78,7 +72,7 @@ namespace AF
             {
                 menuManager.hasPlayedFadeIn = true;
 
-                Soundbank.instance.PlayMainMenuOpen();
+                soundbank.PlaySound(soundbank.mainMenuOpen);
 
                 DOTween.To(
                       () => root.contentContainer.style.opacity.value,
@@ -92,35 +86,34 @@ namespace AF
             equipmentButton = root.Q<Button>(EQUIPMENT_BUTTON);
             UIUtils.SetupButton(equipmentButton, () =>
             {
-
-                Soundbank.instance.PlayUIHover();
+                soundbank.PlaySound(soundbank.uiHover);
                 menuManager.viewMenuIndex = 0;
                 menuManager.SetMenuView();
-            });
+            }, soundbank);
 
             objectivesButton = root.Q<Button>(OBJECTIVES_BUTTON);
             UIUtils.SetupButton(objectivesButton, () =>
             {
 
-                Soundbank.instance.PlayUIHover();
+                soundbank.PlaySound(soundbank.uiHover);
                 menuManager.viewMenuIndex = 1;
                 menuManager.SetMenuView();
-            });
+            }, soundbank);
 
             optionsButton = root.Q<Button>(OPTIONS_BUTTON);
             UIUtils.SetupButton(optionsButton, () =>
             {
 
-                Soundbank.instance.PlayUIHover();
+                soundbank.PlaySound(soundbank.uiHover);
                 menuManager.viewMenuIndex = 2;
                 menuManager.SetMenuView();
-            });
+            }, soundbank);
 
             exitButton = root.Q<Button>(EXIT_BUTTON);
             UIUtils.SetupButton(exitButton, () =>
             {
                 Application.Quit();
-            });
+            }, soundbank);
 
         }
     }

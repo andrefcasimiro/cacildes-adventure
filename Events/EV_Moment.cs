@@ -1,3 +1,4 @@
+using AF.Music;
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
@@ -71,6 +72,10 @@ namespace AF
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+
+        [Header("Components")]
+        public BGMManager bgmManager;
+
         private void Awake()
         {
             // dialogueManager = FindObjectOfType<DialogueManager>(true);
@@ -136,7 +141,7 @@ namespace AF
             // Check sound
             if (soundOnStart != null)
             {
-                BGMManager.instance.PlaySound(soundOnStart, null);
+                bgmManager.PlaySound(soundOnStart, null);
             }
 
             // Check music
@@ -147,11 +152,11 @@ namespace AF
             }
             else if (music != null)
             {
-                BGMManager.instance.PlayMusic(music);
+                bgmManager.PlayMusic(music);
             }
             else if (stopMusic)
             {
-                BGMManager.instance.StopMusic();
+                bgmManager.StopMusic();
             }
 
             // Check camera operations first

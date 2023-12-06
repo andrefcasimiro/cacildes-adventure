@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using AF.Music;
 using UnityEngine;
 
 namespace AF
@@ -19,6 +20,8 @@ namespace AF
         List<EnemyBossController> enemyBossControllers = new();
 
         public bool ignoreEnemies = false;
+        [Header("Components")]
+        public BGMManager bgmManager;
 
         private void Awake()
         {
@@ -33,7 +36,7 @@ namespace AF
         {
             if (other.gameObject.CompareTag("Player"))
             {
-                BGMManager.instance.PlaySound(waterSfx, other.GetComponent<PlayerCombatController>().combatAudioSource);
+                bgmManager.PlaySound(waterSfx, other.GetComponent<PlayerCombatController>().combatAudioSource);
 
                 var noBossInCombat = enemyBossControllers.Count <= 0 || enemyBossControllers.All(x => x.fogWall != null && x.fogWall.activeSelf == false);
                 if (respawnInstead && noBossInCombat)
@@ -58,7 +61,7 @@ namespace AF
 
                 if (characterManager != null)
                 {
-                    BGMManager.instance.PlaySound(waterSfx, characterManager.combatAudioSource);
+                    bgmManager.PlaySound(waterSfx, characterManager.combatAudioSource);
                     // characterManager.enemyHealthController.TakeEnvironmentalDamage(9999999);
                 }
 

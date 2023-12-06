@@ -1,9 +1,12 @@
+using AF.Music;
 using UnityEngine;
 
 namespace AF
 {
     public class SceneMusicChanger : MonoBehaviour
     {
+        [Header("Components")]
+        public BGMManager bgmManager;
         public AudioClip musicToPlay;
         public bool playSceneMusic;
 
@@ -22,9 +25,9 @@ namespace AF
                 {
                     sceneSettings.HandleSceneSound();
                 }
-                else if (BGMManager.instance.IsPlayingMusicClip(musicToPlay.name) == false)
+                else if (bgmManager.IsPlayingMusicClip(musicToPlay.name) == false)
                 {
-                    BGMManager.instance.PlayMusic(musicToPlay);
+                    bgmManager.PlayMusic(musicToPlay);
                 }
             }
         }

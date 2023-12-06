@@ -15,6 +15,11 @@ namespace AF
 		public bool jump;
 		public bool sprint;
 		public bool toggleWalk;
+
+		public bool consumeFavoriteItem;
+		public UnityEvent onConsumeFavoriteItem;
+
+
 		public UnityEvent onDodgeInput;
 		public UnityEvent onLightAttackInput;
 
@@ -22,7 +27,8 @@ namespace AF
 		public UnityEvent onBlock_Start;
 		public UnityEvent onBlock_End;
 
-		public bool lockOn;
+		public UnityEvent onLockOnInput;
+
 		public UnityEvent onHeavyAttackInput;
 
 		public bool interact;
@@ -125,6 +131,8 @@ namespace AF
 
 		public void OnLockOn(InputValue value)
 		{
+			onLockOnInput?.Invoke();
+
 		}
 
 		public void OnHeavyAttack(InputValue value)
@@ -177,6 +185,9 @@ namespace AF
 
 		public void OnConsumeFavoriteItem(InputValue value)
 		{
+			consumeFavoriteItem = value.isPressed;
+
+			onConsumeFavoriteItem?.Invoke();
 		}
 
 		public void OnQuickSave(InputValue value)

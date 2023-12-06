@@ -1,63 +1,48 @@
 ﻿using System.Collections;
+using AF.Music;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace AF
 {
-
     public class EV_AddItem : EventBase
     {
+        [Header("Item To Add")]
         public Item item;
-
         public int amount = 1;
 
+
+        [Header("Components")]
+        public MonoBehaviourID monoBehaviourID;
+        public Soundbank soundbank;
+        public PlayerManager playerManager;
+
+        [Header("Notifications")]
         public bool showNotificationText = true;
+        public NotificationManager notificationManager;
 
-        public AudioClip pickUpSfx;
-
-        [Header("Conditions")]
-        public SwitchEntry switchEntry;
-        public bool switchValue;
+        [Header("Databases")]
+        public PickupDatabase pickupDatabase;
 
         public override IEnumerator Dispatch()
         {
-            bool skip = false;
-
-            if (switchEntry != null)
+            if (pickupDatabase.Contains(monoBehaviourID.ID))
             {
-                // If depends on switch, evaluate value:
-                ; if (SwitchManager.instance.GetSwitchCurrentValue(switchEntry) == switchValue)
-                {
-                    skip = false;
-                }
-                else
-                {
-                    skip = true;
-                }
+                yield break;
             }
 
-            if (skip == false)
-            {
-                yield return StartCoroutine(AddItem());
-            }
-            else
-            {
-                yield return null;
-            }
+            yield return StartCoroutine(AddItem());
         }
 
         IEnumerator AddItem()
         {
-            FindObjectOfType<PlayerInventory>(true).AddItem(item, amount);
-
-            if (pickUpSfx != null)
-            {
-                BGMManager.instance.PlaySound(pickUpSfx, null);
-            }
+            playerManager.playerInventory.AddItem(item, amount);
+            pickupDatabase.Add(monoBehaviourID.ID, SceneManager.GetActiveScene().name + " - " + " - " + gameObject.name + " - " + item.name);
 
             if (showNotificationText)
             {
-                Soundbank.instance.PlayItemReceived();
-                FindObjectOfType<NotificationManager>(true).ShowNotification(LocalizedTerms.Found() + " x" + amount + " " + item.name.GetText() + "", item.sprite);
+                soundbank.PlaySound(soundbank.uiItemReceived);
+                notificationManager.ShowNotification("Found x" + amount + " " + item.name.GetText() + "", item.sprite);
             }
 
             yield return null;

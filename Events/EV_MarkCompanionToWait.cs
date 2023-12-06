@@ -18,11 +18,11 @@ namespace AF
 
             if (c.waitingForPlayer)
             {
-                FindObjectOfType<CompanionsSceneManager>(true).UnmarkCompanionAsWaiting(companion);
+                //                FindObjectOfType<CompanionsSceneManager>(true).UnmarkCompanionAsWaiting(companion);
             }
             else
             {
-                FindObjectOfType<CompanionsSceneManager>(true).MarkCompanionAsWaiting(companion);
+                //              FindObjectOfType<CompanionsSceneManager>(true).MarkCompanionAsWaiting(companion);
             }
 
         }

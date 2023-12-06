@@ -13,7 +13,7 @@ namespace AF
         public float agentSpeed = 0f;
 
         [Header("States")]
-        public ChaseState chaseState;
+        public State chaseState;
 
         [Header("Events")]
         public UnityEvent onAttack;

@@ -1,11 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using TigerForge;
-using AF.Events;
 using AF.Inventory;
-using AF.StatusEffects;
 
 namespace AF
 {
@@ -31,7 +25,7 @@ namespace AF
         /// </summary>
         public void OnConsumableUse()
         {
-            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            if (!CanSwitchEquipment())
             {
                 return;
             }
@@ -66,7 +60,7 @@ namespace AF
         /// </summary>
         public void OnSwitchWeapon()
         {
-            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            if (!CanSwitchEquipment())
             {
                 return;
             }
@@ -81,7 +75,7 @@ namespace AF
         /// </summary>
         public void OnSwitchShield()
         {
-            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            if (!CanSwitchEquipment())
             {
                 return;
             }
@@ -96,7 +90,7 @@ namespace AF
         /// </summary>
         public void OnSwitchConsumable()
         {
-            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            if (!CanSwitchEquipment())
             {
                 return;
             }
@@ -111,7 +105,7 @@ namespace AF
         /// </summary>
         public void OnSwitchSpell()
         {
-            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            if (!CanSwitchEquipment())
             {
                 return;
             }
@@ -126,6 +120,21 @@ namespace AF
             }
 
             uIDocumentPlayerHUDV2.OnSwitchSpell();
+        }
+
+        bool CanSwitchEquipment()
+        {
+            if (!uIDocumentPlayerHUDV2.IsEquipmentDisplayed())
+            {
+                return false;
+            }
+
+            if (playerManager.isBusy)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

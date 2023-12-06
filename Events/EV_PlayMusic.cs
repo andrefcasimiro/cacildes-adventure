@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using AF.Music;
 using UnityEngine;
 
 namespace AF
@@ -6,6 +7,8 @@ namespace AF
 
     public class EV_PlayMusic : EventBase
     {
+        [Header("Components")]
+        public BGMManager bgmManager;
         public AudioClip bgm;
 
         public bool playMapMusic;
@@ -21,11 +24,11 @@ namespace AF
             }
             else if (bgm != null)
             {
-                BGMManager.instance.PlayMusic(bgm);
+                bgmManager.PlayMusic(bgm);
             }
             else
             {
-                BGMManager.instance.StopMusic();
+                bgmManager.StopMusic();
             }
         }
     }

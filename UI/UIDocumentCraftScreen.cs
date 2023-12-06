@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AF.Inventory;
+using AF.Music;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -39,6 +40,8 @@ namespace AF
         public UIManager uiManager;
         public PlayerManager playerManager;
         public CursorManager cursorManager;
+        public BGMManager bgmManager;
+        public Soundbank soundbank;
 
         [HideInInspector] public bool returnToBonfire = false;
 
@@ -56,7 +59,7 @@ namespace AF
         {
             this.root = uIDocument.rootVisualElement;
 
-            BGMManager.instance.PlaySound(sfxOnEnterMenu, null);
+            bgmManager.PlaySound(sfxOnEnterMenu, null);
             cursorManager.ShowCursor();
 
             DrawUI();
@@ -130,9 +133,11 @@ namespace AF
             UIUtils.SetupButton(exitButton, () =>
             {
                 Close();
-            });
+            }, soundbank);
 
             exitButton.Focus();
+
+            scrollView.nestedInteractionKind = ScrollView.NestedInteractionKind.ForwardScrolling;
 
             scrollView.Add(exitButton);
 
@@ -195,7 +200,7 @@ namespace AF
 
                     if (!CanCraftItem(recipe))
                     {
-                        Soundbank.instance.PlayCraftError();
+                        soundbank.PlaySound(soundbank.craftError);
                         notificationManager.ShowNotification("Missing ingredients!", notificationManager.alchemyLackOfIngredients);
                         return;
                     }
@@ -209,7 +214,7 @@ namespace AF
 
                     if (chanceToRuinMixture > 0 && Random.Range(0, 100) < chanceToRuinMixture)
                     {
-                        Soundbank.instance.PlayCraftError();
+                        soundbank.PlaySound(soundbank.craftError);
                         notificationManager.ShowNotification("Crafting failed! Try again...", notificationManager.alchemyLackOfIngredients);
                     }
                     else
@@ -224,7 +229,7 @@ namespace AF
                         }
 
 
-                        Soundbank.instance.PlayCraftSuccess();
+                        soundbank.PlaySound(soundbank.craftSuccess);
                         playerManager.playerInventory.AddItem(recipe.resultingItem, 1);
                         notificationManager.ShowNotification("Received " + " " + recipe.resultingItem.name.GetText(), recipe.resultingItem.sprite);
 
@@ -247,7 +252,8 @@ namespace AF
                 {
                     root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
                 },
-                true);
+                true,
+                soundbank);
 
                 scrollView.Add(scrollItem);
             }
@@ -302,7 +308,7 @@ namespace AF
                 {
                     if (!CanImproveWeapon(wp))
                     {
-                        Soundbank.instance.PlayCraftError();
+                        soundbank.PlaySound(soundbank.craftError);
                         notificationManager.ShowNotification("Missing ingredients", notificationManager.alchemyLackOfIngredients);
                         return;
                     }
@@ -311,7 +317,7 @@ namespace AF
 
                     SteamAPI.instance.SetAchievementProgress(SteamAPI.AchievementName.WEAPONSMITH, 1);
 
-                    Soundbank.instance.PlayCraftSuccess();
+                    soundbank.PlaySound(soundbank.craftSuccess);
 
                     notificationManager.ShowNotification("Weapon improved!", wp.sprite);
 
@@ -334,7 +340,8 @@ namespace AF
                 {
                     root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
                 },
-                true);
+                true,
+                soundbank);
 
                 scrollView.Add(scrollItem);
             }
@@ -416,27 +423,27 @@ namespace AF
             if (weapon.physicalAttack > 0)
             {
                 root.Q<Label>("PhysicalAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("PhysicalAttack").text = LocalizedTerms.PhysicalDamage() + ": " + weapon.GetWeaponAttackForLevel(weapon.level) + " > " + weapon.GetWeaponAttackForLevel(nextLevel);
+                root.Q<Label>("PhysicalAttack").text = "Physical Damage: " + weapon.GetWeaponAttackForLevel(weapon.level) + " > " + weapon.GetWeaponAttackForLevel(nextLevel);
             }
             if (weapon.fireAttack > 0)
             {
                 root.Q<Label>("FireAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("FireAttack").text = LocalizedTerms.FireBonus() + ": " + weapon.GetWeaponFireAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFireAttackForLevel(nextLevel);
+                root.Q<Label>("FireAttack").text = "Fire Bonus: " + weapon.GetWeaponFireAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFireAttackForLevel(nextLevel);
             }
             if (weapon.frostAttack > 0)
             {
                 root.Q<Label>("FrostAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("FrostAttack").text = LocalizedTerms.FrostBonus() + ": " + weapon.GetWeaponFrostAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFrostAttackForLevel(nextLevel);
+                root.Q<Label>("FrostAttack").text = "Frost Bonus: " + weapon.GetWeaponFrostAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFrostAttackForLevel(nextLevel);
             }
             if (weapon.lightningAttack > 0)
             {
                 root.Q<Label>("LightningAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("LightningAttack").text = LocalizedTerms.LightningBonus() + ": " + weapon.GetWeaponLightningAttackForLevel(weapon.level) + " > " + weapon.GetWeaponLightningAttackForLevel(nextLevel);
+                root.Q<Label>("LightningAttack").text = "Lightning Bonus: " + weapon.GetWeaponLightningAttackForLevel(weapon.level) + " > " + weapon.GetWeaponLightningAttackForLevel(nextLevel);
             }
             if (weapon.magicAttack > 0)
             {
                 root.Q<Label>("MagicAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("MagicAttack").text = LocalizedTerms.MagicBonus() + ": " + weapon.GetWeaponMagicAttackForLevel(weapon.level) + " > " + weapon.GetWeaponMagicAttackForLevel(nextLevel);
+                root.Q<Label>("MagicAttack").text = "Magic Bonus: " + weapon.GetWeaponMagicAttackForLevel(weapon.level) + " > " + weapon.GetWeaponMagicAttackForLevel(nextLevel);
             }
 
             // Requiremnts
@@ -461,7 +468,7 @@ namespace AF
 
             var goldItemEntry = ingredientItem.CloneTree();
             goldItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(goldSprite);
-            goldItemEntry.Q<Label>("Title").text = LocalizedTerms.Gold();
+            goldItemEntry.Q<Label>("Title").text = "Gold";
 
             goldItemEntry.Q<Label>("Amount").text = playerStatsDatabase.gold + " / " + weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel);
             goldItemEntry.Q<Label>("Amount").style.opacity = playerStatsDatabase.gold >= weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel) ? 1 : 0.25f;

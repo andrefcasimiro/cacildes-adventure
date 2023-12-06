@@ -15,7 +15,7 @@ namespace AF
 
         private void Awake()
         {
-             combatNotificationManager = FindObjectOfType<CombatNotificationManager>(true);
+            combatNotificationManager = FindObjectOfType<CombatNotificationManager>(true);
         }
 
         public void AddNotification(string text, Color color)
@@ -75,11 +75,11 @@ namespace AF
                 return;
             }
 
-            AddNotification("- " + amount + " " + LocalizedTerms.From().ToLower() + " " + statusEffect.ToLower(), statusEffectColor);
+            AddNotification("- " + amount + " from " + statusEffect.ToLower(), statusEffectColor);
         }
         public void ShowCritical(float amount)
         {
-            AddNotification("- " + amount + " " + LocalizedTerms.From().ToLower() + " " + LocalizedTerms.CriticalAttack().ToLower(), combatNotificationManager.criticalDamage);
+            AddNotification("- " + amount + " from critical attack", combatNotificationManager.criticalDamage);
         }
     }
 

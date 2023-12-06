@@ -25,12 +25,10 @@ namespace AF
         [SerializeField] private UIDocumentLevelUp levelUp;
         [SerializeField] private UIDocumentShopMenu shopMenu;
         ViewMenu[] viewMenu;
-        ReadableUIDocument[] readableUIDocuments;
 
         [SerializeField] private UIDocumentTitleScreen titleScreen;
         [SerializeField] private UIDocumentTitleScreenControls screenControls;
         [SerializeField] private UIDocumentTitleScreenCredits screenCredits;
-        [SerializeField] private UIDocumentTitleScreenLoadMenu loadMenu;
         [SerializeField] private UIDocumentTitleScreenOptions options;
 
         [Header("Components")]
@@ -39,7 +37,6 @@ namespace AF
         private void Awake()
         {
             viewMenu = FindObjectsByType<ViewMenu>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            readableUIDocuments = FindObjectsByType<ReadableUIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         }
 
         public bool CanShowGUI()
@@ -85,11 +82,6 @@ namespace AF
                 return false;
             }
 
-            if (loadMenu != null && loadMenu.isActiveAndEnabled)
-            {
-                return false;
-            }
-
             if (options != null && options.isActiveAndEnabled)
             {
                 return false;
@@ -124,14 +116,6 @@ namespace AF
             foreach (var element in viewMenu)
             {
                 if (element != null && element.isActiveAndEnabled)
-                {
-                    return false;
-                }
-            }
-
-            foreach (var element in readableUIDocuments)
-            {
-                if (element != null && element.document.isActiveAndEnabled)
                 {
                     return false;
                 }

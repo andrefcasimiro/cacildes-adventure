@@ -1,10 +1,7 @@
-﻿using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UIElements;
+﻿using UnityEngine.UIElements;
 
 namespace AF
 {
-
     public class ViewSettingsMenu : ViewMenu
     {
         public enum ActiveMenu { OPTIONS, LOAD_GAME }
@@ -35,15 +32,13 @@ namespace AF
         {
             viewComponent_GameSettings.SetupRefs(root);
 
-            bool isEnglish = GamePreferences.instance.IsEnglish();
-
             optionsContainer = root.Q<VisualElement>("OptionsMenu");
 
             optionMenu = root.Q<Button>("Options");
-            optionMenu.text = isEnglish ? "Options" : "Opções";
+            optionMenu.text = "Options";
 
             loadGame = root.Q<Button>("LoadGame");
-            loadGame.text = isEnglish ? "Load Game" : "Carregar Jogo";
+            loadGame.text = "Load Game";
 
 
             optionMenu.clicked += () =>
@@ -54,9 +49,7 @@ namespace AF
 
             loadGame.clicked += () =>
             {
-                FindAnyObjectByType<UIDocumentTitleScreenLoadMenu>(FindObjectsInactive.Include).gameObject.SetActive(true);
                 menuManager.CloseMenu();
-
             };
         }
 
@@ -73,8 +66,5 @@ namespace AF
                 viewComponent_GameSettings.TranslateSettingsUI(root);
             }
         }
-
-
-
     }
 }

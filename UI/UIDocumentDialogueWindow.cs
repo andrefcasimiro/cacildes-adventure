@@ -54,6 +54,7 @@ namespace AF
 
         [Header("Components")]
         public StarterAssetsInputs inputs;
+        public Soundbank soundbank;
 
         [Header("Unity Events")]
         public UnityEvent onEnableEvent;
@@ -80,6 +81,12 @@ namespace AF
             this.pressToContinueLabel = this.root.Q<Label>("PressToContinue");
             this.actorInfoContainer = this.root.Q<VisualElement>("ActorInfoContainer");
 
+            onEnableEvent?.Invoke();
+        }
+
+        private void OnDisable()
+        {
+            onDisableEvent?.Invoke();
         }
 
         public IEnumerator DisplayMessage(
@@ -89,7 +96,6 @@ namespace AF
                 )
         {
             gameObject.SetActive(true);
-            onEnableEvent?.Invoke();
 
             ShowMessage(character, message);
 
@@ -118,15 +124,15 @@ namespace AF
 
             yield return new WaitUntil(() => inputs.interact == false);
 
-            onDisableEvent?.Invoke();
             gameObject.SetActive(false);
+
         }
 
         private void ShowMessage(Character character, string message)
         {
             hasFinishedTypewriter = false;
 
-            Soundbank.instance.PlayUIDialogue();
+            soundbank.PlaySound(soundbank.uiDialogue);
 
             DOTween.To(
                   () => root.contentContainer.style.opacity.value,
@@ -150,11 +156,11 @@ namespace AF
 
             if (Gamepad.current != null)
             {
-                pressToContinueLabel.text = GamePreferences.instance.IsEnglish() ? "Speed up / Continue" : "Acelerar / Continuar";
+                pressToContinueLabel.text = "Speed up / Continue";
             }
             else
             {
-                pressToContinueLabel.text = GamePreferences.instance.IsEnglish() ? "E) Speed up / Continue" : "E) Acelerar / Continuar";
+                pressToContinueLabel.text = "E) Speed up / Continue";
             }
 
             if (string.IsNullOrEmpty(character.name) == false)
@@ -237,12 +243,9 @@ namespace AF
                 {
                     selectedResponse = response;
                     response.onResponseSelected?.Invoke();
-                });
+                }, soundbank);
 
-                if (elementToFocus == null)
-                {
-                    elementToFocus = newDialogueChoiceItem.Q<Button>();
-                }
+                elementToFocus ??= newDialogueChoiceItem.Q<Button>();
 
                 dialogueChoicePanel.Add(newDialogueChoiceItem);
             }

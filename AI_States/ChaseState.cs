@@ -69,6 +69,8 @@ namespace AF
                 }
                 else if (distanceToTarget > maxChaseDistance)
                 {
+                    characterManager.targetManager.currentTarget = null;
+
                     onTargetLost?.Invoke();
                     return patrolOrIdleState;
                 }

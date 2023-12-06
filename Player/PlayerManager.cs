@@ -1,5 +1,6 @@
 using AF.Animations;
 using AF.Equipment;
+using AF.Footsteps;
 using AF.Health;
 using AF.Ladders;
 using AF.Shooting;
@@ -42,7 +43,7 @@ namespace AF
             // First, reset all flags before calling the handlers
             isBusy = false;
             animator.applyRootMotion = false;
-            dodgeController.hasIframes = false;
+
             thirdPersonController.canRotateCharacter = true;
 
             if (playerInventory.currentConsumedItem != null)
@@ -50,6 +51,7 @@ namespace AF
                 playerInventory.FinishItemConsumption();
             }
 
+            dodgeController.ResetStates();
             playerInventory.ResetStates();
             characterPosture.ResetStates();
 

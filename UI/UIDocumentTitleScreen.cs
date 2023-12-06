@@ -10,11 +10,11 @@ namespace AF
         [Header("Components")]
         public TitleScreenManager titleScreenManager;
         public CursorManager cursorManager;
-        public UIDocumentTitleScreenLoadMenu uIDocumentTitleScreenLoadMenu;
         public UIDocumentTitleScreenCredits uIDocumentTitleScreenCredits;
         public UIDocumentTitleScreenOptions uIDocumentTitleScreenOptions;
         public UIDocumentTitleScreenControls uIDocumentTitleScreenControls;
-        public UIManager uiManager;
+        public Soundbank soundbank;
+        public SaveManager saveManager;
 
         [Header("Game Session")]
         public GameSession gameSession;
@@ -43,51 +43,53 @@ namespace AF
             {
                 titleScreenManager.StartGame();
                 gameObject.SetActive(false);
-            });
+            }, soundbank);
+
+            continueButton.SetEnabled(saveManager.HasSavedGame());
 
             UIUtils.SetupButton(continueButton, () =>
             {
-                uIDocumentTitleScreenLoadMenu.gameObject.SetActive(true);
+                saveManager.LoadLastSavedGame();
                 gameObject.SetActive(false);
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(playTutorialButton, () =>
             {
                 //Player.instance.LoadScene(6, true);
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(creditsButton, () =>
             {
                 uIDocumentTitleScreenCredits.gameObject.SetActive(true);
                 gameObject.SetActive(false);
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(optionsButton, () =>
             {
                 uIDocumentTitleScreenOptions.gameObject.SetActive(true);
                 gameObject.SetActive(false);
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(controlsButton, () =>
             {
                 uIDocumentTitleScreenControls.gameObject.SetActive(true);
                 gameObject.SetActive(false);
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(exitButton, () =>
             {
                 Application.Quit();
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(btnTwitter, () =>
             {
                 Application.OpenURL("https://twitter.com/CacildesGame");
-            });
+            }, soundbank);
 
             UIUtils.SetupButton(btnDiscord, () =>
             {
                 Application.OpenURL("https://discord.gg/JwnZMc27D2");
-            });
+            }, soundbank);
 
 
             cursorManager.ShowCursor();

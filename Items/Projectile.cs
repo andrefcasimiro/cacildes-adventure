@@ -193,14 +193,6 @@ namespace AF
                 // Instantiate(Player.instance.equippedShield.blockFx, other.transform.position, Quaternion.identity);
             }*/
 
-            if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.EASY)
-            {
-                projectileDamage = (int)(projectileDamage / 3);
-            }
-            else if (GamePreferences.instance.gameDifficulty == GamePreferences.GameDifficulty.MEDIUM)
-            {
-                projectileDamage = (int)(projectileDamage / 2);
-            }
 
 
             // Take damage

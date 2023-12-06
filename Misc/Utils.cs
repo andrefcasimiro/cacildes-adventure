@@ -17,6 +17,7 @@ namespace AF
 
             origin.rotation = rotation;
         }
+
         public static Vector3 GetNearestNavMeshPoint(Vector3 reference)
         {
             // Teleport near player
@@ -24,6 +25,32 @@ namespace AF
             NavMesh.SamplePosition(reference, out hit, Mathf.Infinity, NavMesh.AllAreas);
 
             return hit.position;
+        }
+
+        public static void AvoidInvalidPaths(NavMeshAgent agent)
+        {
+            var path = new NavMeshPath();
+            NavMesh.CalculatePath(agent.transform.position, agent.transform.position, NavMesh.AllAreas, path);
+            if (path.status == NavMeshPathStatus.PathInvalid)
+            {
+
+                NavMesh.SamplePosition(agent.transform.position, out NavMeshHit hit, 1f, NavMesh.AllAreas);
+
+                if (!float.IsNaN(hit.position.x) && !float.IsInfinity(hit.position.x) &&
+                    !float.IsNaN(hit.position.y) && !float.IsInfinity(hit.position.y) &&
+                    !float.IsNaN(hit.position.z) && !float.IsInfinity(hit.position.z))
+                {
+                    // It's a valid position, so assign it to nextPosition
+                    agent.nextPosition = hit.position != null ? hit.position : agent.transform.position;
+                    agent.updatePosition = true;
+                }
+                else
+                {
+                    // Handle the case where the position is invalid
+                    Debug.LogError("Invalid positionWithLocalOffset: " + hit.position);
+                }
+
+            }
         }
 
     }

@@ -1,3 +1,4 @@
+using AF.Music;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
@@ -28,6 +29,9 @@ namespace AF
         [Header("Boss Partner")]
         public int order = 1;
         public EnemyBossController partner;
+
+        [Header("Components")]
+        public BGMManager bgmManager;
 
         [Header("Reputation")]
         public int reputationLostForKillingBoss = 0;
@@ -96,9 +100,9 @@ namespace AF
 
             if (bossMusic != null)
             {
-                if (BGMManager.instance.IsPlayingMusicClip(bossMusic.name) == false)
+                if (bgmManager.IsPlayingMusicClip(bossMusic.name) == false)
                 {
-                    BGMManager.instance.PlayMusic(bossMusic);
+                    bgmManager.PlayMusic(bossMusic);
                 }
             }
         }

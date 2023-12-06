@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
@@ -7,18 +5,14 @@ namespace AF
 
     public class LockOnRef : MonoBehaviour
     {
-        [HideInInspector] public CharacterManager characterManager;
-
-        private void Start()
-        {
-            characterManager = GetComponentInParent<CharacterManager>(true);
-        }
+        [Header("Components")]
+        public CharacterManager characterManager;
 
         public bool CanLockOn()
         {
             if (characterManager != null)
             {
-                return false;// characterManager.enemyHealthController.currentHealth > 0;
+                return characterManager.health.GetCurrentHealth() > 0;
             }
 
             // Must be dummy target then

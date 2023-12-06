@@ -112,6 +112,11 @@ namespace AF
         /// </summary>
         public void OnNextMenu()
         {
+            if (!isMenuOpen)
+            {
+                return;
+            }
+
             viewMenuIndex++;
             SetMenuView();
         }
@@ -121,6 +126,11 @@ namespace AF
         /// </summary>
         public void OnPreviousMenu()
         {
+            if (!isMenuOpen)
+            {
+                return;
+            }
+
             viewMenuIndex--;
             SetMenuView();
         }

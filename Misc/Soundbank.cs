@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
+using AF.Music;
 using UnityEngine;
 
 namespace AF
 {
     public class Soundbank : MonoBehaviour
     {
-
+        [Header("Components")]
+        public BGMManager bgmManager;
 
         [Header("UI Sounds")]
         public AudioClip uiDecision;
@@ -44,174 +44,15 @@ namespace AF
         public AudioClip illusionaryWallSound;
         public AudioClip uiDialogue;
 
-        public static Soundbank instance;
 
-        float maxSelectCooldownTimer = .2f;
-        float selectCooldownTimer = Mathf.Infinity;
-
-        private void Awake()
+        public void PlaySound(AudioClip sound)
         {
-            if (instance != null && instance != this)
-            {
-                Destroy(this.gameObject);
-            }
-            else
-            {
-                instance = this;
-            }
+            PlaySound(sound, null);
         }
 
-        private void Update()
+        public void PlaySound(AudioClip sound, AudioSource audioSource)
         {
-            if (selectCooldownTimer < maxSelectCooldownTimer)
-            {
-                selectCooldownTimer += Time.deltaTime;
-            }
-        }
-
-        #region UI Sounds
-        public void PlayUIDecision()
-        {
-            BGMManager.instance.PlaySound(uiDecision, null);
-        }
-
-        public void PlayUICancel()
-        {
-            BGMManager.instance.PlaySound(uiCancel, null);
-        }
-
-        public void PlayUIHover()
-        {
-            if (selectCooldownTimer < maxSelectCooldownTimer)
-            {
-                return;
-            }
-
-            BGMManager.instance.PlaySound(uiHover, null);
-            selectCooldownTimer = 0;
-        }
-
-        public void PlayReputationIncreased()
-        {
-            BGMManager.instance.PlaySound(reputationIncreased, null);
-        }
-
-        public void PlayReputationDecreased()
-        {
-            BGMManager.instance.PlaySound(reputationDecreased, null);
-        }
-        #endregion
-
-        public void PlayEnemyGuardBreak()
-        {
-            BGMManager.instance.PlaySound(enemyGuardBreak, null);
-        }
-
-        #region Movement
-        public void PlayCloth(AudioSource audioSource)
-        {
-            BGMManager.instance.PlaySound(cloth, audioSource);
-        }
-
-        public void PlayDodge(AudioSource audioSource)
-        {
-            BGMManager.instance.PlaySound(dodge, audioSource);
-        }
-
-        public void PlayLanding(AudioSource audioSource)
-        {
-            BGMManager.instance.PlaySound(landing, audioSource);
-        }
-        #endregion
-
-        public void PlayItemReceived()
-        {
-            BGMManager.instance.PlaySound(uiItemReceived, null);
-        }
-
-        public void PlayBookFlip()
-        {
-            BGMManager.instance.PlaySound(bookFlip, null);
-        }
-
-        public void PlayCoin()
-        {
-            BGMManager.instance.PlaySound(coin, null);
-        }
-
-        public void PlayNotificationAlert()
-        {
-            BGMManager.instance.PlaySound(alert, null);
-        }
-        
-        public void PlayCraftSuccess()
-        {
-            BGMManager.instance.PlaySound(craftSuccess, null);
-        }
-        
-        public void PlayCraftError()
-        {
-            BGMManager.instance.PlaySound(craftError, null);
-        }
-        
-        public void PlayGameOver()
-        {
-            BGMManager.instance.PlaySound(gameOverFanfare, null);
-        }
-
-        public void PlayLeverActivated()
-        {
-            BGMManager.instance.PlaySound(activateLever, null);
-        }
-
-        public void PlayHeavyDoor()
-        {
-            BGMManager.instance.PlaySound(openHeavyDoor, null);
-        }
-
-        public void PlayQuickItemSwitch()
-        {
-            BGMManager.instance.PlaySound(quickItemSwitch, null);
-        }
-
-        public void PlayCompanionJoinParty()
-        {
-            BGMManager.instance.PlaySound(companionJoin, null);
-        }
-
-        public void PlayCompanionLeaveParty()
-        {
-            BGMManager.instance.PlaySound(companionLeave, null);
-        }
-
-        public void PlayIllusionaryWall()
-        {
-            BGMManager.instance.PlaySound(illusionaryWallSound, null);
-        }
-
-        public void PlayMainMenuOpen()
-        {
-            BGMManager.instance.PlaySound(mainMenuOpen, null);
-        }
-        public void PlayUIEquip()
-        {
-            BGMManager.instance.PlaySound(uiEquip, null);
-        }
-        public void PlayUIUnequip()
-        {
-            BGMManager.instance.PlaySound(uiUnequip, null);
-        }
-        public void PlayLockOn()
-        {
-            BGMManager.instance.PlaySound(uiLockOn, null);
-        }
-        public void PlayLockOnSwitchTarget()
-        {
-            BGMManager.instance.PlaySound(uiLockOnSwitchTarget, null);
-        }
-        public void PlayUIDialogue()
-        {
-            BGMManager.instance.PlaySound(uiDialogue, null);
+            bgmManager.PlaySound(sound, audioSource);
         }
 
     }

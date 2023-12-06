@@ -123,11 +123,6 @@ namespace AF
                 value = Mathf.FloorToInt(value * jumpAttackMultiplier);
             }
 
-            if (dodgeController.IsRollAttacking())
-            {
-                value += dodgeController.dodgeAttackBonus;
-            }
-
             return (int)Mathf.Round(
                 Mathf.Ceil(
                     value

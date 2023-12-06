@@ -54,8 +54,6 @@ namespace AF
         public AudioSource combatAudioSource;
         [Range(0, 100)]
         public float attackWeight = 75;
-        public CompanionWeaponHitbox leftWeapon;
-        public CompanionWeaponHitbox rightWeapon;
 
         [Header("Health")]
         public float baseHealth = 100;
@@ -206,61 +204,7 @@ namespace AF
 
         #endregion
 
-        #region Weapon Hitboxes
 
-        public void DisableAllWeaponHitboxes()
-        {
-            DeactivateLeftHandHitbox();
-            DeactivateRightHandHitbox();
-        }
-
-
-        public void ActivateLeftHandHitbox()
-        {
-            if (leftWeapon == null)
-            {
-                return;
-            }
-
-            leftWeapon.EnableHitbox();
-        }
-        public void DeactivateLeftHandHitbox()
-        {
-            if (leftWeapon == null)
-            {
-                return;
-            }
-
-            leftWeapon.DisableHitbox();
-        }
-
-        public void ActivateRightHandHitbox()
-        {
-            if (rightWeapon == null)
-            {
-                return;
-            }
-
-            rightWeapon.EnableHitbox();
-        }
-
-        public void DeactivateRightHandHitbox()
-        {
-            if (rightWeapon == null)
-            {
-                return;
-            }
-
-            rightWeapon.DisableHitbox();
-        }
-
-        public void ActivateLeftWeaponHitbox() { ActivateLeftHandHitbox(); }
-        public void DeactivateLeftWeaponHitbox() { DeactivateLeftHandHitbox(); }
-
-        public void ActivateRightWeaponHitbox() { ActivateRightHandHitbox(); }
-        public void DeactivateRightWeaponHitbox() { DeactivateRightHandHitbox(); }
-
-        #endregion
 
         #region Chase Enemy
 

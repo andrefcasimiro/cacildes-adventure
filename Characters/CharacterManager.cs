@@ -1,5 +1,6 @@
 ﻿using AF.Animations;
 using AF.Combat;
+using AF.Equipment;
 using AF.Health;
 using AF.Shooting;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace AF
         public TargetManager targetManager;
 
         public CharacterBaseShooter characterBaseShooter;
+        public CharacterWeaponsManager characterWeaponsManager;
 
         // Animator Overrides
         [HideInInspector] public AnimatorOverrideController animatorOverrideController;
@@ -32,6 +34,8 @@ namespace AF
 
             characterPosture.ResetStates();
             characterCombatController.ResetStates();
+            characterWeaponsManager.ResetStates();
+            targetManager.ResetStates();
         }
 
         public void UpdateAnimatorOverrideControllerClips(string animationName, AnimationClip animationClip)

@@ -3,6 +3,7 @@ using Input = UnityEngine.Input;
 using CI.QuickSave;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using AYellowpaper.SerializedCollections;
 
 namespace AF
 {
@@ -12,6 +13,14 @@ namespace AF
         [Header("Databases")]
         public PickupDatabase pickupDatabase;
 
+        [Header("Components")]
+        public FadeManager fadeManager;
+
+        public bool HasSavedGame()
+        {
+            return QuickSaveReader.Create("Scene").Exists("sceneIndex");
+        }
+
         public void SaveGameData()
         {
             SavePickups();
@@ -20,8 +29,11 @@ namespace AF
 
         public void LoadLastSavedGame()
         {
-            LoadPickups();
-            LoadSceneSettings();
+            fadeManager.FadeIn(1f, () =>
+            {
+                LoadPickups();
+                LoadSceneSettings();
+            });
         }
 
         void SavePickups()
@@ -35,9 +47,9 @@ namespace AF
             pickupDatabase.Clear();
 
             var pickups = QuickSaveReader.Create("Pickups");
-            pickups.Read<PickupDatabase.PickupData[]>("pickups", (pickups) =>
+            pickups.Read<SerializedDictionary<string, string>>("pickups", (pickups) =>
             {
-                pickupDatabase.pickups = pickups.ToList();
+                pickupDatabase.pickups = pickups;
             });
         }
 

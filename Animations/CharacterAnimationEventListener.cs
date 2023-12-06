@@ -16,7 +16,9 @@ namespace AF.Animations
         public UnityEvent onLeftFootstep;
         public UnityEvent onRightFootstep;
         public UnityEvent onLeftWeaponHitboxOpen;
+        public UnityEvent onLeftWeaponHitboxClose;
         public UnityEvent onRightWeaponHitboxOpen;
+        public UnityEvent onRightWeaponHitboxClose;
         public UnityEvent onLeftFootHitboxOpen;
         public UnityEvent onRightFootHitboxOpen;
 
@@ -32,6 +34,7 @@ namespace AF.Animations
 
         public void OnRightFootstep()
         {
+
             onRightFootstep?.Invoke();
         }
 
@@ -42,11 +45,18 @@ namespace AF.Animations
 
         public void CloseLeftWeaponHitbox()
         {
+            onLeftWeaponHitboxClose?.Invoke();
+
         }
 
         public void OpenRightWeaponHitbox()
         {
             onRightWeaponHitboxOpen?.Invoke();
+        }
+
+        public void CloseRightWeaponHitbox()
+        {
+            onRightWeaponHitboxClose?.Invoke();
         }
 
         public void OpenLeftFootHitbox()
@@ -67,9 +77,6 @@ namespace AF.Animations
         {
         }
 
-        public void CloseRightWeaponHitbox()
-        {
-        }
 
         public void DisableRotation()
         {

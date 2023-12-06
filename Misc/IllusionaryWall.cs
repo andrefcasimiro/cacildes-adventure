@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -18,6 +17,9 @@ namespace AF
 
         bool hasSentAnalyticsMessage = false;
         public string analyticsMessage;
+
+        [Header("Components")]
+        public Soundbank soundbank;
 
         private void Start()
         {
@@ -55,7 +57,7 @@ namespace AF
 
                 hasDeactivatedColliders = true;
 
-                Soundbank.instance.PlayIllusionaryWall();
+                soundbank.PlaySound(soundbank.illusionaryWallSound);
             }
 
             if (alpha <= 0)
@@ -73,7 +75,7 @@ namespace AF
 
             if (other.CompareTag("Player"))
             {
-                if (other.GetComponent<DodgeController>().IsDodging())
+                if (other.GetComponent<DodgeController>().isDodging)
                 {
                     hasBeenHit = true;
                 }

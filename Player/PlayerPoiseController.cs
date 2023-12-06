@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using AF.Ladders;
+using AF.Music;
 using AF.Stats;
 using UnityEngine;
 
@@ -16,6 +17,7 @@ namespace AF
         [Header("Components")]
         public PlayerManager playerManager;
         public LockOnManager lockOnManager;
+        public BGMManager bgmManager;
 
         [Header("Posture")]
         public int unarmedPoiseHits = 1;
@@ -127,7 +129,7 @@ namespace AF
         {
             yield return new WaitForSeconds(0.1f);
 
-            BGMManager.instance.PlaySoundWithPitchVariation(damageSfx, playerManager.playerCombatController.combatAudioSource);
+            bgmManager.PlaySoundWithPitchVariation(damageSfx, playerManager.playerCombatController.combatAudioSource);
         }
 
         public int GetMaxPoise()

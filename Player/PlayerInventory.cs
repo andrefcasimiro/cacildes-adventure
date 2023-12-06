@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using AF.Inventory;
 using AF.Ladders;
@@ -38,6 +36,9 @@ namespace AF
 
         [Header("Flags")]
         public bool isConsumingItem = false;
+
+        // Consts
+        private const string CANT_CONSUME_ITEM_AT_THIS_TIME = "Can't consume item at this time";
 
         public void ResetStates()
         {
@@ -117,38 +118,37 @@ namespace AF
 
             if (consumable.lostUponUse == false && inventoryDatabase.GetItemAmount(consumable) <= 0)
             {
-                notificationManager.ShowNotification(LocalizedTerms.DepletedConsumable(), notificationManager.notEnoughSpells);
+                notificationManager.ShowNotification("Consumable depleted", notificationManager.notEnoughSpells);
                 return;
             }
 
             if (playerManager.playerCombatController.isCombatting)
             {
-                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
+                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
                 return;
             }
-
 
             if (playerManager.characterPosture.IsStunned())
             {
-                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
+                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
                 return;
             }
 
-            if (playerManager.dodgeController.IsDodging())
+            if (playerManager.dodgeController.isDodging)
             {
-                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
+                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
                 return;
             }
 
             if (!playerManager.thirdPersonController.Grounded)
             {
-                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
+                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
                 return;
             }
 
             if (playerManager.climbController.climbState != ClimbState.NONE)
             {
-                notificationManager.ShowNotification(LocalizedTerms.CantConsumeAtThisTime(), notificationManager.systemError);
+                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
                 return;
             }
 
@@ -211,6 +211,14 @@ namespace AF
 
         public void FinishItemConsumption()
         {
+            if (currentConsumedItem == null)
+            {
+                return;
+            }
+
+            playerManager.playerComponentManager.EnableCharacterController();
+            playerManager.playerComponentManager.EnableComponents();
+
             if (currentConsumedItem.shouldNotRemoveOnUse == false)
             {
                 playerManager.playerInventory.RemoveItem(currentConsumedItem, 1);
@@ -232,81 +240,14 @@ namespace AF
 
             foreach (StatusEffect statusEffect in currentConsumedItem.statusEffectsWhenConsumed)
             {
-                playerManager.statusController.InflictStatusEffect(statusEffect, currentConsumedItem.effectsDuration, true);
-            }
+                // For positive effects, we override the status effect resistance to be the duration of the consumable effect
+                playerManager.statusController.statusEffectResistances[statusEffect] = currentConsumedItem.effectsDurationInSeconds;
 
-            if (currentConsumedItem.onConsumeActionType == Consumable.OnConsumeActionType.CLOCK)
-            {
-                StartCoroutine(RecoverWatchControl(1.2f));
-                return;
-            }
-
-            if (currentConsumedItem.destroyItemOnConsumeMoment)
-            {
-                StartCoroutine(RecoverControl(currentConsumedItem.onConsumeActionType == Consumable.OnConsumeActionType.DRINK ? 0.7f : 0.9f));
-            }
-            else
-            {
-                StartCoroutine(RecoverControl(0f));
+                playerManager.statusController.InflictStatusEffect(statusEffect, currentConsumedItem.effectsDurationInSeconds, true);
             }
 
             currentConsumedItem = null;
             Destroy(this.consumableGraphicInstance);
-        }
-
-
-        IEnumerator RecoverControl(float waitTime)
-        {
-            yield return new WaitForSeconds(waitTime);
-
-            playerManager.playerComponentManager.EnableCharacterController();
-            playerManager.playerComponentManager.EnableComponents();
-        }
-
-        IEnumerator RecoverWatchControl(float waitTime)
-        {
-            yield return new WaitForSeconds(waitTime);
-
-            playerManager.playerComponentManager.EnableCharacterController();
-            playerManager.playerComponentManager.EnableComponents();
-
-            currentConsumedItem = null;
-            Destroy(this.consumableGraphicInstance);
-        }
-
-        /// <summary>
-        /// Animation Event
-        /// </summary>
-        public void OnItemConsumed()
-        {
-            if (currentConsumedItem == null)
-            {
-                return;
-            }
-
-            if (playerStatsDatabase.currentHealth <= 0)
-            {
-                return;
-            }
-
-            if (currentConsumedItem.sfxOnConsume != null)
-            {
-                BGMManager.instance.PlaySound(currentConsumedItem.sfxOnConsume, null);
-            }
-
-            if (currentConsumedItem.particleOnConsume != null)
-            {
-                Instantiate(currentConsumedItem.particleOnConsume, GameObject.FindWithTag("Player").transform);
-            }
-
-
-            //      currentConsumedItem.OnConsumeSuccess(this, statusDatabase);
-            /*
-                        if (currentConsumedItem.destroyItemOnConsumeMoment)
-                        {
-                            FinishItemConsumption();
-                        }*/
         }
     }
-
 }

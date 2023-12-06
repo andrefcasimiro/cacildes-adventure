@@ -206,9 +206,6 @@ namespace AF
                     var roundManager = FindAnyObjectByType<RoundManager>(FindObjectsInactive.Include);
                     bool hasWon = true;
 
-                    messageToShow.localizedTexts[0].gameLanguage = GamePreferences.GameLanguage.PORTUGUESE;
-                    messageToShow.localizedTexts[1].gameLanguage = GamePreferences.GameLanguage.ENGLISH;
-
                     if (hasWon)
                     {
                         messageToShow.localizedTexts[0].text = $"Parabéns! Bateste um novo recorde. Aguentaste {roundManager.currentRound} rondas durante um tempo total de {roundManager.GetFormmatedTimed(roundManager.elapsedTime)}!\n Lutaste ferozmente, e agora é hora de voltar!";

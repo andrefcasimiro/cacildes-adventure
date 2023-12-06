@@ -10,6 +10,11 @@ namespace AF.Combat
 
         public CharacterBaseManager currentTarget;
 
+        public void ResetStates()
+        {
+            currentTarget = null;
+        }
+
         public void SetTarget(CharacterBaseManager target)
         {
             if (currentTarget == target)

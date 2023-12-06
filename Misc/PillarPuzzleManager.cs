@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AF.Music;
 using UnityEngine;
 
 namespace AF
 {
     public class PillarPuzzleManager : MonoBehaviour
     {
+        [Header("Components")]
+        public BGMManager bgmManager;
         public int currentScore = 0;
         public int maxScore = 4;
 
@@ -34,7 +37,7 @@ namespace AF
                 var notif = FindObjectOfType<NotificationManager>(true);
                 notif.ShowNotification(successText.GetText(), notif.door);
 
-                BGMManager.instance.PlaySound(successSound, null);
+                bgmManager.PlaySound(successSound, null);
 
                 SwitchManager.instance.UpdateSwitch(switchToActivate, true, null);
             }
@@ -44,7 +47,7 @@ namespace AF
         {
             currentScore = 0;
 
-            BGMManager.instance.PlaySound(failSound, null);
+            bgmManager.PlaySound(failSound, null);
 
             foreach (var puzzleEntry in pillarPuzzleEntries)
             {

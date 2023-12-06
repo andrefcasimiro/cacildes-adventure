@@ -13,6 +13,7 @@ namespace AF.Shops
         [Header("Components")]
         public CursorManager cursorManager;
         public PlayerManager playerManager;
+        public Soundbank soundbank;
 
         [Header("UI Components")]
         public UIDocument uiDocument;
@@ -110,7 +111,7 @@ namespace AF.Shops
             {
 
             },
-            true);
+            true, soundbank);
 
             exitButton.Focus();
             scrollView.Add(exitButton);
@@ -244,7 +245,7 @@ namespace AF.Shops
                 {
                     HideItemPreview();
                 },
-                false);
+                false, soundbank);
 
                 root.Q<ScrollView>().Add(cloneButton);
             }
@@ -262,8 +263,8 @@ namespace AF.Shops
                 // Give item to player
                 playerManager.playerInventory.AddItem(item, 1);
 
-                Soundbank.instance.PlayItemReceived();
-                notificationManager.ShowNotification(LocalizedTerms.Bought() + " x" + 1 + " " + item.name.GetEnglishText() + "", item.sprite);
+                soundbank.PlaySound(soundbank.uiItemReceived);
+                notificationManager.ShowNotification("Bought " + item.name.GetEnglishText() + "", item.sprite);
 
                 DrawBuyMenu(characterShop);
             }
@@ -277,7 +278,7 @@ namespace AF.Shops
             // Give item to player
             playerManager.playerInventory.RemoveItem(item, 1);
 
-            Soundbank.instance.PlayItemReceived();
+            soundbank.PlaySound(soundbank.uiItemReceived);
             notificationManager.ShowNotification("Sold " + item.name.GetEnglishText() + "", item.sprite);
 
             DrawSellMenu(characterShop);

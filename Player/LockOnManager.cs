@@ -12,46 +12,48 @@ namespace AF
         public readonly int hashStrafeHorizontal = Animator.StringToHash("StrafeHorizontal");
         public readonly int hashStrafeVertical = Animator.StringToHash("StrafeVertical");
 
+        [Header("UI")]
+        public GameObject lockOnUi;
+        [Header("Flags")]
         public bool isLockedOn = false;
 
-        public GameObject lockOnUi;
-
-        public Animator playerAnimator;
+        [Header("Components")]
+        public PlayerManager playerManager;
         public Transform playerHeadRef;
-
+        public Soundbank soundbank;
         public StarterAssetsInputs inputs;
 
+        [Header("Cameras")]
         public GameObject defaultCamera;
         public GameObject lockOnCamera;
 
+        [Header("Lock On Settings")]
         public float maximumLockOnDistance = 15;
+        public float MAX_TIME_BEFORE_DISENGAGING = 1f;
+
+        [Header("Lock On References")]
 
         public LockOnRef nearestLockOnTarget;
 
         public LockOnRef leftLockTarget;
         public LockOnRef rightLockTarget;
 
-        public float mouseSensitivityForNearbyTargets = 1.25f;
+        [Header("Layers")]
+        public LayerMask detectionLayer;
+        public LayerMask blockLayers;
 
-        public int LayerEnvironment;
-        public int LayerDefault;
 
         [Header("Target Switching")]
         public int mouseXSwitchThreshold = 2;
         public float maxTargetSwitchingCooldown = 1f;
         [HideInInspector] public float targetSwitchingCooldown = Mathf.Infinity;
 
+
+        // Internal
         public List<LockOnRef> availableTargets = new List<LockOnRef>();
 
         bool evaluatingIfShouldDisengage = false;
-
-        public float MAX_TIME_BEFORE_DISENGAGING = 1f;
-
-        private void Awake()
-        {
-            LayerEnvironment = LayerMask.NameToLayer("Environment");
-            LayerDefault = LayerMask.NameToLayer("Default");
-        }
+        Coroutine CheckIfShouldDisengageCoroutine;
 
         private void Start()
         {
@@ -65,51 +67,33 @@ namespace AF
                 targetSwitchingCooldown += Time.deltaTime;
             }
 
-            if (inputs.lockOn)
-            {
-                inputs.lockOn = false;
-
-                if (isLockedOn)
-                {
-                    DisableLockOn();
-                }
-                else
-                {
-                    HandleLockOnClick();
-                }
-            }
-
             if (nearestLockOnTarget != null)
             {
-                if (Vector3.Distance(playerAnimator.transform.position, nearestLockOnTarget.transform.position) > maximumLockOnDistance)
+                if (Vector3.Distance(playerManager.transform.position, nearestLockOnTarget.transform.position) > maximumLockOnDistance)
                 {
                     DisableLockOn();
                     return;
                 }
 
-                playerAnimator.SetFloat(hashStrafeHorizontal, inputs.move.x);
-                playerAnimator.SetFloat(hashStrafeVertical, inputs.move.y);
+                playerManager.animator.SetFloat(hashStrafeHorizontal, inputs.move.x);
+                playerManager.animator.SetFloat(hashStrafeVertical, inputs.move.y);
 
                 if (!evaluatingIfShouldDisengage)
                 {
-                    RaycastHit hit;
-                    if (Physics.Linecast(playerHeadRef.transform.position, nearestLockOnTarget.transform.position, out hit))
+                    if (IsViewBlocked())
                     {
-                        if (hit.transform.gameObject.layer == LayerEnvironment || hit.transform.gameObject.layer == LayerDefault)
-                        {
-                            evaluatingIfShouldDisengage = true;
+                        // Something was hit between the player and the target
+                        evaluatingIfShouldDisengage = true;
 
-                            StartCoroutine(CheckIfShouldDisengage());
+                        if (CheckIfShouldDisengageCoroutine != null)
+                        {
+                            StopCoroutine(CheckIfShouldDisengageCoroutine);
                         }
+
+                        CheckIfShouldDisengageCoroutine = StartCoroutine(CheckIfShouldDisengage_Coroutine());
                     }
                 }
-
             }
-
-            /*if (isLockedOn)
-            {
-                HandleLockOn();
-            }*/
 
             if (isLockedOn)
             {
@@ -117,89 +101,49 @@ namespace AF
             }
         }
 
-        IEnumerator CheckIfShouldDisengage()
+        bool IsViewBlocked()
         {
-            yield return new WaitForSeconds(MAX_TIME_BEFORE_DISENGAGING);
-
-            RaycastHit hit;
-
-            if (nearestLockOnTarget != null)
+            if (Physics.Linecast(playerHeadRef.transform.position, nearestLockOnTarget.transform.position, out RaycastHit hit, blockLayers))
             {
-                if (Physics.Linecast(playerHeadRef.transform.position, nearestLockOnTarget.transform.position, out hit))
+                if (hit.transform != null)
                 {
-                    if (hit.transform.gameObject.layer == LayerEnvironment || hit.transform.gameObject.layer == LayerDefault)
-                    {
-                        DisableLockOn();
-                    }
+                    return true;
                 }
             }
 
+            return false;
+        }
+
+        IEnumerator CheckIfShouldDisengage_Coroutine()
+        {
+            yield return new WaitForSeconds(MAX_TIME_BEFORE_DISENGAGING);
+
+            if (nearestLockOnTarget != null)
+            {
+                if (IsViewBlocked())
+                {
+                    DisableLockOn();
+                }
+            }
 
             evaluatingIfShouldDisengage = false;
         }
 
-        public void SwitchToLeftTarget()
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnLockOnInput()
         {
-            if (!leftLockTarget.CanLockOn())
+            if (isLockedOn)
             {
-                return;
+                DisableLockOn();
             }
-
-            RaycastHit[] hits;
-            hits = Physics.RaycastAll(playerHeadRef.transform.position, leftLockTarget.transform.position - playerHeadRef.transform.position, maximumLockOnDistance, LayerMask.GetMask("Enemy"));
-
-            foreach (var hit in hits)
+            else
             {
-                // Check if the hit object has a specific MonoBehaviour component
-                LockOnRef component = hit.collider.GetComponent<LockOnRef>() ?? hit.collider.GetComponentInChildren<LockOnRef>();
-
-
-                if (component != null)
-                {
-                    if (component == leftLockTarget)
-                    {
-                        nearestLockOnTarget = leftLockTarget;
-                        lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = (nearestLockOnTarget.transform);
-                        Soundbank.instance.PlayLockOnSwitchTarget();
-
-
-                        SnapPlayerRotationToLockOnTarget();
-                    }
-                }
+                HandleLockOnClick();
             }
         }
 
-        public void SwitchToRightTarget()
-        {
-            if (!rightLockTarget.CanLockOn())
-            {
-                return;
-            }
-
-            RaycastHit[] hits;
-            hits = Physics.RaycastAll(playerHeadRef.transform.position, rightLockTarget.transform.position - playerHeadRef.transform.position, maximumLockOnDistance, LayerMask.GetMask("Enemy"));
-
-            foreach (var hit in hits)
-            {
-                // Check if the hit object has a specific MonoBehaviour component
-                LockOnRef component = hit.collider.GetComponent<LockOnRef>() ?? hit.collider.GetComponentInChildren<LockOnRef>();
-
-                if (component != null)
-                {
-                    if (component == rightLockTarget)
-                    {
-                        nearestLockOnTarget = rightLockTarget;
-                        lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = (nearestLockOnTarget.transform);
-                        Soundbank.instance.PlayLockOnSwitchTarget();
-
-
-                        SnapPlayerRotationToLockOnTarget();
-                    }
-                }
-            }
-
-
-        }
 
         public void SnapPlayerRotationToLockOnTarget()
         {
@@ -208,11 +152,11 @@ namespace AF
                 return;
             }
 
-            Vector3 targetRot = nearestLockOnTarget.transform.position - playerAnimator.transform.position;
+            Vector3 targetRot = nearestLockOnTarget.transform.position - playerManager.animator.transform.position;
             targetRot.y = 0;
             var t = Quaternion.LookRotation(targetRot);
 
-            playerAnimator.transform.rotation = t;
+            playerManager.transform.rotation = t;
         }
 
         public void EnableLockOn()
@@ -222,7 +166,7 @@ namespace AF
 
             this.lockOnUi.gameObject.SetActive(true);
 
-            // playerAnimator.SetBool(hashIsLockedOn, true);
+            playerManager.animator.SetBool(hashIsLockedOn, true);
 
             isLockedOn = true;
         }
@@ -234,14 +178,14 @@ namespace AF
             isLockedOn = false;
             defaultCamera.gameObject.SetActive(true);
             lockOnCamera.gameObject.SetActive(false);
-            //            playerAnimator.SetBool(hashIsLockedOn, false);
+            playerManager.animator.SetBool(hashIsLockedOn, false);
 
             nearestLockOnTarget = null;
             rightLockTarget = null;
             leftLockTarget = null;
 
-            playerAnimator.SetFloat(hashStrafeHorizontal, 0);
-            playerAnimator.SetFloat(hashStrafeVertical, 0);
+            playerManager.animator.SetFloat(hashStrafeHorizontal, 0);
+            playerManager.animator.SetFloat(hashStrafeVertical, 0);
         }
 
         public void HandleLockOnClick()
@@ -250,7 +194,7 @@ namespace AF
             availableTargets.Clear();
 
             float shortestDistance = Mathf.Infinity;
-            LockOnRef[] colliders = FindObjectsByType<LockOnRef>(FindObjectsInactive.Exclude, FindObjectsSortMode.None); //Physics.OverlapSphere(playerAnimator.transform.position, 26);
+            LockOnRef[] colliders = FindObjectsByType<LockOnRef>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
 
             for (int i = 0; i < colliders.Length; i++)
             {
@@ -258,9 +202,9 @@ namespace AF
 
                 if (enemy != null)
                 {
-                    float distanceFromTarget = Vector3.Distance(enemy.transform.position, playerAnimator.transform.position);
+                    float distanceFromTarget = Vector3.Distance(enemy.transform.position, playerManager.transform.position);
 
-                    if (enemy.transform.root != playerAnimator.transform.root
+                    if (enemy.transform.root != playerManager.transform.root
                         && InScreen(enemy)
                         && distanceFromTarget <= maximumLockOnDistance)
                     {
@@ -272,7 +216,7 @@ namespace AF
 
             for (int i = 0; i < availableTargets.Count; i++)
             {
-                float distanceFromTarget = Vector3.Distance(playerAnimator.transform.position, availableTargets[i].transform.position);
+                float distanceFromTarget = Vector3.Distance(playerManager.transform.position, availableTargets[i].transform.position);
 
                 if (distanceFromTarget < shortestDistance)
                 {
@@ -286,7 +230,7 @@ namespace AF
                         Debug.DrawRay(start, direction, Color.red);
 
                         RaycastHit[] hits;
-                        hits = Physics.RaycastAll(start, direction, maximumLockOnDistance, LayerMask.GetMask("Enemy"));
+                        hits = Physics.RaycastAll(start, direction, maximumLockOnDistance, detectionLayer);
 
                         foreach (var hit in hits)
                         {
@@ -313,7 +257,7 @@ namespace AF
                     return;
                 }
 
-                Soundbank.instance.PlayLockOn();
+                soundbank.PlaySound(soundbank.uiLockOn);
 
                 targetSwitchingCooldown = 0f;
                 lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = (nearestLockOnTarget.transform);
@@ -397,8 +341,8 @@ namespace AF
 
             foreach (var target in availableTargets)
             {
-                Vector3 relativePlayerPosition = playerAnimator.transform.InverseTransformPoint(target.transform.position);
-                float distanceToPlayer = Vector3.Distance(target.transform.position, playerAnimator.transform.position);
+                Vector3 relativePlayerPosition = playerManager.transform.InverseTransformPoint(target.transform.position);
+                float distanceToPlayer = Vector3.Distance(target.transform.position, playerManager.transform.position);
 
                 if (relativePlayerPosition.x < 0.00 && distanceToPlayer < shortestDistanceLeftTarget)
                 {
@@ -422,7 +366,7 @@ namespace AF
             {
                 if (targetSwitchingCooldown >= maxTargetSwitchingCooldown)
                 {
-                    SwitchToLeftTarget();
+                    SwitchLockOnTarget(leftLockTarget);
                     targetSwitchingCooldown = 0f;
                 }
             }
@@ -430,11 +374,38 @@ namespace AF
             {
                 if (targetSwitchingCooldown >= maxTargetSwitchingCooldown)
                 {
-                    SwitchToRightTarget();
+                    SwitchLockOnTarget(rightLockTarget);
                     targetSwitchingCooldown = 0f;
                 }
             }
         }
-    }
 
+        public void SwitchLockOnTarget(LockOnRef newTarget)
+        {
+            if (!newTarget.CanLockOn())
+            {
+                return;
+            }
+
+            RaycastHit[] hits;
+            Vector3 direction = newTarget.transform.position - playerHeadRef.transform.position;
+
+            hits = Physics.RaycastAll(playerHeadRef.transform.position, direction, maximumLockOnDistance, detectionLayer);
+
+            foreach (var hit in hits)
+            {
+                LockOnRef component = hit.collider.GetComponent<LockOnRef>() ?? hit.collider.GetComponentInChildren<LockOnRef>();
+
+                if (component != null && component == newTarget)
+                {
+                    nearestLockOnTarget = newTarget;
+                    lockOnCamera.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_LookAt = nearestLockOnTarget.transform;
+                    soundbank.PlaySound(soundbank.uiLockOnSwitchTarget);
+
+                    SnapPlayerRotationToLockOnTarget();
+                    break;
+                }
+            }
+        }
+    }
 }

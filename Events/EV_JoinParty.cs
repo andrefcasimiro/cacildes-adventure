@@ -11,7 +11,7 @@ namespace AF
         {
             yield return null;
 
-            FindObjectOfType<CompanionsSceneManager>(true).AddCompanionToParty(companionToJoin);
+            //            FindObjectOfType<CompanionsSceneManager>(true).AddCompanionToParty(companionToJoin);
         }
 
     }

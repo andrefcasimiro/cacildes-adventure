@@ -9,6 +9,9 @@ namespace AF
     {
         public UIDocument uiDocument => GetComponent<UIDocument>();
 
+        [Header("Components")]
+        public Soundbank soundbank;
+
         private void Awake()
         {
             gameObject.SetActive(false);
@@ -20,7 +23,7 @@ namespace AF
 
             VisualElement root = uiDocument.rootVisualElement;
 
-            Soundbank.instance.PlayUIHover();
+            soundbank.PlaySound(soundbank.uiHover);
 
             DOTween.To(
                   () => root.contentContainer.style.opacity.value,

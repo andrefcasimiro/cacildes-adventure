@@ -1,13 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Linq;
-using UnityEngine.InputSystem;
+using AF.Music;
+using TigerForge;
+using AF.Events;
+using UnityEngine.Events;
 
 namespace AF
 {
-    public class SceneSettings : MonoBehaviour, IClockListener
+    public class SceneSettings : MonoBehaviour
     {
-        CursorManager cursorManager;
+        [Header("Components")]
+        public BGMManager bgmManager;
+        public CursorManager cursorManager;
+        public PlayerManager playerManager;
+        public TeleportManager teleportManager;
 
         [Header("Music")]
         public AudioClip dayMusic;
@@ -20,56 +26,38 @@ namespace AF
 
         [Header("Map")]
         public bool isInterior;
-        public bool isTitleScreen = false;
 
-        [Header("Debug")]
-        public bool enemiesIgnorePlayer = false;
 
         [Header("Tutorial")]
-        public bool isSceneTutorial = false;
         public DestroyableParticle respawnFx;
 
-        [Header("Colliseum")]
-        public bool isColliseum = false;
         [Header("Systems")]
         public WorldSettings worldSettings;
 
-        PlayerComponentManager playerComponentManager;
+        [Header("Events")]
+        public UnityEvent onSceneStart;
 
         void Awake()
         {
-            cursorManager = FindAnyObjectByType<CursorManager>(FindObjectsInactive.Include);
-            playerComponentManager = FindAnyObjectByType<PlayerComponentManager>(FindObjectsInactive.Include);
+            onSceneStart?.Invoke();
 
             StartCoroutine(SpawnPlayer());
+        }
 
-            HandleSceneSound();
+        private void Start()
+        {
+
+            OnHourChanged();
+
+            EventManager.StartListening(EventMessages.ON_HOUR_CHANGED, OnHourChanged);
         }
 
         IEnumerator SpawnPlayer()
         {
             yield return null;
-
-            TeleportManager.instance.SpawnPlayer(playerComponentManager.gameObject);
+            teleportManager.SpawnPlayer(playerManager.gameObject);
         }
 
-        public void Start()
-        {
-
-            if (enemiesIgnorePlayer)
-            {
-                var allEnemies = FindObjectsOfType<CharacterManager>(true);
-                foreach (var enemy in allEnemies)
-                {
-                }
-            }
-
-
-
-            GamePreferences.instance.UpdateGraphics();
-        }
-
-        #region Scene Music & Ambience
         public void HandleSceneSound()
         {
             EvaluateMusic();
@@ -84,7 +72,7 @@ namespace AF
             if (dayMusic == null && nightMusic == null)
             {
                 // Stop the music playback if there are no available tracks.
-                BGMManager.instance.StopMusic();
+                bgmManager.StopMusic();
                 return;
             }
 
@@ -92,14 +80,14 @@ namespace AF
             {
                 if (IsPlayingSameMusicTrack(dayMusic.name) == false)
                 {
-                    BGMManager.instance.PlayMusic(dayMusic);
+                    bgmManager.PlayMusic(dayMusic);
                 }
             }
             else if (nightMusic != null && CanPlayNightSfx(nightMusic))
             {
                 if (IsPlayingSameMusicTrack(nightMusic.name) == false)
                 {
-                    BGMManager.instance.PlayMusic(nightMusic);
+                    bgmManager.PlayMusic(nightMusic);
                 }
             }
         }
@@ -108,7 +96,7 @@ namespace AF
         {
             if (nightAmbience == null && dayAmbience == null)
             {
-                BGMManager.instance.StopAmbience();
+                bgmManager.StopAmbience();
                 return;
             }
 
@@ -116,26 +104,26 @@ namespace AF
             {
                 if (IsPlayingSameAmbienceTrack(dayAmbience.name) == false)
                 {
-                    BGMManager.instance.PlayAmbience(dayAmbience);
+                    bgmManager.PlayAmbience(dayAmbience);
                 }
             }
             else if (nightAmbience != null && CanPlayNightSfx(nightAmbience))
             {
                 if (IsPlayingSameAmbienceTrack(nightAmbience.name) == false)
                 {
-                    BGMManager.instance.PlayAmbience(nightAmbience);
+                    bgmManager.PlayAmbience(nightAmbience);
                 }
             }
         }
 
         bool IsPlayingSameMusicTrack(string musicClipName)
         {
-            return BGMManager.instance.bgmAudioSource.clip != null && BGMManager.instance.bgmAudioSource.clip.name == musicClipName;
+            return bgmManager.bgmAudioSource.clip != null && bgmManager.bgmAudioSource.clip.name == musicClipName;
         }
 
         bool IsPlayingSameAmbienceTrack(string musicClipName)
         {
-            return BGMManager.instance.ambienceAudioSource.clip != null && BGMManager.instance.ambienceAudioSource.clip.name == musicClipName;
+            return bgmManager.ambienceAudioSource.clip != null && bgmManager.ambienceAudioSource.clip.name == musicClipName;
         }
 
         bool IsNightTime()
@@ -157,7 +145,6 @@ namespace AF
         {
             HandleSceneSound();
         }
-        #endregion
 
     }
 

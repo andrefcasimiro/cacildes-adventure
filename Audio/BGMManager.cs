@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using System;
 using System.Collections;
 using System.Linq;
 
-namespace AF
+namespace AF.Music
 {
     public class BGMManager : MonoBehaviour
     {
@@ -13,31 +11,27 @@ namespace AF
         public AudioSource ambienceAudioSource;
         public AudioSource sfxAudioSource;
 
-        public static BGMManager instance;
-
+        [Header("Settings")]
         public float fadeMusicSpeed = .1f;
 
-        SceneSettings sceneSettings;
+        [Header("Components")]
+        public SceneSettings sceneSettings;
 
-        private void Awake()
-        {
-            if (instance != null && instance != this)
-            {
-                Destroy(this.gameObject);
-            }
-            else
-            {
-                instance = this;
-            }
-        }
+        // Internal
+        Coroutine HandleMusicChangeCoroutine;
+        Coroutine FadeInCoreCoroutine;
+        Coroutine FadeOutCoreCoroutine;
 
         public void PlayMusic(AudioClip musicToPlay)
         {
-            StopAllCoroutines();
-
             if (this.bgmAudioSource.clip != null)
             {
-                StartCoroutine(HandleMusicChange(musicToPlay));
+                if (HandleMusicChangeCoroutine != null)
+                {
+                    StopCoroutine(HandleMusicChangeCoroutine);
+                }
+
+                HandleMusicChangeCoroutine = StartCoroutine(HandleMusicChange_Coroutine(musicToPlay));
             }
             else
             {
@@ -45,52 +39,31 @@ namespace AF
                 this.bgmAudioSource.volume = 0;
                 this.bgmAudioSource.clip = musicToPlay;
                 this.bgmAudioSource.Play();
-                StartCoroutine(FadeInCore());
+
+                if (FadeInCoreCoroutine != null)
+                {
+                    StopCoroutine(FadeInCoreCoroutine);
+                }
+
+                FadeInCoreCoroutine = StartCoroutine(FadeInCore_Coroutine());
             }
         }
-        public void PlayBattleMusic()
-        {
-            //            var battleMusic = sceneSettings.battleMusic;
-            StopMusic();
 
-        }
-
-        IEnumerator HandleMusicChange(AudioClip musicToPlay)
+        IEnumerator HandleMusicChange_Coroutine(AudioClip musicToPlay)
         {
             yield return FadeOutCore();
+
             yield return new WaitUntil(() => this.bgmAudioSource.volume <= 0);
 
             this.bgmAudioSource.clip = musicToPlay;
             this.bgmAudioSource.Play();
-            yield return FadeInCore();
+
+            yield return FadeInCore_Coroutine();
         }
 
-        public void StopMusic()
+        private IEnumerator FadeInCore_Coroutine()
         {
-            StopAllCoroutines();
-
-            if (this.bgmAudioSource.clip != null)
-            {
-                StartCoroutine(FadeOutCore());
-            }
-            else
-            {
-                this.bgmAudioSource.Stop();
-                this.bgmAudioSource.clip = null;
-            }
-        }
-
-
-        public void StopMusicImmediately()
-        {
-            this.bgmAudioSource.Stop();
-            this.bgmAudioSource.clip = null;
-        }
-
-        #region Fade In and Out Core Logic
-        private IEnumerator FadeInCore()
-        {
-            var volumeInGamePreferences = GamePreferences.instance.GetCurrentMusicVolume();
+            var volumeInGamePreferences = 0f;
             if (volumeInGamePreferences <= 0)
             {
                 yield break;
@@ -104,7 +77,7 @@ namespace AF
         }
         private IEnumerator FadeOutCore()
         {
-            var volumeInGamePreferences = GamePreferences.instance.GetCurrentMusicVolume();
+            var volumeInGamePreferences = 1f;
             if (volumeInGamePreferences <= 0)
             {
                 yield break;
@@ -119,7 +92,45 @@ namespace AF
             this.bgmAudioSource.Stop();
             this.bgmAudioSource.clip = null;
         }
-        #endregion
+
+        void StopCoroutines()
+        {
+            if (FadeInCoreCoroutine != null)
+            {
+                StopCoroutine(FadeInCoreCoroutine);
+            }
+
+            if (HandleMusicChangeCoroutine != null)
+            {
+                StopCoroutine(HandleMusicChangeCoroutine);
+            }
+
+            if (FadeOutCoreCoroutine != null)
+            {
+                StopCoroutine(FadeOutCoreCoroutine);
+            }
+        }
+
+        public void StopMusic()
+        {
+            StopCoroutines();
+
+            if (this.bgmAudioSource.clip != null)
+            {
+                FadeOutCoreCoroutine = StartCoroutine(FadeOutCore());
+            }
+            else
+            {
+                this.bgmAudioSource.Stop();
+                this.bgmAudioSource.clip = null;
+            }
+        }
+
+        public void StopMusicImmediately()
+        {
+            this.bgmAudioSource.Stop();
+            this.bgmAudioSource.clip = null;
+        }
 
         public void PlayAmbience(AudioClip ambience)
         {
@@ -151,22 +162,12 @@ namespace AF
             customAudioSource.PlayOneShot(sfxToPlay);
         }
 
-        public void PlayMapMusicAfterKillingEnemy(CharacterManager killedEnemy)
+        public void PlayMapMusicAfterKillingEnemy()
         {
             // Check if more enemies are in chase or combat state
-            var activeEnemies = FindObjectsByType<CharacterManager>(FindObjectsSortMode.None);
+            CharacterManager[] characterManagers = FindObjectsByType<CharacterManager>(FindObjectsSortMode.None);
 
-            if (false) //activeEnemies.FirstOrDefault(x => x.enemyCombatController.IsInCombat() && x != killedEnemy))
-            {
-                return;
-            }
-
-            if (sceneSettings == null)
-            {
-                sceneSettings = FindFirstObjectByType<SceneSettings>(FindObjectsInactive.Include);
-            }
-
-            if (sceneSettings == null)
+            if (characterManagers.FirstOrDefault(characterManager => characterManager?.targetManager?.currentTarget != null))
             {
                 return;
             }
@@ -189,6 +190,5 @@ namespace AF
 
             return false;
         }
-
     }
 }

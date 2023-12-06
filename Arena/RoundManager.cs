@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AF.Music;
 using Unity.AI.Navigation;
 using Unity.Mathematics;
 using UnityEngine;
@@ -34,6 +35,9 @@ namespace AF
 
         public Transform[] spawnRefs;
 
+        public BGMManager bgmManager;
+        public Soundbank soundbank;
+
         public int currentRound = 1;
         public int recordForBestRound = -1;
         public float recordForBestElapsedTime;
@@ -49,7 +53,7 @@ namespace AF
         Label bestRound;
 
         public GenericTrigger nextRoundTrigger;
-        public TeleportManager.SceneName sceneToReturnWhenExitingTournament;
+        public string sceneToReturnWhenExitingTournament;
 
         public UnityEvent onDeathEvent;
 
@@ -71,7 +75,7 @@ namespace AF
         Stage currentStage;
 
         [Header("Powerups")]
-        public ArenaPowerup[] arenaPowerups;
+        // public ArenaPowerup[] arenaPowerups;
 
 
         [Header("FX")]
@@ -79,6 +83,9 @@ namespace AF
 
         [Header("Achievements")]
         public Achievement achievement;
+
+        [Header("Components")]
+        public TeleportManager teleportManager;
 
         private void OnEnable()
         {
@@ -114,8 +121,7 @@ namespace AF
         {
             currentRound++;
 
-            round.text = GamePreferences.instance.IsEnglish() ? $"Round {currentRound}" : $"Ronda {currentRound}";
-
+            round.text = $"Round {currentRound}";
             ResumeTimer();
 
             SpawnEnemiesForRound();
@@ -127,7 +133,7 @@ namespace AF
         {
             yield return new WaitForSeconds(0.15f);
 
-            BGMManager.instance.PlaySound(roundWinApplause, null);
+            bgmManager.PlaySound(roundWinApplause, null);
         }
 
         public void EndRound()
@@ -137,7 +143,7 @@ namespace AF
                 achievement.AwardAchievement();
             }
 
-            BGMManager.instance.StopMusicImmediately();
+            bgmManager.StopMusicImmediately();
 
             StopTimer();
 
@@ -155,21 +161,15 @@ namespace AF
 
                 playerInventory.ReplenishItems();
 
-                Soundbank.instance.PlayItemReceived();
-                notificationManager.ShowNotification(GamePreferences.instance.IsEnglish()
-                    ? "The crowd voted, your items have been replenished. Good luck!"
-                    : "O público votou, os teus itens foram renovados. Boa sorte!"
-                    , null);
+                soundbank.PlaySound(soundbank.uiItemReceived);
+                notificationManager.ShowNotification("The crowd voted, your items have been replenished. Good luck!", null);
             }
             else if (currentRound % 3 == 0 && playerInventory != null && Random.Range(0, 100f) > 50f)
             {
 
-                // playerComponentManager.CurePlayer();
 
-                Soundbank.instance.PlayItemReceived();
-                notificationManager.ShowNotification(GamePreferences.instance.IsEnglish()
-                    ? "The crowd voted, your health was restored. They wish to see you fight!"
-                    : "O público votou, a tua vida foi recuperada. Boa sorte!"
+                soundbank.PlaySound(soundbank.uiItemReceived);
+                notificationManager.ShowNotification("The crowd voted, your health was restored. They wish to see you fight!"
                     , null);
             }
         }
@@ -192,7 +192,7 @@ namespace AF
             //            playerComponentManager.isInBonfire = true;
             //            playerComponentManager.CurePlayer();
 
-            TeleportManager.instance.Teleport(sceneToReturnWhenExitingTournament, "A");
+            teleportManager.Teleport(sceneToReturnWhenExitingTournament, "A");
 
         }
 
@@ -224,11 +224,11 @@ namespace AF
 
             if (currentStage != null)
             {
-                BGMManager.instance.StopAllCoroutines();
+                bgmManager.StopAllCoroutines();
 
                 if (currentStage.musics.Length > 0)
                 {
-                    BGMManager.instance.PlayMusic(currentStage.musics[Random.Range(0, currentStage.musics.Length)]);
+                    bgmManager.PlayMusic(currentStage.musics[Random.Range(0, currentStage.musics.Length)]);
                 }
             }
 
@@ -457,7 +457,7 @@ namespace AF
         {
             NavMeshSurface navMeshSurface = FindAnyObjectByType<NavMeshSurface>(FindObjectsInactive.Exclude);
 
-            ArenaPowerup arenaPowerup = arenaPowerups[Random.Range(0, arenaPowerups.Length)];
+            // ArenaPowerup arenaPowerup = arenaPowerups[Random.Range(0, arenaPowerups.Length)];
 
 
             if (navMeshSurface != null)
@@ -475,7 +475,7 @@ namespace AF
                     // Use the hit.position as the valid random position on the NavMesh
                     Vector3 randomNavMeshPosition = hit.position;
 
-                    Instantiate(arenaPowerup, randomNavMeshPosition, Quaternion.identity);
+                    // Instantiate(arenaPowerup, randomNavMeshPosition, Quaternion.identity);
                 }
             }
             else
@@ -487,7 +487,7 @@ namespace AF
 
                 if (rightHit.hit)
                 {
-                    Instantiate(arenaPowerup, rightHit.position, Quaternion.identity);
+                    // Instantiate(arenaPowerup, rightHit.position, Quaternion.identity);
                 }
             }
         }

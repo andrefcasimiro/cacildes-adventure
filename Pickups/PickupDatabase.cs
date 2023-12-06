@@ -1,21 +1,13 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
+using AYellowpaper.SerializedCollections;
 using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "GameSession", menuName = "System/New Pickup Database", order = 0)]
 public class PickupDatabase : ScriptableObject
 {
-    [Serializable]
-    public class PickupData
-    {
-        public string pickupId;
-        public string pickupName;
-    }
-
-    // Use a list for pickups
-    public List<PickupData> pickups = new List<PickupData>();
+    [SerializedDictionary("Pickup ID", "Description")]
+    public SerializedDictionary<string, string> pickups;
 
     private void OnEnable()
     {
@@ -37,11 +29,11 @@ public class PickupDatabase : ScriptableObject
         pickups.Clear();
     }
 
-    public void Add(string pickupId, string pickupName)
+    public void Add(string pickupId, string pickupDescription)
     {
         if (!Contains(pickupId))
         {
-            pickups.Add(new PickupData { pickupId = pickupId, pickupName = pickupName });
+            pickups.Add(pickupId, pickupDescription);
         }
         else
         {
@@ -49,13 +41,8 @@ public class PickupDatabase : ScriptableObject
         }
     }
 
-    public PickupData Get(string pickupId)
-    {
-        return pickups.Find(p => p.pickupId == pickupId);
-    }
-
     public bool Contains(string pickupId)
     {
-        return pickups.Any(p => p.pickupId == pickupId);
+        return pickups.ContainsKey(pickupId);
     }
 }

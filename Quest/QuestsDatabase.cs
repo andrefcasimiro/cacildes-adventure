@@ -38,12 +38,24 @@ namespace AF
         public void Clear()
         {
             questsReceived.Clear();
+            currentTrackedQuestIndex = -1;
+        }
+
+        public bool IsObjectiveCompleted(QuestObjective questObjective)
+        {
+            var targetQuestIndex = this.questsReceived.FindIndex(quest => quest.questObjectives.Contains(questObjective));
+
+            if (targetQuestIndex == -1)
+            {
+                return false;
+            }
+
+            return this.questsReceived[targetQuestIndex].questObjectives.FirstOrDefault(x => x == questObjective).isCompleted;
         }
 
         public void CompleteObjective(QuestObjective questObjectiveToComplete)
         {
             var targetQuestIndex = this.questsReceived.FindIndex(quest => quest.questObjectives.Contains(questObjectiveToComplete));
-
             if (targetQuestIndex == -1)
             {
                 return;
@@ -59,6 +71,8 @@ namespace AF
             {
                 EventManager.EmitEvent(EventMessages.ON_QUEST_TRACKED);
             }
+
+            EventManager.EmitEvent(EventMessages.ON_QUEST_OBJECTIVE_COMPLETED);
         }
 
         public bool IsQuestTracked(QuestParent questParent)
@@ -93,6 +107,14 @@ namespace AF
             }
 
             return questsReceived[currentTrackedQuestIndex].questObjectives.FirstOrDefault(x => x.isCompleted == false);
+        }
+
+        public void AddQuest(QuestParent questParent)
+        {
+            if (questParent != null && !questsReceived.Contains(questParent))
+            {
+                this.questsReceived.Add(questParent);
+            }
         }
 
     }

@@ -1,6 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -8,18 +8,17 @@ namespace AF
     {
         public float duration = 1f;
 
-        FadeManager fadeManager;
+        [Header("Components")]
+        public FadeManager fadeManager;
 
-        private void Awake()
-        {
-            fadeManager = FindObjectOfType<FadeManager>(true);
-        }
+        [Header("Unity Events")]
+        public UnityEvent duringFadeTransitionsEventCallback;
 
         public override IEnumerator Dispatch()
         {
-            fadeManager.Fade();
+            fadeManager.FadeIn(duration);
             yield return new WaitForSeconds(duration);
+            fadeManager.FadeOut(duration, () => duringFadeTransitionsEventCallback?.Invoke());
         }
-
     }
 }
