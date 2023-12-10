@@ -10,16 +10,16 @@ namespace AF.Inventory
     public class InventoryDatabase : ScriptableObject
     {
 
-        [Header("Effect Instances")]
+        [Header("Inventory")]
         [SerializedDictionary("Item", "Quantity")]
         public SerializedDictionary<Item, ItemAmount> ownedItems;
 
         public bool shouldClearOnExitPlayMode = false;
-
         private void OnEnable()
         {
             // No need to populate the list; it's serialized directly
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+
         }
 
         private void OnPlayModeStateChanged(PlayModeStateChange state)

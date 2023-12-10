@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -37,7 +38,7 @@ namespace AF
         public string GetEnglishText()
         {
             CheckForDictionaryInitialization();
-            return "";
+            return localizedTexts.FirstOrDefault(x => x.gameLanguage == GameLanguage.ENGLISH)?.text;
         }
     }
 }

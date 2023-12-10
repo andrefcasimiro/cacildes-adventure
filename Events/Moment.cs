@@ -94,30 +94,35 @@ namespace Events
                 }
             }
 
-            StopEvent();
+            FinishEvent();
+        }
+
+        void FinishEvent()
+        {
+            onMoment_End?.Invoke();
+            isRunning = false;
+        }
+
+        private void OnDisable()
+        {
+            if (isRunning)
+            {
+                FinishEvent();
+            }
         }
 
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void StopEvent()
+        public void CancelEvent()
         {
-            onMoment_End?.Invoke();
-
-            StartCoroutine(StopEvent_Coroutine());
-        }
-
-        IEnumerator StopEvent_Coroutine()
-        {
-            yield return new WaitForEndOfFrame();
-
             if (TriggerEventsCoroutine != null)
             {
                 StopCoroutine(TriggerEventsCoroutine);
                 TriggerEventsCoroutine = null;
             }
 
-            isRunning = false;
+            FinishEvent();
         }
     }
 }

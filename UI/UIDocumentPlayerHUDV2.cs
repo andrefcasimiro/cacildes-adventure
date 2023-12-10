@@ -66,8 +66,13 @@ namespace AF
             EventManager.StartListening(
                 EventMessages.ON_EQUIPMENT_CHANGED,
                 UpdateEquipment);
+
             EventManager.StartListening(
                 EventMessages.ON_QUEST_TRACKED,
+                UpdateQuestTracking);
+
+            EventManager.StartListening(
+                EventMessages.ON_QUEST_OBJECTIVE_COMPLETED,
                 UpdateQuestTracking);
         }
 

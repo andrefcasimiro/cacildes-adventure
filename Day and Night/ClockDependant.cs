@@ -23,7 +23,7 @@ namespace AF
 
         private void Awake()
         {
-            transform.GetChild(0).gameObject.SetActive(false);
+            Utils.UpdateTransformChildren(transform, false);
         }
 
         private void Start()

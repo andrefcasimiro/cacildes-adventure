@@ -86,9 +86,7 @@ public class EquipmentDatabase : ScriptableObject
         }
 
         helmet = null;
-        armor = null;
         gauntlet = null;
-        legwear = null;
     }
 
     public void SwitchToNextWeapon()

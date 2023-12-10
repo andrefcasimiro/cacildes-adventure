@@ -13,6 +13,9 @@ namespace AF
 
         public bool isCompleted;
 
+        [Header("Quest Parent")]
+        public QuestParent questParent;
+
         private void OnEnable()
         {
             // No need to populate the list; it's serialized directly

@@ -13,6 +13,16 @@ namespace AF
         public FadeManager fadeManager;
         public float teleportFadeOutDuration = 1f;
 
+        private void Awake()
+        {
+            if (gameSession.rememberPlayerPosition && gameSession.lastPlayerPosition != Vector3.zero)
+            {
+                playerManager.playerComponentManager.UpdatePosition(gameSession.lastPlayerPosition, Quaternion.identity);
+
+                gameSession.lastPlayerPosition = Vector3.zero;
+            }
+        }
+
         void Start()
         {
             SpawnPlayer();

@@ -14,7 +14,6 @@ namespace AF
 
         public override IEnumerator Dispatch()
         {
-            questsDatabase.AddQuest(questToTrack);
             questsDatabase.SetQuestToTrack(questToTrack);
             yield return null;
         }

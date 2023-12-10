@@ -95,10 +95,10 @@ namespace AF
             // Disable character controller to avoid unintended collisions during position update
             DisableCharacterController();
 
-            transform.position = newPosition;
+            characterController.transform.position = newPosition;
             if (newRotation != Quaternion.identity)
             {
-                transform.rotation = newRotation;
+                characterController.transform.rotation = newRotation;
             }
 
             EnableCharacterController();
@@ -124,7 +124,7 @@ namespace AF
 
         public void TeleportPlayer(Transform target)
         {
-            UpdatePosition(target.position, target.rotation);
+            UpdatePosition(target.TransformPoint(Vector3.zero), target.rotation);
         }
     }
 

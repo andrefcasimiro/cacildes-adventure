@@ -18,7 +18,8 @@ namespace AF
         {
             fadeManager.FadeIn(duration);
             yield return new WaitForSeconds(duration);
-            fadeManager.FadeOut(duration, () => duringFadeTransitionsEventCallback?.Invoke());
+            fadeManager.FadeOut(1f);
+            duringFadeTransitionsEventCallback?.Invoke();
         }
     }
 }

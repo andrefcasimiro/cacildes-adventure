@@ -46,6 +46,7 @@ namespace AF
         [Header("Transform References")]
         public Transform playerEquipmentRoot;
 
+
         void Start()
         {
             InitializeEquipment();

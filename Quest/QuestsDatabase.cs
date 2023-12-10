@@ -55,21 +55,14 @@ namespace AF
 
         public void CompleteObjective(QuestObjective questObjectiveToComplete)
         {
+            AddQuest(questObjectiveToComplete.questParent);
+
             var targetQuestIndex = this.questsReceived.FindIndex(quest => quest.questObjectives.Contains(questObjectiveToComplete));
-            if (targetQuestIndex == -1)
-            {
-                return;
-            }
 
             this.questsReceived[targetQuestIndex].questObjectives.FirstOrDefault(x => x == questObjectiveToComplete).isCompleted = true;
-
             if (this.questsReceived[targetQuestIndex].IsCompleted())
             {
                 SetQuestToTrack(null);
-            }
-            else
-            {
-                EventManager.EmitEvent(EventMessages.ON_QUEST_TRACKED);
             }
 
             EventManager.EmitEvent(EventMessages.ON_QUEST_OBJECTIVE_COMPLETED);
@@ -87,6 +80,8 @@ namespace AF
 
         public void SetQuestToTrack(QuestParent questParent)
         {
+            AddQuest(questParent);
+
             if (IsQuestTracked(questParent))
             {
                 currentTrackedQuestIndex = -1;
