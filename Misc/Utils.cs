@@ -53,6 +53,19 @@ namespace AF
             }
         }
 
+        public static void UpdateTransformChildren(Transform transformTarget, bool isActive)
+        {
+            if (transformTarget.childCount <= 0)
+            {
+                return;
+            }
+
+            foreach (Transform transformChild in transformTarget)
+            {
+                transformChild.gameObject.SetActive(isActive);
+            }
+        }
+
     }
 
 }

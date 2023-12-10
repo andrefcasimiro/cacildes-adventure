@@ -292,7 +292,7 @@ namespace AF.Shops
             }
 
             itemPreviewItemIcon.style.backgroundImage = new StyleBackground(item.sprite);
-            itemPreviewItemDescription.text = item.description.GetText();
+            itemPreviewItemDescription.text = item.description.GetEnglishText();
             itemPreview.style.opacity = 1;
         }
 

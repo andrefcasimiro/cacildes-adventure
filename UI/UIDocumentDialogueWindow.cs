@@ -175,10 +175,10 @@ namespace AF
                 actorNameLabel.style.display = DisplayStyle.None;
             }
 
-            if (string.IsNullOrEmpty(character.title.GetText()) == false)
+            if (string.IsNullOrEmpty(character.title.GetEnglishText()) == false)
             {
                 actorTitleLabel.style.display = DisplayStyle.Flex;
-                actorTitleLabel.text = character.title.GetText();
+                actorTitleLabel.text = character.title.GetEnglishText();
             }
             else
             {

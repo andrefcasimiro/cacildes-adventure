@@ -50,7 +50,7 @@ namespace AF
 
         void TranslateUI()
         {
-            root.Q<Label>("Title").text = optionsLabel.GetText();
+            root.Q<Label>("Title").text = optionsLabel.GetEnglishText();
 
         }
         void Close()

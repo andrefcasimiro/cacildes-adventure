@@ -19,11 +19,15 @@ namespace AF
         // Animator Overrides
         [HideInInspector] public AnimatorOverrideController animatorOverrideController;
 
+        Quaternion initialRotation;
+
         private void Awake()
         {
             animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
 
             animator.runtimeAnimatorController = animatorOverrideController;
+
+            initialRotation = transform.rotation;
         }
 
         public override void ResetStates()
@@ -66,6 +70,24 @@ namespace AF
         public override Damage GetAttackDamage()
         {
             return characterCombatController.currentCombatAction?.damage;
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void FaceTarget(Transform target)
+        {
+            var lookPos = target.transform.position - transform.position;
+            lookPos.y = 0;
+            transform.rotation = Quaternion.LookRotation(lookPos);
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void FaceInitialRotation()
+        {
+            transform.rotation = initialRotation;
         }
     }
 }

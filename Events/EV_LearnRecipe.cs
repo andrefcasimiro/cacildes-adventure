@@ -29,7 +29,7 @@ namespace AF
                 soundbank.PlaySound(soundbank.uiItemReceived);
 
                 var notf = FindObjectOfType<NotificationManager>(true);
-                notf.ShowNotification("Learned recipe: " + recipe.name.GetText(), notf.recipeIcon);
+                notf.ShowNotification("Learned recipe: " + recipe.name.GetEnglishText(), notf.recipeIcon);
             }
 
             yield return null;

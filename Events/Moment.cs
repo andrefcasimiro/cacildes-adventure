@@ -5,6 +5,7 @@ using AF.Events;
 using TigerForge;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Events
 {
@@ -37,6 +38,10 @@ namespace Events
 
         bool isRunning = false;
 
+        [Header("Events")]
+        public UnityEvent onMoment_Start;
+        public UnityEvent onMoment_End;
+
         private void Awake()
         {
             CollectEventsFromChildren();
@@ -61,6 +66,8 @@ namespace Events
             {
                 return;
             }
+
+            onMoment_Start?.Invoke();
 
             // For testing purposes, acquire events on runtime if we are switching / reordering the events in the editor
             CollectEventsFromChildren();
@@ -87,11 +94,16 @@ namespace Events
                 }
             }
 
-            isRunning = false;
+            StopEvent();
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
         public void StopEvent()
         {
+            onMoment_End?.Invoke();
+
             StartCoroutine(StopEvent_Coroutine());
         }
 

@@ -42,7 +42,7 @@ namespace AF
             if (showNotificationText)
             {
                 soundbank.PlaySound(soundbank.uiItemReceived);
-                notificationManager.ShowNotification("Found x" + amount + " " + item.name.GetText() + "", item.sprite);
+                notificationManager.ShowNotification("Found x" + amount + " " + item.name.GetEnglishText() + "", item.sprite);
             }
 
             yield return null;

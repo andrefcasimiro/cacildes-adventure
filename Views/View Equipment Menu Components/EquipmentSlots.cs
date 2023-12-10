@@ -481,7 +481,7 @@ namespace AF.UI.EquipmentMenu
 
             if (item != null)
             {
-                menuLabel.text = item.name.GetText();
+                menuLabel.text = item.name.GetEnglishText();
 
                 itemTooltip.gameObject.SetActive(true);
                 itemTooltip.PrepareTooltipForItem(item);

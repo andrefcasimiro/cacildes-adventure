@@ -45,7 +45,7 @@ namespace AF
         {
             bossHud.enabled = true;
             bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
-            bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName.GetText();
+            bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName.GetEnglishText();
 
             HideBossHud();
         }
@@ -66,7 +66,7 @@ namespace AF
             }
 
             bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
-            bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName.GetText();
+            bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName.GetEnglishText();
 
             //GetComponent<EnemyHealthController>().HideHUD();
 

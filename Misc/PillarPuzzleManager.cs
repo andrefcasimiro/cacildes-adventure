@@ -35,7 +35,7 @@ namespace AF
             if (currentScore >= maxScore)
             {
                 var notif = FindObjectOfType<NotificationManager>(true);
-                notif.ShowNotification(successText.GetText(), notif.door);
+                notif.ShowNotification(successText.GetEnglishText(), notif.door);
 
                 bgmManager.PlaySound(successSound, null);
 

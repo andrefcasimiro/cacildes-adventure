@@ -46,7 +46,7 @@ namespace AF
 
         public void Translate(VisualElement root)
         {
-            root.Q<Label>("ControlsTitle").text = controlsTitle.GetText();
+            root.Q<Label>("ControlsTitle").text = controlsTitle.GetEnglishText();
 
             SetupKey(root, "Walk", walkLabel, walkKeys);
             SetupKey(root, "LightAttack", lightAttackLabel, lightAttackKeys);
@@ -65,9 +65,9 @@ namespace AF
         void SetupKey(VisualElement root, string path, LocalizedText label, LocalizedText text)
         {
             var labelElement = root.Q<VisualElement>(path).ElementAt(0) as Label;
-            labelElement.text = label.GetText();
+            labelElement.text = label.GetEnglishText();
             var valueElement = root.Q<VisualElement>(path).ElementAt(1).Q<Label>();
-            valueElement.text = text.GetText();
+            valueElement.text = text.GetEnglishText();
         }
     }
 }

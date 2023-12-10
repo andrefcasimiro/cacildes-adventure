@@ -19,7 +19,6 @@ namespace AF
 		public bool consumeFavoriteItem;
 		public UnityEvent onConsumeFavoriteItem;
 
-
 		public UnityEvent onDodgeInput;
 		public UnityEvent onLightAttackInput;
 
@@ -52,6 +51,10 @@ namespace AF
 		[Header("Main Menu")]
 		public UnityEvent onNextMenu;
 		public UnityEvent onPreviousMenu;
+
+		[Header("Day Night")]
+		public UnityEvent onAdvanceOneHour;
+		public UnityEvent onGoBackOneHour;
 
 		public void OnMove(InputValue value)
 		{
@@ -204,6 +207,15 @@ namespace AF
 		public void OnPreviousMenu(InputValue value)
 		{
 			onPreviousMenu?.Invoke();
+		}
+
+		public void OnAdvanceOneHour()
+		{
+			onAdvanceOneHour?.Invoke();
+		}
+		public void OnGoBackOneHour()
+		{
+			onGoBackOneHour?.Invoke();
 		}
 
 	}

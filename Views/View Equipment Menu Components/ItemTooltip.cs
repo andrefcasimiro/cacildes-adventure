@@ -194,7 +194,7 @@ namespace AF.UI.EquipmentMenu
 
                 if (weapon.weaponSpecial != null)
                 {
-                    tooltipWeaponSpecial.Q<Label>().text = weapon.weaponSpecialDescription.GetText();
+                    tooltipWeaponSpecial.Q<Label>().text = weapon.weaponSpecialDescription.GetEnglishText();
                     tooltipWeaponSpecial.style.display = DisplayStyle.Flex;
                 }
 
@@ -341,13 +341,13 @@ namespace AF.UI.EquipmentMenu
 
             if (item is Accessory accessory)
             {
-                tooltipAccessoryProperty.Q<Label>().text = accessory.shortDescription.GetText();
+                tooltipAccessoryProperty.Q<Label>().text = accessory.shortDescription.GetEnglishText();
                 tooltipAccessoryProperty.style.display = DisplayStyle.Flex;
             }
 
             if (item is Consumable consumable && item is not ConsumableProjectile)
             {
-                tooltipConsumableEffect.Q<Label>().text = consumable.shortDescription.GetText();
+                tooltipConsumableEffect.Q<Label>().text = consumable.shortDescription.GetEnglishText();
                 tooltipConsumableEffect.style.display = DisplayStyle.Flex;
             }
 

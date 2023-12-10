@@ -40,22 +40,13 @@ namespace AF
         void Awake()
         {
             onSceneStart?.Invoke();
-
-            StartCoroutine(SpawnPlayer());
         }
 
         private void Start()
         {
-
             OnHourChanged();
 
             EventManager.StartListening(EventMessages.ON_HOUR_CHANGED, OnHourChanged);
-        }
-
-        IEnumerator SpawnPlayer()
-        {
-            yield return null;
-            teleportManager.SpawnPlayer(playerManager.gameObject);
         }
 
         public void HandleSceneSound()
@@ -145,7 +136,5 @@ namespace AF
         {
             HandleSceneSound();
         }
-
     }
-
 }

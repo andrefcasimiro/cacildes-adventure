@@ -177,6 +177,24 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "AdvanceOneHour",
+                    "type": "Button",
+                    "id": "409fadd9-4bdf-47d9-b032-04ecf81b1435",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "GoBackOneHour",
+                    "type": "Button",
+                    "id": "a76fbc58-c504-436d-87e3-6437b288ca73",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "QuickSave",
                     "type": "Button",
                     "id": "f21d1ae8-d179-4621-8cf5-e41e6d6915ee",
@@ -818,6 +836,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "PreviousMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b8275af7-da93-43ba-9bde-63a64a78f46c",
+                    "path": "<Keyboard>/numpadPlus",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "AdvanceOneHour",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8eba1ef6-e10b-4d72-81c4-1195570abf98",
+                    "path": "<Keyboard>/numpadMinus",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GoBackOneHour",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -56,6 +56,28 @@ namespace AF
             RenderSettings.fogDensity = fogDensity;
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void AdvanceOneHour()
+        {
+            SetHour((int)(worldSettings.timeOfDay + 1));
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void GoBackOneHour()
+        {
+            var targetHour = (int)worldSettings.timeOfDay - 1;
+            if (targetHour < 0)
+            {
+                targetHour = 23;
+            }
+
+            SetHour(targetHour);
+        }
+
         public void SetHour(int hour)
         {
             SetTimeOfDay(hour, 0);

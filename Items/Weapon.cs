@@ -156,7 +156,7 @@ namespace AF
 
         public string GetWeaponDisplayName()
         {
-            return this.name.GetText() + (level > 1 ? " +" + level : "");
+            return this.name.GetEnglishText() + (level > 1 ? " +" + level : "");
         }
 
         public string GetWeaponEnglishName()

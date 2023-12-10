@@ -1,3 +1,4 @@
+using AF;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,11 +7,15 @@ public class GameSession : ScriptableObject
 {
     public bool hasShownTitleScreen = false;
 
+
+    [Header("Teleport")]
+    public string nextMap_SpawnGameObjectName;
+
+    [Header("Debugging")]
     public bool shouldClearOnExitPlayMode = false;
 
     private void OnEnable()
     {
-        // No need to populate the list; it's serialized directly
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
     }
 
@@ -18,7 +23,6 @@ public class GameSession : ScriptableObject
     {
         if (state == PlayModeStateChange.ExitingPlayMode && shouldClearOnExitPlayMode)
         {
-            // Clear the list when exiting play mode
             Clear();
         }
     }

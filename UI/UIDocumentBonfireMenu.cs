@@ -81,7 +81,7 @@ namespace AF
 
             if (currentBonfire != null)
             {
-                bonfireName.text = currentBonfire.bonfireName.GetText();
+                bonfireName.text = currentBonfire.bonfireName.GetEnglishText();
             }
 
             bonfireNameLabelUI.text = "Bonfire Name";

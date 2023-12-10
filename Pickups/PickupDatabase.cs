@@ -7,7 +7,7 @@ using UnityEngine;
 public class PickupDatabase : ScriptableObject
 {
     [SerializedDictionary("Pickup ID", "Description")]
-    public SerializedDictionary<string, string> pickups;
+    public SerializedDictionary<string, string> pickups = new();
 
     private void OnEnable()
     {

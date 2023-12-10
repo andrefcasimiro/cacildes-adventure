@@ -163,8 +163,8 @@ namespace AF
                 var scrollItem = this.recipeItem.CloneTree();
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(recipe.resultingItem.sprite);
-                scrollItem.Q<Label>("ItemName").text = recipe.resultingItem.name.GetText();
-                scrollItem.Q<Label>("ItemDescription").text = recipe.resultingItem.shortDescription.localizedTexts.Length > 0 ? recipe.resultingItem.shortDescription.GetText() : "";
+                scrollItem.Q<Label>("ItemName").text = recipe.resultingItem.name.GetEnglishText();
+                scrollItem.Q<Label>("ItemDescription").text = recipe.resultingItem.shortDescription.localizedTexts.Length > 0 ? recipe.resultingItem.shortDescription.GetEnglishText() : "";
 
                 var craftBtn = scrollItem.Q<Button>("CraftButton");
 
@@ -231,7 +231,7 @@ namespace AF
 
                         soundbank.PlaySound(soundbank.craftSuccess);
                         playerManager.playerInventory.AddItem(recipe.resultingItem, 1);
-                        notificationManager.ShowNotification("Received " + " " + recipe.resultingItem.name.GetText(), recipe.resultingItem.sprite);
+                        notificationManager.ShowNotification("Received " + " " + recipe.resultingItem.name.GetEnglishText(), recipe.resultingItem.sprite);
 
                     }
 
@@ -289,7 +289,7 @@ namespace AF
                 var scrollItem = this.recipeItem.CloneTree();
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(wp.sprite);
-                scrollItem.Q<Label>("ItemName").text = wp.name.GetText() + (wp.level > 1 ? "+" + wp.level : "");
+                scrollItem.Q<Label>("ItemName").text = wp.name.GetEnglishText() + (wp.level > 1 ? "+" + wp.level : "");
                 scrollItem.Q<Label>("ItemDescription").text = "";
 
                 var craftBtn = scrollItem.Q<Button>("CraftButton");
@@ -356,7 +356,7 @@ namespace AF
             {
                 var ingredientItemEntry = ingredientItem.CloneTree();
                 ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(ingredient.ingredient.sprite);
-                ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name.GetText();
+                ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name.GetEnglishText();
 
                 var playerOwnedIngredient = inventoryDatabase.ownedItems[ingredient.ingredient];
                 var playerOwnedIngredientAmount = 0;
@@ -413,7 +413,7 @@ namespace AF
             }
 
             // Weapon preview
-            root.Q<Label>("WeaponLevelPreview").text = weapon.name.GetText() + " +" + (nextLevel);
+            root.Q<Label>("WeaponLevelPreview").text = weapon.name.GetEnglishText() + " +" + (nextLevel);
             root.Q<Label>("PhysicalAttack").style.display = DisplayStyle.None;
             root.Q<Label>("FireAttack").style.display = DisplayStyle.None;
             root.Q<Label>("FrostAttack").style.display = DisplayStyle.None;
@@ -451,7 +451,7 @@ namespace AF
 
             var ingredientItemEntry = ingredientItem.CloneTree();
             ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(weapon.upgradeMaterial.sprite);
-            ingredientItemEntry.Q<Label>("Title").text = weapon.upgradeMaterial.name.GetText();
+            ingredientItemEntry.Q<Label>("Title").text = weapon.upgradeMaterial.name.GetEnglishText();
 
             var playerOwnedIngredient = inventoryDatabase.ownedItems[weapon.upgradeMaterial];
             var playerOwnedIngredientAmount = 0;

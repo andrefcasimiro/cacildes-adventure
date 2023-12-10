@@ -34,23 +34,10 @@ namespace AF
             }
         }
 
-        public string GetText()
-        {
-            CheckForDictionaryInitialization();
-            return "";
-        }
-
         public string GetEnglishText()
         {
             CheckForDictionaryInitialization();
-
-            if (localizedTextsDictionary.Count <= 0)
-            {
-                return "";
-            }
-
-
-            return localizedTextsDictionary[GameLanguage.ENGLISH];
+            return "";
         }
     }
 }

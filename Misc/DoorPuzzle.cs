@@ -28,7 +28,7 @@ namespace AF
 
             if (doorOpenedText != null && doorOpenedText.localizedTexts.Length > 0)
             {
-                notificationManager.ShowNotification(doorOpenedText.GetText(), notificationManager.door);
+                notificationManager.ShowNotification(doorOpenedText.GetEnglishText(), notificationManager.door);
             }
         }
 

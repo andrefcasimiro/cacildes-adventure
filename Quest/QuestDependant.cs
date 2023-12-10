@@ -43,10 +43,7 @@ namespace AF.Quests
                 isActive = true;
             }
 
-            if (transform.childCount > 0)
-            {
-                transform.GetChild(0).gameObject.SetActive(isActive);
-            }
+            Utils.UpdateTransformChildren(transform, isActive);
         }
     }
 }

@@ -54,7 +54,7 @@ namespace AF
 
             if (showNotification)
             {
-                notificationManager.ShowNotification(newAmount + "/" + maxValue + " " + notificationText.GetText(), notificationSprite);
+                notificationManager.ShowNotification(newAmount + "/" + maxValue + " " + notificationText.GetEnglishText(), notificationSprite);
             }
         }
 

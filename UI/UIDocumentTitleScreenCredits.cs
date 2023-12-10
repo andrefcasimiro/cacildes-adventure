@@ -34,7 +34,7 @@ namespace AF
             root = GetComponent<UIDocument>().rootVisualElement;
 
             root.Q<Label>("CreditsTitle").text = "Credits";
-            root.Q<Label>("RequestCreditsLabel").text = creditsRequestNoteText.GetText();
+            root.Q<Label>("RequestCreditsLabel").text = creditsRequestNoteText.GetEnglishText();
             scrollPanel = root.Q<ScrollView>();
 
 
@@ -67,7 +67,7 @@ namespace AF
             foreach (var creditSection in credits.creditsSections)
             {
                 var sectionTitleClone = sectionTitle.CloneTree();
-                sectionTitleClone.Q<Label>("SectionTitle").text = creditSection.sectionTitle.GetText();
+                sectionTitleClone.Q<Label>("SectionTitle").text = creditSection.sectionTitle.GetEnglishText();
                 scrollPanel.Add(sectionTitleClone);
 
                 foreach (var creditEntry in creditSection.creditEntry)
