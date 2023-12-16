@@ -5,59 +5,22 @@ namespace AF
 {
     public class EV_Teleport : EventBase
     {
-        public string spawnGameObjectName;
+        [Header("Teleport Settings")]
         public string sceneName;
+        public string spawnGameObjectName;
 
         [Header("Components")]
         public TeleportManager teleportManager;
 
-        [Header("Conditions")]
-        public SwitchEntry switchEntry;
-        public bool switchValue;
-
-        [Header("Feature Flag - Check if is demo!!")]
-        public bool deactivateIfIsDemo = false;
-
-        [Header("Demo Edge Case")]
-        //DialogueManager dialogueManager;
-        public LocalizedText demoLocalizedText;
-
-        [Header("Audio Clips")]
-        public AudioSource audioSource;
-        public AudioClip audioClip;
-
         public override IEnumerator Dispatch()
         {
-            bool skip = false;
-
-            if (switchEntry != null)
-            {
-                // If depends on switch, evaluate value:
-                ; if (SwitchManager.instance.GetSwitchCurrentValue(switchEntry) == switchValue)
-                {
-                    skip = false;
-                }
-                else
-                {
-                    skip = true;
-                }
-            }
-
-            if (skip == false)
-            {
-                yield return StartCoroutine(Teleport());
-            }
+            yield return null;
+            Teleport();
         }
 
-        private IEnumerator Teleport()
+        public void Teleport()
         {
-            if (audioClip != null && audioSource != null)
-            {
-                audioSource.PlayOneShot(audioClip);
-            }
-
             teleportManager.Teleport(sceneName, spawnGameObjectName);
-            yield return null;
         }
     }
 }

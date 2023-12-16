@@ -65,5 +65,29 @@ namespace AF
         {
             return attackStatManager.GetAttackDamage();
         }
+
+
+
+        private void OnTriggerStay(Collider other)
+        {
+            if (!dodgeController.isDodging)
+            {
+                return;
+            }
+
+            if (other.TryGetComponent<DamageReceiver>(out var damageReceiver) && damageReceiver.damageOnDodge)
+            {
+                damageReceiver.TakeDamage(new Damage(
+                    physical: 1,
+                    fire: 0,
+                    frost: 0,
+                    lightning: 0,
+                    magic: 0,
+                    poiseDamage: 0,
+                    postureDamage: 0,
+                    weaponAttackType: WeaponAttackType.Blunt
+                ));
+            }
+        }
     }
 }

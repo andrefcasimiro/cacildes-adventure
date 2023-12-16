@@ -14,11 +14,20 @@ namespace AF
 
         [Header("Components")]
         public CharacterBaseManager character;
+        public Soundbank soundbank;
 
-        [Header("Tags To Detect")]
-        public List<string> tagsToDetect = new();
+        [Header("Tags To Ignore")]
+        public List<string> tagsToIgnore = new();
+
+        [Header("SFX")]
+        public AudioClip swingSfx;
+        public AudioClip hitSfx;
+        public AudioSource combatAudioSource;
 
         readonly List<DamageReceiver> damageReceiversHit = new();
+
+        // Internal flags
+        bool canPlayHitSfx = true;
 
         void Start()
         {
@@ -37,6 +46,8 @@ namespace AF
 
         public void EnableHitbox()
         {
+            canPlayHitSfx = true;
+
             if (trailRenderer != null)
             {
                 trailRenderer.enabled = true;
@@ -45,6 +56,11 @@ namespace AF
             if (hitCollider != null)
             {
                 hitCollider.enabled = true;
+            }
+
+            if (swingSfx != null)
+            {
+                soundbank.PlaySound(swingSfx, combatAudioSource);
             }
         }
 
@@ -65,19 +81,33 @@ namespace AF
 
         public void OnTriggerEnter(Collider other)
         {
-            if (
-                !tagsToDetect.Contains(other.gameObject.tag)
-                || character.GetAttackDamage() == null
-            )
+
+            if (tagsToIgnore.Contains(other.tag))
+            {
+                return;
+            }
+
+            if (character.GetAttackDamage() == null)
             {
                 return;
             }
 
             if (
                 other.TryGetComponent(out DamageReceiver damageReceiver)
+                && damageReceiver?.character != character
                 && damageReceiversHit.Contains(damageReceiver) == false)
             {
-                damageReceiver.HandleIncomingDamage(character);
+
+                damageReceiver.HandleIncomingDamage(character, () =>
+                {
+                    if (hitSfx != null && canPlayHitSfx && character != null)
+                    {
+                        canPlayHitSfx = false;
+
+                        soundbank.PlaySound(hitSfx, combatAudioSource);
+                    }
+                });
+
                 damageReceiversHit.Add(damageReceiver);
             }
         }

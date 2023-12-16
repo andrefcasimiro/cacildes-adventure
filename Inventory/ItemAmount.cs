@@ -1,3 +1,6 @@
+
+using UnityEngine;
+
 namespace AF.Inventory
 {
     [System.Serializable]
@@ -7,5 +10,7 @@ namespace AF.Inventory
 
         // only applicable to items that are not lost upon use
         public int usages = 0;
+
+        [Range(0, 100)] public int chanceToGet = 100;
     }
 }

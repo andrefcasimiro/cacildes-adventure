@@ -4,7 +4,7 @@ namespace AF.Shooting
 {
     public interface IProjectile
     {
-        public void Shoot(Transform target, Vector3 aimForce, ForceMode forceMode);
+        public void Shoot(CharacterBaseManager shooter, Vector3 aimForce, ForceMode forceMode);
 
         public float GetForwardVelocity();
 

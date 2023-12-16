@@ -9,22 +9,41 @@ namespace AF.Equipment
         public Shield shield;
 
         public GameObject shieldInTheBack;
+        public bool shouldHide = true;
 
         private void Awake()
         {
+            if (!shouldHide)
+            {
+                return;
+            }
+
             shieldInTheBack.SetActive(false);
         }
 
         public void HideShield()
         {
+            if (!shouldHide)
+            {
+                return;
+            }
+
             gameObject.SetActive(false);
-            shieldInTheBack.SetActive(true);
+
+            if (shieldInTheBack != null)
+            {
+                shieldInTheBack.SetActive(true);
+            }
         }
 
         public void ShowShield()
         {
             gameObject.SetActive(true);
-            shieldInTheBack.SetActive(false);
+
+            if (shieldInTheBack != null)
+            {
+                shieldInTheBack.SetActive(false);
+            }
         }
     }
 }

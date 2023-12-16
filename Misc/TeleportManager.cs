@@ -1,3 +1,4 @@
+using AF.Music;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,6 +12,8 @@ namespace AF
         [Header("Components")]
         public PlayerManager playerManager;
         public FadeManager fadeManager;
+        public BGMManager bGMManager;
+
         public float teleportFadeOutDuration = 1f;
 
         private void Awake()
@@ -32,9 +35,11 @@ namespace AF
         {
             gameSession.nextMap_SpawnGameObjectName = spawnGameObjectNameRef;
 
-            fadeManager.FadeOut(1f, () =>
+            bGMManager.StopMusic();
+
+            fadeManager.FadeIn(1f, () =>
             {
-                SceneManager.LoadScene(sceneName);
+                SceneManager.LoadSceneAsync(sceneName);
             });
         }
 

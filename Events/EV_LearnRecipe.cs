@@ -7,10 +7,10 @@ namespace AF
     {
         public CraftingRecipe recipe;
         public bool showNotificationText = true;
-        public AudioClip pickUpSfx;
 
         [Header("Components")]
         public Soundbank soundbank;
+        public NotificationManager notificationManager;
 
         [Header("Databases")]
         public RecipesDatabase recipesDatabase;
@@ -20,43 +20,31 @@ namespace AF
             yield return _LearnRecipe();
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void LearnRecipe()
+        {
+            StartCoroutine(Dispatch());
+        }
+
         IEnumerator _LearnRecipe()
         {
-            LearnRecipe();
+            if (recipesDatabase.HasRecipe(recipe))
+            {
+                yield break;
+            }
+
+            recipesDatabase.AddCraftingRecipe(recipe);
 
             if (showNotificationText)
             {
                 soundbank.PlaySound(soundbank.uiItemReceived);
 
-                var notf = FindObjectOfType<NotificationManager>(true);
-                notf.ShowNotification("Learned recipe: " + recipe.name.GetEnglishText(), notf.recipeIcon);
+                notificationManager.ShowNotification("Learned recipe: " + recipe.name.GetEnglishText(), notificationManager.recipeIcon);
             }
 
             yield return null;
-        }
-
-        public void LearnRecipe()
-        {
-            if (
-                recipesDatabase.cookingRecipes.Contains(recipe as CookingRecipe)
-                || recipesDatabase.alchemyRecipes.Contains(recipe as AlchemyRecipe))
-            {
-                return;
-            }
-
-            var cookingRecipe = (CookingRecipe)recipe;
-            if (cookingRecipe != null)
-            {
-                recipesDatabase.cookingRecipes.Add(cookingRecipe);
-                return;
-            }
-
-            var alchemyRecipe = (AlchemyRecipe)recipe;
-            if (alchemyRecipe != null)
-            {
-                recipesDatabase.alchemyRecipes.Add(alchemyRecipe);
-                return;
-            }
         }
     }
 }

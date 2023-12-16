@@ -104,20 +104,10 @@ namespace AF
 
             var craftActivityTitle = root.Q<Label>("CraftActivityTitle");
 
-            if (craftActivity == CraftActivity.ALCHEMY)
-            {
-                root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(alchemyBackgroundImage);
+            root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(alchemyBackgroundImage);
 
-                craftActivityTitle.text = "Crafting Table";
-                PopulateScrollView(recipesDatabase.alchemyRecipes.ToArray());
-            }
-            else if (craftActivity == CraftActivity.COOKING)
-            {
-                root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(cookingBackgroundImage);
-
-                craftActivityTitle.text = "Chef's Table";
-                PopulateScrollView(recipesDatabase.cookingRecipes.ToArray());
-            }
+            craftActivityTitle.text = "Crafting Table";
+            PopulateScrollView(recipesDatabase.craftingRecipes.ToArray());
         }
 
         void PopulateScrollView(CraftingRecipe[] ownedCraftingRecipes)

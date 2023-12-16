@@ -63,11 +63,7 @@ namespace AF.Music
 
         private IEnumerator FadeInCore_Coroutine()
         {
-            var volumeInGamePreferences = 0f;
-            if (volumeInGamePreferences <= 0)
-            {
-                yield break;
-            }
+            var volumeInGamePreferences = 1f;
 
             while (this.bgmAudioSource.volume < volumeInGamePreferences)
             {
@@ -77,12 +73,6 @@ namespace AF.Music
         }
         private IEnumerator FadeOutCore()
         {
-            var volumeInGamePreferences = 1f;
-            if (volumeInGamePreferences <= 0)
-            {
-                yield break;
-            }
-
             while (this.bgmAudioSource.volume > 0)
             {
                 this.bgmAudioSource.volume -= fadeMusicSpeed * Time.deltaTime;

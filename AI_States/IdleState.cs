@@ -22,11 +22,8 @@ namespace AF
         {
             onStateEnter?.Invoke();
 
-            if (characterManager.agent.enabled)
-            {
-                characterManager.agent.ResetPath();
-                characterManager.agent.speed = agentSpeed;
-            }
+            characterManager.agent.ResetPath();
+            characterManager.agent.speed = agentSpeed;
         }
 
         public override void OnStateExit(StateManager stateManager)

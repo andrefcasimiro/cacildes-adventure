@@ -64,6 +64,7 @@ namespace AF
 
             onJournalClose.Invoke();
             currentJournal.CloseBook();
+            currentJournal = null;
         }
 
         /// <summary>

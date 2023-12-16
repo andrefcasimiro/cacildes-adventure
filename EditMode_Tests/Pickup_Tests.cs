@@ -29,7 +29,7 @@ namespace AF.Tests
         {
 
             pickup.pickupDatabase.Clear();
-            pickup.pickupDatabase.Add(
+            pickup.pickupDatabase.AddPickup(
                 pickup.monoBehaviourID.ID,
                 "name"
             );
@@ -50,7 +50,7 @@ namespace AF.Tests
         {
 
             pickup.pickupDatabase.Clear();
-            pickup.pickupDatabase.Add(
+            pickup.pickupDatabase.AddPickup(
                 "someOtherId",
                 "name"
             );

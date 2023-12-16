@@ -26,7 +26,7 @@ namespace AF
 
         public override IEnumerator Dispatch()
         {
-            if (pickupDatabase.Contains(monoBehaviourID.ID))
+            if (pickupDatabase.ContainsPickup(monoBehaviourID.ID))
             {
                 yield break;
             }
@@ -37,7 +37,7 @@ namespace AF
         IEnumerator AddItem()
         {
             playerManager.playerInventory.AddItem(item, amount);
-            pickupDatabase.Add(monoBehaviourID.ID, SceneManager.GetActiveScene().name + " - " + " - " + gameObject.name + " - " + item.name);
+            pickupDatabase.AddPickup(monoBehaviourID.ID, SceneManager.GetActiveScene().name + " - " + " - " + gameObject.name + " - " + item.name);
 
             if (showNotificationText)
             {

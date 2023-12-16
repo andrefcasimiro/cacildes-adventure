@@ -57,7 +57,7 @@ namespace AF
                 }
             }
 
-            return this;
+            return chaseState;
         }
     }
 }

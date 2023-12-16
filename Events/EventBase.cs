@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace AF
 {
-
     [System.Serializable]
     public class EventBase : MonoBehaviour
     {
@@ -12,6 +11,12 @@ namespace AF
             yield return null;
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public virtual void Execute()
+        {
+            StartCoroutine(Dispatch());
+        }
     }
-
 }

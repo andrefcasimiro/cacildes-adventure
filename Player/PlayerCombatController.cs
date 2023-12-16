@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using AF.Ladders;
-using AF.Shooting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace AF
 {
@@ -21,9 +19,6 @@ namespace AF
         [Header("Sounds")]
         public AudioSource combatAudioSource;
 
-        public AudioClip unarmedSwingSfx;
-        public AudioClip unarmedHitImpactSfx;
-
         [Header("Attack Combo Index")]
         public float maxIdleCombo = 2f;
         [SerializeField] int lightAttackComboIndex = 0;
@@ -36,7 +31,7 @@ namespace AF
         public PlayerManager playerManager;
         public Animator animator;
         public UIDocumentDialogueWindow uIDocumentDialogueWindow;
-
+        public LockOnManager lockOnManager;
 
         [Header("Heavy Attacks")]
         public int unarmedHeavyAttackBonus = 35;
@@ -44,9 +39,11 @@ namespace AF
         [Header("UI")]
         public MenuManager menuManager;
 
+        [Header("Databases")]
+        public EquipmentDatabase equipmentDatabase;
+
         [Header("Flags")]
         public bool isHeavyAttacking = false;
-        public bool isDamagingHimself = false;
 
         // Coroutines
         Coroutine ResetLightAttackComboIndexCoroutine, ResetHeavyAttackComboIndexCoroutine;
@@ -201,6 +198,11 @@ namespace AF
             }
 
             if (playerManager.playerShootingManager.isAiming)
+            {
+                return false;
+            }
+
+            if (equipmentDatabase.IsBowEquipped() && lockOnManager.isLockedOn)
             {
                 return false;
             }

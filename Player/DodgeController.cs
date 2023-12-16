@@ -2,7 +2,6 @@ using System.Collections;
 using AF.Ladders;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.InputSystem;
 
 namespace AF
 {
@@ -95,19 +94,6 @@ namespace AF
         public bool ShouldBackstep()
         {
             return playerManager.starterAssetsInputs.move == Vector2.zero && playerManager.thirdPersonController.skateRotation == false;
-        }
-
-        private void OnTriggerStay(Collider other)
-        {
-            if (!isDodging)
-            {
-                return;
-            }
-
-            if (other.CompareTag("Wood") && other.TryGetComponent<Destroyable>(out var destroyable))
-            {
-                destroyable.DestroyObject(other.ClosestPointOnBounds(destroyable.transform.position));
-            }
         }
 
         private bool CanDodge()

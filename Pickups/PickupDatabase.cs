@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
+using AF;
+using AF.Pickups;
 using AYellowpaper.SerializedCollections;
 using UnityEditor;
 using UnityEngine;
@@ -8,6 +11,12 @@ public class PickupDatabase : ScriptableObject
 {
     [SerializedDictionary("Pickup ID", "Description")]
     public SerializedDictionary<string, string> pickups = new();
+
+    [SerializedDictionary("Replenishable ID", "Time Settings")]
+    public SerializedDictionary<string, ReplenishableTime> replenishables = new();
+
+    [Header("Systems")]
+    public WorldSettings worldSettings;
 
     private void OnEnable()
     {
@@ -29,9 +38,9 @@ public class PickupDatabase : ScriptableObject
         pickups.Clear();
     }
 
-    public void Add(string pickupId, string pickupDescription)
+    public void AddPickup(string pickupId, string pickupDescription)
     {
-        if (!Contains(pickupId))
+        if (!ContainsPickup(pickupId))
         {
             pickups.Add(pickupId, pickupDescription);
         }
@@ -41,8 +50,33 @@ public class PickupDatabase : ScriptableObject
         }
     }
 
-    public bool Contains(string pickupId)
+    public bool ContainsPickup(string pickupId)
     {
         return pickups.ContainsKey(pickupId);
+    }
+
+
+    public void AddReplenishable(string id, int daysToRespawn)
+    {
+        if (!ContainsReplenishable(id))
+        {
+            replenishables.Add(id, new() { daysToRespawn = daysToRespawn, dayThatWasPickedUp = worldSettings.daysPassed });
+        }
+    }
+
+    public bool ContainsReplenishable(string id)
+    {
+        return replenishables.ContainsKey(id);
+    }
+
+    public void OnHourChangedCheckForReplenishablesToClear()
+    {
+        foreach (var Entry in replenishables.ToList())
+        {
+            if (worldSettings.daysPassed > Entry.Value.dayThatWasPickedUp + Entry.Value.daysToRespawn)
+            {
+                replenishables.Remove(Entry.Key);
+            }
+        }
     }
 }

@@ -61,7 +61,7 @@ namespace AF.Shooting
             rot.y = 0;
             projectileInstance.transform.rotation = Quaternion.LookRotation(rot);
 
-            componentProjectile.Shoot(null, projectileInstance.transform.forward * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
+            componentProjectile.Shoot(characterBaseManager, projectileInstance.transform.forward * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
 
             if (lockOnTarget != null)
             {

@@ -9,6 +9,7 @@ namespace AF.Shooting
 {
     public class PlayerShooter : CharacterBaseShooter
     {
+        public readonly int hashFireBowLockedOn = Animator.StringToHash("Locked On - Shoot Bow");
 
         [Header("Stamina Cost")]
         public int minimumStaminaToShoot = 10;
@@ -23,18 +24,16 @@ namespace AF.Shooting
 
         [Header("Aiming")]
         public GameObject aimingCamera;
-
         public LookAtConstraint lookAtConstraint;
 
         public float bowAimCameraDistance = 1.25f;
         public float spellAimCameraDistance = 2.25f;
 
+        [Header("Components")]
+        public LockOnManager lockOnManager;
+
         [Header("Flags")]
         public bool isAiming = false;
-
-        public Transform fireTransform;
-
-        public StarterAssetsInputs starterAssetsInputs;
 
         // For cache purposes
         Spell previousSpell;
@@ -43,13 +42,28 @@ namespace AF.Shooting
         public UnityEvent onSpellAim_Begin;
         public UnityEvent onBowAim_Begin;
 
+        [Header("Cinemachine")]
+        Cinemachine3rdPersonFollow cinemachine3RdPersonFollow;
+
+        public CinemachineImpulseSource cinemachineImpulseSource;
+
+        void SetupCinemachine3rdPersonFollowReference()
+        {
+            if (cinemachine3RdPersonFollow != null)
+            {
+                return;
+            }
+
+            cinemachine3RdPersonFollow = aimingCamera.GetComponent<CinemachineVirtualCamera>().GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+        }
+
         public void OnFireInput()
         {
-            if (CanShoot() && isAiming)
+            if (CanShoot())
             {
-                if (equipmentDatabase.IsBowEquipped())
+                if (equipmentDatabase.IsBowEquipped() && equipmentDatabase.HasEnoughCurrentArrows())
                 {
-                    ShootBow(equipmentDatabase.GetCurrentArrow(), transform, null);
+                    ShootBow(equipmentDatabase.GetCurrentArrow(), transform, lockOnManager.nearestLockOnTarget?.transform);
                 }
                 else if (equipmentDatabase.IsStaffEquipped() && equipmentDatabase.GetCurrentSpell() != null)
                 {
@@ -87,18 +101,21 @@ namespace AF.Shooting
             isAiming = true;
             aimingCamera.SetActive(true);
             GetPlayerManager().thirdPersonController.rotateWithCamera = true;
+            lockOnManager.DisableLockOn();
+
+            SetupCinemachine3rdPersonFollowReference();
 
             if (equipmentDatabase.IsBowEquipped())
             {
                 GetPlayerManager().animator.SetBool(hashIsAiming, true);
 
-                aimingCamera.GetComponent<CinemachineVirtualCamera>().GetCinemachineComponent<Cinemachine3rdPersonFollow>().CameraDistance = bowAimCameraDistance;
+                cinemachine3RdPersonFollow.CameraDistance = bowAimCameraDistance;
 
                 onBowAim_Begin?.Invoke();
             }
             else if (equipmentDatabase.IsStaffEquipped())
             {
-                aimingCamera.GetComponent<CinemachineVirtualCamera>().GetCinemachineComponent<Cinemachine3rdPersonFollow>().CameraDistance = spellAimCameraDistance;
+                cinemachine3RdPersonFollow.CameraDistance = spellAimCameraDistance;
                 onSpellAim_Begin?.Invoke();
             }
 
@@ -153,7 +170,7 @@ namespace AF.Shooting
         /// </summary>
         public override void CastSpell()
         {
-            ShootSpell(equipmentDatabase.GetCurrentSpell(), transform, null);
+            ShootSpell(equipmentDatabase.GetCurrentSpell(), transform, lockOnManager.nearestLockOnTarget?.transform);
         }
 
         public override void FireArrow()
@@ -190,19 +207,23 @@ namespace AF.Shooting
                 lookPosition.y *= -1f;
             }
 
-            componentProjectile.Shoot(null, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
+            componentProjectile.Shoot(characterBaseManager, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
 
-            if (equipmentDatabase.IsBowEquipped())
-            {
-                characterBaseManager.PlayBusyHashedAnimation(hashFireBow);
-            }
 
             if (lockOnTarget != null)
             {
                 var rotation = lockOnTarget.transform.position - characterBaseManager.transform.position;
                 rotation.y = 0;
                 characterBaseManager.transform.rotation = Quaternion.LookRotation(rotation);
+
+                characterBaseManager.PlayBusyHashedAnimation(hashFireBowLockedOn);
             }
+            else if (equipmentDatabase.IsBowEquipped())
+            {
+                characterBaseManager.PlayBusyHashedAnimation(hashFireBow);
+            }
+
+            cinemachineImpulseSource.GenerateImpulse();
         }
 
         bool CanAim()
@@ -232,14 +253,21 @@ namespace AF.Shooting
                 return false;
             }
 
-            /*
-            if (climbController.climbState != ClimbController.ClimbState.NONE)
+            // If not ranged weapons equipped, dont allow shooting
+            if (
+                !equipmentDatabase.IsBowEquipped()
+                && !equipmentDatabase.IsStaffEquipped())
             {
-                notificationManager.ShowNotification(LocalizedTerms.CantShootArrowsAtThisTime(), notificationManager.systemError);
                 return false;
-            }*/
+            }
 
-            return equipmentDatabase.IsBowEquipped() || equipmentDatabase.IsStaffEquipped();
+            // Edge case, if locked on, allow shooting
+            if (lockOnManager.isLockedOn)
+            {
+                return true;
+            }
+
+            return isAiming;
         }
     }
 

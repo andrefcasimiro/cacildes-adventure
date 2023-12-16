@@ -4,6 +4,7 @@ using UnityEngine;
 using TigerForge;
 using AF.Events;
 using System.Linq;
+using AF.Inventory;
 
 [CreateAssetMenu(fileName = "Equipment Database", menuName = "System/New Equipment Database", order = 0)]
 public class EquipmentDatabase : ScriptableObject
@@ -19,7 +20,6 @@ public class EquipmentDatabase : ScriptableObject
 
     public Consumable[] consumables = new Consumable[5];
 
-
     [Header("Defensive Gear")]
     public Helmet helmet;
     public Armor armor;
@@ -32,6 +32,9 @@ public class EquipmentDatabase : ScriptableObject
     public int currentWeaponIndex, currentShieldIndex, currentConsumableIndex, currentSpellIndex, currentArrowIndex = 0;
 
     public bool shouldClearOnExitPlayMode = false;
+
+    [Header("Databases")]
+    public InventoryDatabase inventoryDatabase;
 
     private void OnEnable()
     {
@@ -261,4 +264,15 @@ public class EquipmentDatabase : ScriptableObject
         return GetCurrentWeapon() != null && GetCurrentWeapon().weaponAttackType == WeaponAttackType.Staff;
     }
 
+    public bool HasEnoughCurrentArrows()
+    {
+        Arrow currentArrow = GetCurrentArrow();
+
+        if (currentArrow == null)
+        {
+            return false;
+        }
+
+        return inventoryDatabase.GetItemAmount(currentArrow) > 0;
+    }
 }

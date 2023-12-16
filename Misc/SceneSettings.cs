@@ -33,6 +33,7 @@ namespace AF
 
         [Header("Systems")]
         public WorldSettings worldSettings;
+        public PickupDatabase pickupDatabase;
 
         [Header("Events")]
         public UnityEvent onSceneStart;
@@ -135,6 +136,8 @@ namespace AF
         public void OnHourChanged()
         {
             HandleSceneSound();
+
+            pickupDatabase.OnHourChangedCheckForReplenishablesToClear();
         }
     }
 }

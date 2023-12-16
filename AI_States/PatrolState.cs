@@ -55,8 +55,9 @@ namespace AF
         {
             onStateEnter?.Invoke();
 
-            agent.ResetPath();
+            agent.enabled = true;
 
+            agent.ResetPath();
             agent.speed = agentSpeed;
         }
 

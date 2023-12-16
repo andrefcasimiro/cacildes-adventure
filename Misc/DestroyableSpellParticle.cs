@@ -34,26 +34,9 @@ namespace AF
             OnCollide(other);
         }
 
-        public void Shoot(Transform target, Vector3 aimForce, ForceMode forceMode)
+        public void Shoot(CharacterBaseManager shooter, Vector3 aimForce, ForceMode forceMode)
         {
-            if (target == null)
-            {
-                // Apply forces to the object
-                if (rigidBody != null)
-                {
-                    // Apply force to move the arrow towards the center of the screen
-                    rigidBody.AddForce(aimForce, forceMode);
-                    //source = GetComponent<Cinemachine.CinemachineImpulseSource>();
-
-                    //source.GenerateImpulse(Camera.main.transform.forward);
-                }
-                else
-                {
-                    Debug.LogError("Rigidbody component not found!");
-                }
-
-                return;
-            }
+            rigidBody.AddForce(aimForce, forceMode);
         }
 
         public void OnCollide(GameObject other)

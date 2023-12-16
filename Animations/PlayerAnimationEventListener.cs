@@ -12,6 +12,10 @@ namespace AF.Animations
         public UnityEvent onLeftFootstep;
         public UnityEvent onRightFootstep;
 
+        [Header("Components")]
+        public AudioSource combatAudioSource;
+        public Soundbank soundbank;
+
         public void OpenLeftWeaponHitbox()
         {
             if (playerManager.playerWeaponsManager.leftHandHitbox != null)
@@ -140,5 +144,9 @@ namespace AF.Animations
             onRightFootstep?.Invoke();
         }
 
+        public void PlayCloth()
+        {
+            soundbank.PlaySound(soundbank.dodge, combatAudioSource);
+        }
     }
 }

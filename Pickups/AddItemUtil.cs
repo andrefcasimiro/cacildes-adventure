@@ -26,6 +26,15 @@ namespace AF.Pickups
 
             foreach (var item in itemsToAdd)
             {
+                if (item.Value.chanceToGet != 100)
+                {
+                    int chance = Random.Range(0, 100);
+                    if (chance > item.Value.chanceToGet)
+                    {
+                        continue;
+                    }
+                }
+
                 itemsToDisplay.Add(new()
                 {
                     itemName = item.Key.name.GetEnglishText(),

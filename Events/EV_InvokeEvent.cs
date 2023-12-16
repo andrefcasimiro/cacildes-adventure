@@ -4,7 +4,6 @@ using UnityEngine.Events;
 
 namespace AF
 {
-
     public class EV_InvokeEvent : EventBase
     {
         public UnityEvent eventToInvoke;

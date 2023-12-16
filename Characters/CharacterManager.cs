@@ -4,6 +4,7 @@ using AF.Equipment;
 using AF.Health;
 using AF.Shooting;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -21,6 +22,9 @@ namespace AF
 
         Quaternion initialRotation;
 
+        [Header("Events")]
+        public UnityEvent onResetStates;
+
         private void Awake()
         {
             animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
@@ -32,14 +36,13 @@ namespace AF
 
         public override void ResetStates()
         {
-            agent.enabled = true;
             animator.applyRootMotion = false;
+            agent.enabled = true;
             isBusy = false;
-
             characterPosture.ResetStates();
             characterCombatController.ResetStates();
             characterWeaponsManager.ResetStates();
-            targetManager.ResetStates();
+            onResetStates?.Invoke();
         }
 
         public void UpdateAnimatorOverrideControllerClips(string animationName, AnimationClip animationClip)

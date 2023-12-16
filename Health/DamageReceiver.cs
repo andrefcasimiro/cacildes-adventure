@@ -24,6 +24,7 @@ namespace AF
 
         [Header("Flags")]
         public bool canTakeDamage = true;
+        public bool damageOnDodge = false;
 
         public void SetCanTakeDamage(bool value)
         {
@@ -32,7 +33,23 @@ namespace AF
 
         bool CanTakeDamage()
         {
-            if (!canTakeDamage || health.GetCurrentHealth() <= 0 || character.characterPosture.IsStunned())
+            if (!canTakeDamage)
+            {
+                return false;
+            }
+
+            // If is an object
+            if (character == null)
+            {
+                return true;
+            }
+
+            if (health.GetCurrentHealth() <= 0)
+            {
+                return false;
+            }
+
+            if (character.characterPosture.IsStunned())
             {
                 return false;
             }
@@ -40,7 +57,7 @@ namespace AF
             return true;
         }
 
-        public void HandleIncomingDamage(CharacterBaseManager damageOwner)
+        public void HandleIncomingDamage(CharacterBaseManager damageOwner, UnityAction onTakeDamage)
         {
             if (!CanTakeDamage())
             {
@@ -49,19 +66,23 @@ namespace AF
 
             Damage incomingDamage = damageOwner.GetAttackDamage();
 
-
-            if (character is CharacterManager aiCharacter && aiCharacter.targetManager != null)
+            if (character != null)
             {
-                aiCharacter.targetManager.SetTarget(damageOwner);
-            }
+                if (character is CharacterManager aiCharacter && aiCharacter.targetManager != null)
+                {
+                    aiCharacter.targetManager.SetTarget(damageOwner);
+                }
 
-            if (character.characterBlockController.CanBlockDamage(incomingDamage))
-            {
-                character.characterBlockController.BlockAttack(incomingDamage);
-                return;
+                if (character.characterBlockController.CanBlockDamage(incomingDamage))
+                {
+                    character.characterBlockController.BlockAttack(incomingDamage);
+                    return;
+                }
             }
 
             TakeDamage(incomingDamage);
+
+            onTakeDamage?.Invoke();
         }
 
         public void TakeDamage(Damage damage)
@@ -71,21 +92,27 @@ namespace AF
                 return;
             }
 
-            damage = damageResistances.FilterIncomingDamage(damage);
-
-            health.TakeDamage(GetTotalDamage(damage));
-            if (health.GetCurrentHealth() <= 0)
+            if (damageResistances != null)
             {
-                return;
+                damage = damageResistances.FilterIncomingDamage(damage);
             }
 
-            // Only take poise damage if posture is not going to break
-            if (!character.characterPosture.WillBreakPosture(damage))
+            if (character != null)
             {
-                character.characterPoise.TakePoiseDamage(damage.poiseDamage);
-            }
+                health?.TakeDamage(GetTotalDamage(damage));
+                if (health?.GetCurrentHealth() <= 0)
+                {
+                    return;
+                }
 
-            character.characterPosture.TakePostureDamage(damage.postureDamage);
+                // Only take poise damage if posture is not going to break
+                if (!character.characterPosture.WillBreakPosture(damage))
+                {
+                    character.characterPoise.TakePoiseDamage(damage.poiseDamage);
+                }
+
+                character.characterPosture.TakePostureDamage(damage.postureDamage);
+            }
 
             if (damage.physical > 0)
             {
@@ -137,7 +164,7 @@ namespace AF
 
         int GetTotalDamage(Damage damage)
         {
-            if (character.characterPosture.WillBreakPosture(damage))
+            if (character != null && character.characterPosture.WillBreakPosture(damage))
             {
                 damage.physical = (int)(damage.physical * character.characterPosture.postureBreakBonusMultiplier);
             }

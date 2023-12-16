@@ -6,9 +6,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Recipes Database", menuName = "System/New Recipes Database", order = 0)]
 public class RecipesDatabase : ScriptableObject
 {
-    public List<AlchemyRecipe> alchemyRecipes = new();
+    public List<CraftingRecipe> craftingRecipes = new();
 
-    public List<CookingRecipe> cookingRecipes = new();
 
     [Header("Settings")]
     public bool shouldClearOnExitPlayMode = false;
@@ -29,16 +28,21 @@ public class RecipesDatabase : ScriptableObject
 
     void Clear()
     {
-        alchemyRecipes.Clear();
-        cookingRecipes.Clear();
+        craftingRecipes.Clear();
     }
 
-    public void AddAlchemyRecipe(AlchemyRecipe recipe)
+    public bool HasRecipe(CraftingRecipe recipe)
     {
-        alchemyRecipes.Add(recipe);
+        return craftingRecipes.Contains(recipe);
     }
-    public void AddCookingRecipe(CookingRecipe recipe)
+
+    public void AddCraftingRecipe(CraftingRecipe recipe)
     {
-        cookingRecipes.Add(recipe);
+        if (HasRecipe(recipe))
+        {
+            return;
+        }
+
+        craftingRecipes.Add(recipe);
     }
 }

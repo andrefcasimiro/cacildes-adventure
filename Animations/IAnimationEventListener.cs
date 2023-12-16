@@ -25,5 +25,8 @@ namespace AF.Animations
 
         public void OnSpellCast();
         public void OnFireArrow();
+
+        // SFX
+        public void PlayCloth();
     }
 }

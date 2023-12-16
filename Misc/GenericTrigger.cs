@@ -31,5 +31,21 @@ namespace AF
         {
             uIDocumentKeyPrompt.gameObject.SetActive(false);
         }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void TurnCapturable()
+        {
+            this.gameObject.layer = LayerMask.NameToLayer("IEventNavigatorCapturable");
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void DisableCapturable()
+        {
+            this.gameObject.layer = 0;
+        }
     }
 }

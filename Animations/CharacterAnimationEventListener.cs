@@ -101,5 +101,9 @@ namespace AF.Animations
         {
             characterManager.characterBaseShooter.FireArrow();
         }
+
+        public void PlayCloth()
+        {
+        }
     }
 }

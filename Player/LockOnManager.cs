@@ -188,8 +188,23 @@ namespace AF
             playerManager.animator.SetFloat(hashStrafeVertical, 0);
         }
 
+        bool CanLockOn()
+        {
+            if (playerManager.playerShootingManager.isAiming)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public void HandleLockOnClick()
         {
+            if (!CanLockOn())
+            {
+                return;
+            }
+
             nearestLockOnTarget = null;
             availableTargets.Clear();
 
