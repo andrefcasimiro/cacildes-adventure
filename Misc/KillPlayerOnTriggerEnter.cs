@@ -9,62 +9,47 @@ namespace AF
     {
         public AudioClip waterSfx;
 
+        [Header("Respawn Options")]
         public bool respawnInstead = false;
 
-        SceneSettings sceneSettings;
-
-        PlayerComponentManager playerComponentManager;
-
         public Transform respawnPoint;
-
-        List<EnemyBossController> enemyBossControllers = new();
 
         public bool ignoreEnemies = false;
         [Header("Components")]
         public BGMManager bgmManager;
+        public SceneSettings sceneSettings;
 
-        private void Awake()
-        {
-            enemyBossControllers = FindObjectsOfType<EnemyBossController>(true).ToList();
-
-            playerComponentManager = FindObjectOfType<PlayerComponentManager>(true);
-            sceneSettings = FindObjectOfType<SceneSettings>(true);
-
-        }
+        [Header("Settings")]
+        [HideInInspector] public int damageTaken = 9999999;
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.CompareTag("Player"))
             {
-                bgmManager.PlaySound(waterSfx, other.GetComponent<PlayerCombatController>().combatAudioSource);
+                PlayerManager playerManager = other.GetComponent<PlayerManager>();
+                bgmManager.PlaySound(waterSfx, other.GetComponent<PlayerManager>().combatAudioSource);
 
-                var noBossInCombat = enemyBossControllers.Count <= 0 || enemyBossControllers.All(x => x.fogWall != null && x.fogWall.activeSelf == false);
-                if (respawnInstead && noBossInCombat)
+                if (respawnInstead)
                 {
-                    playerComponentManager.GetComponent<ThirdPersonController>().trackFallDamage = false;
-                    playerComponentManager.GetComponent<ThirdPersonController>().isSliding = false;
-                    playerComponentManager.GetComponent<ThirdPersonController>().isSlidingOnIce = false;
-                    playerComponentManager.UpdatePosition(respawnPoint.transform.position, Quaternion.identity);
+                    playerManager.thirdPersonController.trackFallDamage = false;
+                    playerManager.thirdPersonController.isSliding = false;
+                    playerManager.thirdPersonController.isSlidingOnIce = false;
+                    playerManager.playerComponentManager.UpdatePosition(respawnPoint.transform.position, Quaternion.identity);
                     Instantiate(sceneSettings.respawnFx, respawnPoint.transform.position, Quaternion.identity);
-                    playerComponentManager.GetComponent<ThirdPersonController>().trackFallDamage = true;
-
+                    playerManager.thirdPersonController.trackFallDamage = true;
                     Physics.autoSyncTransforms = false;
-
                     return;
                 }
 
+                playerManager.health.TakeDamage(damageTaken);
             }
-
-            if (other.gameObject.CompareTag("Enemy") && ignoreEnemies == false)
+            else if (other.gameObject.CompareTag("Enemy") && ignoreEnemies == false)
             {
-                var characterManager = other.GetComponent<CharacterManager>();
-
-                if (characterManager != null)
+                if (other.TryGetComponent<CharacterManager>(out var characterManager))
                 {
                     bgmManager.PlaySound(waterSfx, characterManager.combatAudioSource);
-                    // characterManager.enemyHealthController.TakeEnvironmentalDamage(9999999);
+                    characterManager.health.TakeDamage(damageTaken);
                 }
-
             }
         }
     }

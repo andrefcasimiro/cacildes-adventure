@@ -19,7 +19,7 @@ namespace AF
 
 
         [Header("Companion")]
-        public Companion companionDependant;
+        public MonoBehaviourID companionDependant;
 
     }
 
@@ -84,7 +84,7 @@ namespace AF
 
             if (isCompanion)
             {
-                character = GetComponentInParent<CompanionManager>(true).companion.character;
+                // character = GetComponentInParent<CompanionManager>(true).companion.character;
             }
         }
 

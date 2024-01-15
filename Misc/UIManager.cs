@@ -39,25 +39,14 @@ namespace AF
             viewMenu = FindObjectsByType<ViewMenu>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         }
 
+        public bool IsShowingGUI()
+        {
+            return CanShowGUI() == false;
+        }
+
         public bool CanShowGUI()
         {
-            // Check non-array UI elements
-            if (craftScreen != null && craftScreen.isActiveAndEnabled)
-            {
-                return false;
-            }
-
-            if (book != null && book.isActiveAndEnabled)
-            {
-                return false;
-            }
-
-            if (dialogueWindow != null && dialogueWindow.isActiveAndEnabled)
-            {
-                return false;
-            }
-
-            if (gameOver != null && gameOver.isActiveAndEnabled)
+            if (IsShowingFullScreenGUI())
             {
                 return false;
             }
@@ -92,27 +81,6 @@ namespace AF
                 return false;
             }
 
-
-            if (bonfireMenu != null && bonfireMenu.isActiveAndEnabled)
-            {
-                return false;
-            }
-
-            if (bonfireTravel != null && bonfireTravel.isActiveAndEnabled)
-            {
-                return false;
-            }
-
-            if (levelUp != null && levelUp.isActiveAndEnabled)
-            {
-                return false;
-            }
-
-            if (shopMenu != null && shopMenu.isActiveAndEnabled)
-            {
-                return false;
-            }
-
             foreach (var element in viewMenu)
             {
                 if (element != null && element.isActiveAndEnabled)
@@ -130,5 +98,49 @@ namespace AF
             notificationManager.ShowNotification("Can not perform action at this time", notificationManager.systemError);
         }
 
+        public bool IsShowingFullScreenGUI()
+        {
+            // Check non-array UI elements
+            if (craftScreen != null && craftScreen.isActiveAndEnabled)
+            {
+                return true;
+            }
+
+            if (book != null && book.isActiveAndEnabled)
+            {
+                return true;
+            }
+
+            if (dialogueWindow != null && dialogueWindow.isActiveAndEnabled)
+            {
+                return true;
+            }
+
+            if (gameOver != null && gameOver.isActiveAndEnabled)
+            {
+                return true;
+            }
+            if (bonfireMenu != null && bonfireMenu.isActiveAndEnabled)
+            {
+                return true;
+            }
+
+            if (bonfireTravel != null && bonfireTravel.isActiveAndEnabled)
+            {
+                return true;
+            }
+
+            if (levelUp != null && levelUp.isActiveAndEnabled)
+            {
+                return true;
+            }
+
+            if (shopMenu != null && shopMenu.isActiveAndEnabled)
+            {
+                return true;
+            }
+
+            return false;
+        }
     }
 }

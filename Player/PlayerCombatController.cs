@@ -32,6 +32,7 @@ namespace AF
         public Animator animator;
         public UIDocumentDialogueWindow uIDocumentDialogueWindow;
         public LockOnManager lockOnManager;
+        public UIManager uIManager;
 
         [Header("Heavy Attacks")]
         public int unarmedHeavyAttackBonus = 35;
@@ -44,9 +45,15 @@ namespace AF
 
         [Header("Flags")]
         public bool isHeavyAttacking = false;
+        public bool isJumpAttacking = false;
 
         // Coroutines
         Coroutine ResetLightAttackComboIndexCoroutine, ResetHeavyAttackComboIndexCoroutine;
+
+        public void ResetStates()
+        {
+            isJumpAttacking = false;
+        }
 
         public void OnLightAttack()
         {
@@ -123,6 +130,8 @@ namespace AF
 
         void HandleJumpAttack()
         {
+            isJumpAttacking = true;
+
             playerManager.playerWeaponsManager.HideShield();
 
             playerManager.playerAnimationEventListener.OpenRightWeaponHitbox();
@@ -217,26 +226,13 @@ namespace AF
                 return false;
             }
 
-            // If in dialogue
-            if (uIDocumentDialogueWindow.isActiveAndEnabled)
+            if (uIManager.IsShowingGUI())
             {
                 return false;
             }
 
 
             return true;
-        }
-
-        public bool IsJumpAttacking()
-        {
-            return false;
-            //            return animator.GetBool(hashIsJumpAttacking);
-        }
-
-        public bool IsStartingJumpAttack()
-        {
-            return false;
-            //            return animator.GetBool(hashIsStartingJumpAttack);
         }
 
         private void OnDisable()

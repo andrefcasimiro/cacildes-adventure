@@ -41,38 +41,32 @@ namespace AF
 
         public float jumpAttackMultiplier = 2.25f;
 
-        public ThirdPersonController thirdPersonController;
-        public PlayerCombatController playerCombatController;
-        public DodgeController dodgeController;
-        public EquipmentGraphicsHandler equipmentGraphicsHandler;
-        public PlayerHealth healthStatManager;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
         public EquipmentDatabase equipmentDatabase;
 
         [Header("Components")]
-        public StatsBonusController playerStatsBonusController;
+        public PlayerManager playerManager;
 
         private void Start()
         {
-            this.scalingDictionary.Add("E", E);
-            this.scalingDictionary.Add("D", D);
-            this.scalingDictionary.Add("C", C);
-            this.scalingDictionary.Add("B", B);
-            this.scalingDictionary.Add("A", A);
-            this.scalingDictionary.Add("S", S);
+            scalingDictionary.Add("E", E);
+            scalingDictionary.Add("D", D);
+            scalingDictionary.Add("C", C);
+            scalingDictionary.Add("B", B);
+            scalingDictionary.Add("A", A);
+            scalingDictionary.Add("S", S);
         }
 
         public bool IsHeavyAttacking()
         {
-            return playerCombatController.isHeavyAttacking;
+            return playerManager.playerCombatController.isHeavyAttacking;
         }
 
         public bool IsJumpAttacking()
         {
-            return false;
-            //            return playerCombatController.IsJumpAttacking() || playerCombatController.IsStartingJumpAttack();
+            return playerManager.playerCombatController.isJumpAttacking;
         }
 
         public Damage GetAttackDamage()
@@ -90,7 +84,10 @@ namespace AF
                     ? weapon.heavyAttackPostureDamage
                     : weapon.lightAttackPostureDamage,
                     poiseDamage: weapon.poiseDamageBonus,
-                    weaponAttackType: weapon.weaponAttackType
+                    weaponAttackType: weapon.weaponAttackType,
+                    statusEffect: null,
+                    statusEffectAmount: 0,
+                    pushForce: weapon.pushForce
                 );
             }
 
@@ -104,16 +101,19 @@ namespace AF
                     ? unarmedLightAttackPostureDamage
                     : unarmedHeavyAttackPostureDamage,
                 poiseDamage: 1,
-                weaponAttackType: WeaponAttackType.Blunt
+                weaponAttackType: WeaponAttackType.Blunt,
+                statusEffect: null,
+                statusEffectAmount: 0,
+                pushForce: 0
             );
         }
 
         public int GetCurrentPhysicalAttack()
         {
             int heavyAttackBonus = 0;
-            if (equipmentDatabase.GetCurrentWeapon() == null && playerCombatController.isHeavyAttacking)
+            if (equipmentDatabase.GetCurrentWeapon() == null && playerManager.playerCombatController.isHeavyAttacking)
             {
-                heavyAttackBonus = playerCombatController.unarmedHeavyAttackBonus;
+                heavyAttackBonus = playerManager.playerCombatController.unarmedHeavyAttackBonus;
             }
 
             var value = basePhysicalAttack;
@@ -128,8 +128,8 @@ namespace AF
                     value
                         + (playerStatsDatabase.strength * levelMultiplier)
                         + (playerStatsDatabase.dexterity * levelMultiplier)
-                        + (playerStatsBonusController.strengthBonus * levelMultiplier)
-                        + (playerStatsBonusController.dexterityBonus * levelMultiplier)
+                        + (playerManager.statsBonusController.strengthBonus * levelMultiplier)
+                        + (playerManager.statsBonusController.dexterityBonus * levelMultiplier)
                     ) + physicalAttackBonus + heavyAttackBonus
                 );
         }
@@ -187,7 +187,7 @@ namespace AF
             );
 
 
-            if (playerCombatController.isHeavyAttacking)
+            if (playerManager.playerCombatController.isHeavyAttacking)
             {
                 int heavyAttackBonus = weapon.heavyAttackBonus;
                 value += heavyAttackBonus;
@@ -218,14 +218,22 @@ namespace AF
 
             if (equipmentDatabase.accessories.FirstOrDefault(x => x != null && x.increaseAttackPowerWithLowerHealth) != null)
             {
-                int extraAttackPower = (int)(value * healthStatManager.GetExtraAttackBasedOnCurrentHealth());
+                int extraAttackPower = (int)(value * (playerManager.health as PlayerHealth).GetExtraAttackBasedOnCurrentHealth());
 
                 value += extraAttackPower;
             }
 
+            if (playerManager.playerCombatController)
+            {
 
-            var attackBonuses = equipmentDatabase.accessories.Sum(x => x != null ? x.physicalAttackBonus : 0);
-            value += attackBonuses;
+                var attackBonuses = equipmentDatabase.accessories.Sum(x => x != null ? x.physicalAttackBonus : 0);
+                value += attackBonuses;
+            }
+
+            if (playerManager.characterBlockController.IsWithinCounterAttackWindow())
+            {
+                value = (int)(value * playerManager.characterBlockController.counterAttackMultiplier);
+            }
 
             return value;
         }
@@ -235,24 +243,27 @@ namespace AF
 
         public int GetStrengthBonusFromWeapon(Weapon weapon)
         {
-            return (int)(Mathf.Ceil(((playerStatsDatabase.strength + playerStatsBonusController.strengthBonus) * this.levelMultiplier * this.scalingDictionary[weapon.strengthScaling.ToString()])));
+            return (int)Mathf.Ceil((playerStatsDatabase.strength + playerManager.statsBonusController.strengthBonus)
+            * levelMultiplier * scalingDictionary[weapon.strengthScaling.ToString()]);
         }
 
         public float GetDexterityBonusFromWeapon(Weapon weapon)
         {
-            return (int)(Mathf.Ceil(((playerStatsDatabase.dexterity + playerStatsBonusController.dexterityBonus) * this.levelMultiplier * this.scalingDictionary[weapon.dexterityScaling.ToString()])));
+            return (int)Mathf.Ceil((playerStatsDatabase.dexterity + playerManager.statsBonusController.dexterityBonus)
+                * levelMultiplier * scalingDictionary[weapon.dexterityScaling.ToString()]);
         }
 
         public float GetIntelligenceBonusFromWeapon(Weapon weapon)
         {
-            return (int)(Mathf.Ceil(((playerStatsDatabase.intelligence + playerStatsBonusController.intelligenceBonus) * this.levelMultiplier * this.scalingDictionary[weapon.intelligenceScaling.ToString()])));
+            return (int)Mathf.Ceil((playerStatsDatabase.intelligence + playerManager.statsBonusController.intelligenceBonus)
+                * levelMultiplier * scalingDictionary[weapon.intelligenceScaling.ToString()]);
         }
 
         #endregion
 
         public float GetArrowDamageBonus()
         {
-            return Mathf.Ceil(playerStatsDatabase.dexterity * this.levelMultiplier + playerStatsBonusController.dexterityBonus * this.levelMultiplier);
+            return Mathf.Ceil(playerStatsDatabase.dexterity * levelMultiplier + playerManager.statsBonusController.dexterityBonus * levelMultiplier);
         }
 
     }

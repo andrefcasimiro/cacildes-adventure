@@ -18,5 +18,11 @@ namespace AF.Events
         //Day / Night
         public static readonly string ON_HOUR_CHANGED = "ON_HOUR_CHANGED";
 
+        // Companions
+        public static readonly string ON_PARTY_CHANGED = "ON_PARTY_CHANGED";
+
+        // Flags
+        public static readonly string ON_FLAGS_CHANGED = "ON_FLAGS_CHANGED";
+
     }
 }

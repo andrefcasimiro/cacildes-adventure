@@ -15,9 +15,6 @@ namespace AF
 
         public UnityEvent onHit;
 
-        bool hasSentAnalyticsMessage = false;
-        public string analyticsMessage;
-
         [Header("Components")]
         public Soundbank soundbank;
 
@@ -73,9 +70,9 @@ namespace AF
                 return;
             }
 
-            if (other.CompareTag("Player"))
+            if (other.CompareTag("Player") && other.TryGetComponent<PlayerManager>(out var playerManager))
             {
-                if (other.GetComponent<DodgeController>().isDodging)
+                if (playerManager.dodgeController.isDodging)
                 {
                     hasBeenHit = true;
                 }

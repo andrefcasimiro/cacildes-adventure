@@ -68,6 +68,23 @@ namespace AF.Equipment
             UpdateCurrentSpells();
         }
 
+        public void ResetStates()
+        {
+            CloseAllWeaponHitboxes();
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void CloseAllWeaponHitboxes()
+        {
+            currentWeaponInstance?.DisableHitbox();
+            leftFootHitbox?.DisableHitbox();
+            rightFootHitbox?.DisableHitbox();
+            leftHandHitbox?.DisableHitbox();
+            rightHandHitbox?.DisableHitbox();
+        }
+
         void UpdateCurrentWeapon()
         {
             var CurrentWeapon = equipmentDatabase.GetCurrentWeapon();

@@ -9,11 +9,10 @@ namespace AF
         [Header("Components")]
         public CharacterManager characterManager;
 
-        [Header("Agent Settings")]
-        public float agentSpeed = 0f;
 
         [Header("States")]
         public State chaseState;
+        public State patrolOrIdleState;
 
         [Header("Events")]
         public UnityEvent onAttack;
@@ -26,7 +25,6 @@ namespace AF
         {
             onStateEnter?.Invoke();
 
-            characterManager.agent.speed = agentSpeed;
         }
 
         public override void OnStateExit(StateManager stateManager)
@@ -35,29 +33,43 @@ namespace AF
 
         public override State Tick(StateManager stateManager)
         {
+            characterManager.agent.speed = 0f;
+
             if (characterManager.IsBusy())
             {
                 return this;
             }
 
+            // If Has Target
             if (characterManager.targetManager.currentTarget != null)
             {
-                float distanceToTarget = Vector3.Distance(
-                    characterManager.agent.transform.position, characterManager.targetManager.currentTarget.transform.position);
+                Utils.FaceTarget(characterManager.transform, characterManager.targetManager.currentTarget.transform);
 
-                if (distanceToTarget <= characterManager.agent.stoppingDistance)
+                // If Target Is Still Alive, Attack If Within Range Or Chase
+                if (characterManager.targetManager.currentTarget.health.GetCurrentHealth() > 0)
                 {
-                    onAttack?.Invoke();
+                    float distanceToTarget = Vector3.Distance(
+                        characterManager.agent.transform.position, characterManager.targetManager.currentTarget.transform.position);
 
-                    return this;
+                    if (distanceToTarget <= characterManager.agent.stoppingDistance)
+                    {
+                        onAttack?.Invoke();
+
+                        return this;
+                    }
+                    else if (distanceToTarget > characterManager.agent.stoppingDistance)
+                    {
+                        return chaseState;
+                    }
                 }
-                else if (distanceToTarget > characterManager.agent.stoppingDistance)
+                // If Target Is Dead, Forget Target And Return to Idle or Patrol
+                else
                 {
-                    return chaseState;
+                    characterManager.targetManager.ClearTarget();
                 }
             }
 
-            return chaseState;
+            return patrolOrIdleState;
         }
     }
 }

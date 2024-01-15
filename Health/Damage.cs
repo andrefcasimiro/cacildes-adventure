@@ -10,8 +10,11 @@ namespace AF.Health
         public int lightning;
         public int postureDamage;
         public int poiseDamage;
+        public float pushForce = 0;
 
         public WeaponAttackType weaponAttackType;
+        public StatusEffect statusEffect;
+        public float statusEffectAmount;
 
         public Damage(
             int physical,
@@ -21,7 +24,10 @@ namespace AF.Health
             int lightning,
             int postureDamage,
             int poiseDamage,
-            WeaponAttackType weaponAttackType)
+            WeaponAttackType weaponAttackType,
+            StatusEffect statusEffect,
+            float statusEffectAmount,
+            float pushForce)
         {
             this.physical = physical;
             this.fire = fire;
@@ -31,6 +37,9 @@ namespace AF.Health
             this.postureDamage = postureDamage;
             this.poiseDamage = poiseDamage;
             this.weaponAttackType = weaponAttackType;
+            this.statusEffect = statusEffect;
+            this.statusEffectAmount = statusEffectAmount;
+            this.pushForce = pushForce;
         }
 
     }

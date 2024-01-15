@@ -1,3 +1,5 @@
+using System.Collections;
+using AF.Characters;
 using AF.Combat;
 using AF.Health;
 using AF.StatusEffects;
@@ -23,9 +25,14 @@ namespace AF
         public CharacterPosture characterPosture;
         public CharacterPoise characterPoise;
         public CharacterBlockController characterBlockController;
+        public DamageReceiver damageReceiver;
+
+        [Header("Faction")]
+        public CharacterFaction characterFaction;
 
         [Header("Flags")]
         public bool isBusy = false;
+        public bool isPushed = false;
 
         public abstract void ResetStates();
 
@@ -66,5 +73,30 @@ namespace AF
         #endregion
 
         public abstract Damage GetAttackDamage();
+
+        // Call this method when the character gets hit by the force
+        public void ApplyForceSmoothly(Vector3 forceDirection, float pushForce, float duration)
+        {
+            if (!isPushed)
+            {
+                StartCoroutine(ApplyForceCoroutine(forceDirection, pushForce, duration));
+            }
+        }
+
+        private IEnumerator ApplyForceCoroutine(Vector3 forceDirection, float pushForce, float duration)
+        {
+            float elapsed = 0f;
+            isPushed = true;
+
+            while (elapsed < duration)
+            {
+                float forceMagnitude = Mathf.Lerp(pushForce, 0f, elapsed / duration);
+                characterController.Move(forceDirection * forceMagnitude * Time.deltaTime);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            isPushed = false;
+        }
     }
 }

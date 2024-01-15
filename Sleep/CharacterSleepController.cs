@@ -39,7 +39,7 @@ namespace AF
                 return;
             }
 
-            bool shouldSleep = false;
+            bool shouldSleep;
 
             // If appear until is after midnight, it may become smaller than appearFrom (i. e. appear from 17 until 4)
             if (sleepFrom > sleepUntil)

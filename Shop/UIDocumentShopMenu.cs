@@ -61,6 +61,10 @@ namespace AF.Shops
             this.itemPreviewItemDescription = itemPreview.Q<Label>("Description");
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="characterShop"></param>
         public void BuyFromCharacter(CharacterShop characterShop)
         {
             characterShop?.onShopOpen?.Invoke();
@@ -74,6 +78,10 @@ namespace AF.Shops
             DrawBuyMenu(characterShop);
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="characterShop"></param>
         public void SellToCharacter(CharacterShop characterShop)
         {
             characterShop?.onShopOpen?.Invoke();

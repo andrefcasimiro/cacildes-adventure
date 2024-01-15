@@ -1,4 +1,5 @@
-﻿using Steamworks;
+﻿using System;
+using Steamworks;
 using UnityEngine;
 
 namespace AF
@@ -12,19 +13,27 @@ namespace AF
 
         public void AwardAchievement()
         {
-            if (!SteamManager.Initialized)
+            try
             {
-                return;
-            }
 
-            SteamUserStats.GetAchievement(name, out bool achievementCompleted);
-            if (achievementCompleted)
+                if (!SteamManager.Initialized)
+                {
+                    return;
+                }
+
+                SteamUserStats.GetAchievement(name, out bool achievementCompleted);
+                if (achievementCompleted)
+                {
+                    return;
+                }
+
+                SteamUserStats.SetAchievement(name);
+                SteamUserStats.StoreStats();
+            }
+            catch (Exception)
             {
-                return;
+                Debug.Log("Steam is not initialized");
             }
-
-            SteamUserStats.SetAchievement(name);
-            SteamUserStats.StoreStats();
         }
     }
 }

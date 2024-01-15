@@ -15,8 +15,7 @@ namespace AF
         int m_currentWaypointIndex;
 
         [Header("Components")]
-        public NavMeshAgent agent;
-        public float agentSpeed = 2;
+        public CharacterManager characterManager;
 
         [Header("Events")]
         public UnityEvent onStateEnter;
@@ -27,6 +26,7 @@ namespace AF
         {
             SetupWaypoints();
         }
+
         private void Start()
         {
             InitializeWaypoints();
@@ -55,22 +55,22 @@ namespace AF
         {
             onStateEnter?.Invoke();
 
-            agent.enabled = true;
-
-            agent.ResetPath();
-            agent.speed = agentSpeed;
+            characterManager.agent.ResetPath();
         }
 
         public override void OnStateExit(StateManager stateManager)
         {
             onStateExit?.Invoke();
         }
+
         public override State Tick(StateManager stateManager)
         {
+            characterManager.agent.speed = characterManager.patrolSpeed;
+
             onStateUpdate?.Invoke();
 
             // Check if the agent has reached its current destination
-            if (agent.enabled && !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+            if (characterManager.agent.enabled && !characterManager.agent.pathPending && characterManager.agent.remainingDistance <= characterManager.agent.stoppingDistance)
             {
                 // The agent has reached its current waypoint
                 SetNextWaypoint();
@@ -81,9 +81,9 @@ namespace AF
 
         public void InitializeWaypoints()
         {
-            if (m_waypoints.Count > 0 && agent.enabled)
+            if (m_waypoints.Count > 0 && characterManager.agent.enabled)
             {
-                agent.destination = m_waypoints[m_currentWaypointIndex];
+                characterManager.agent.destination = m_waypoints[m_currentWaypointIndex];
             }
             else
             {
@@ -100,9 +100,9 @@ namespace AF
 
         private void SetDestinationToWaypoint()
         {
-            if (agent.enabled)
+            if (characterManager.agent.enabled)
             {
-                agent.destination = m_waypoints[m_currentWaypointIndex];
+                characterManager.agent.destination = m_waypoints[m_currentWaypointIndex];
             }
         }
     }

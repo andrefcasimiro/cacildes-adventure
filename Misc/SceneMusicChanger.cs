@@ -23,7 +23,7 @@ namespace AF
             {
                 if (playSceneMusic)
                 {
-                    sceneSettings.HandleSceneSound();
+                    sceneSettings.HandleSceneSound(true);
                 }
                 else if (bgmManager.IsPlayingMusicClip(musicToPlay.name) == false)
                 {

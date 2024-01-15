@@ -1,3 +1,4 @@
+using AF.Companions;
 using AF.Music;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,6 +9,9 @@ namespace AF
     {
         [Header("Game Session")]
         public GameSession gameSession;
+
+        [Header("Databases")]
+        public CompanionsDatabase companionsDatabase;
 
         [Header("Components")]
         public PlayerManager playerManager;
@@ -28,7 +32,7 @@ namespace AF
 
         void Start()
         {
-            SpawnPlayer();
+            SpawnPlayerAndCompanions();
         }
 
         public void Teleport(string sceneName, string spawnGameObjectNameRef)
@@ -43,7 +47,7 @@ namespace AF
             });
         }
 
-        void SpawnPlayer()
+        void SpawnPlayerAndCompanions()
         {
             if (string.IsNullOrEmpty(gameSession.nextMap_SpawnGameObjectName))
             {
@@ -59,6 +63,14 @@ namespace AF
             }
 
             playerManager.playerComponentManager.TeleportPlayer(spawnGameObject.transform);
+
+            foreach (CompanionID companionID in FindObjectsByType<CompanionID>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+            {
+                if (companionsDatabase.IsCompanionAndIsActivelyInParty(companionID.companionId))
+                {
+                    companionID.SpawnCompanion(spawnGameObject.transform.position);
+                }
+            }
         }
     }
 }

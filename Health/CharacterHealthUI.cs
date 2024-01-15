@@ -12,6 +12,7 @@ namespace AF.Health
         {
             InitializeHUD();
         }
+
         public void InitializeHUD()
         {
             if (healthSlider != null)

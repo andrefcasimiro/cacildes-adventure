@@ -1,3 +1,6 @@
+using System.Numerics;
+using AF.Combat;
+using AF.Companions;
 using AF.Health;
 using UnityEngine;
 using UnityEngine.Events;
@@ -9,6 +12,7 @@ namespace AF
     {
         [Header("Character")]
         public CharacterBaseManager character;
+        public int pushForceResistance = 0;
 
         [Header("Components")]
         public DamageResistances damageResistances;
@@ -16,16 +20,27 @@ namespace AF
         public CombatNotificationsController combatNotificationsController;
 
         [Header("Unity Events")]
+        public UnityEvent onDamageReceived;
         public UnityEvent onPhysicalDamage;
         public UnityEvent onFireDamage;
         public UnityEvent onFrostDamage;
         public UnityEvent onMagicDamage;
         public UnityEvent onLightningDamage;
 
+
         [Header("Flags")]
         public bool canTakeDamage = true;
         public bool damageOnDodge = false;
 
+        public void ResetStates()
+        {
+            canTakeDamage = true;
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="value"></param>
         public void SetCanTakeDamage(bool value)
         {
             canTakeDamage = value;
@@ -59,6 +74,12 @@ namespace AF
 
         public void HandleIncomingDamage(CharacterBaseManager damageOwner, UnityAction onTakeDamage)
         {
+            // Don't allow same factions to hit each other
+            if (damageOwner?.characterFaction == character?.characterFaction)
+            {
+                return;
+            }
+
             if (!CanTakeDamage())
             {
                 return;
@@ -73,8 +94,29 @@ namespace AF
                     aiCharacter.targetManager.SetTarget(damageOwner);
                 }
 
+                if (character.characterBlockController.IsWithinParryingWindow())
+                {
+                    Utils.FaceTarget(character.transform, damageOwner.transform);
+                    Utils.FaceTarget(damageOwner.transform, character.transform);
+
+                    character.characterBlockController.HandleParryEvent();
+                    damageOwner.characterBlockController.HandleParriedEvent();
+                    return;
+                }
+
+                if (incomingDamage.pushForce > 0)
+                {
+                    character.ApplyForceSmoothly(
+                        damageOwner.transform.forward,
+                        Mathf.Clamp(incomingDamage.pushForce - pushForceResistance, 0, Mathf.Infinity) * 10,
+                        .25f);
+                }
+
                 if (character.characterBlockController.CanBlockDamage(incomingDamage))
                 {
+                    Utils.FaceTarget(character.transform, damageOwner.transform);
+                    Utils.FaceTarget(damageOwner.transform, character.transform);
+
                     character.characterBlockController.BlockAttack(incomingDamage);
                     return;
                 }
@@ -85,6 +127,11 @@ namespace AF
             onTakeDamage?.Invoke();
         }
 
+        /// <summary>
+        /// Unity Event
+        /// 
+        /// </summary>
+        /// <param name="damage"></param>
         public void TakeDamage(Damage damage)
         {
             if (!CanTakeDamage())
@@ -92,6 +139,16 @@ namespace AF
                 return;
             }
 
+            ApplyDamage(damage);
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// Bypass the CanTakeDamage check
+        /// </summary>
+        /// <param name="damage"></param>
+        public void ApplyDamage(Damage damage)
+        {
             if (damageResistances != null)
             {
                 damage = damageResistances.FilterIncomingDamage(damage);
@@ -112,6 +169,11 @@ namespace AF
                 }
 
                 character.characterPosture.TakePostureDamage(damage.postureDamage);
+
+                if (character.statusController != null && damage.statusEffect != null)
+                {
+                    character.statusController.InflictStatusEffect(damage.statusEffect, damage.statusEffectAmount, false);
+                }
             }
 
             if (damage.physical > 0)
@@ -160,6 +222,26 @@ namespace AF
                 onLightningDamage?.Invoke();
             }
 
+            onDamageReceived?.Invoke();
+        }
+
+        public void TakeDamagePercentage(float damagePercentage)
+        {
+            int damageAmount = (int)damagePercentage * health.GetMaxHealth() / 100;
+
+            ApplyDamage(
+                new(
+                    physical: damageAmount,
+                    fire: 0,
+                    frost: 0,
+                    magic: 0,
+                    lightning: 0,
+                    poiseDamage: 1,
+                    postureDamage: 2,
+                    weaponAttackType: WeaponAttackType.Slash,
+                    statusEffect: null,
+                    statusEffectAmount: 0,
+                    pushForce: 0));
         }
 
         int GetTotalDamage(Damage damage)

@@ -19,7 +19,7 @@ namespace AF.Reputation
             soundbank.PlaySound(soundbank.reputationIncreased);
             notificationManager.ShowNotification(
                 "You won reputation: +" + value + " points! Current reputation: " + playerStatsDatabase.GetCurrentReputation(),
-                notificationManager.reputationDecreaseSprite);
+                notificationManager.reputationIncreaseSprite);
         }
 
         public void DecreaseReputation(int value)

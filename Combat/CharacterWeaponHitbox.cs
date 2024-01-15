@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -25,6 +26,10 @@ namespace AF
         public AudioSource combatAudioSource;
 
         readonly List<DamageReceiver> damageReceiversHit = new();
+
+        [Header("Events")]
+        public UnityEvent onOpenHitbox;
+        public UnityEvent onCloseHitbox;
 
         // Internal flags
         bool canPlayHitSfx = true;
@@ -58,10 +63,12 @@ namespace AF
                 hitCollider.enabled = true;
             }
 
-            if (swingSfx != null)
+            if (swingSfx != null && soundbank != null)
             {
                 soundbank.PlaySound(swingSfx, combatAudioSource);
             }
+
+            onOpenHitbox?.Invoke();
         }
 
         public void DisableHitbox()
@@ -77,6 +84,7 @@ namespace AF
             }
 
             damageReceiversHit.Clear();
+            onCloseHitbox?.Invoke();
         }
 
         public void OnTriggerEnter(Collider other)
@@ -104,7 +112,10 @@ namespace AF
                     {
                         canPlayHitSfx = false;
 
-                        soundbank.PlaySound(hitSfx, combatAudioSource);
+                        if (soundbank != null)
+                        {
+                            soundbank.PlaySound(hitSfx, combatAudioSource);
+                        }
                     }
                 });
 

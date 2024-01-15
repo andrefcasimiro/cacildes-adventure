@@ -54,6 +54,7 @@ namespace AF
 
         bool evaluatingIfShouldDisengage = false;
         Coroutine CheckIfShouldDisengageCoroutine;
+        Coroutine EvaluateLockOnAfterKillingEnemyCoroutine;
 
         private void Start()
         {
@@ -421,6 +422,30 @@ namespace AF
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnEnemyKilledCheckIfShouldDisengageLockOn()
+        {
+            if (!isLockedOn)
+            {
+                return;
+            }
+
+            if (EvaluateLockOnAfterKillingEnemyCoroutine != null)
+            {
+                StopCoroutine(EvaluateLockOnAfterKillingEnemyCoroutine);
+            }
+
+            EvaluateLockOnAfterKillingEnemyCoroutine = StartCoroutine(EvaluateLockOnAfterKillingEnemy_Coroutine());
+        }
+
+        IEnumerator EvaluateLockOnAfterKillingEnemy_Coroutine()
+        {
+            yield return new WaitForSeconds(2f);
+            HandleLockOnClick();
         }
     }
 }

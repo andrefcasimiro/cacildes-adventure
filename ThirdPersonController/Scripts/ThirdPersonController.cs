@@ -649,7 +649,7 @@ namespace AF
                 _input.jump = false;
             }
 
-            if (!playerManager.playerCombatController.IsStartingJumpAttack())
+            if (!playerManager.playerCombatController.isJumpAttacking)
             {
                 // apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
                 if (_verticalVelocity < _terminalVelocity)
@@ -660,7 +660,7 @@ namespace AF
                         jumpAttackVelocityFinal = equipmentDatabase.GetCurrentWeapon().jumpAttackVelocity;
                     }
 
-                    _verticalVelocity += (Gravity * Time.deltaTime) + (playerManager.playerCombatController.IsJumpAttacking() ? jumpAttackVelocityFinal : 0f);
+                    _verticalVelocity += (Gravity * Time.deltaTime) + (playerManager.playerCombatController.isJumpAttacking ? jumpAttackVelocityFinal : 0f);
                 }
             }
             else if ((equipmentDatabase.GetCurrentWeapon() == null) || (equipmentDatabase.GetCurrentWeapon() != null && equipmentDatabase.GetCurrentWeapon().stopInAir == true))

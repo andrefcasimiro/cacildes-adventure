@@ -22,6 +22,9 @@ namespace AF.Music
         Coroutine FadeInCoreCoroutine;
         Coroutine FadeOutCoreCoroutine;
 
+        // Flags
+        public bool isPlayingBossMusic = false;
+
         public void PlayMusic(AudioClip musicToPlay)
         {
             if (this.bgmAudioSource.clip != null)
@@ -154,16 +157,7 @@ namespace AF.Music
 
         public void PlayMapMusicAfterKillingEnemy()
         {
-            // Check if more enemies are in chase or combat state
-            CharacterManager[] characterManagers = FindObjectsByType<CharacterManager>(FindObjectsSortMode.None);
-
-            if (characterManagers.FirstOrDefault(characterManager => characterManager?.targetManager?.currentTarget != null))
-            {
-                return;
-            }
-
-            // Play map music
-            sceneSettings.HandleSceneSound();
+            sceneSettings.HandleSceneSound(true);
         }
 
         public bool IsPlayingMusicClip(string clipName)

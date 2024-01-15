@@ -3,10 +3,8 @@ using UnityEngine;
 namespace AF.Dialogue
 {
 
-    public class GreetingMessage : MonoBehaviour
+    public class GreetingMessageUI : MonoBehaviour
     {
-        [Header("Settings")]
-        [TextArea] public string greetingMessage;
 
         [Header("Components")]
         public CanvasGroup canvasGroup;
@@ -17,7 +15,7 @@ namespace AF.Dialogue
             canvasGroup.alpha = 0;
         }
 
-        public void Display()
+        public void Display(string greetingMessage)
         {
             textMeshPro.text = greetingMessage;
 

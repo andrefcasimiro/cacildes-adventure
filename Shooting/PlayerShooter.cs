@@ -34,6 +34,7 @@ namespace AF.Shooting
 
         [Header("Flags")]
         public bool isAiming = false;
+        public bool isShooting = false;
 
         // For cache purposes
         Spell previousSpell;
@@ -46,6 +47,11 @@ namespace AF.Shooting
         Cinemachine3rdPersonFollow cinemachine3RdPersonFollow;
 
         public CinemachineImpulseSource cinemachineImpulseSource;
+
+        public void ResetStates()
+        {
+            isShooting = false;
+        }
 
         void SetupCinemachine3rdPersonFollowReference()
         {
@@ -186,7 +192,7 @@ namespace AF.Shooting
 
             GetPlayerManager().staminaStatManager.DecreaseStamina(minimumStaminaToShoot);
 
-            FireProjectile(spell.spellCastParticle.gameObject, 10f, lockOnTarget);
+            FireProjectile(spell.spellCastParticle.gameObject, 0f, lockOnTarget);
         }
 
         void FireProjectile(GameObject projectile, float originDistanceFromCamera, Transform lockOnTarget)
@@ -207,8 +213,8 @@ namespace AF.Shooting
                 lookPosition.y *= -1f;
             }
 
-            componentProjectile.Shoot(characterBaseManager, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
 
+            componentProjectile.Shoot(characterBaseManager, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
 
             if (lockOnTarget != null)
             {
@@ -224,6 +230,7 @@ namespace AF.Shooting
             }
 
             cinemachineImpulseSource.GenerateImpulse();
+            isShooting = true;
         }
 
         bool CanAim()

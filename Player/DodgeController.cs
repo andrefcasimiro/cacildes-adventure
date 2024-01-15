@@ -66,6 +66,7 @@ namespace AF
 
             playerManager.PlayBusyHashedAnimationWithRootMotion(hashRoll);
 
+            /*
             if (playerManager.equipmentGraphicsHandler.IsHeavyWeight())
             {
                 StartCoroutine(StopHeavyRollRootmotion());
@@ -73,7 +74,7 @@ namespace AF
             else if (playerManager.equipmentGraphicsHandler.IsMidWeight())
             {
                 StartCoroutine(StopMidRollRootmotion());
-            }
+            }*/
         }
 
         IEnumerator StopMidRollRootmotion()

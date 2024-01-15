@@ -81,7 +81,7 @@ namespace AF
 
             foreach (var enemy in allEnemiesInScene)
             {
-                if (enemy.GetComponent<EnemyBossController>() != null)
+                if (enemy.GetComponent<CharacterBossController>() != null)
                 {
                     continue;
                 }

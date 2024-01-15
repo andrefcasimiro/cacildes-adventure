@@ -2,15 +2,6 @@
 
 namespace AF
 {
-    public enum Stat
-    {
-        None,
-        Health,
-        Magic,
-        Stamina,
-        Reputation
-    }
-
     [CreateAssetMenu(menuName = "Misc / Status / New Status")]
     [System.Serializable]
     public class StatusEffect : ScriptableObject

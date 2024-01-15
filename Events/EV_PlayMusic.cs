@@ -20,7 +20,7 @@ namespace AF
             if (playMapMusic)
             {
                 SceneSettings sceneSettings = FindObjectOfType<SceneSettings>(true);
-                sceneSettings.HandleSceneSound();
+                sceneSettings.HandleSceneSound(true);
             }
             else if (bgm != null)
             {

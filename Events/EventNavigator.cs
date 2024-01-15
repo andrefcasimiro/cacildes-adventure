@@ -22,6 +22,11 @@ namespace AF
         /// </summary>
         public void OnInteract()
         {
+            if (uiManager.IsShowingFullScreenGUI())
+            {
+                return;
+            }
+
             currentTarget?.OnInvoked();
         }
 

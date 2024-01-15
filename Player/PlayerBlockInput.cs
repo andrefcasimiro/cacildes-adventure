@@ -8,31 +8,16 @@ namespace AF
     public class PlayerBlockInput : MonoBehaviour
     {
         public readonly int hashIsBlocking = Animator.StringToHash("IsBlocking");
-        public readonly int hashParryBlockHit = Animator.StringToHash("Parry Block Hit");
-
 
         [Header("Components")]
         public PlayerManager playerManager;
 
-        public float unarmedParryWindow = .4f;
-        float parryTimer = 0f;
-
         [Tooltip("Once we stop blocking, what's the cooldown before we can block again")]
         public float maxBlockCooldown = .5f;
         float blockCooldown = Mathf.Infinity;
-
-        public DestroyableParticle parryFx;
-
         public int unarmedDefenseAbsorption = 20;
 
-        [Tooltip("The amount that multiplier the current attack power if we attack immediately after a parry")]
-        public float counterAttackMultiplier = 1.5f;
-        public float maxCounterAttackWindowAfterParry = 0.85f;
-        float currentCounterAttackWindow = Mathf.Infinity;
-
-        Coroutine parryTimerCoroutine;
         Coroutine blockCooldownCoroutine;
-        Coroutine counterAttackWindowCoroutine;
 
         [Header("Events")]
         public UnityEvent onBlockStart;
@@ -43,11 +28,6 @@ namespace AF
 
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
-
-        public bool IsWithinCounterAttackWindow()
-        {
-            return currentCounterAttackWindow < maxCounterAttackWindowAfterParry;
-        }
 
         public void BeginBlock()
         {
@@ -91,6 +71,7 @@ namespace AF
 
             BeginBlock();
         }
+
         public void OnBlockInput_Cancelled()
         {
             isBlockInput_Performed = false;
@@ -100,26 +81,14 @@ namespace AF
 
         void ResetTimers()
         {
-            parryTimer = 0f;
             blockCooldown = 0f;
-
-            if (parryTimerCoroutine != null)
-            {
-                StopCoroutine(parryTimerCoroutine);
-            }
-            parryTimerCoroutine = StartCoroutine(HandleParryTimer());
 
             if (blockCooldownCoroutine != null)
             {
                 StopCoroutine(blockCooldownCoroutine);
             }
-            parryTimerCoroutine = StartCoroutine(HandleBlockDownCoroutine());
-        }
 
-        IEnumerator HandleParryTimer()
-        {
-            yield return new WaitForSeconds(unarmedParryWindow);
-            parryTimer = unarmedParryWindow;
+            blockCooldownCoroutine = StartCoroutine(HandleBlockDownCoroutine());
         }
 
         IEnumerator HandleBlockDownCoroutine()
@@ -177,37 +146,5 @@ namespace AF
 
             return true;
         }
-
-        public bool IsParrying()
-        {
-            if (!CanBlock())
-            {
-                return false;
-            }
-
-
-            return parryTimer < unarmedParryWindow;
-        }
-
-        public void InstantiateParryFx()
-        {
-            //Instantiate(parryFx, tf.transform.position, Quaternion.identity);
-            playerManager.PlayBusyHashedAnimationWithRootMotion(hashParryBlockHit);
-            currentCounterAttackWindow = 0f;
-
-            if (counterAttackWindowCoroutine != null)
-            {
-                StopCoroutine(counterAttackWindowCoroutine);
-            }
-            counterAttackWindowCoroutine = StartCoroutine(HandleCounterAttackWindowCoroutine());
-        }
-
-        IEnumerator HandleCounterAttackWindowCoroutine()
-        {
-            yield return new WaitForSeconds(maxCounterAttackWindowAfterParry);
-            currentCounterAttackWindow = maxCounterAttackWindowAfterParry;
-        }
-
     }
-
 }

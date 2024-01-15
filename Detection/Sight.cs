@@ -28,6 +28,7 @@ namespace AF.Detection
 
         [Header("Flags")]
         [SerializeField] bool isSighted = false;
+        public bool canSight = true;
 
         public Transform IsTargetInSight()
         {
@@ -49,6 +50,11 @@ namespace AF.Detection
 
         public void CastSight()
         {
+            if (canSight == false)
+            {
+                return;
+            }
+
             Transform hit = IsTargetInSight();
 
             if (hit != null)
@@ -78,6 +84,11 @@ namespace AF.Detection
         {
             this.tagsToDetect.Clear();
             this.tagsToDetect = tagsToDetect;
+        }
+
+        public void Set_CanSight(bool value)
+        {
+            canSight = value;
         }
     }
 }

@@ -1,19 +1,18 @@
+using AF.Health;
 using UnityEngine;
 
 namespace AF
 {
     public class TrapCollider : MonoBehaviour
     {
-        public float moveForce = 25f;
-
-        public float damage = 20;
-
-        public AudioClip sound;
-
         AudioSource audioSource => GetComponent<AudioSource>();
 
-        //PlayerHealthbox playerHealthbox;
+        [Header("Damage Settings")]
+        public Damage damage;
 
+        /// <summary>
+        /// Animation Event
+        /// </summary>
         public void PlaySwingSound()
         {
             // Not all trap colliders have soundsources sometimes (to not have multiple audiosources when only one is needed)
@@ -27,15 +26,14 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.CompareTag("PlayerHealthbox"))
+            if (!other.TryGetComponent<DamageReceiver>(out var damageReceiver))
             {
-
-                //other.GetComponent<PlayerHealthbox>().TakeEnvironmentalDamage(damage, 0, false, 0, WeaponElementType.None);
+                return;
             }
-            else if (other.gameObject.CompareTag("Enemy"))
+
+            if (damage != null)
             {
-                CharacterManager characterManager = other.GetComponent<CharacterManager>();
-                /*                characterManager.enemyHealthController.TakeEnvironmentalDamage(damage);*/
+                damageReceiver.TakeDamage(damage);
             }
         }
 

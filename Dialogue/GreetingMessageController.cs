@@ -1,26 +1,24 @@
+using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 namespace AF.Dialogue
-
 {
     public class GreetingMessageController : MonoBehaviour
     {
-        [TextAreaAttribute(minLines: 5, maxLines: 10)]
-        public string idleGreeting = "";
-
-        [TextAreaAttribute(minLines: 5, maxLines: 10)]
-        public string receivingDamagGreeting = "";
+        [Header("Greetings")]
+        public CharacterGreeting[] characterGreetings;
 
         [Header("Components")]
-        public GreetingMessage greetingMessage;
+        public GreetingMessageUI greetingMessageUI;
 
-        //Flags
-        bool hasDisplayedIdleMessage = false;
-        bool hasDisplayedReceivingDamageMessage = false;
+        bool hasDisplayed = false;
+
+        Coroutine HideGreetingMessageCoroutine;
 
         public void HideGreetingMessage()
         {
-            greetingMessage.Hide();
+            greetingMessageUI.Hide();
         }
 
         /// <summary>
@@ -28,32 +26,35 @@ namespace AF.Dialogue
         /// </summary>
         public void DisplayGreetingMessage()
         {
-            if (hasDisplayedIdleMessage)
+            if (hasDisplayed || characterGreetings == null || characterGreetings.Length <= 0)
             {
-                HideGreetingMessage();
                 return;
             }
-            hasDisplayedIdleMessage = true;
 
-            greetingMessage.greetingMessage = idleGreeting;
-            greetingMessage.Display();
+            hasDisplayed = true;
+
+            var greetingMessage =
+                characterGreetings.FirstOrDefault(messageGameObject => messageGameObject.isActiveAndEnabled);
+
+            if (greetingMessage == null)
+            {
+                return;
+            }
+            greetingMessageUI.Display(greetingMessage.greeting);
+
+            if (HideGreetingMessageCoroutine != null)
+            {
+                StopCoroutine(HideGreetingMessageCoroutine);
+            }
+
+            HideGreetingMessageCoroutine = StartCoroutine(HideGreetingMessage_Coroutine(greetingMessage.duration));
         }
 
-        /// <summary>
-        /// Unity Event
-        /// </summary>
-        public void DisplayReceivingDamageMessage()
+        IEnumerator HideGreetingMessage_Coroutine(float duration)
         {
-            if (hasDisplayedReceivingDamageMessage)
-            {
-                HideGreetingMessage();
-                return;
-            }
-            hasDisplayedReceivingDamageMessage = true;
+            yield return new WaitForSeconds(duration);
 
-            greetingMessage.greetingMessage = receivingDamagGreeting;
+            HideGreetingMessage();
         }
-
-
     }
 }

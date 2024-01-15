@@ -11,7 +11,7 @@ namespace AF
 
         public override IEnumerator Dispatch()
         {
-            if (companionsDatabase.companions.Count > 0)
+            if (companionsDatabase.companionsInParty.Count > 0)
             {
                 achievementForFinishingGameWithCompanions.AwardAchievement();
             }

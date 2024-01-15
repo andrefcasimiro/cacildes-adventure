@@ -21,7 +21,10 @@ namespace AF
             CharacterStatusEffectIndicator characterStatusEffectIndicator = Instantiate(
                 characterStatusEffectIndicatorPrefab, indicatorInstancesParent);
 
-            characterStatusEffectIndicator.GetComponent<Image>().sprite = statusEffect.statusEffect.icon;
+            characterStatusEffectIndicator.background.sprite = statusEffect.statusEffect.icon;
+            characterStatusEffectIndicator.fill.sprite = statusEffect.statusEffect.icon;
+
+            appliedStatusUIIndicatorInstances.Add(statusEffect.statusEffect, characterStatusEffectIndicator);
         }
 
         public void UpdateEntry(AppliedStatusEffect appliedStatusEffect, float currentMaximumResistanceToStatusEffect)
@@ -29,7 +32,7 @@ namespace AF
             if (appliedStatusUIIndicatorInstances.ContainsKey(appliedStatusEffect.statusEffect))
             {
                 appliedStatusUIIndicatorInstances[appliedStatusEffect.statusEffect].UpdateUI(
-                    appliedStatusEffect, currentMaximumResistanceToStatusEffect);
+                    appliedStatusEffect, Mathf.Clamp(appliedStatusEffect.currentAmount / currentMaximumResistanceToStatusEffect, 0, 1f));
             }
         }
 

@@ -114,6 +114,11 @@ namespace AF.Animations
             playerManager.animator.applyRootMotion = false;
         }
 
+        public void FaceTarget()
+        {
+
+        }
+
         public void SetAnimatorBool_True(string parameterName)
         {
             playerManager.animator.SetBool(parameterName, true);

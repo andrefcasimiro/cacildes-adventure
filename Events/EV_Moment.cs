@@ -26,9 +26,9 @@ namespace AF
 
         [Header("Conditions - Require Companion In Party")]
         [Tooltip("This moment only happens if the given companion is in the party")]
-        public Companion companion;
+        public MonoBehaviourID companion;
         [Tooltip("If set, this moment only happens if both companions are in the party - think exchange between the two")]
-        public Companion companion2;
+        public MonoBehaviourID companion2;
 
         [Header("Animations")]
         public Animator animator;
@@ -148,7 +148,7 @@ namespace AF
             if (playMapMusic)
             {
                 SceneSettings sceneSettings = FindObjectOfType<SceneSettings>(true);
-                sceneSettings.HandleSceneSound();
+                sceneSettings.HandleSceneSound(true);
             }
             else if (music != null)
             {

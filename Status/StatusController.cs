@@ -8,6 +8,9 @@ namespace AF.StatusEffects
 {
     public class StatusController : MonoBehaviour
     {
+        [Header("Character")]
+        public CharacterBaseManager characterBaseManager;
+
         // TODO: Refactor to be in database when we have cross scene teleport to test
 
         [Header("Resistances")]
@@ -144,15 +147,17 @@ namespace AF.StatusEffects
 
                 statusEffectUI.UpdateEntry(entry, GetMaximumStatusResistanceBeforeSufferingStatusEffect(entry.statusEffect));
 
-                StatusEffectInstance statusEffectInstance = GetStatusEffectInstance(entry.statusEffect);
-                if (entry.hasReachedTotalAmount && statusEffectInstance != null)
-                {
-                    statusEffectInstance.onApplied_Update?.Invoke();
-                }
-
                 if (ShouldRemove(entry))
                 {
                     statusToDelete.Add(entry);
+                }
+                else
+                {
+                    StatusEffectInstance statusEffectInstance = GetStatusEffectInstance(entry.statusEffect);
+                    if (entry.hasReachedTotalAmount && statusEffectInstance != null)
+                    {
+                        statusEffectInstance.onApplied_Update?.Invoke();
+                    }
                 }
             }
 
@@ -164,6 +169,11 @@ namespace AF.StatusEffects
 
         bool ShouldRemove(AppliedStatusEffect appliedStatusEffect)
         {
+            if (characterBaseManager?.health?.GetCurrentHealth() <= 0)
+            {
+                return true;
+            }
+
             if (appliedStatusEffect.hasReachedTotalAmount && appliedStatusEffect.statusEffect.isAppliedImmediately)
             {
                 return true;
@@ -202,7 +212,5 @@ namespace AF.StatusEffects
                 RemoveAppliedStatus(appliedStatusEffect);
             }
         }
-
     }
-
 }

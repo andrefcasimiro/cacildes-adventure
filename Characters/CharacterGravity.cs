@@ -13,13 +13,6 @@ namespace AF
                 return;
             }
 
-            if (CheckEnemyGrounded())
-            {
-                characterManager.agent.Warp(characterManager.transform.position);
-                characterManager.agent.enabled = true;
-                return;
-            }
-
             characterManager.characterController.Move(new Vector3(0.0f, -9f, 0.0f) * Time.deltaTime);
         }
 

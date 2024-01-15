@@ -22,7 +22,17 @@ namespace AF.Tests
             damageResistances.weaponTypeResistances = new DamageResistances.WeaponTypeResistance[] { weaponTypeResistance };
 
             Damage incomingDamage = new(
-                physical: 100, magic: 0, fire: 0, frost: 0, lightning: 0, postureDamage: 30, poiseDamage: 1, weaponAttackType: WeaponAttackType.Pierce);
+                physical: 100,
+                magic: 0,
+                fire: 0,
+                frost: 0,
+                lightning: 0,
+                postureDamage: 30,
+                poiseDamage: 1,
+                weaponAttackType: WeaponAttackType.Pierce,
+                statusEffect: null,
+                statusEffectAmount: 0,
+                pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);
             Assert.AreEqual(50, filteredDamage.physical);
@@ -43,7 +53,17 @@ namespace AF.Tests
             damageResistances.weaponTypeResistances = new DamageResistances.WeaponTypeResistance[] { weaponTypeResistance };
 
             Damage incomingDamage = new(
-                physical: 100, magic: 0, fire: 0, frost: 0, lightning: 0, postureDamage: 30, poiseDamage: 1, weaponAttackType: WeaponAttackType.Blunt);
+                physical: 100,
+                magic: 0,
+                fire: 0,
+                frost: 0,
+                lightning: 0,
+                postureDamage: 30,
+                poiseDamage: 1,
+                weaponAttackType: WeaponAttackType.Blunt,
+                statusEffect: null,
+                statusEffectAmount: 0,
+                pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);
             Assert.AreEqual(200, filteredDamage.physical);
@@ -64,7 +84,17 @@ namespace AF.Tests
             damageResistances.weaponTypeResistances = new DamageResistances.WeaponTypeResistance[] { weaponTypeResistance };
 
             Damage incomingDamage = new(
-                physical: 100, magic: 0, fire: 0, frost: 0, lightning: 0, postureDamage: 30, poiseDamage: 1, weaponAttackType: WeaponAttackType.Pierce);
+                physical: 100,
+                magic: 0,
+                fire: 0,
+                frost: 0,
+                lightning: 0,
+                postureDamage: 30,
+                poiseDamage: 1,
+                weaponAttackType: WeaponAttackType.Pierce,
+                statusEffect: null,
+                statusEffectAmount: 0,
+                pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);
             Assert.AreEqual(100, filteredDamage.physical);
@@ -77,7 +107,17 @@ namespace AF.Tests
             damageResistances.fireDamageBonus = 2;
 
             Damage incomingDamage = new(
-                physical: 0, magic: 0, fire: 100, frost: 0, lightning: 0, postureDamage: 30, poiseDamage: 1, weaponAttackType: WeaponAttackType.Pierce);
+                physical: 0,
+                magic: 0,
+                fire: 100,
+                frost: 0,
+                lightning: 0,
+                postureDamage: 30,
+                poiseDamage: 1,
+                weaponAttackType: WeaponAttackType.Pierce,
+                statusEffect: null,
+                statusEffectAmount: 0,
+                pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);
             Assert.AreEqual(200, filteredDamage.fire);
@@ -90,7 +130,17 @@ namespace AF.Tests
             damageResistances.fireDamageFilter = .5f;
 
             Damage incomingDamage = new(
-                physical: 0, magic: 0, fire: 100, frost: 0, lightning: 0, postureDamage: 30, poiseDamage: 1, weaponAttackType: WeaponAttackType.Pierce);
+                physical: 0,
+                magic: 0,
+                fire: 100,
+                frost: 0,
+                lightning: 0,
+                postureDamage: 30,
+                poiseDamage: 1,
+                weaponAttackType: WeaponAttackType.Pierce,
+                statusEffect: null,
+                statusEffectAmount: 0,
+                pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);
             Assert.AreEqual(50, filteredDamage.fire);

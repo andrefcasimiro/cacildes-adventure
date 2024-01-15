@@ -3,9 +3,8 @@ using System.Linq;
 
 namespace AF
 {
-    public class EV_IfCompanionIsInparty : EV_Condition
+    public class EV_IfCompanionIsInParty : EV_Condition
     {
-        public Companion companion;
 
         public override IEnumerator Dispatch()
         {

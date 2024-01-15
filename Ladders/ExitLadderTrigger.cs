@@ -1,4 +1,5 @@
 
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -14,6 +15,7 @@ namespace AF.Ladders
 
         [Header("Events")]
         public UnityEvent onLadderExit;
+        public float onLadderExit_Delay = 2f;
 
         private void Awake()
         {
@@ -38,8 +40,15 @@ namespace AF.Ladders
                     playerManager.climbController.ExitToTop();
                 }
 
-                onLadderExit?.Invoke();
+                StartCoroutine(OnLadderExit_Coroutine());
             }
+        }
+
+        IEnumerator OnLadderExit_Coroutine()
+        {
+            yield return new WaitForSeconds(onLadderExit_Delay);
+
+            onLadderExit?.Invoke();
         }
     }
 }

@@ -55,7 +55,7 @@ namespace AF
             rigidBody.AddForce(aimForce, forceMode);
         }
 
-        private void OnTriggerEnter(Collider other)
+        void OnTriggerEnter(Collider other)
         {
             if (hasCollided)
             {
@@ -63,6 +63,12 @@ namespace AF
             }
 
             other.TryGetComponent(out DamageReceiver damageReceiver);
+
+            HandleCollision(damageReceiver);
+        }
+
+        public void HandleCollision(DamageReceiver damageReceiver)
+        {
             if (damageReceiver == null || damageReceiver?.character == shooter)
             {
                 return;

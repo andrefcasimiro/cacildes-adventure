@@ -7,7 +7,6 @@ public class GameSession : ScriptableObject
 {
     public bool hasShownTitleScreen = false;
 
-
     [Header("Teleport")]
     public string nextMap_SpawnGameObjectName;
 

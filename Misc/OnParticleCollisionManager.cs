@@ -1,67 +1,68 @@
 using System.Collections;
 using System.Collections.Generic;
+using AF.Health;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace AF
 {
-
     public class OnParticleCollisionManager : MonoBehaviour
     {
-        public float maxCooldownBeforeAnotherDamage = 1f;
-        float cooldown = Mathf.Infinity;
+        [Header("Projectile Settings")]
+        public Projectile projectile;
 
-        ParticleSystem part => GetComponent<ParticleSystem>();
-
-        public List<ParticleCollisionEvent> collisionEvents = new();
-
-        public UnityEvent onParticleCollisionEvent;
-
-        public string tagToCollideWith = "Player";
-
-        DestroyableSpellParticle destroyableSpellParticle;
-
-
-        private void Awake()
-        {
-            destroyableSpellParticle = GetComponentInParent<DestroyableSpellParticle>();
-        }
-
-        private void Update()
-        {
-            if (cooldown <= maxCooldownBeforeAnotherDamage)
-            {
-                cooldown += Time.deltaTime;
-            }
-        }
+        [Header("Damage Settings")]
+        public Damage damage;
+        List<DamageReceiver> damageReceivers = new();
+        Coroutine ResetDamageReceiversCoroutine;
+        public CharacterBaseManager damageOwner;
+        public float damageCooldown = 1f;
+        [Header("Events")]
+        public UnityEvent onParticleDamage;
 
         private void OnParticleCollision(GameObject other)
         {
-            if (cooldown < maxCooldownBeforeAnotherDamage)
+            if (!other.TryGetComponent<DamageReceiver>(out var damageReceiver))
             {
                 return;
             }
 
-            if (other.CompareTag(tagToCollideWith) == false)
+            if (damageOwner != null && damageOwner.damageReceiver == damageReceiver)
             {
                 return;
             }
 
-            int numCollisionEvents = part.GetCollisionEvents(other, collisionEvents);
-
-            if (numCollisionEvents > 0)
+            if (damageReceivers.Contains(damageReceiver))
             {
-                onParticleCollisionEvent.Invoke();
-
-                if (destroyableSpellParticle != null)
-                {
-                    destroyableSpellParticle.OnCollide(other);
-                }
-
-                cooldown = 0f;
+                return;
             }
 
+            damageReceivers.Add(damageReceiver);
+
+            if (projectile != null)
+            {
+                projectile.HandleCollision(damageReceiver);
+            }
+            else if (damage != null)
+            {
+                damageReceiver.TakeDamage(damage);
+            }
+
+            onParticleDamage?.Invoke();
+
+            if (ResetDamageReceiversCoroutine != null)
+            {
+                StopCoroutine(ResetDamageReceiversCoroutine);
+            }
+
+            ResetDamageReceiversCoroutine = StartCoroutine(ResetDamageReceivers_Coroutine());
+        }
+
+        IEnumerator ResetDamageReceivers_Coroutine()
+        {
+            yield return new WaitForSeconds(damageCooldown);
+
+            damageReceivers.Clear();
         }
     }
-
 }

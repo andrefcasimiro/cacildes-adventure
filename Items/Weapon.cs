@@ -76,7 +76,7 @@ namespace AF
         public int poiseDamageBonus = 0;
         [Tooltip("How much block hit this weapon does on an enemy shield. Heavier weapons should do at least 2 or 3 hits.")] public int blockHitAmount = 1;
 
-        public PushForce pushForce = PushForce.Light;
+        public float pushForce = 0;
 
         [Header("Block Absorption")]
         public bool hideShield = true;

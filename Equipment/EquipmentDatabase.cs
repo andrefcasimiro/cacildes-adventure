@@ -213,20 +213,66 @@ public class EquipmentDatabase : ScriptableObject
         }
     }
 
-    public void EquipHelmet(Helmet equip) => helmet = equip;
-    public void UnequipHelmet() => helmet = null;
+    public void EquipHelmet(Helmet equip)
+    {
+        helmet = equip;
 
-    public void EquipArmor(Armor equip) => armor = equip;
-    public void UnequipArmor() => armor = null;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+    public void UnequipHelmet()
+    {
+        helmet = null;
 
-    public void EquipGauntlet(Gauntlet equip) => gauntlet = equip;
-    public void UnequipGauntlet() => gauntlet = null;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
 
-    public void EquipLegwear(Legwear equip) => legwear = equip;
-    public void UnequipLegwear() => legwear = null;
+    public void EquipArmor(Armor equip)
+    {
+        armor = equip;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
 
-    public void EquipAccessory(Accessory accessory, int slotIndex) => accessories[slotIndex] = accessory;
-    public void UnequipAccessory(int slotIndex) => accessories[slotIndex] = null;
+    public void UnequipArmor()
+    {
+        armor = null;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+
+    public void EquipGauntlet(Gauntlet equip)
+    {
+        gauntlet = equip;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+
+    public void UnequipGauntlet()
+    {
+        gauntlet = null;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+
+    public void EquipLegwear(Legwear equip)
+    {
+        legwear = equip;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+
+    public void UnequipLegwear()
+    {
+        legwear = null;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+
+    public void EquipAccessory(Accessory accessory, int slotIndex)
+    {
+        accessories[slotIndex] = accessory;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+
+    public void UnequipAccessory(int slotIndex)
+    {
+        accessories[slotIndex] = null;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
 
     public Weapon GetCurrentWeapon()
     {
@@ -274,5 +320,10 @@ public class EquipmentDatabase : ScriptableObject
         }
 
         return inventoryDatabase.GetItemAmount(currentArrow) > 0;
+    }
+
+    public bool IsPlayerNaked()
+    {
+        return helmet == null && armor == null && legwear == null && gauntlet == null;
     }
 }

@@ -51,11 +51,17 @@ namespace AF
                 playerInventory.FinishItemConsumption();
             }
 
+            playerCombatController.ResetStates();
+            playerShootingManager.ResetStates();
+
             dodgeController.ResetStates();
             playerInventory.ResetStates();
             characterPosture.ResetStates();
+            damageReceiver.ResetStates();
 
             playerComponentManager.EnableCollisionWithEnemies();
+
+            playerWeaponsManager.ResetStates();
             playerWeaponsManager.ShowEquipment();
 
             playerBlockInput.CheckQueuedInput();
@@ -65,8 +71,6 @@ namespace AF
         {
             return attackStatManager.GetAttackDamage();
         }
-
-
 
         private void OnTriggerStay(Collider other)
         {
@@ -85,7 +89,10 @@ namespace AF
                     magic: 0,
                     poiseDamage: 0,
                     postureDamage: 0,
-                    weaponAttackType: WeaponAttackType.Blunt
+                    weaponAttackType: WeaponAttackType.Blunt,
+                    statusEffect: null,
+                    statusEffectAmount: 0,
+                    pushForce: 0
                 ));
             }
         }

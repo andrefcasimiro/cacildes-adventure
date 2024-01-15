@@ -39,7 +39,7 @@ namespace AF.Combat
 
         CombatAction GetCombatAction()
         {
-            if (characterManager.targetManager.IsTargetBusy() && reactionsToTarget.Count > 0)
+            if (reactionsToTarget.Count > 0 && (characterManager.targetManager.IsTargetBusy() || characterManager.targetManager.IsTargetShooting()))
             {
                 var shuffledReactions = Randomize(reactionsToTarget.ToArray());
 
@@ -84,7 +84,21 @@ namespace AF.Combat
         {
             CombatAction newCombatAction = null;
 
-            if (chaseActions.Count > 0)
+            // If target is aiming, let us try to dodge the aim
+            if (reactionsToTarget.Count > 0 && characterManager.targetManager.IsTargetShooting())
+            {
+                var shuffledReactions = Randomize(reactionsToTarget.ToArray());
+
+                foreach (CombatAction possibleReaction in shuffledReactions)
+                {
+                    if (possibleReaction.CanUseCombatAction())
+                    {
+                        newCombatAction = possibleReaction;
+                        break;
+                    }
+                }
+            }
+            else if (chaseActions.Count > 0)
             {
                 var shuffledChaseActions = Randomize(chaseActions.ToArray());
 

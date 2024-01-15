@@ -43,7 +43,7 @@ namespace AF
         public AudioClip companionLeave;
         public AudioClip illusionaryWallSound;
         public AudioClip uiDialogue;
-
+        public AudioClip itemLostWithUse;
 
         public void PlaySound(AudioClip sound)
         {

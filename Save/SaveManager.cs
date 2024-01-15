@@ -4,6 +4,7 @@ using CI.QuickSave;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using AYellowpaper.SerializedCollections;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -29,22 +30,34 @@ namespace AF
 
         public void LoadLastSavedGame()
         {
+            LoadLastSavedGame(() => { });
+        }
+
+        public void LoadLastSavedGame(UnityAction onLoadFinishCallback)
+        {
             fadeManager.FadeIn(1f, () =>
             {
                 LoadPickups();
                 LoadSceneSettings();
+
+                onLoadFinishCallback?.Invoke();
             });
         }
 
         void SavePickups()
         {
             var pickups = QuickSaveWriter.Create("Pickups");
-            pickups.Write("pickups", pickupDatabase.pickups.ToArray());
+            pickups.Write("pickups", pickupDatabase.pickups);
             pickups.TryCommit();
         }
         void LoadPickups()
         {
             pickupDatabase.Clear();
+
+            if (!HasSavedGame())
+            {
+                return;
+            }
 
             var pickups = QuickSaveReader.Create("Pickups");
             pickups.Read<SerializedDictionary<string, string>>("pickups", (pickups) =>
@@ -62,6 +75,11 @@ namespace AF
 
         void LoadSceneSettings()
         {
+            if (!HasSavedGame())
+            {
+                return;
+            }
+
             var data = QuickSaveReader.Create("Scene");
             data.Read<int>("sceneIndex", (sceneIndex) =>
             {

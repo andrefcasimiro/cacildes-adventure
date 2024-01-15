@@ -1,3 +1,4 @@
+using AF.Companions;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -12,13 +13,10 @@ namespace AF
         [Header("Chase Settings")]
         public float maxChaseDistance = 20f;
 
-        [Header("Agent Settings")]
-        public float agentSpeed = 4.5f;
 
         [Header("States")]
         public State patrolOrIdleState;
         public CombatState combatState;
-
 
         [Header("Events")]
         public UnityEvent onStateEnter;
@@ -30,6 +28,11 @@ namespace AF
         public float maxIntervalBetweenDecidingChaseActions = 5f;
         float currentIntervalBetweenChaseActions = 0f;
 
+        [Header("Companion Settings")]
+        public PlayerManager playerManager;
+        public CompanionID companionId;
+
+        public CompanionsDatabase companionsDatabase;
 
         public override void OnStateEnter(StateManager stateManager)
         {
@@ -37,7 +40,6 @@ namespace AF
 
             onStateEnter?.Invoke();
 
-            characterManager.agent.speed = agentSpeed;
         }
 
         public override void OnStateExit(StateManager stateManager)
@@ -46,6 +48,8 @@ namespace AF
 
         public override State Tick(StateManager stateManager)
         {
+            characterManager.agent.speed = characterManager.chaseSpeed;
+
             if (characterManager.IsBusy())
             {
                 return this;
@@ -53,13 +57,17 @@ namespace AF
 
             if (characterManager.targetManager.currentTarget != null)
             {
-                if (characterManager.agent.enabled)
+                // If Target Is Dead, Stop Chasing
+                if (characterManager.targetManager.currentTarget.health.GetCurrentHealth() <= 0)
                 {
-                    characterManager.agent.SetDestination(characterManager.targetManager.currentTarget.transform.position);
+                    characterManager.targetManager.ClearTarget();
+                    return patrolOrIdleState;
                 }
 
+                characterManager.agent.SetDestination(characterManager.targetManager.currentTarget.transform.position);
+
                 // Calculate the distance between the agent and the target
-                float distanceToTarget = Vector3.Distance(characterManager.agent.transform.position, characterManager.targetManager.currentTarget.transform.position);
+                float distanceToTarget = Vector3.Distance(characterManager.transform.position, characterManager.targetManager.currentTarget.transform.position);
 
                 if (distanceToTarget < characterManager.agent.stoppingDistance)
                 {
@@ -86,6 +94,27 @@ namespace AF
                         return this;
                     }
                 }
+            }
+            // Is Active Companion And Is Not Targetting Any Enemy
+            else if (companionId != null && companionsDatabase.IsCompanionAndIsActivelyInParty(companionId.companionId))
+            {
+                return FollowPlayer();
+            }
+
+            return this;
+        }
+
+        State FollowPlayer()
+        {
+            characterManager.agent.SetDestination(playerManager.transform.position);
+
+            // Calculate the distance between the agent and the target
+            float distanceToTarget =
+                Vector3.Distance(characterManager.transform.position, playerManager.transform.position);
+
+            if (distanceToTarget <= characterManager.agent.stoppingDistance + companionsDatabase.companionToPlayerStoppingDistance)
+            {
+                return patrolOrIdleState;
             }
 
             return this;

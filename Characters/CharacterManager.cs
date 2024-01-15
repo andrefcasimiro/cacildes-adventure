@@ -22,6 +22,10 @@ namespace AF
 
         Quaternion initialRotation;
 
+        [Header("Settings")]
+        public float patrolSpeed = 2f;
+        public float chaseSpeed = 4.5f;
+
         [Header("Events")]
         public UnityEvent onResetStates;
 
@@ -37,11 +41,12 @@ namespace AF
         public override void ResetStates()
         {
             animator.applyRootMotion = false;
-            agent.enabled = true;
+
             isBusy = false;
             characterPosture.ResetStates();
             characterCombatController.ResetStates();
             characterWeaponsManager.ResetStates();
+            damageReceiver.ResetStates();
             onResetStates?.Invoke();
         }
 
@@ -55,10 +60,10 @@ namespace AF
 
         private void OnAnimatorMove()
         {
+            //agent.updatePosition = !animator.applyRootMotion;
+
             if (animator.applyRootMotion)
             {
-                agent.enabled = false;
-
                 // Extract root motion position and rotation from the Animator
                 Vector3 rootMotionPosition = animator.deltaPosition + new Vector3(0.0f, -9, 0.0f) * Time.deltaTime;
 
@@ -67,6 +72,7 @@ namespace AF
                 // Apply root motion to the NavMesh Agent
                 characterController.Move(rootMotionPosition);
                 transform.rotation *= rootMotionRotation;
+                //agent.nextPosition = characterController.transform.position;
             }
         }
 
@@ -80,6 +86,11 @@ namespace AF
         /// </summary>
         public void FaceTarget(Transform target)
         {
+            if (target == null)
+            {
+                return;
+            }
+
             var lookPos = target.transform.position - transform.position;
             lookPos.y = 0;
             transform.rotation = Quaternion.LookRotation(lookPos);

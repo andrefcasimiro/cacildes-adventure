@@ -4,6 +4,9 @@ using AF.Music;
 using TigerForge;
 using AF.Events;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
+using DG.Tweening;
 
 namespace AF
 {
@@ -22,11 +25,15 @@ namespace AF
         public AudioClip dayAmbience;
         public AudioClip nightAmbience;
 
-        public AudioClip battleMusic;
 
         [Header("Map")]
         public bool isInterior;
-
+        public bool displaySceneName = true;
+        public float displaySceneNameDelay = 3f;
+        public float displaySceneNameDuration = 3f;
+        public string sceneName = "";
+        public UIDocument sceneNameDocument;
+        public AudioClip sceneNameSfx;
 
         [Header("Tutorial")]
         public DestroyableParticle respawnFx;
@@ -40,19 +47,61 @@ namespace AF
 
         void Awake()
         {
+            sceneNameDocument.rootVisualElement.contentContainer.style.opacity = 0;
+
             onSceneStart?.Invoke();
+
+            if (string.IsNullOrEmpty(sceneName))
+            {
+                sceneName = SceneManager.GetActiveScene().name;
+            }
         }
 
         private void Start()
         {
-            OnHourChanged();
+            if (displaySceneName)
+            {
+                StartCoroutine(DisplaySceneName_Coroutine());
+            }
 
-            EventManager.StartListening(EventMessages.ON_HOUR_CHANGED, OnHourChanged);
+            OnHourChanged(!displaySceneName);
+
+            EventManager.StartListening(EventMessages.ON_HOUR_CHANGED, () => OnHourChanged(true));
         }
 
-        public void HandleSceneSound()
+        IEnumerator DisplaySceneName_Coroutine()
         {
-            EvaluateMusic();
+            yield return new WaitForSeconds(displaySceneNameDelay);
+
+            sceneNameDocument.rootVisualElement.Q<Label>().text = sceneName;
+
+            DOTween.To(
+                  () => sceneNameDocument.rootVisualElement.contentContainer.style.opacity.value,
+                  (value) => sceneNameDocument.rootVisualElement.contentContainer.style.opacity = value,
+                  1,
+                  1f
+            );
+            bgmManager.PlaySound(sceneNameSfx, null);
+
+            yield return new WaitForSeconds(displaySceneNameDuration);
+
+            DOTween.To(
+                  () => sceneNameDocument.rootVisualElement.contentContainer.style.opacity.value,
+                  (value) => sceneNameDocument.rootVisualElement.contentContainer.style.opacity = value,
+                  0,
+                  1f
+            );
+
+            HandleSceneSound(true);
+        }
+
+        public void HandleSceneSound(bool evaluateMusic)
+        {
+            if (evaluateMusic)
+            {
+                EvaluateMusic();
+            }
+
             EvaluateAmbience();
         }
 
@@ -61,6 +110,11 @@ namespace AF
         /// </summary>
         void EvaluateMusic()
         {
+            if (bgmManager.isPlayingBossMusic)
+            {
+                return;
+            }
+
             if (dayMusic == null && nightMusic == null)
             {
                 // Stop the music playback if there are no available tracks.
@@ -133,9 +187,9 @@ namespace AF
             return !IsNightTime() && clip != null;
         }
 
-        public void OnHourChanged()
+        public void OnHourChanged(bool handleMusic)
         {
-            HandleSceneSound();
+            HandleSceneSound(handleMusic);
 
             pickupDatabase.OnHourChangedCheckForReplenishablesToClear();
         }

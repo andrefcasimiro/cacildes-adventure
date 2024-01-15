@@ -54,7 +54,6 @@ namespace AF
         [Header("EXP & Loot")]
         public int baseGold = 500;
 
-        public List<EnemyLoot.DropCurrency> lootTable = new();
 
 
         [Header("Companions")]

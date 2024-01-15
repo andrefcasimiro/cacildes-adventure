@@ -71,6 +71,7 @@ namespace AF.Health
             RestoreFullHealth();
             onRevive?.Invoke();
         }
+
     }
 
 }

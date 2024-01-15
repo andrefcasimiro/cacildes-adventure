@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [CreateAssetMenu(fileName = "Player Stats Database", menuName = "System/New Player Stats Database", order = 0)]
 public class PlayerStatsDatabase : ScriptableObject
@@ -16,6 +17,11 @@ public class PlayerStatsDatabase : ScriptableObject
     public float currentStamina = 0;
     public int reputation = 1;
     public int gold = 0;
+
+    [Header("Lost Gold On Death")]
+    public int lostGold = 0;
+    public string sceneWhereGoldWasLost = "";
+    public Vector3 positionWhereGoldWasLost = Vector3.zero;
 
     private void OnEnable()
     {
@@ -54,5 +60,24 @@ public class PlayerStatsDatabase : ScriptableObject
     public int GetCurrentReputation()
     {
         return reputation;
+    }
+
+    public void SetLostGold(Vector3 deathPosition)
+    {
+        this.lostGold = this.gold;
+        this.positionWhereGoldWasLost = deathPosition;
+        this.sceneWhereGoldWasLost = SceneManager.GetActiveScene().name;
+    }
+
+    public bool HasLostGoldToRecover()
+    {
+        return this.lostGold > 0;
+    }
+
+    public void ClearLostGold()
+    {
+        this.lostGold = 0;
+        this.positionWhereGoldWasLost = Vector3.zero;
+        this.sceneWhereGoldWasLost = "";
     }
 }
