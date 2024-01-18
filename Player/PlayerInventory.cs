@@ -128,7 +128,7 @@ namespace AF
                 return;
             }
 
-            if (playerManager.characterPosture.IsStunned())
+            if (playerManager.characterPosture.isStunned)
             {
                 notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
                 return;

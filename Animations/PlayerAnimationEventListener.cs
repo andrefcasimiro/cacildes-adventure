@@ -149,9 +149,24 @@ namespace AF.Animations
             onRightFootstep?.Invoke();
         }
 
-        public void PlayCloth()
+        public void OnCloth()
         {
             soundbank.PlaySound(soundbank.dodge, combatAudioSource);
+        }
+
+        public void OnImpact()
+        {
+
+        }
+
+        public void OnBuff()
+        {
+
+        }
+
+        public void OpenCombo()
+        {
+
         }
     }
 }

@@ -23,5 +23,8 @@ namespace AF
         public LocalizedText description;
 
         public LocalizedText shortDescription;
+
+        [TextAreaAttribute(minLines: 5, maxLines: 10)] public string notes;
+
     }
 }

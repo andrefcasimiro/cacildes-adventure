@@ -16,7 +16,7 @@ namespace AF.Animations
         public void CloseLeftFootHitbox();
         public void OpenRightFootHitbox();
         public void CloseRightFootHitbox();
-
+        public void OnBuff();
 
         // Locomotion
         public void EnableRootMotion();
@@ -28,6 +28,9 @@ namespace AF.Animations
         public void OnFireArrow();
 
         // SFX
-        public void PlayCloth();
+        public void OnCloth();
+        public void OnImpact();
+
+        public void OpenCombo();
     }
 }

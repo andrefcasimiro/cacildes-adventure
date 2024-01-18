@@ -9,8 +9,11 @@ namespace AF.Flags
         [Header("Databases")]
         public FlagsDatabase flagsDatabase;
 
-        [Header("ID")]
+        [Header("Monobehaviour ID Option")]
         public MonoBehaviourID monoBehaviourID;
+
+        [Header("Flag Option")]
+        public Flag flag;
 
         [Header("Conditions")]
         public bool requireToBeRegistered = true;
@@ -37,11 +40,21 @@ namespace AF.Flags
         {
             bool isActive = false;
 
-            if (requireToBeRegistered && flagsDatabase.ContainsFlag(monoBehaviourID.ID))
+            string id = "";
+            if (monoBehaviourID != null)
+            {
+                id = monoBehaviourID.ID;
+            }
+            else if (flag != null)
+            {
+                id = flag.name;
+            }
+
+            if (requireToBeRegistered && flagsDatabase.ContainsFlag(id))
             {
                 isActive = true;
             }
-            else if (requireToBeRegistered == false && !flagsDatabase.ContainsFlag(monoBehaviourID.ID))
+            else if (requireToBeRegistered == false && !flagsDatabase.ContainsFlag(id))
             {
                 isActive = true;
             }

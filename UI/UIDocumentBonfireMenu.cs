@@ -96,8 +96,8 @@ namespace AF
             levelUpButton.text = "Level Up" + (hasEnoughForLevellingUp ? " *" : "");
             passTimeButton.text = "Wait 1 hour";
             travelButton.text = "Travel";
-            upgradeWeapons.style.display = inventoryDatabase.HasItem(blacksmithKit) ? DisplayStyle.None : DisplayStyle.Flex;
-            brewPotions.style.display = inventoryDatabase.HasItem(alchemyKit) ? DisplayStyle.None : DisplayStyle.Flex;
+            upgradeWeapons.style.display = inventoryDatabase.HasItem(blacksmithKit) ? DisplayStyle.Flex : DisplayStyle.None;
+            brewPotions.style.display = inventoryDatabase.HasItem(alchemyKit) ? DisplayStyle.Flex : DisplayStyle.None;
             SetButtonTexts();
             RegisterButtonCallbacks();
 

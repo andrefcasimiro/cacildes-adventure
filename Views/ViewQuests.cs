@@ -85,7 +85,7 @@ namespace AF
                     soundbank
                 );
 
-                if (quest.IsCompleted())
+                if (quest.AllObjectivesAreCompleted())
                 {
                     clone.style.opacity = 0.5f;
 
@@ -113,6 +113,8 @@ namespace AF
             {
                 var questObjectiveEntry = questObjectivePrefab.CloneTree();
                 questObjectiveEntry.Q<Label>("QuestObjectiveLabel").text = questObjective.name;
+                questObjectiveEntry.Q<Label>("QuestObjectiveLocation").text = string.IsNullOrEmpty(questObjective.location) ? "" : "(" + questObjective.location + ")";
+
                 questObjectiveEntry.Q<VisualElement>("QuestObjectiveComplete").style.display = questObjective.isCompleted ? DisplayStyle.Flex : DisplayStyle.None;
                 questObjectiveEntry.Q<VisualElement>("QuestObjectiveIncomplete").style.display = !questObjective.isCompleted ? DisplayStyle.Flex : DisplayStyle.None;
 

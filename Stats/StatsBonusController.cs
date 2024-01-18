@@ -242,5 +242,17 @@ namespace AF.Stats
         {
             return equipment != null ? equipment.additionalCoinPercentage : 0f;
         }
+
+        public bool ShouldDoubleCoinFromFallenEnemy()
+        {
+            bool hasDoublingCoinAccessoryEquipped = equipmentDatabase.accessories.Any(acc => acc != null && acc.chanceToDoubleCoinsFromFallenEnemies);
+
+            if (!hasDoublingCoinAccessoryEquipped)
+            {
+                return false;
+            }
+
+            return Random.Range(0, 1f) <= 0.05f;
+        }
     }
 }

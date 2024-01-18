@@ -23,9 +23,13 @@ namespace AF.Tests
         }
 
         [Test]
-        public void ShouldActivateChildren_IfFromObjectiveIsCompleted_AndUntilObjectiveIsNotCompleted()
+        public void ShouldActivateChildren_IfRequiredQuestStatusIs_Given()
         {
             QuestParent questParent = ScriptableObject.CreateInstance<QuestParent>();
+            QuestStatus notGiven = new QuestStatus();
+            QuestStatus given = new QuestStatus();
+
+            questParent.currentQuestStatus = notGiven;
 
             // Arrange
             var fromObjective = ScriptableObject.CreateInstance<QuestObjective>();
@@ -35,32 +39,26 @@ namespace AF.Tests
 
             questParent.questObjectives = new QuestObjective[] { fromObjective, untilObjective };
 
-            questDependant.From = fromObjective;
-            questDependant.Until = untilObjective;
+            questDependant.questParent = questParent;
 
             QuestsDatabase questsDatabase = ScriptableObject.CreateInstance<QuestsDatabase>();
-            questsDatabase.AddQuest(questParent);
+            questsDatabase.questStatusWhenQuestStarts = given;
 
-            questDependant.questsDatabase = questsDatabase;
+            questDependant.questStatuses = new[] { given };
+            questDependant.shouldContainAny = true;
 
             // Quest Not Started: Objectives not started, don't show children
             questDependant.Evaluate();
             Assert.IsFalse(child1.activeSelf);
             Assert.IsFalse(child2.activeSelf);
 
-            // Quest Is On Going: Objective started but not finished, show children
-            questDependant.questsDatabase.CompleteObjective(fromObjective);
+            // Receive quest
+            questsDatabase.AddQuest(questParent);
+
             questDependant.Evaluate();
             Assert.IsTrue(child1.activeSelf);
             Assert.IsTrue(child2.activeSelf);
 
-            // Quest Is Finished: Both objectives completed, dont show children
-            questDependant.questsDatabase.CompleteObjective(untilObjective);
-            questDependant.Evaluate();
-            Assert.IsFalse(child1.activeSelf);
-            Assert.IsFalse(child2.activeSelf);
-
         }
     }
-
 }

@@ -16,6 +16,13 @@ namespace AF.Health
         public UnityEvent onRestoreHealth;
         public UnityEvent onDeath;
 
+        [Header("Sounds")]
+        public AudioClip postureHitSfx;
+        public AudioClip postureBrokeSfx;
+        public AudioClip deathSfx;
+        public AudioClip dodgeSfx;
+        public AudioSource audioSource;
+
         private void Start()
         {
             onStart?.Invoke();
@@ -34,6 +41,35 @@ namespace AF.Health
         public abstract float GetCurrentHealth();
 
         public abstract int GetMaxHealth();
+
+        public void PlayPostureHit()
+        {
+            if (audioSource != null && postureHitSfx != null)
+            {
+                audioSource.PlayOneShot(postureHitSfx);
+            }
+        }
+        public void PlayPostureBroke()
+        {
+            if (audioSource != null && postureBrokeSfx != null)
+            {
+                audioSource.PlayOneShot(postureBrokeSfx);
+            }
+        }
+        public void PlayDodge()
+        {
+            if (audioSource != null && dodgeSfx != null)
+            {
+                audioSource.PlayOneShot(dodgeSfx);
+            }
+        }
+        public void PlayDeath()
+        {
+            if (audioSource != null && deathSfx != null)
+            {
+                audioSource.PlayOneShot(deathSfx);
+            }
+        }
     }
 
 }

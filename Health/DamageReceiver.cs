@@ -64,11 +64,6 @@ namespace AF
                 return false;
             }
 
-            if (character.characterPosture.IsStunned())
-            {
-                return false;
-            }
-
             return true;
         }
 
@@ -92,6 +87,13 @@ namespace AF
                 if (character is CharacterManager aiCharacter && aiCharacter.targetManager != null)
                 {
                     aiCharacter.targetManager.SetTarget(damageOwner);
+                }
+
+
+
+                if (character.characterPosture.isStunned)
+                {
+                    character.characterPosture.RecoverFromStunned();
                 }
 
                 if (character.characterBlockController.IsWithinParryingWindow())
@@ -156,19 +158,16 @@ namespace AF
 
             if (character != null)
             {
-                health?.TakeDamage(GetTotalDamage(damage));
-                if (health?.GetCurrentHealth() <= 0)
+                if (health.GetCurrentHealth() <= 0)
                 {
                     return;
                 }
 
-                // Only take poise damage if posture is not going to break
-                if (!character.characterPosture.WillBreakPosture(damage))
-                {
-                    character.characterPoise.TakePoiseDamage(damage.poiseDamage);
-                }
 
-                character.characterPosture.TakePostureDamage(damage.postureDamage);
+                bool isPostureBroken = character.characterPosture.TakePostureDamage(damage.postureDamage);
+                health.TakeDamage(GetTotalDamage(damage, isPostureBroken));
+
+                character.characterPoise.TakePoiseDamage(damage.poiseDamage);
 
                 if (character.statusController != null && damage.statusEffect != null)
                 {
@@ -244,9 +243,9 @@ namespace AF
                     pushForce: 0));
         }
 
-        int GetTotalDamage(Damage damage)
+        int GetTotalDamage(Damage damage, bool isPostureBroken)
         {
-            if (character != null && character.characterPosture.WillBreakPosture(damage))
+            if (isPostureBroken)
             {
                 damage.physical = (int)(damage.physical * character.characterPosture.postureBreakBonusMultiplier);
             }

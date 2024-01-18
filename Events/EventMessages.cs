@@ -14,6 +14,7 @@ namespace AF.Events
         // Quests
         public static readonly string ON_QUEST_TRACKED = "ON_QUEST_TRACKED";
         public static readonly string ON_QUEST_OBJECTIVE_COMPLETED = "ON_QUEST_OBJECTIVE_COMPLETED";
+        public static readonly string ON_QUEST_STATUS_CHANGED = "ON_QUEST_STATUS_CHANGED";
 
         //Day / Night
         public static readonly string ON_HOUR_CHANGED = "ON_HOUR_CHANGED";

@@ -13,8 +13,6 @@ namespace AF
         public readonly int hashLightAttack2WithShield = Animator.StringToHash("Light Attack 2 With Shield");
         public readonly int hashHeavyAttack1 = Animator.StringToHash("Heavy Attack 1");
         public readonly int hashJumpAttack = Animator.StringToHash("Jump Attack");
-        public readonly int hashIsJumpAttacking = Animator.StringToHash("IsJumpAttacking");
-        public readonly int hashIsStartingJumpAttack = Animator.StringToHash("IsStartingJumpAttack");
 
         [Header("Sounds")]
         public AudioSource combatAudioSource;
@@ -53,6 +51,7 @@ namespace AF
         public void ResetStates()
         {
             isJumpAttacking = false;
+            isHeavyAttacking = false;
         }
 
         public void OnLightAttack()
@@ -237,9 +236,7 @@ namespace AF
 
         private void OnDisable()
         {
-            animator.SetBool(hashIsJumpAttacking, false);
-            animator.SetBool(hashIsStartingJumpAttack, false);
-            isHeavyAttacking = false;
+            ResetStates();
         }
     }
 }

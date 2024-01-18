@@ -41,6 +41,11 @@ namespace AF
             return isBusy;
         }
 
+        public void SetIsBusy(bool value)
+        {
+            isBusy = value;
+        }
+
         public void PlayAnimationWithCrossFade(string animationName)
         {
             animator.CrossFade(animationName, 0.2f);

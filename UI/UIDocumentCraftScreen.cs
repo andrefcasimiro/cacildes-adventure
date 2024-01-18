@@ -305,7 +305,7 @@ namespace AF
 
                     playerManager.playerAchievementsManager.achievementForUpgradingFirstWeapon.AwardAchievement();
 
-                    SteamAPI.instance.SetAchievementProgress(SteamAPI.AchievementName.WEAPONSMITH, 1);
+                    //SteamAPI.instance.SetAchievementProgress(SteamAPI.AchievementName.WEAPONSMITH, 1);
 
                     soundbank.PlaySound(soundbank.craftSuccess);
 

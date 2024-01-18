@@ -47,6 +47,7 @@ namespace AF.Health
 
             if (CurrentHealth <= 0)
             {
+                PlayDeath();
                 onDeath?.Invoke();
             }
         }

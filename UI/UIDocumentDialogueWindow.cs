@@ -163,7 +163,7 @@ namespace AF
                 pressToContinueLabel.text = "E) Speed up / Continue";
             }
 
-            if (string.IsNullOrEmpty(character.name) == false)
+            if (character != null && string.IsNullOrEmpty(character.name) == false)
             {
                 actorNameLabel.style.display = DisplayStyle.Flex;
                 actorNameLabel.text = character.name;
@@ -175,7 +175,7 @@ namespace AF
                 actorNameLabel.style.display = DisplayStyle.None;
             }
 
-            if (string.IsNullOrEmpty(character.title.GetEnglishText()) == false)
+            if (character != null && string.IsNullOrEmpty(character.title.GetEnglishText()) == false)
             {
                 actorTitleLabel.style.display = DisplayStyle.Flex;
                 actorTitleLabel.text = character.title.GetEnglishText();
@@ -185,7 +185,7 @@ namespace AF
                 actorTitleLabel.style.display = DisplayStyle.None;
             }
 
-            if (character.avatar != null)
+            if (character != null && character.avatar != null)
             {
                 actorSprite.style.backgroundImage = new StyleBackground(character.avatar);
                 actorSprite.style.display = DisplayStyle.Flex;

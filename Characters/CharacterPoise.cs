@@ -23,6 +23,11 @@ namespace AF
 
         public void TakePoiseDamage(int poiseDamage)
         {
+            if (characterManager.characterPosture.isStunned)
+            {
+                return;
+            }
+
             currentPoiseHitCount = Mathf.Clamp(currentPoiseHitCount + 1 + poiseDamage, 0, maxPoiseHits);
 
             if (ResetPoiseCoroutine != null)
@@ -34,6 +39,8 @@ namespace AF
             {
                 currentPoiseHitCount = 0;
                 onPoiseDamagedEvent?.Invoke();
+
+                characterManager.health.PlayPostureHit();
             }
             else
             {

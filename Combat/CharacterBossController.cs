@@ -60,6 +60,7 @@ namespace AF
 
         public void ShowBossHud()
         {
+            bossHud.enabled = true;
             bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName;
             bossHud.rootVisualElement.style.display = DisplayStyle.Flex;
             bossHud.rootVisualElement.Q<VisualElement>("container").style.marginBottom = order;

@@ -40,7 +40,8 @@ namespace AF
 
         public IEnumerator GiveLoot_Coroutine()
         {
-            int goldToReceive = baseGold;
+            int goldToReceive = baseGold + bonusGold;
+
             yield return new WaitForSeconds(1f);
 
             if (playerStatsBonusController != null)
@@ -53,10 +54,12 @@ namespace AF
 
                     goldToReceive += additionalCoin;
                 }
+
+                if (playerStatsBonusController.ShouldDoubleCoinFromFallenEnemy())
+                {
+                    goldToReceive *= 2;
+                }
             }
-
-            goldToReceive += bonusGold;
-
 
             GetLoot();
 

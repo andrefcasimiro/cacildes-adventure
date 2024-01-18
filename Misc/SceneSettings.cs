@@ -81,7 +81,14 @@ namespace AF
                   1,
                   1f
             );
-            bgmManager.PlaySound(sceneNameSfx, null);
+
+            if (sceneNameSfx != null)
+            {
+                bgmManager.PlaySound(sceneNameSfx, null);
+                yield return new WaitForSeconds(sceneNameSfx.length);
+            }
+
+            HandleSceneSound(true);
 
             yield return new WaitForSeconds(displaySceneNameDuration);
 
@@ -92,7 +99,6 @@ namespace AF
                   1f
             );
 
-            HandleSceneSound(true);
         }
 
         public void HandleSceneSound(bool evaluateMusic)

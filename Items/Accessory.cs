@@ -32,6 +32,7 @@ namespace AF
 
         [Header("Life")]
         public bool chanceToSurviveDeath = false;
+        public bool chanceToDoubleCoinsFromFallenEnemies = false;
 
         public void OnEquip()
         {

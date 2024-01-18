@@ -17,6 +17,8 @@ namespace AF
 
         [Header("Unity Events")]
         public UnityEvent onPostureBreakDamage;
+        public UnityEvent onDamageWhileStunned;
+
 
         [Header("Components")]
         public CharacterBaseHealth health;
@@ -26,7 +28,7 @@ namespace AF
         public UnityEngine.UI.Slider postureBarSlider;
         public CharacterManager characterManager;
 
-        private bool isStunned = false;
+        public bool isStunned = false;
 
         private bool isDecreasingPosture = false;
 
@@ -101,12 +103,6 @@ namespace AF
             return false;
         }
 
-        public bool WillBreakPosture(Damage incomingDamage)
-        {
-            return currentPostureDamage + incomingDamage.postureDamage > maxPostureDamage;
-        }
-
-
         IEnumerator BeginDecreasingPosture()
         {
             isDecreasingPosture = false;
@@ -119,13 +115,14 @@ namespace AF
             onPostureBreakDamage?.Invoke();
             currentPostureDamage = 0f;
             isStunned = true;
+            characterManager.health.PlayPostureBroke();
         }
 
-        public bool IsStunned()
+        public void RecoverFromStunned()
         {
-            return isStunned;
+            isStunned = false;
+            onDamageWhileStunned?.Invoke();
         }
-
     }
 
 }

@@ -95,12 +95,7 @@ namespace AF
             // Disable character controller to avoid unintended collisions during position update
             DisableCharacterController();
 
-            characterController.transform.position = newPosition;
-            if (newRotation != Quaternion.identity)
-            {
-                characterController.transform.rotation = newRotation;
-            }
-
+            characterController.transform.SetPositionAndRotation(newPosition, newRotation);
             EnableCharacterController();
 
             // Restore original fall damage tracking state

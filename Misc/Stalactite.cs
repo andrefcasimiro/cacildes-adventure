@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using AF.Health;
 using UnityEngine;
 
 namespace AF
 {
     public class Stalactite : MonoBehaviour
     {
-        public float damageInflicted;
+        public DamageReceiver damageOwner;
+        public Damage damage;
         public GameObject collisionWithGroundParticle;
 
         Vector3 originalPosition;
@@ -14,10 +16,8 @@ namespace AF
         float maxCooldownOnAir = 5f;
         float cooldownOnAir = Mathf.Infinity;
 
-
         private void Awake()
         {
-
             originalPosition = transform.localPosition;
 
             this.gameObject.SetActive(false);
@@ -46,13 +46,10 @@ namespace AF
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.CompareTag("Enemy") || other.gameObject.CompareTag("CharacterHealthHitbox"))
+            other.TryGetComponent<DamageReceiver>(out var damageReceiver);
+            if (damageReceiver == null || damageReceiver == damageOwner)
             {
                 return;
-            }
-
-            if (other.gameObject.CompareTag("Player"))
-            {
             }
 
             Instantiate(collisionWithGroundParticle, this.transform.position, Quaternion.identity);

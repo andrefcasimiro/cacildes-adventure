@@ -1,3 +1,4 @@
+using System.Linq;
 using AF.Events;
 using TigerForge;
 using UnityEngine;
@@ -6,13 +7,16 @@ namespace AF.Quests
 {
     public class QuestDependant : MonoBehaviour
     {
-        [Header("Databases")]
-        public QuestsDatabase questsDatabase;
+        public QuestParent questParent;
 
-        [Header("Conditions")]
-        public QuestObjective From;
+        public QuestStatus[] questStatuses;
 
-        public QuestObjective Until;
+        [Header("Quest Status Options")]
+        public bool shouldContainAny = true;
+        public bool shouldNotContainAny = false;
+
+        [Header("Settings")]
+        public bool listenForQuestChanges = true;
 
         private void Awake()
         {
@@ -23,24 +27,23 @@ namespace AF.Quests
         {
             Evaluate();
 
-            EventManager.StartListening(EventMessages.ON_QUEST_OBJECTIVE_COMPLETED, Evaluate);
+            if (listenForQuestChanges)
+            {
+                EventManager.StartListening(EventMessages.ON_QUEST_STATUS_CHANGED, Evaluate);
+            }
         }
 
         public void Evaluate()
         {
             bool isActive = false;
 
-            if (From != null && Until != null && questsDatabase.IsObjectiveCompleted(From) == true && questsDatabase.IsObjectiveCompleted(Until) == false)
+            if (shouldContainAny)
             {
-                isActive = true;
+                isActive = questStatuses.Contains(questParent.currentQuestStatus);
             }
-            else if (From == null && Until != null && questsDatabase.IsObjectiveCompleted(Until) == false)
+            else if (shouldNotContainAny)
             {
-                isActive = true;
-            }
-            else if (From != null && Until == null && questsDatabase.IsObjectiveCompleted(From))
-            {
-                isActive = true;
+                isActive = !questStatuses.Contains(questParent.currentQuestStatus);
             }
 
             Utils.UpdateTransformChildren(transform, isActive);

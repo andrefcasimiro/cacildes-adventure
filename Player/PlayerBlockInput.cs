@@ -114,7 +114,7 @@ namespace AF
                 return false;
             }
 
-            if (playerManager.characterPosture.IsStunned())
+            if (playerManager.characterPosture.isStunned)
             {
                 return false;
             }

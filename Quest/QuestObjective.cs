@@ -12,6 +12,7 @@ namespace AF
         public string objective;
 
         public bool isCompleted;
+        public string location;
 
         [Header("Quest Parent")]
         public QuestParent questParent;
@@ -26,14 +27,8 @@ namespace AF
         {
             if (state == PlayModeStateChange.ExitingPlayMode)
             {
-                // Clear the list when exiting play mode
-                Clear();
+                isCompleted = false;
             }
-        }
-
-        public void Clear()
-        {
-            isCompleted = false;
         }
     }
 }

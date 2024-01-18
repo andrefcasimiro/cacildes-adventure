@@ -28,6 +28,10 @@ namespace AF.Animations
         public UnityEvent onLeftFootHitboxClose;
         public UnityEvent onRightFootHitboxOpen;
         public UnityEvent onRightFootHitboxClose;
+        public UnityEvent onBuff;
+        public UnityEvent onCloth;
+        public UnityEvent onImpact;
+        public UnityEvent onOpenCombo;
 
         private void Awake()
         {
@@ -144,8 +148,24 @@ namespace AF.Animations
             characterManager.characterBaseShooter.FireArrow();
         }
 
-        public void PlayCloth()
+        public void OnCloth()
         {
+            onCloth?.Invoke();
+        }
+
+        public void OnImpact()
+        {
+            onImpact?.Invoke();
+        }
+
+        public void OnBuff()
+        {
+            onBuff?.Invoke();
+        }
+
+        public void OpenCombo()
+        {
+            onOpenCombo?.Invoke();
         }
     }
 }

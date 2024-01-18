@@ -20,6 +20,10 @@ namespace AF
         [Header("Settings")]
         public bool shouldClear = false;
 
+        [Header("Quest Statuses")]
+        public QuestStatus questStatusWhenQuestStarts;
+        public QuestStatus questStatusWhenAllObjectivesAreCompleted;
+
         private void OnEnable()
         {
             // No need to populate the list; it's serialized directly
@@ -60,9 +64,11 @@ namespace AF
             var targetQuestIndex = this.questsReceived.FindIndex(quest => quest.questObjectives.Contains(questObjectiveToComplete));
 
             this.questsReceived[targetQuestIndex].questObjectives.FirstOrDefault(x => x == questObjectiveToComplete).isCompleted = true;
-            if (this.questsReceived[targetQuestIndex].IsCompleted())
+            if (this.questsReceived[targetQuestIndex].AllObjectivesAreCompleted())
             {
                 SetQuestToTrack(null);
+
+                this.questsReceived[targetQuestIndex].SetQuestStatus(questStatusWhenAllObjectivesAreCompleted);
             }
 
             EventManager.EmitEvent(EventMessages.ON_QUEST_OBJECTIVE_COMPLETED);
@@ -108,9 +114,26 @@ namespace AF
         {
             if (questParent != null && !questsReceived.Contains(questParent))
             {
+                questParent.currentQuestStatus = questStatusWhenQuestStarts;
                 this.questsReceived.Add(questParent);
+                EventManager.EmitEvent(EventMessages.ON_QUEST_STATUS_CHANGED);
             }
         }
 
+        public bool ContainsQuest(QuestParent questParent)
+        {
+            return questsReceived.Contains(questParent);
+        }
+
+        public bool AreQuestObjectivesCompleted(QuestParent questParent)
+        {
+            if (!ContainsQuest(questParent))
+            {
+                return false;
+            }
+
+            int idx = questsReceived.FindIndex(questReceived => questReceived == questParent);
+            return questsReceived[idx].questObjectives.All(IsObjectiveCompleted);
+        }
     }
 }
