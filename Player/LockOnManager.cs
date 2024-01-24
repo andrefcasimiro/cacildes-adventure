@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using AF.Events;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -55,6 +57,11 @@ namespace AF
         bool evaluatingIfShouldDisengage = false;
         Coroutine CheckIfShouldDisengageCoroutine;
         Coroutine EvaluateLockOnAfterKillingEnemyCoroutine;
+
+        private void Awake()
+        {
+            EventManager.StartListening(EventMessages.ON_CHARACTER_KILLED, OnEnemyKilledCheckIfShouldDisengageLockOn);
+        }
 
         private void Start()
         {

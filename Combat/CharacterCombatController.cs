@@ -177,5 +177,10 @@ namespace AF.Combat
             return source.OrderBy((item) => rnd.Next());
         }
 
+        public void SetCombatAction(CombatAction combatAction)
+        {
+            this.currentCombatAction = combatAction;
+        }
+
     }
 }

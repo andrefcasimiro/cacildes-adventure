@@ -7,36 +7,16 @@ namespace AF
     [CreateAssetMenu(menuName = "Items / Spell / New Spell")]
     public class Spell : Item
     {
-        [Header("Spell Cast Particle")]
+
+        [Header("Settings")]
         public Projectile spellCastParticle;
-
-        [Header("On Hit Settings")]
-        public DestroyableParticle impactFx;
-        public WeaponElementType spellElement;
-        public float damageOnHitEnemy = 100;
-        public StatusEffect statusEffectInflict;
-        public float statusEffectInflictAmount = -1f;
-
-        [Header("Spell Poise")]
-        public int spellPoise;
-        public int spellPostureDamage;
+        public float costPerCast = 20;
 
         [Header("Animations")]
         public AnimationClip castAnimationOverride;
 
-        [Header("Negative Effects Upon Usage")]
-        public float selfDamageAmount = -1f;
-        public WeaponElementType selfDamageType;
-        public StatusEffect selfStatusEffect;
-        public float selfStatusEffectAmount = -1f;
-
-        [Header("Healing")]
-        public float healingAmount = -1f;
-
-        [Header("Reputation")]
-        public bool increaseDamageWithReputation = false;
-
+        [Header("Spell Type")]
+        public bool isFaithSpell = false;
 
     }
-
 }

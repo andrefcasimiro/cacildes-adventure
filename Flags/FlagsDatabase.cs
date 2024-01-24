@@ -12,6 +12,7 @@ namespace AF.Flags
         [SerializedDictionary("Flag ID", "Description")]
         public SerializedDictionary<string, string> flags = new();
 
+#if UNITY_EDITOR 
         private void OnEnable()
         {
             // No need to populate the list; it's serialized directly
@@ -26,6 +27,7 @@ namespace AF.Flags
                 Clear();
             }
         }
+#endif
 
         public void Clear()
         {

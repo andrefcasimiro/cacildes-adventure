@@ -17,6 +17,7 @@ namespace AF
 
         [Header("Stats")]
         public Damage damage;
+        public bool scaleWithIntelligence = false;
 
         [Header("Status Effects")]
         public StatusEffect statusEffectToApply;
@@ -28,6 +29,7 @@ namespace AF
 
         [Tooltip("Fires immediately after instatied")] public UnityEvent onFired;
         [Tooltip("Fires after 0.1ms")] public UnityEvent onFired_After;
+        public UnityEvent onCollision;
         public float onFired_AfterDelay = 0.1f;
 
         // Flags
@@ -75,6 +77,12 @@ namespace AF
             }
 
             hasCollided = true;
+
+            if (shooter is PlayerManager playerManager && scaleWithIntelligence)
+            {
+                damage = playerManager.attackStatManager.GetScaledSpellDamage(damage);
+            }
+
             damageReceiver.TakeDamage(damage);
 
             if (shooter != null
@@ -88,6 +96,8 @@ namespace AF
             {
                 damageReceiver.character.statusController.InflictStatusEffect(statusEffectToApply, amountOfStatusEffectToApply, false);
             }
+
+            onCollision?.Invoke();
 
             StartCoroutine(HandleDestroy_Coroutine());
         }

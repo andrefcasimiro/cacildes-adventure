@@ -8,6 +8,7 @@ public class BonfiresDatabase : ScriptableObject
 {
     public List<string> unlockedBonfires = new();
 
+#if UNITY_EDITOR 
     private void OnEnable()
     {
         // No need to populate the list; it's serialized directly
@@ -22,6 +23,7 @@ public class BonfiresDatabase : ScriptableObject
             Clear();
         }
     }
+#endif
 
     public void Clear()
     {

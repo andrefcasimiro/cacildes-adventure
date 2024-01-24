@@ -40,7 +40,7 @@ namespace AF
                 clone.Q<VisualElement>("Bar"),
                 clone.Q<VisualElement>("BarFill"),
                 appliedStatusEffect.currentAmount,
-                currentMaximumResistanceToStatusEffect);
+                Mathf.Clamp(appliedStatusEffect.currentAmount, 0, currentMaximumResistanceToStatusEffect));
 
             clone.Q<VisualElement>("BarFill").style.backgroundColor = appliedStatusEffect.statusEffect.barColor;
             clone.Q<IMGUIContainer>("PositiveIndicator").style.display = appliedStatusEffect.statusEffect.isPositive
@@ -60,8 +60,8 @@ namespace AF
 
         void UpdateBarFill(VisualElement backgroundBar, VisualElement barFill, float currentAmount, float maximumWidth)
         {
-            float newWidth = minimumStatusBarWidth + maximumWidth;
-            backgroundBar.style.width = new Length(newWidth, LengthUnit.Pixel);
+            float maxWidth = minimumStatusBarWidth + maximumWidth;
+            backgroundBar.style.width = new Length(maxWidth, LengthUnit.Pixel);
 
             float fillPercentage = Mathf.Clamp01(currentAmount / maximumWidth) * 100f;
             barFill.style.width = new Length(fillPercentage, LengthUnit.Percent);

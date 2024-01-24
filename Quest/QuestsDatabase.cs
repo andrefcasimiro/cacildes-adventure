@@ -20,9 +20,7 @@ namespace AF
         [Header("Settings")]
         public bool shouldClear = false;
 
-        [Header("Quest Statuses")]
-        public QuestStatus questStatusWhenQuestStarts;
-        public QuestStatus questStatusWhenAllObjectivesAreCompleted;
+#if UNITY_EDITOR 
 
         private void OnEnable()
         {
@@ -38,40 +36,11 @@ namespace AF
                 Clear();
             }
         }
-
+#endif
         public void Clear()
         {
             questsReceived.Clear();
             currentTrackedQuestIndex = -1;
-        }
-
-        public bool IsObjectiveCompleted(QuestObjective questObjective)
-        {
-            var targetQuestIndex = this.questsReceived.FindIndex(quest => quest.questObjectives.Contains(questObjective));
-
-            if (targetQuestIndex == -1)
-            {
-                return false;
-            }
-
-            return this.questsReceived[targetQuestIndex].questObjectives.FirstOrDefault(x => x == questObjective).isCompleted;
-        }
-
-        public void CompleteObjective(QuestObjective questObjectiveToComplete)
-        {
-            AddQuest(questObjectiveToComplete.questParent);
-
-            var targetQuestIndex = this.questsReceived.FindIndex(quest => quest.questObjectives.Contains(questObjectiveToComplete));
-
-            this.questsReceived[targetQuestIndex].questObjectives.FirstOrDefault(x => x == questObjectiveToComplete).isCompleted = true;
-            if (this.questsReceived[targetQuestIndex].AllObjectivesAreCompleted())
-            {
-                SetQuestToTrack(null);
-
-                this.questsReceived[targetQuestIndex].SetQuestStatus(questStatusWhenAllObjectivesAreCompleted);
-            }
-
-            EventManager.EmitEvent(EventMessages.ON_QUEST_OBJECTIVE_COMPLETED);
         }
 
         public bool IsQuestTracked(QuestParent questParent)
@@ -86,8 +55,6 @@ namespace AF
 
         public void SetQuestToTrack(QuestParent questParent)
         {
-            AddQuest(questParent);
-
             if (IsQuestTracked(questParent))
             {
                 currentTrackedQuestIndex = -1;
@@ -100,40 +67,34 @@ namespace AF
             EventManager.EmitEvent(EventMessages.ON_QUEST_TRACKED);
         }
 
-        public QuestObjective GetCurrentTrackedQuestObjective()
+        public string GetCurrentTrackedQuestObjective()
         {
             if (currentTrackedQuestIndex == -1)
             {
-                return null;
+                return "";
             }
 
-            return questsReceived[currentTrackedQuestIndex].questObjectives.FirstOrDefault(x => x.isCompleted == false);
+            QuestParent questParent = questsReceived[currentTrackedQuestIndex];
+
+            if (questParent.questProgress >= 0 && questParent.IsCompleted() == false)
+            {
+                return questParent.questObjectives[questParent.questProgress];
+            }
+
+            return "";
         }
 
         public void AddQuest(QuestParent questParent)
         {
             if (questParent != null && !questsReceived.Contains(questParent))
             {
-                questParent.currentQuestStatus = questStatusWhenQuestStarts;
                 this.questsReceived.Add(questParent);
-                EventManager.EmitEvent(EventMessages.ON_QUEST_STATUS_CHANGED);
             }
         }
 
         public bool ContainsQuest(QuestParent questParent)
         {
             return questsReceived.Contains(questParent);
-        }
-
-        public bool AreQuestObjectivesCompleted(QuestParent questParent)
-        {
-            if (!ContainsQuest(questParent))
-            {
-                return false;
-            }
-
-            int idx = questsReceived.FindIndex(questReceived => questReceived == questParent);
-            return questsReceived[idx].questObjectives.All(IsObjectiveCompleted);
         }
     }
 }

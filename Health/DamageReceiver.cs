@@ -12,7 +12,7 @@ namespace AF
     {
         [Header("Character")]
         public CharacterBaseManager character;
-        public int pushForceResistance = 0;
+        [Range(0, 1f)] public float pushForceAbsorption = 1;
 
         [Header("Components")]
         public DamageResistances damageResistances;
@@ -106,11 +106,11 @@ namespace AF
                     return;
                 }
 
-                if (incomingDamage.pushForce > 0)
+                if (incomingDamage.pushForce > 0 && character.characterPushController != null)
                 {
-                    character.ApplyForceSmoothly(
+                    character.characterPushController.ApplyForceSmoothly(
                         damageOwner.transform.forward,
-                        Mathf.Clamp(incomingDamage.pushForce - pushForceResistance, 0, Mathf.Infinity) * 10,
+                        Mathf.Clamp(incomingDamage.pushForce * pushForceAbsorption, 0, Mathf.Infinity) * 10,
                         .25f);
                 }
 

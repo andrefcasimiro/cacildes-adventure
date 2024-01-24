@@ -1,6 +1,7 @@
 using AF.Companions;
 using AF.Music;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 namespace AF
@@ -13,22 +14,14 @@ namespace AF
         [Header("Databases")]
         public CompanionsDatabase companionsDatabase;
 
+        public UnityAction onChangingScene;
+
         [Header("Components")]
         public PlayerManager playerManager;
         public FadeManager fadeManager;
         public BGMManager bGMManager;
 
         public float teleportFadeOutDuration = 1f;
-
-        private void Awake()
-        {
-            if (gameSession.rememberPlayerPosition && gameSession.lastPlayerPosition != Vector3.zero)
-            {
-                playerManager.playerComponentManager.UpdatePosition(gameSession.lastPlayerPosition, Quaternion.identity);
-
-                gameSession.lastPlayerPosition = Vector3.zero;
-            }
-        }
 
         void Start()
         {
@@ -41,6 +34,8 @@ namespace AF
 
             bGMManager.StopMusic();
 
+            onChangingScene?.Invoke();
+
             fadeManager.FadeIn(1f, () =>
             {
                 SceneManager.LoadSceneAsync(sceneName);
@@ -49,26 +44,28 @@ namespace AF
 
         void SpawnPlayerAndCompanions()
         {
-            if (string.IsNullOrEmpty(gameSession.nextMap_SpawnGameObjectName))
+            if (gameSession.loadSavedPlayerPositionAndRotation)
             {
-                return;
+                gameSession.loadSavedPlayerPositionAndRotation = false;
+                playerManager.playerComponentManager.UpdatePosition(gameSession.savedPlayerPosition, gameSession.savedPlayerRotation);
             }
-
-            GameObject spawnGameObject = GameObject.Find(gameSession.nextMap_SpawnGameObjectName);
-            gameSession.nextMap_SpawnGameObjectName = "";
-
-            if (spawnGameObject == null)
+            else if (!string.IsNullOrEmpty(gameSession.nextMap_SpawnGameObjectName))
             {
-                return;
-            }
 
-            playerManager.playerComponentManager.TeleportPlayer(spawnGameObject.transform);
+                GameObject spawnGameObject = GameObject.Find(gameSession.nextMap_SpawnGameObjectName);
+                gameSession.nextMap_SpawnGameObjectName = "";
+
+                if (spawnGameObject != null)
+                {
+                    playerManager.playerComponentManager.TeleportPlayer(spawnGameObject.transform);
+                }
+            }
 
             foreach (CompanionID companionID in FindObjectsByType<CompanionID>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
                 if (companionsDatabase.IsCompanionAndIsActivelyInParty(companionID.companionId))
                 {
-                    companionID.SpawnCompanion(spawnGameObject.transform.position);
+                    companionID.SpawnCompanion(playerManager.transform.position);
                 }
             }
         }

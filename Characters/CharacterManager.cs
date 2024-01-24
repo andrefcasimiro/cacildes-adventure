@@ -1,8 +1,10 @@
 ﻿using AF.Animations;
 using AF.Combat;
 using AF.Equipment;
+using AF.Events;
 using AF.Health;
 using AF.Shooting;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -16,10 +18,12 @@ namespace AF
 
         public CharacterBaseShooter characterBaseShooter;
         public CharacterWeaponsManager characterWeaponsManager;
+        public CharacterBossController characterBossController;
 
         // Animator Overrides
         [HideInInspector] public AnimatorOverrideController animatorOverrideController;
 
+        Vector3 initialPosition;
         Quaternion initialRotation;
 
         [Header("Settings")]
@@ -35,7 +39,11 @@ namespace AF
 
             animator.runtimeAnimatorController = animatorOverrideController;
 
+            initialPosition = transform.position;
             initialRotation = transform.rotation;
+
+            EventManager.StartListening(EventMessages.ON_LEAVING_BONFIRE, Revive);
+
         }
 
         public override void ResetStates()
@@ -102,6 +110,21 @@ namespace AF
         public void FaceInitialRotation()
         {
             transform.rotation = initialRotation;
+        }
+
+        void Revive()
+        {
+            if (characterBossController != null && characterBossController.IsBoss())
+            {
+                return;
+            }
+
+            if (health is CharacterHealth characterHealth)
+            {
+                characterHealth.Revive();
+
+                transform.position = initialPosition;
+            }
         }
     }
 }

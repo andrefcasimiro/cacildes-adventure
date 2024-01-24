@@ -85,10 +85,9 @@ namespace AF
                     soundbank
                 );
 
-                if (quest.AllObjectivesAreCompleted())
+                if (quest.IsCompleted())
                 {
                     clone.style.opacity = 0.5f;
-
                 }
 
                 questsScrollView.Add(clone);
@@ -112,11 +111,13 @@ namespace AF
             foreach (var questObjective in questParent.questObjectives)
             {
                 var questObjectiveEntry = questObjectivePrefab.CloneTree();
-                questObjectiveEntry.Q<Label>("QuestObjectiveLabel").text = questObjective.name;
-                questObjectiveEntry.Q<Label>("QuestObjectiveLocation").text = string.IsNullOrEmpty(questObjective.location) ? "" : "(" + questObjective.location + ")";
+                questObjectiveEntry.Q<Label>("QuestObjectiveLabel").text = questObjective;
+                questObjectiveEntry.Q<Label>("QuestObjectiveLocation").text = "";
 
-                questObjectiveEntry.Q<VisualElement>("QuestObjectiveComplete").style.display = questObjective.isCompleted ? DisplayStyle.Flex : DisplayStyle.None;
-                questObjectiveEntry.Q<VisualElement>("QuestObjectiveIncomplete").style.display = !questObjective.isCompleted ? DisplayStyle.Flex : DisplayStyle.None;
+                bool isCompleted = questParent.IsObjectiveCompleted(questObjective);
+
+                questObjectiveEntry.Q<VisualElement>("QuestObjectiveComplete").style.display = isCompleted ? DisplayStyle.Flex : DisplayStyle.None;
+                questObjectiveEntry.Q<VisualElement>("QuestObjectiveIncomplete").style.display = !isCompleted ? DisplayStyle.Flex : DisplayStyle.None;
 
                 questObjectiveEntry.style.opacity = 1;
 

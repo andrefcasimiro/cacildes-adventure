@@ -56,5 +56,6 @@ namespace AF.Dialogue
 
             HideGreetingMessage();
         }
+
     }
 }

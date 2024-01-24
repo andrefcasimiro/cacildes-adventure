@@ -167,5 +167,10 @@ namespace AF.Animations
         {
             onOpenCombo?.Invoke();
         }
+
+        public void OnThrow()
+        {
+
+        }
     }
 }

@@ -2,21 +2,35 @@ using UnityEngine;
 
 namespace AF.StatusEffects
 {
-    // Change this to have a getter depending on AI or Player
 
     public class PlayerStatusController : StatusController
     {
 
+        public TeleportManager teleportManager;
         public StatusDatabase statusDatabase;
 
         // On loading scene, retrieve which statuses were applied
         private void Awake()
         {
-            statusDatabase.LoadAppliedStatus(this);
+            foreach (var appliedStatus in statusDatabase.appliedStatus)
+            {
+                InflictStatusEffect(appliedStatus.statusEffect, appliedStatus.currentAmount, appliedStatus.hasReachedTotalAmount);
+            }
+
+            statusDatabase.appliedStatus.Clear();
         }
 
-        // Before unloading the scene, remember which statuses were applied
-        private void OnDestroy()
+        private void OnEnable()
+        {
+            teleportManager.onChangingScene += SaveAppliedStatuses;
+        }
+
+        private void OnDisable()
+        {
+            teleportManager.onChangingScene -= SaveAppliedStatuses;
+        }
+
+        private void SaveAppliedStatuses()
         {
             statusDatabase.appliedStatus.Clear();
             foreach (var appliedStatus in this.appliedStatusEffects)

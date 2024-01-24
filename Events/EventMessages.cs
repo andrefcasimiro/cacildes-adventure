@@ -13,8 +13,7 @@ namespace AF.Events
 
         // Quests
         public static readonly string ON_QUEST_TRACKED = "ON_QUEST_TRACKED";
-        public static readonly string ON_QUEST_OBJECTIVE_COMPLETED = "ON_QUEST_OBJECTIVE_COMPLETED";
-        public static readonly string ON_QUEST_STATUS_CHANGED = "ON_QUEST_STATUS_CHANGED";
+        public static readonly string ON_QUESTS_PROGRESS_CHANGED = "ON_QUESTS_PROGRESS_CHANGED";
 
         //Day / Night
         public static readonly string ON_HOUR_CHANGED = "ON_HOUR_CHANGED";
@@ -24,6 +23,12 @@ namespace AF.Events
 
         // Flags
         public static readonly string ON_FLAGS_CHANGED = "ON_FLAGS_CHANGED";
+
+        // Combat
+        public static readonly string ON_CHARACTER_KILLED = "ON_CHARACTER_KILLED";
+
+        // Misc
+        public static readonly string ON_LEAVING_BONFIRE = "ON_LEAVING_BONFIRE";
 
     }
 }

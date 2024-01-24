@@ -24,6 +24,11 @@ namespace AF.Combat
 
         public void SetTarget(CharacterBaseManager target)
         {
+            if (!CanSetTarget())
+            {
+                return;
+            }
+
             if (currentTarget == target)
             {
                 return;
@@ -59,6 +64,16 @@ namespace AF.Combat
             {
                 companionID.characterManager.targetManager.SetTarget(this.characterBaseManager);
             }
+        }
+
+        bool CanSetTarget()
+        {
+            if (characterBaseManager.characterPosture.isStunned)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public void ClearTarget()

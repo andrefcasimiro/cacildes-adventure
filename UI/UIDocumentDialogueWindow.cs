@@ -55,6 +55,8 @@ namespace AF
         [Header("Components")]
         public StarterAssetsInputs inputs;
         public Soundbank soundbank;
+        public CursorManager cursorManager;
+        public PlayerManager playerManager;
 
         [Header("Unity Events")]
         public UnityEvent onEnableEvent;
@@ -153,7 +155,6 @@ namespace AF
             dialogueChoicePanel.Clear();
             dialogueChoicePanel.style.display = DisplayStyle.None;
 
-
             if (Gamepad.current != null)
             {
                 pressToContinueLabel.text = "Speed up / Continue";
@@ -250,9 +251,14 @@ namespace AF
                 dialogueChoicePanel.Add(newDialogueChoiceItem);
             }
 
+            cursorManager.ShowCursor();
             elementToFocus?.Focus();
+            playerManager.thirdPersonController.LockCameraPosition = true;
 
             yield return new WaitUntil(() => selectedResponse != null);
+
+            playerManager.thirdPersonController.LockCameraPosition = false;
+            cursorManager.HideCursor();
 
             // Use Sub Events Option
             if (selectedResponse.subEventPage != null)

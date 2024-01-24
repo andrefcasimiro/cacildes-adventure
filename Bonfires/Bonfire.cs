@@ -1,5 +1,7 @@
 using System.Collections;
+using AF.Events;
 using AF.Health;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -105,6 +107,8 @@ namespace AF
 
             uiDocumentBonfireMenu.SetCurrentBonfire(this);
             uiDocumentBonfireMenu.gameObject.SetActive(true);
+
+            EventManager.EmitEvent(EventMessages.ON_LEAVING_BONFIRE);
         }
 
         public void ExitBonfire()

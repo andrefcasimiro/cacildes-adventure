@@ -9,6 +9,8 @@ using UnityEngine.Events;
 
 namespace Events
 {
+#if UNITY_EDITOR
+
     [CustomEditor(typeof(Moment), editorForChildClasses: true)]
     public class EventEditor : Editor
     {
@@ -26,6 +28,7 @@ namespace Events
             }
         }
     }
+#endif
     public class Moment : MonoBehaviour
     {
         [HideInInspector]

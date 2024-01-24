@@ -10,12 +10,14 @@ public class GameSession : ScriptableObject
     [Header("Teleport")]
     public string nextMap_SpawnGameObjectName;
 
-    [Header("Debugging")]
-    public bool rememberPlayerPosition = false;
-    public Vector3 lastPlayerPosition;
+    [Header("Save Settings")]
+    public bool loadSavedPlayerPositionAndRotation = false;
+    public Vector3 savedPlayerPosition;
+    public Quaternion savedPlayerRotation;
 
     public bool shouldClearOnExitPlayMode = false;
 
+#if UNITY_EDITOR 
     private void OnEnable()
     {
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
@@ -25,11 +27,6 @@ public class GameSession : ScriptableObject
     {
         if (state == PlayModeStateChange.ExitingPlayMode)
         {
-            if (rememberPlayerPosition)
-            {
-                lastPlayerPosition = GameObject.FindWithTag("Player").transform.position;
-            }
-
             if (shouldClearOnExitPlayMode)
             {
                 Clear();
@@ -37,6 +34,7 @@ public class GameSession : ScriptableObject
             }
         }
     }
+#endif
 
     void Clear()
     {

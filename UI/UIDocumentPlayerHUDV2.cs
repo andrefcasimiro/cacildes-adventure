@@ -19,11 +19,14 @@ namespace AF
         VisualElement healthFill;
         VisualElement staminaContainer;
         VisualElement staminaFill;
+        VisualElement manaContainer;
+        VisualElement manaFill;
 
         [Header("Graphic Settings")]
-        public float healthContainerBaseWidth = 185;
+        public float healthContainerBaseWidth = 180;
         public float staminaContainerBaseWidth = 150;
-        float _containerMultiplierPerLevel = 6.5f;
+        public float manaContainerBaseWidth = 150;
+        float _containerMultiplierPerLevel = 10f;
 
         Label quickItemName, arrowsLabel;
         IMGUIContainer shieldBlockedIcon;
@@ -46,8 +49,7 @@ namespace AF
         public Texture2D unequippedArrowSlot;
 
         [Header("Components")]
-        public PlayerHealth healthStatManager;
-        public StaminaStatManager staminaStatManager;
+        public PlayerManager playerManager;
         public EquipmentGraphicsHandler equipmentGraphicsHandler;
 
         IMGUIContainer spellSlotContainer, consumableSlotContainer, weaponSlotContainer, shieldSlotContainer;
@@ -58,6 +60,8 @@ namespace AF
         VisualElement leftGamepad, alpha1, upGamepad, alpha2, rightGamepad, alpha3, downGamepad, alpha4;
         VisualElement useKeyboard, useGamepad;
         VisualElement equipmentContainer;
+
+        VisualElement KeyboardActions, GamepadActions;
 
         Label currentObjectiveLabel, currentObjectiveValue;
 
@@ -72,7 +76,7 @@ namespace AF
                 UpdateQuestTracking);
 
             EventManager.StartListening(
-                EventMessages.ON_QUEST_OBJECTIVE_COMPLETED,
+                EventMessages.ON_QUESTS_PROGRESS_CHANGED,
                 UpdateQuestTracking);
         }
 
@@ -83,6 +87,8 @@ namespace AF
             healthFill = root.Q<VisualElement>("HealthFill");
             staminaContainer = root.Q<VisualElement>("Stamina");
             staminaFill = root.Q<VisualElement>("StaminaFill");
+            manaContainer = root.Q<VisualElement>("Mana");
+            manaFill = root.Q<VisualElement>("ManaFill");
 
             quickItemName = root.Q<Label>("QuickItemName");
             arrowsLabel = root.Q<Label>("ArrowsLabel");
@@ -116,6 +122,31 @@ namespace AF
             currentObjectiveLabel.style.display = DisplayStyle.None;
             currentObjectiveValue.text = "";
 
+            KeyboardActions = root.Q<VisualElement>("KeyboardActions");
+            GamepadActions = root.Q<VisualElement>("GamepadActions");
+
+            UpdateEquipment();
+
+            HandleDeviceChange();
+            InputSystem.onDeviceChange += HandleDeviceChangeCallback;
+
+            UpdateQuestTracking();
+        }
+
+        private void OnDisable()
+        {
+            InputSystem.onDeviceChange -= HandleDeviceChangeCallback;
+        }
+
+        void HandleDeviceChangeCallback(InputDevice device, InputDeviceChange change)
+        {
+            HandleDeviceChange();
+        }
+
+        void HandleDeviceChange()
+        {
+            KeyboardActions.style.display = Gamepad.current == null ? DisplayStyle.Flex : DisplayStyle.None;
+            GamepadActions.style.display = Gamepad.current != null ? DisplayStyle.Flex : DisplayStyle.None;
             UpdateEquipment();
         }
 
@@ -132,23 +163,16 @@ namespace AF
         {
             healthContainer.style.width = healthContainerBaseWidth +
                 ((playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus) * _containerMultiplierPerLevel);
+
             staminaContainer.style.width = staminaContainerBaseWidth + ((
                 playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * _containerMultiplierPerLevel);
 
-            float healthPercentage = healthStatManager.GetCurrentHealthPercentage();
+            manaContainer.style.width = manaContainerBaseWidth + ((
+                playerStatsDatabase.intelligence + playerStatsBonusController.intelligenceBonus) * _containerMultiplierPerLevel);
 
-            Length formattedHp = new Length(healthPercentage, LengthUnit.Percent);
-            this.healthFill.style.width = formattedHp;
-
-
-            float staminaPercentage = Mathf.Clamp(
-                (playerStatsDatabase.currentStamina * 100) / staminaStatManager.GetMaxStamina(),
-                0,
-                100
-            );
-
-            Length formattedStamina = new Length(staminaPercentage, LengthUnit.Percent);
-            this.staminaFill.style.width = formattedStamina;
+            this.healthFill.style.width = new Length(playerManager.health.GetCurrentHealthPercentage(), LengthUnit.Percent);
+            this.staminaFill.style.width = new Length(playerManager.staminaStatManager.GetCurrentStaminaPercentage(), LengthUnit.Percent);
+            this.manaFill.style.width = new Length(playerManager.manaManager.GetCurrentManaPercentage(), LengthUnit.Percent);
         }
 
         /// <summary>
@@ -260,17 +284,16 @@ namespace AF
             return equipmentContainer.visible;
         }
 
-
         void UpdateQuestTracking()
         {
             currentObjectiveLabel.style.display = DisplayStyle.None;
             currentObjectiveValue.text = "";
 
-            QuestObjective currentQuestObjective = questsDatabase.GetCurrentTrackedQuestObjective();
+            string currentQuestObjective = questsDatabase.GetCurrentTrackedQuestObjective();
 
-            if (currentQuestObjective != null)
+            if (!string.IsNullOrEmpty(currentQuestObjective))
             {
-                currentObjectiveValue.text = currentQuestObjective.objective;
+                currentObjectiveValue.text = currentQuestObjective;
                 currentObjectiveLabel.style.display = DisplayStyle.Flex;
             }
         }

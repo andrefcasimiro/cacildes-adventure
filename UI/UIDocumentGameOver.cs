@@ -41,8 +41,6 @@ namespace AF
             playerManager.playerComponentManager.DisableCharacterController();
             playerManager.playerComponentManager.DisableComponents();
 
-            bool hasLostGoldToRecover = playerStatsDatabase.HasLostGoldToRecover();
-
             if (playerStatsDatabase.HasLostGoldToRecover())
             {
                 playerStatsDatabase.ClearLostGold();
@@ -56,13 +54,7 @@ namespace AF
 
             yield return new WaitForSeconds(gameOverDuration);
 
-            saveManager.LoadLastSavedGame(() =>
-            {
-                if (hasLostGoldToRecover)
-                {
-                    playerStatsDatabase.gold = 0;
-                }
-            });
+            saveManager.LoadLastSavedGame(true);
         }
     }
 }

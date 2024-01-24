@@ -4,17 +4,14 @@ using UnityEngine;
 namespace AF
 {
 
-    public class EV_CompleteObjective : EventBase
+    public class EV_ProgressQuest : EventBase
     {
-        [Header("Databases")]
-        public QuestsDatabase questsDatabase;
-
-        [Header("Quest Objective")]
-        public QuestObjective questObjective;
+        public QuestParent questParent;
+        public int questProgress = 0;
 
         public override IEnumerator Dispatch()
         {
-            questsDatabase.CompleteObjective(questObjective);
+            questParent.SetProgress(questProgress);
             yield return null;
         }
 

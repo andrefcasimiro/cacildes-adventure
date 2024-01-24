@@ -13,15 +13,18 @@ public class PlayerStatsDatabase : ScriptableObject
     public int intelligence = 1;
 
     [Header("Attributes")]
-    public float currentHealth = 0;
-    public float currentStamina = 0;
+    public float currentHealth = -1;
+    public float currentStamina = -1;
+    public float currentMana = -1;
     public int reputation = 1;
     public int gold = 0;
 
     [Header("Lost Gold On Death")]
-    public int lostGold = 0;
+    public int lostGold = -1;
     public string sceneWhereGoldWasLost = "";
     public Vector3 positionWhereGoldWasLost = Vector3.zero;
+
+#if UNITY_EDITOR
 
     private void OnEnable()
     {
@@ -37,6 +40,7 @@ public class PlayerStatsDatabase : ScriptableObject
             Clear();
         }
     }
+#endif
 
     public void Clear()
     {
@@ -46,8 +50,9 @@ public class PlayerStatsDatabase : ScriptableObject
         dexterity = 1;
         intelligence = 1;
 
-        currentHealth = 0;
-        currentStamina = 0;
+        currentHealth = -1;
+        currentStamina = -1;
+        currentMana = -1;
         reputation = 1;
         gold = 0;
     }
@@ -71,12 +76,12 @@ public class PlayerStatsDatabase : ScriptableObject
 
     public bool HasLostGoldToRecover()
     {
-        return this.lostGold > 0;
+        return this.lostGold >= 0;
     }
 
     public void ClearLostGold()
     {
-        this.lostGold = 0;
+        this.lostGold = -1;
         this.positionWhereGoldWasLost = Vector3.zero;
         this.sceneWhereGoldWasLost = "";
     }

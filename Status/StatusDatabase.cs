@@ -10,10 +10,10 @@ namespace AF.StatusEffects
     public class StatusDatabase : ScriptableObject
     {
 
-
         [Header("Status Effects")]
         public List<AppliedStatusEffect> appliedStatus = new();
 
+#if UNITY_EDITOR 
         private void OnEnable()
         {
             // No need to populate the list; it's serialized directly
@@ -28,16 +28,11 @@ namespace AF.StatusEffects
                 Clear();
             }
         }
+#endif
 
         public void Clear()
         {
             appliedStatus.Clear();
-        }
-
-        public void LoadAppliedStatus(StatusController statusController)
-        {
-            statusController.appliedStatusEffects.Clear();
-            statusController.appliedStatusEffects = appliedStatus.ToList();
         }
 
     }

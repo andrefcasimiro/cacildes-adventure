@@ -15,6 +15,8 @@ namespace AF.Inventory
         public SerializedDictionary<Item, ItemAmount> ownedItems;
 
         public bool shouldClearOnExitPlayMode = false;
+
+#if UNITY_EDITOR
         private void OnEnable()
         {
             // No need to populate the list; it's serialized directly
@@ -30,7 +32,7 @@ namespace AF.Inventory
                 Clear();
             }
         }
-
+#endif
         public void Clear()
         {
             ownedItems.Clear();

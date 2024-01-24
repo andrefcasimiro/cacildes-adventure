@@ -26,11 +26,13 @@ namespace AF.Animations
 
         public void OnSpellCast();
         public void OnFireArrow();
+        public void OnThrow();
 
         // SFX
         public void OnCloth();
         public void OnImpact();
 
         public void OpenCombo();
+
     }
 }

@@ -11,8 +11,14 @@ namespace AF
         public int daysPassed = 0;
         public float daySpeed = 0.005f;
 
+        [Header("Default Values")]
+        public float initialTimeOfDay = 11;
+
+#if UNITY_EDITOR 
         private void OnEnable()
         {
+            timeOfDay = initialTimeOfDay;
+
             // No need to populate the list; it's serialized directly
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
@@ -25,7 +31,7 @@ namespace AF
                 Clear();
             }
         }
-
+#endif
         public void Clear()
         {
         }

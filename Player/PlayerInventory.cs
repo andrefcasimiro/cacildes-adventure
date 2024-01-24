@@ -1,18 +1,15 @@
+using System.Collections.Generic;
 using System.Linq;
 using AF.Inventory;
 using AF.Ladders;
 using AF.StatusEffects;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
     public class PlayerInventory : MonoBehaviour
     {
-        public readonly int hashDrinking = Animator.StringToHash("Drinking");
-        public readonly int hashEating = Animator.StringToHash("Eating");
-        public readonly int hashClock = Animator.StringToHash("Clock");
-        public readonly int hashIsConsumingItem = Animator.StringToHash("IsConsumingItem");
-
         public Consumable currentConsumedItem;
         GameObject consumableGraphicInstance;
 
@@ -37,12 +34,16 @@ namespace AF
         [Header("Flags")]
         public bool isConsumingItem = false;
 
+        [Header("Events")]
+        public UnityEvent onResetState;
+
         // Consts
         private const string CANT_CONSUME_ITEM_AT_THIS_TIME = "Can't consume item at this time";
 
         public void ResetStates()
         {
             isConsumingItem = false;
+            onResetState?.Invoke();
         }
 
         public void ReplenishItems()
@@ -165,46 +166,13 @@ namespace AF
             this.currentConsumedItem = consumable;
             isConsumingItem = true;
 
-            if (consumable.isAlcoholic)
+
+            foreach (StatusEffect statusEffect in currentConsumedItem.statusEffectsWhenConsumed)
             {
-                playerManager.playerAchievementsManager.achievementForDrinkingFirstAlcoholicBeverage.AwardAchievement();
-            }
-
-            if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.DRINK)
-            {
-                playerManager.PlayBusyHashedAnimationWithRootMotion(hashDrinking);
-            }
-            else if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.EAT)
-            {
-                playerManager.PlayBusyHashedAnimationWithRootMotion(hashEating);
-            }
-            else if (consumable.onConsumeActionType == Consumable.OnConsumeActionType.CLOCK)
-            {
-
-                if (menuManager.isMenuOpen)
-                {
-                    menuManager.CloseMenu();
-                }
-
-                if (uIManager.CanShowGUI() == false)
-                {
-                    uIManager.ShowCanNotAccessGUIAtThisTime();
-                    return;
-                }
-
-
-                // Find Clock
-                viewClockMenu.gameObject.SetActive(true);
-                return;
+                playerManager.statusController.statusEffectInstances.FirstOrDefault(x => x.Key == statusEffect).Value?.onConsumeStart?.Invoke();
             }
 
             playerManager.playerWeaponsManager.HideEquipment();
-
-            if (consumable.graphic != null)
-            {
-                consumableGraphicInstance = Instantiate(consumable.graphic, handItemRef);
-            }
-
             playerManager.playerComponentManager.DisableCharacterController();
             playerManager.playerComponentManager.DisableComponents();
         }

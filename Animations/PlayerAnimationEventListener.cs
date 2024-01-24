@@ -151,7 +151,14 @@ namespace AF.Animations
 
         public void OnCloth()
         {
-            soundbank.PlaySound(soundbank.dodge, combatAudioSource);
+            if (playerManager.thirdPersonController.Grounded)
+            {
+                soundbank.PlaySound(soundbank.dodge, combatAudioSource);
+            }
+            else
+            {
+                soundbank.PlaySound(soundbank.cloth, combatAudioSource);
+            }
         }
 
         public void OnImpact()
@@ -167,6 +174,11 @@ namespace AF.Animations
         public void OpenCombo()
         {
 
+        }
+
+        public void OnThrow()
+        {
+            playerManager.projectileSpawner.ThrowProjectile();
         }
     }
 }

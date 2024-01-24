@@ -17,7 +17,6 @@ namespace AF
 
         public ProjectileType projectileType = ProjectileType.BOW;
 
-
     }
 
 }

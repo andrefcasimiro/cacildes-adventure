@@ -49,7 +49,7 @@ namespace AF
 
             UIUtils.SetupButton(continueButton, () =>
             {
-                saveManager.LoadLastSavedGame();
+                saveManager.LoadLastSavedGame(false);
                 gameObject.SetActive(false);
             }, soundbank);
 

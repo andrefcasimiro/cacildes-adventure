@@ -35,13 +35,25 @@ namespace AF
 
         private void Start()
         {
-            playerStatsDatabase.currentStamina = GetMaxStamina();
+            if (playerStatsDatabase.currentStamina == -1)
+            {
+                playerStatsDatabase.currentStamina = GetMaxStamina();
+            }
+            else if (playerStatsDatabase.currentStamina < GetMaxStamina())
+            {
+                shouldRegenerateStamina = true;
+            }
         }
 
         public int GetMaxStamina()
         {
-            return baseStamina + (int)(Mathf.RoundToInt((
-                playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * levelMultiplier));
+            return baseStamina + Mathf.RoundToInt((
+                playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * levelMultiplier);
+        }
+
+        public float GetCurrentStaminaPercentage()
+        {
+            return playerStatsDatabase.currentStamina * 100 / GetMaxStamina();
         }
 
         public void DecreaseStamina(float amount)
@@ -82,7 +94,7 @@ namespace AF
                 finalRegenerationRate = finalRegenerationRate / 4;
             }
 
-            playerStatsDatabase.currentStamina += Mathf.Clamp(finalRegenerationRate * Time.deltaTime, 0f, GetMaxStamina());
+            playerStatsDatabase.currentStamina = Mathf.Clamp(playerStatsDatabase.currentStamina + finalRegenerationRate * Time.deltaTime, 0f, GetMaxStamina());
 
             if (playerStatsDatabase.currentStamina >= GetMaxStamina())
             {
@@ -97,7 +109,7 @@ namespace AF
 
         public void RestoreStaminaPercentage(float amount)
         {
-            var percentage = (this.GetMaxStamina() * amount / 100);
+            var percentage = this.GetMaxStamina() * amount / 100;
             var nextValue = Mathf.Clamp(playerStatsDatabase.currentStamina + percentage, 0, this.GetMaxStamina());
 
             playerStatsDatabase.currentStamina = nextValue;
@@ -113,7 +125,7 @@ namespace AF
 
         public float GetStaminaPointsForGivenEndurance(int endurance)
         {
-            return baseStamina + (int)(Mathf.Ceil(endurance * levelMultiplier));
+            return baseStamina + (int)Mathf.Ceil(endurance * levelMultiplier);
         }
 
         public void DecreaseLightAttackStamina()

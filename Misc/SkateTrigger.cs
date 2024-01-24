@@ -13,7 +13,6 @@ namespace AF
 
         CharacterController characterController;
 
-        PlayerPoiseController playerPoiseController;
 
         public float velocity = 9f;
 
@@ -27,7 +26,6 @@ namespace AF
         {
             tps = FindObjectOfType<ThirdPersonController>(true);
             characterController = tps.GetComponent<CharacterController>();
-            playerPoiseController = tps.GetComponent<PlayerPoiseController>();
         }
 
         private void OnTriggerEnter(Collider other)
@@ -58,10 +56,6 @@ namespace AF
             Vector3 mov = (characterController.transform.forward) * velocity * Time.deltaTime;
             mov.y = -9.71f;
 
-            if (playerPoiseController.isStunned == false)
-            {
-                characterController.Move(mov);
-            }
         }
 
         public bool IsSkating()
@@ -96,7 +90,6 @@ namespace AF
             {
                 return;
             }
-            playerPoiseController.ActivateMaxPoiseDamage();
         }
 
 

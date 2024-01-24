@@ -40,8 +40,6 @@ namespace AF
         private void Awake()
         {
             HideBossHud();
-
-            bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
         }
 
         /// <summary>
@@ -49,13 +47,21 @@ namespace AF
         /// </summary>
         public void UpdateUI()
         {
-            if (characterHealth.GetCurrentHealth() <= 0)
+            if (IsBossHUDEnabled())
             {
-                HideBossHud();
-                return;
-            }
+                if (characterHealth.GetCurrentHealth() <= 0)
+                {
+                    HideBossHud();
+                    return;
+                }
 
-            bossFillBar.style.width = new Length(characterHealth.GetCurrentHealth() * 100 / characterHealth.GetMaxHealth(), LengthUnit.Percent);
+                if (bossFillBar == null)
+                {
+                    bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
+                }
+
+                bossFillBar.style.width = new Length(characterHealth.GetCurrentHealth() * 100 / characterHealth.GetMaxHealth(), LengthUnit.Percent);
+            }
         }
 
         public void ShowBossHud()
@@ -68,7 +74,15 @@ namespace AF
 
         public void HideBossHud()
         {
-            bossHud.rootVisualElement.style.display = DisplayStyle.None;
+            if (IsBossHUDEnabled())
+            {
+                bossHud.rootVisualElement.style.display = DisplayStyle.None;
+            }
+        }
+
+        bool IsBossHUDEnabled()
+        {
+            return bossHud != null && bossHud.enabled;
         }
 
         public void BeginBossBattle()
@@ -125,6 +139,11 @@ namespace AF
         void UpdateBossFlag()
         {
             flagsDatabase.AddFlag(monoBehaviourID.ID, "Boss killed: " + bossName);
+        }
+
+        public bool IsBoss()
+        {
+            return !string.IsNullOrEmpty(bossName);
         }
     }
 }

@@ -22,6 +22,7 @@ namespace AF.Companions
         [Header("Settings")]
         public float companionToPlayerStoppingDistance = 2f;
 
+#if UNITY_EDITOR 
         private void OnEnable()
         {
             // No need to populate the list; it's serialized directly
@@ -36,6 +37,7 @@ namespace AF.Companions
                 Clear();
             }
         }
+#endif
 
         public void AddToParty(string companionId)
         {

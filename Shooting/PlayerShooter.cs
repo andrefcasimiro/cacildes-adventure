@@ -67,15 +67,25 @@ namespace AF.Shooting
         {
             if (CanShoot())
             {
+
                 if (equipmentDatabase.IsBowEquipped() && equipmentDatabase.HasEnoughCurrentArrows())
                 {
                     ShootBow(equipmentDatabase.GetCurrentArrow(), transform, lockOnManager.nearestLockOnTarget?.transform);
+                    return;
                 }
-                else if (equipmentDatabase.IsStaffEquipped() && equipmentDatabase.GetCurrentSpell() != null)
+
+                PlayerManager playerManager = GetPlayerManager();
+
+                if (
+                   equipmentDatabase.IsStaffEquipped()
+                   && equipmentDatabase.GetCurrentSpell() != null
+                   && playerManager.manaManager.HasEnoughManaForSpell(equipmentDatabase.GetCurrentSpell()))
                 {
+                    playerManager.manaManager.DecreaseMana(equipmentDatabase.GetCurrentSpell().costPerCast);
+
                     HandleSpellCastAnimationOverrides();
 
-                    GetPlayerManager().PlayBusyHashedAnimationWithRootMotion(hashCast);
+                    playerManager.PlayBusyHashedAnimationWithRootMotion(hashCast);
                 }
             }
         }
@@ -195,7 +205,7 @@ namespace AF.Shooting
             FireProjectile(spell.spellCastParticle.gameObject, 0f, lockOnTarget);
         }
 
-        void FireProjectile(GameObject projectile, float originDistanceFromCamera, Transform lockOnTarget)
+        public void FireProjectile(GameObject projectile, float originDistanceFromCamera, Transform lockOnTarget)
         {
             Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
             Vector3 lookPosition = ray.direction;
@@ -212,7 +222,6 @@ namespace AF.Shooting
             {
                 lookPosition.y *= -1f;
             }
-
 
             componentProjectile.Shoot(characterBaseManager, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
 

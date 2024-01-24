@@ -1,4 +1,6 @@
 
+using AF.Events;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -48,6 +50,7 @@ namespace AF.Health
             if (CurrentHealth <= 0)
             {
                 PlayDeath();
+                EventManager.EmitEvent(EventMessages.ON_CHARACTER_KILLED);
                 onDeath?.Invoke();
             }
         }

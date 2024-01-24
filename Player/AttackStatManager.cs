@@ -266,5 +266,41 @@ namespace AF
             return Mathf.Ceil(playerStatsDatabase.dexterity * levelMultiplier + playerManager.statsBonusController.dexterityBonus * levelMultiplier);
         }
 
+        public Damage GetScaledSpellDamage(Damage spellDamage)
+        {
+            Weapon weapon = equipmentDatabase.GetCurrentWeapon();
+
+            if (weapon == null || weapon.weaponAttackType != WeaponAttackType.Staff)
+            {
+                return spellDamage;
+            }
+
+            if (spellDamage.physical > 0)
+            {
+                spellDamage.physical += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.physical / 2;
+            }
+
+            if (spellDamage.fire > 0)
+            {
+                spellDamage.fire += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.fire / 2;
+            }
+
+            if (spellDamage.frost > 0)
+            {
+                spellDamage.frost += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.frost / 2;
+            }
+
+            if (spellDamage.lightning > 0)
+            {
+                spellDamage.lightning += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.lightning / 2;
+            }
+
+            if (spellDamage.magic > 0)
+            {
+                spellDamage.magic += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.magic / 2;
+            }
+
+            return spellDamage;
+        }
     }
 }

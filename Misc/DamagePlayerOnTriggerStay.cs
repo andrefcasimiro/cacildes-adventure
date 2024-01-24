@@ -40,7 +40,6 @@ namespace AF
 
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;
-        public PlayerSpellManager playerSpellManager;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;

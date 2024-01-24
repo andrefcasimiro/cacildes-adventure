@@ -18,6 +18,7 @@ public class PickupDatabase : ScriptableObject
     [Header("Systems")]
     public WorldSettings worldSettings;
 
+#if UNITY_EDITOR 
     private void OnEnable()
     {
         // No need to populate the list; it's serialized directly
@@ -32,10 +33,12 @@ public class PickupDatabase : ScriptableObject
             Clear();
         }
     }
+#endif
 
     public void Clear()
     {
         pickups.Clear();
+        replenishables.Clear();
     }
 
     public void AddPickup(string pickupId, string pickupDescription)

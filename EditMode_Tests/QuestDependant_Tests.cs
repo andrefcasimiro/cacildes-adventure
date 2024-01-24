@@ -7,6 +7,9 @@ namespace AF.Tests
 
     public class QuestDependant_Tests : MonoBehaviour
     {
+        QuestsDatabase questsDatabase;
+        QuestParent questParent;
+
         QuestDependant questDependant;
         GameObject child1;
         GameObject child2;
@@ -17,48 +20,75 @@ namespace AF.Tests
             GameObject go = new();
             questDependant = go.AddComponent<QuestDependant>();
 
+            questsDatabase = ScriptableObject.CreateInstance<QuestsDatabase>();
+
+            questParent = ScriptableObject.CreateInstance<QuestParent>();
+            questDependant.questParent = questParent;
+
+            questParent.questObjectives = new[] { "First Objective", "Second Objective" };
+            questParent.questsDatabase = questsDatabase;
+
             // Add children
             child1 = Instantiate(new GameObject(), questDependant.transform);
             child2 = Instantiate(new GameObject(), questDependant.transform);
         }
 
         [Test]
-        public void ShouldActivateChildren_IfRequiredQuestStatusIs_Given()
+        public void ShouldManageChildrenBasedOnCorrectQuestProgressWithinRange()
         {
-            QuestParent questParent = ScriptableObject.CreateInstance<QuestParent>();
-            QuestStatus notGiven = new QuestStatus();
-            QuestStatus given = new QuestStatus();
+            questParent.SetProgress(-1);
 
-            questParent.currentQuestStatus = notGiven;
+            questDependant.shouldBeWithinRange = true;
+            questDependant.shouldBeOutsideRange = false;
+            questDependant.questProgresses = new[] { 0 };
 
-            // Arrange
-            var fromObjective = ScriptableObject.CreateInstance<QuestObjective>();
-            fromObjective.isCompleted = false;
-            var untilObjective = ScriptableObject.CreateInstance<QuestObjective>();
-            untilObjective.isCompleted = false;
-
-            questParent.questObjectives = new QuestObjective[] { fromObjective, untilObjective };
-
-            questDependant.questParent = questParent;
-
-            QuestsDatabase questsDatabase = ScriptableObject.CreateInstance<QuestsDatabase>();
-            questsDatabase.questStatusWhenQuestStarts = given;
-
-            questDependant.questStatuses = new[] { given };
-            questDependant.shouldContainAny = true;
-
-            // Quest Not Started: Objectives not started, don't show children
             questDependant.Evaluate();
             Assert.IsFalse(child1.activeSelf);
             Assert.IsFalse(child2.activeSelf);
 
-            // Receive quest
-            questsDatabase.AddQuest(questParent);
+            questParent.SetProgress(0);
 
             questDependant.Evaluate();
             Assert.IsTrue(child1.activeSelf);
             Assert.IsTrue(child2.activeSelf);
 
+            questParent.SetProgress(1);
+
+            questDependant.Evaluate();
+            Assert.IsFalse(child1.activeSelf);
+            Assert.IsFalse(child2.activeSelf);
+        }
+
+        [Test]
+        public void ShouldManageChildrenBasedOnCorrectQuestProgressOutsideRange()
+        {
+            questDependant.shouldBeWithinRange = false;
+            questDependant.shouldBeOutsideRange = true;
+            questDependant.questProgresses = new[] { 0 };
+
+            questParent.SetProgress(-1);
+
+            questDependant.Evaluate();
+            Assert.IsTrue(child1.activeSelf);
+            Assert.IsTrue(child2.activeSelf);
+
+            questParent.SetProgress(0);
+
+            questDependant.Evaluate();
+            Assert.IsFalse(child1.activeSelf);
+            Assert.IsFalse(child2.activeSelf);
+
+            questParent.SetProgress(1);
+
+            questDependant.Evaluate();
+            Assert.IsTrue(child1.activeSelf);
+            Assert.IsTrue(child2.activeSelf);
+
+            questParent.SetProgress(2);
+
+            questDependant.Evaluate();
+            Assert.IsTrue(child1.activeSelf);
+            Assert.IsTrue(child2.activeSelf);
         }
     }
 }

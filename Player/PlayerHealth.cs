@@ -16,7 +16,11 @@ namespace AF
 
         private void Awake()
         {
-            playerStatsDatabase.currentHealth = GetMaxHealth();
+            // Initialize Health
+            if (playerStatsDatabase.currentHealth == -1)
+            {
+                playerStatsDatabase.currentHealth = GetMaxHealth();
+            }
         }
 
         public override int GetMaxHealth()
@@ -24,15 +28,9 @@ namespace AF
             return maxHealth + (int)((playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus) * levelMultiplier);
         }
 
-        public void SubtractAmount(float amount)
-        {
-            playerStatsDatabase.currentHealth = Mathf.Clamp(
-                playerStatsDatabase.currentHealth - amount, 0, GetMaxHealth());
-        }
-
         public void SubtractAmountMultipliedByTimeDeltaTime(float amount)
         {
-            SubtractAmount(amount * Time.deltaTime);
+            TakeDamage(amount * Time.deltaTime);
         }
 
         public void RestoreHealthPercentage(int amount)
@@ -71,8 +69,28 @@ namespace AF
 
             if (GetCurrentHealth() <= 0)
             {
-                onDeath?.Invoke();
+                HandleDeath();
             }
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="amount"></param>
+        public void TakeDamageWithoutOnTakeDamageEvent(float amount)
+        {
+            playerStatsDatabase.currentHealth = Mathf.Clamp(
+                playerStatsDatabase.currentHealth - amount, 0, GetMaxHealth());
+
+            if (GetCurrentHealth() <= 0)
+            {
+                HandleDeath();
+            }
+        }
+
+        void HandleDeath()
+        {
+            onDeath?.Invoke();
         }
 
         public override float GetCurrentHealth()

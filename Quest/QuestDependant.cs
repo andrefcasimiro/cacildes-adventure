@@ -9,11 +9,11 @@ namespace AF.Quests
     {
         public QuestParent questParent;
 
-        public QuestStatus[] questStatuses;
+        public int[] questProgresses;
 
         [Header("Quest Status Options")]
-        public bool shouldContainAny = true;
-        public bool shouldNotContainAny = false;
+        public bool shouldBeWithinRange = true;
+        public bool shouldBeOutsideRange = false;
 
         [Header("Settings")]
         public bool listenForQuestChanges = true;
@@ -29,7 +29,7 @@ namespace AF.Quests
 
             if (listenForQuestChanges)
             {
-                EventManager.StartListening(EventMessages.ON_QUEST_STATUS_CHANGED, Evaluate);
+                EventManager.StartListening(EventMessages.ON_QUESTS_PROGRESS_CHANGED, Evaluate);
             }
         }
 
@@ -37,13 +37,13 @@ namespace AF.Quests
         {
             bool isActive = false;
 
-            if (shouldContainAny)
+            if (shouldBeWithinRange)
             {
-                isActive = questStatuses.Contains(questParent.currentQuestStatus);
+                isActive = questProgresses.Contains(questParent.questProgress);
             }
-            else if (shouldNotContainAny)
+            else if (shouldBeOutsideRange)
             {
-                isActive = !questStatuses.Contains(questParent.currentQuestStatus);
+                isActive = !questProgresses.Contains(questParent.questProgress);
             }
 
             Utils.UpdateTransformChildren(transform, isActive);

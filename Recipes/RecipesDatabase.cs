@@ -12,6 +12,8 @@ public class RecipesDatabase : ScriptableObject
     [Header("Settings")]
     public bool shouldClearOnExitPlayMode = false;
 
+#if UNITY_EDITOR 
+
     private void OnEnable()
     {
         // No need to populate the list; it's serialized directly
@@ -25,6 +27,7 @@ public class RecipesDatabase : ScriptableObject
             Clear();
         }
     }
+#endif
 
     void Clear()
     {

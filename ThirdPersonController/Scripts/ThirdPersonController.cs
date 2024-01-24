@@ -698,5 +698,14 @@ namespace AF
             return Mathf.Clamp(lfAngle, lfMin, lfMax);
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetCanRotateCharacter(bool value)
+        {
+            this.canRotateCharacter = value;
+        }
+
     }
 }

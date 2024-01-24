@@ -59,7 +59,7 @@ namespace AF
                 return false;
             }
 
-            return (characterManager.characterPosture.currentPostureDamage + (int)(damage.postureDamage * blockMultiplier)) < characterManager.characterPosture.maxPostureDamage;
+            return (characterManager.characterPosture.currentPostureDamage + (int)(damage.postureDamage * blockMultiplier)) < characterManager.characterPosture.GetMaxPostureDamage();
         }
 
         public void BeginParrying()

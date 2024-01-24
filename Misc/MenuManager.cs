@@ -90,12 +90,12 @@ namespace AF
         {
             isMenuOpen = false;
 
-            cursorManager.HideCursor();
-
             CloseMenuViews();
 
             playerManager.thirdPersonController.LockCameraPosition = false;
             onMenuClose?.Invoke();
+
+            cursorManager.HideCursor();
         }
 
         void CloseMenuViews()

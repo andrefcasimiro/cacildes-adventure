@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Linq;
 using AF.Events;
 using TigerForge;
@@ -16,11 +16,14 @@ namespace AF
 
         public Texture questIcon;
 
-        public QuestObjective[] questObjectives;
+        public string[] questObjectives;
 
-        public QuestStatus currentQuestStatus;
+        public int questProgress = -1;
 
-        public QuestStatus defaultQuestStatus;
+        [Header("Databases")]
+        public QuestsDatabase questsDatabase;
+
+#if UNITY_EDITOR 
 
         private void OnEnable()
         {
@@ -32,19 +35,43 @@ namespace AF
         {
             if (state == PlayModeStateChange.ExitingPlayMode)
             {
-                this.currentQuestStatus = defaultQuestStatus;
+                questProgress = -1;
             }
         }
+#endif
 
-        public bool AllObjectivesAreCompleted()
+        public bool IsCompleted()
         {
-            return questObjectives.All(questObjective => questObjective.isCompleted);
+            return questProgress + 1 > questObjectives.Length;
         }
 
-        public void SetQuestStatus(QuestStatus questStatus)
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="progress"></param>
+        public void SetProgress(int progress)
         {
-            this.currentQuestStatus = questStatus;
-            EventManager.EmitEvent(EventMessages.ON_QUEST_STATUS_CHANGED);
+            if (!questsDatabase.ContainsQuest(this) && progress != -1)
+            {
+                questsDatabase.AddQuest(this);
+            }
+
+            questProgress = progress;
+
+            EventManager.EmitEvent(EventMessages.ON_QUESTS_PROGRESS_CHANGED);
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void Track()
+        {
+            questsDatabase.SetQuestToTrack(this);
+        }
+
+        public bool IsObjectiveCompleted(string questObjective)
+        {
+            return questProgress > Array.IndexOf(questObjectives, questObjective);
         }
     }
 }

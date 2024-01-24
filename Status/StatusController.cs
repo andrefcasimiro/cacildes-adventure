@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using AYellowpaper;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -28,20 +29,13 @@ namespace AF.StatusEffects
         public SerializedDictionary<StatusEffect, StatusEffectInstance> statusEffectInstances;
 
         [Header("UI")]
-        public GameObject statusEffectUIGameObject;
-        IStatusEffectUI statusEffectUI;
+        public InterfaceReference<IStatusEffectUI, MonoBehaviour> statusEffectUI;
 
         [Header("Unity Events")]
         public UnityEvent onAwake;
 
         private void Awake()
         {
-            statusEffectUIGameObject.TryGetComponent(out statusEffectUI);
-            if (statusEffectUI == null)
-            {
-                Debug.Log("No Status Effect UI given to status controller. Please add a gameobject with one!");
-            }
-
             onAwake?.Invoke();
         }
 
@@ -58,6 +52,14 @@ namespace AF.StatusEffects
         public void InflictStatusEffect(StatusEffect statusEffect, float amount, bool hasReachedFullAmount)
         {
             var existingStatusEffectIndex = appliedStatusEffects.FindIndex(x => x.statusEffect == statusEffect);
+
+            // If inflicted amount is greater than the character's maximum resistance, make him suffer the status effect
+            float maximumResistanceToStatusEffect = GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect);
+            if (amount >= maximumResistanceToStatusEffect)
+            {
+                amount = maximumResistanceToStatusEffect;
+                hasReachedFullAmount = true;
+            }
 
             if (existingStatusEffectIndex == -1)
             {
@@ -130,8 +132,13 @@ namespace AF.StatusEffects
             };
 
             appliedStatusEffects.Add(appliedStatus);
+            statusEffectUI.Value.AddEntry(appliedStatus, GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect));
 
-            statusEffectUI.AddEntry(appliedStatus, GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect));
+            StatusEffectInstance statusEffectInstance = GetStatusEffectInstance(statusEffect);
+            if (statusEffectInstance != null && appliedStatus.hasReachedTotalAmount)
+            {
+                statusEffectInstance.onApplied_Start?.Invoke();
+            }
         }
 
         private void HandleStatusEffects()
@@ -145,19 +152,17 @@ namespace AF.StatusEffects
                     ? entry.statusEffect.decreaseRateWithDamage
                     : entry.statusEffect.decreaseRateWithoutDamage) * Time.deltaTime;
 
-                statusEffectUI.UpdateEntry(entry, GetMaximumStatusResistanceBeforeSufferingStatusEffect(entry.statusEffect));
+                statusEffectUI.Value.UpdateEntry(entry, GetMaximumStatusResistanceBeforeSufferingStatusEffect(entry.statusEffect));
 
                 if (ShouldRemove(entry))
                 {
                     statusToDelete.Add(entry);
                 }
-                else
+
+                StatusEffectInstance statusEffectInstance = GetStatusEffectInstance(entry.statusEffect);
+                if (entry.hasReachedTotalAmount && statusEffectInstance != null)
                 {
-                    StatusEffectInstance statusEffectInstance = GetStatusEffectInstance(entry.statusEffect);
-                    if (entry.hasReachedTotalAmount && statusEffectInstance != null)
-                    {
-                        statusEffectInstance.onApplied_Update?.Invoke();
-                    }
+                    statusEffectInstance.onApplied_Update?.Invoke();
                 }
             }
 
@@ -200,7 +205,7 @@ namespace AF.StatusEffects
                 statusEffectInstance.onApplied_End?.Invoke();
             }
 
-            statusEffectUI.RemoveEntry(appliedStatus);
+            statusEffectUI.Value.RemoveEntry(appliedStatus);
             appliedStatusEffects.Remove(appliedStatus);
         }
 
