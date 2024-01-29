@@ -113,7 +113,7 @@ namespace AF.UI.EquipmentMenu
             }
 
             tooltipItemSprite.style.backgroundImage = new StyleBackground(item.sprite);
-            tooltipItemDescription.text = item.name.GetEnglishText().ToUpper() + " \n" + '"' + item.itemDescription + '"';
+            tooltipItemDescription.text = item.name.ToUpper() + " \n" + '"' + item.itemDescription + '"';
 
             if (item is Weapon weapon)
             {
@@ -190,12 +190,6 @@ namespace AF.UI.EquipmentMenu
                 {
                     tooltipWeaponType.Q<Label>().text = $"Damage Type: Slash";
                     tooltipWeaponType.style.display = DisplayStyle.Flex;
-                }
-
-                if (weapon.weaponSpecial != null)
-                {
-                    tooltipWeaponSpecial.Q<Label>().text = weapon.weaponSpecialDescription.GetEnglishText();
-                    tooltipWeaponSpecial.style.display = DisplayStyle.Flex;
                 }
 
                 string strengthScaling = $"+{strengthAttackBonus} Attack [{weapon.strengthScaling}] (Strength Scaling)";
@@ -341,13 +335,13 @@ namespace AF.UI.EquipmentMenu
 
             if (item is Accessory accessory)
             {
-                tooltipAccessoryProperty.Q<Label>().text = accessory.shortDescription.GetEnglishText();
+                tooltipAccessoryProperty.Q<Label>().text = accessory.shortDescription;
                 tooltipAccessoryProperty.style.display = DisplayStyle.Flex;
             }
 
             if (item is Consumable consumable && item is not ConsumableProjectile)
             {
-                tooltipConsumableEffect.Q<Label>().text = consumable.shortDescription.GetEnglishText();
+                tooltipConsumableEffect.Q<Label>().text = consumable.shortDescription;
                 tooltipConsumableEffect.style.display = DisplayStyle.Flex;
             }
 

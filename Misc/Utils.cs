@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem;
-using UnityEngine.PlayerLoop;
 
 namespace AF
 {
@@ -66,6 +64,66 @@ namespace AF
             }
         }
 
-    }
+        public static string GetItemPath(Item item)
+        {
+            var prefix = "Items/";
 
+            var subFolder = "";
+
+            if (item is Accessory)
+            {
+                subFolder = "Accessories/";
+            }
+            else if (item is CraftingMaterial)
+            {
+                subFolder = "Alchemy/";
+            }
+            else if (item is Armor)
+            {
+                subFolder = "Armors/";
+            }
+            else if (item is Arrow)
+            {
+                subFolder = "Arrows/";
+            }
+            else if (item is Consumable)
+            {
+                subFolder = "Consumables/";
+            }
+            else if (item is ConsumableProjectile)
+            {
+                subFolder = "Consumables/";
+            }
+            else if (item is ConsumableProjectile)
+            {
+                subFolder = "Consumables/";
+            }
+            else if (item is Helmet)
+            {
+                subFolder = "Helmets/";
+            }
+            else if (item is Legwear)
+            {
+                subFolder = "Legwears/";
+            }
+            else if (item is Shield)
+            {
+                subFolder = "Shields/";
+            }
+            else if (item is Spell)
+            {
+                subFolder = "Spells/";
+            }
+            else if (item is Weapon)
+            {
+                subFolder = "Weapons/";
+            }
+            else if (item is KeyItem || item is Item)
+            {
+                subFolder = "KeyItems/";
+            }
+
+            return prefix + subFolder + item.name;
+        }
+    }
 }

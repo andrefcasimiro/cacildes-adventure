@@ -8,14 +8,12 @@ namespace AF
 
     public class Achievement : ScriptableObject
     {
-
         [TextArea] public string description;
 
         public void AwardAchievement()
         {
             try
             {
-
                 if (!SteamManager.Initialized)
                 {
                     return;

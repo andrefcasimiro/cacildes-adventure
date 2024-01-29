@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using AF.Music;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -42,7 +41,7 @@ namespace AF
             if (showNotificationText)
             {
                 soundbank.PlaySound(soundbank.uiItemReceived);
-                notificationManager.ShowNotification("Found x" + amount + " " + item.name.GetEnglishText() + "", item.sprite);
+                notificationManager.ShowNotification("Found x" + amount + " " + item.name + "", item.sprite);
             }
 
             yield return null;

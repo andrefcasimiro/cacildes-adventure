@@ -7,7 +7,7 @@ namespace AF
     public class Accessory : ArmorBase
     {
         [Header("UI")]
-        public LocalizedText smallEffectDescription;
+        public string smallEffectDescription;
 
         [Header("Stat Bonuses")]
         public int healthBonus = 0;
@@ -34,15 +34,5 @@ namespace AF
         public bool chanceToSurviveDeath = false;
         public bool chanceToDoubleCoinsFromFallenEnemies = false;
 
-        public void OnEquip()
-        {
-        }
-
-        public void OnUnequip()
-        {
-
-        }
-
     }
-
 }

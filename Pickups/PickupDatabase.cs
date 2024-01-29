@@ -16,7 +16,7 @@ public class PickupDatabase : ScriptableObject
     public SerializedDictionary<string, ReplenishableTime> replenishables = new();
 
     [Header("Systems")]
-    public WorldSettings worldSettings;
+    public GameSession gameSession;
 
 #if UNITY_EDITOR 
     private void OnEnable()
@@ -63,7 +63,7 @@ public class PickupDatabase : ScriptableObject
     {
         if (!ContainsReplenishable(id))
         {
-            replenishables.Add(id, new() { daysToRespawn = daysToRespawn, dayThatWasPickedUp = worldSettings.daysPassed });
+            replenishables.Add(id, new() { daysToRespawn = daysToRespawn, dayThatWasPickedUp = gameSession.daysPassed });
         }
     }
 
@@ -76,7 +76,7 @@ public class PickupDatabase : ScriptableObject
     {
         foreach (var Entry in replenishables.ToList())
         {
-            if (worldSettings.daysPassed > Entry.Value.dayThatWasPickedUp + Entry.Value.daysToRespawn)
+            if (gameSession.daysPassed > Entry.Value.dayThatWasPickedUp + Entry.Value.daysToRespawn)
             {
                 replenishables.Remove(Entry.Key);
             }

@@ -1,5 +1,4 @@
 using System.Collections;
-using UnityEngine;
 
 namespace AF
 {
@@ -11,9 +10,7 @@ namespace AF
 
         public override IEnumerator Dispatch()
         {
-
             dayNightManager.SetTimeOfDay(hour, 0);
-
             yield return null;
         }
     }

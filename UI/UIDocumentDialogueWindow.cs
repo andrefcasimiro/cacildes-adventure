@@ -9,34 +9,6 @@ using AF.Dialogue;
 
 namespace AF
 {
-    // Deprecate
-    [System.Serializable]
-    public class DialogueChoice
-    {
-        public LocalizedText choiceText;
-
-        [Header("Use Sub Events")]
-        public GameObject subEventPage;
-
-        [Header("Use Quick Response")]
-        public Character replier;
-        public LocalizedText response;
-        public UnityEvent onResponseFinished;
-
-        [Header("Depends on Switch?")]
-        public SwitchEntry switchEntry;
-        public bool switchValue = false;
-
-        public SwitchEntry switchEntry2;
-        public bool switchValue2;
-
-
-        [Header("Reputation")]
-        public int reputationAmountToIncrease = 0;
-        public int reputationAmountToDecrease = 0;
-        public SwitchEntry reputationSwitchEntry;
-    }
-
     public class UIDocumentDialogueWindow : MonoBehaviour
     {
         [Header("UI Documents")]
@@ -176,10 +148,10 @@ namespace AF
                 actorNameLabel.style.display = DisplayStyle.None;
             }
 
-            if (character != null && string.IsNullOrEmpty(character.title.GetEnglishText()) == false)
+            if (character != null && string.IsNullOrEmpty(character.title) == false)
             {
                 actorTitleLabel.style.display = DisplayStyle.Flex;
-                actorTitleLabel.text = character.title.GetEnglishText();
+                actorTitleLabel.text = character.title;
             }
             else
             {

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 namespace AF
 {
@@ -7,22 +6,19 @@ namespace AF
     public class Item : ScriptableObject
     {
 
-
         [Header("General")]
         public Sprite sprite;
         [TextAreaAttribute(minLines: 5, maxLines: 10)] public string itemDescription;
         public float value = 0;
         public bool lostUponUse = true;
 
-
-
-        public new LocalizedText name;
+        public new string name;
 
         [Header("Descriptions")]
 
-        public LocalizedText description;
+        public string description;
 
-        public LocalizedText shortDescription;
+        public string shortDescription;
 
         [TextAreaAttribute(minLines: 5, maxLines: 10)] public string notes;
 

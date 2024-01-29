@@ -8,9 +8,6 @@ namespace AF
         VisualElement root => GetComponent<UIDocument>().rootVisualElement;
         UIDocumentTitleScreen uIDocumentTitleScreen;
 
-        [Header("Localization")]
-        public LocalizedText optionsLabel;
-
         ViewComponent_GameSettings viewComponent_GameSettings => GetComponent<ViewComponent_GameSettings>();
 
         [Header("Components")]
@@ -50,9 +47,9 @@ namespace AF
 
         void TranslateUI()
         {
-            root.Q<Label>("Title").text = optionsLabel.GetEnglishText();
-
+            root.Q<Label>("Title").text = "Options";
         }
+
         void Close()
         {
             uIDocumentTitleScreen.gameObject.SetActive(true);

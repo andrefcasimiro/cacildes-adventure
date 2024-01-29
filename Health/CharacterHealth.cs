@@ -2,6 +2,7 @@
 using AF.Events;
 using TigerForge;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 
 namespace AF.Health
@@ -23,6 +24,8 @@ namespace AF.Health
         }
 
         [Header("Events")]
+        public UnityEvent onHalfHealth;
+        bool hasRunHalthHealthEvent = false;
         public UnityEvent onRevive;
 
         public void Awake()
@@ -45,6 +48,13 @@ namespace AF.Health
             }
 
             CurrentHealth -= value;
+
+            if (hasRunHalthHealthEvent == false && CurrentHealth <= GetMaxHealth() / 2)
+            {
+                hasRunHalthHealthEvent = true;
+                onHalfHealth?.Invoke();
+            }
+
             onTakeDamage?.Invoke();
 
             if (CurrentHealth <= 0)
@@ -72,6 +82,7 @@ namespace AF.Health
 
         public void Revive()
         {
+            hasRunHalthHealthEvent = false;
             RestoreFullHealth();
             onRevive?.Invoke();
         }

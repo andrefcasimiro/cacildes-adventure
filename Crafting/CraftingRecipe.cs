@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,11 +15,10 @@ namespace AF
     public class CraftingRecipe : ScriptableObject
     {
         [Header("!! English name must match filename")]
-        public new LocalizedText name;
+        public new string name;
 
         public Item resultingItem;
 
         public List<CraftingIngredientEntry> ingredients = new List<CraftingIngredientEntry>();
     }
-
 }

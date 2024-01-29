@@ -47,7 +47,7 @@ namespace AF.Pickups
             }
 
             notificationManager.ShowNotification(
-                requiredItem.name.GetEnglishText() + " was lost with use.",
+                requiredItem.name + " was lost with use.",
                 notificationManager.systemError
             );
 

@@ -19,7 +19,7 @@ namespace AF
 
 
         [Header("Systems")]
-        public WorldSettings worldSettings;
+        public GameSession gameSession;
 
         private void Awake()
         {
@@ -40,11 +40,11 @@ namespace AF
             // If appear until is after midnight, it may become smaller than appearFrom (i. e. appear from 17 until 4)
             if (startHour > endHour)
             {
-                isActive = worldSettings.timeOfDay >= startHour && worldSettings.timeOfDay <= 24 || (worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay <= endHour);
+                isActive = gameSession.timeOfDay >= startHour && gameSession.timeOfDay <= 24 || (gameSession.timeOfDay >= 0 && gameSession.timeOfDay <= endHour);
             }
             else
             {
-                isActive = worldSettings.timeOfDay >= startHour && worldSettings.timeOfDay <= endHour;
+                isActive = gameSession.timeOfDay >= startHour && gameSession.timeOfDay <= endHour;
             }
 
             if (clockDependency == ClockDependency.OUTSIDE_RANGE)

@@ -17,7 +17,7 @@ namespace AF
         [System.Serializable]
         public class CreditsSection
         {
-            public LocalizedText sectionTitle;
+            public string sectionTitle;
             public CreditEntry[] creditEntry;
         }
 

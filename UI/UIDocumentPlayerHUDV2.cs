@@ -218,7 +218,7 @@ namespace AF
             if (equipmentDatabase.IsBowEquipped())
             {
                 arrowsLabel.text = equipmentDatabase.GetCurrentArrow() != null
-                    ? equipmentDatabase.GetCurrentArrow().name.GetEnglishText() + " (" + inventoryDatabase.GetItemAmount(equipmentDatabase.GetCurrentArrow()) + ")"
+                    ? equipmentDatabase.GetCurrentArrow().name + " (" + inventoryDatabase.GetItemAmount(equipmentDatabase.GetCurrentArrow()) + ")"
                     : "";
 
                 spellSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentArrow() != null
@@ -245,7 +245,7 @@ namespace AF
                 : new StyleBackground(unequippedWeaponSlot);
 
             quickItemName.text = equipmentDatabase.GetCurrentConsumable() != null ?
-                equipmentDatabase.GetCurrentConsumable().name.GetEnglishText() + $" ({inventoryDatabase.GetItemAmount(equipmentDatabase.GetCurrentConsumable())})"
+                equipmentDatabase.GetCurrentConsumable().name + $" ({inventoryDatabase.GetItemAmount(equipmentDatabase.GetCurrentConsumable())})"
                 : "";
 
             consumableSlotContainer.style.backgroundImage = equipmentDatabase.GetCurrentConsumable() != null

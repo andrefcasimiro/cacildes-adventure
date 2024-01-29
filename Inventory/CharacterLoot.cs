@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using AF.Inventory;
 using AF.Stats;
 using AYellowpaper.SerializedCollections;
@@ -18,20 +19,16 @@ namespace AF
         public int bonusGold = 0;
 
         [Header("Components")]
-
+        public CharacterManager lootOwner;
         public PlayerManager playerManager;
         public NotificationManager notificationManager;
-
 
         public StatsBonusController playerStatsBonusController;
         public Soundbank soundbank;
 
         [Header("UI Components")]
         public UIDocumentPlayerGold uIDocumentPlayerGold;
-        public UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt1;
-
-        [Header("Databases")]
-        public PlayerStatsDatabase playerStatsDatabase;
+        public UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
 
         public void GiveLoot()
         {
@@ -91,44 +88,32 @@ namespace AF
                 }
             }
 
-            UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt = null;
-            bool isBoss = false; //enemyBossController != null;
+            bool isBoss = lootOwner.characterBossController.IsBoss();
 
-            if (isBoss)
-            {
-                uIDocumentReceivedItemPrompt = FindObjectOfType<UIDocumentReceivedItemPrompt>(true);
-
-                if (uIDocumentReceivedItemPrompt != null)
-                {
-                    //uIDocumentReceivedItemPrompt.itemsUI.Clear();
-                }
-            }
-
+            List<UIDocumentReceivedItemPrompt.ItemsReceived> itemsToDisplay = new();
             foreach (var item in itemsToReceive)
             {
                 playerManager.playerInventory.AddItem(item.Key, item.Value.amount);
 
                 if (isBoss && uIDocumentReceivedItemPrompt != null)
                 {
-                    UIDocumentReceivedItemPrompt.ItemsReceived itemReceived = new UIDocumentReceivedItemPrompt.ItemsReceived();
-
-                    itemReceived.itemName = item.Key.name.GetEnglishText();
-                    itemReceived.quantity = 1;
-                    itemReceived.sprite = item.Key.sprite;
+                    itemsToDisplay.Add(new()
+                    {
+                        itemName = item.Key.name,
+                        quantity = 1,
+                        sprite = item.Key.sprite
+                    });
                 }
                 else
                 {
-                    notificationManager.ShowNotification("Found " + item.Key.name.GetEnglishText(), item.Key.sprite);
+                    notificationManager.ShowNotification("Found " + item.Key.name, item.Key.sprite);
                 }
             }
 
-            /*
-                        if (isBoss && itemsToReceive.Count > 0)
-                        {
-                            uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
-                            uIDocumentReceivedItemPrompt.DisplayItemsReceived(itemsToDisplay);
-                        }*/
+            if (isBoss && itemsToDisplay.Count > 0)
+            {
+                uIDocumentReceivedItemPrompt.DisplayItemsReceived(itemsToDisplay);
+            }
         }
-
     }
 }

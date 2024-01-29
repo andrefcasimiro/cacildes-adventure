@@ -14,12 +14,8 @@ namespace AF
 
         public override IEnumerator Dispatch()
         {
-
             bgmManager.PlaySound(soundClip, audioSource);
-
             yield return null;
-
         }
     }
-
 }

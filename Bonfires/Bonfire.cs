@@ -1,22 +1,24 @@
-using System.Collections;
 using AF.Events;
 using AF.Health;
 using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace AF
+namespace AF.Bonfires
 {
     public class Bonfire : MonoBehaviour
     {
+        // Animations
+        public readonly int sittingAtBonfireHash = Animator.StringToHash("Sitting At Bonfire");
+        public readonly int exitingBonfireHash = Animator.StringToHash("Exit Bonfire");
+
         [Header("Events")]
         public UnityEvent onBonfire_Enter;
         public UnityEvent onBonfire_Exit;
 
         [Header("UI")]
         public UIDocumentBonfireMenu uiDocumentBonfireMenu;
-        public LocalizedText bonfireName;
-
+        public string bonfireName;
 
         [HideInInspector]
         public bool canBeTravelledTo = true;
@@ -69,13 +71,14 @@ namespace AF
 
             onBonfire_Enter?.Invoke();
             playerManager.ResetStates();
+            playerManager.PlayBusyHashedAnimationWithRootMotion(sittingAtBonfireHash);
             CurePlayer();
 
             playerManager.playerInventory.ReplenishItems();
 
             if (canBeTravelledTo)
             {
-                UnlockBonfire(bonfireName.GetEnglishText());
+                UnlockBonfire(bonfireName);
             }
 
             // Find all active enemies in scene
@@ -120,8 +123,8 @@ namespace AF
             CurePlayer();
 
             onBonfire_Exit?.Invoke();
-
             SetPlayerLockState(false);
+            playerManager.PlayBusyHashedAnimationWithRootMotion(exitingBonfireHash);
 
             cursorManager.HideCursor();
         }

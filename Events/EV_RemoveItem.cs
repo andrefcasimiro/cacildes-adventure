@@ -39,7 +39,7 @@ namespace AF
             {
                 soundbank.PlaySound(soundbank.uiCancel);
 
-                notificationManager.ShowNotification("Used x" + amount + " " + item.name.GetEnglishText() + "", item.sprite);
+                notificationManager.ShowNotification("Used x" + amount + " " + item.name + "", item.sprite);
             }
 
             yield return null;

@@ -130,12 +130,6 @@ namespace AF
         [Tooltip("Will be added as a negative speed to the animator when equipped")]
         public float speedPenalty = 0f;
 
-        [Header("Weapon Special Attack")]
-        public GameObject weaponSpecial;
-        public LocalizedText weaponSpecialDescription;
-        public bool parentWeaponSpecialToPlayer = true;
-        public bool instatiateOnGround = false;
-
         [Header("Weapon Bonus")]
         public int amountOfGoldReceivedPerHit = 0;
         public bool doubleDamageDuringNightTime = false;
@@ -153,16 +147,6 @@ namespace AF
 
         [Header("Is Holy?")]
         public bool isHolyWeapon = false;
-
-        public string GetWeaponDisplayName()
-        {
-            return this.name.GetEnglishText() + (level > 1 ? " +" + level : "");
-        }
-
-        public string GetWeaponEnglishName()
-        {
-            return this.name.GetEnglishText() + (level > 1 ? " +" + level : "");
-        }
 
         public int CalculateValue(int baseValue, int currentLevel)
         {

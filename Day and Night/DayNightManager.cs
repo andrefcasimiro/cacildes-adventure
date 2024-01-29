@@ -1,10 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using AF.Events;
 using TigerForge;
 using UnityEngine;
-using UnityEngine.Playables;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -12,10 +8,10 @@ namespace AF
     [ExecuteInEditMode]
     public class DayNightManager : MonoBehaviour
     {
-
         public Light directionalLight;
 
         [Header("Scene Light")]
+        public bool useOverride = false;
         public Gradient AmbientColor;
         public Gradient DirectionalColor;
         public bool useFog = true;
@@ -37,7 +33,6 @@ namespace AF
 
         [Header("UI")]
         public UIDocumentPlayerHUDV2 uIDocumentPlayerHUDV2;
-
         public Sprite dawnSprite;
         public Sprite daySprite;
         public Sprite eveningSprite;
@@ -49,7 +44,7 @@ namespace AF
         public bool canUpdateLighting = true;
 
         [Header("Systems")]
-        public WorldSettings worldSettings;
+        public GameSession gameSession;
 
         private void Start()
         {
@@ -61,7 +56,7 @@ namespace AF
         /// </summary>
         public void AdvanceOneHour()
         {
-            SetHour((int)(worldSettings.timeOfDay + 1));
+            SetHour((int)(gameSession.timeOfDay + 1));
         }
 
         /// <summary>
@@ -69,7 +64,7 @@ namespace AF
         /// </summary>
         public void GoBackOneHour()
         {
-            var targetHour = (int)worldSettings.timeOfDay - 1;
+            var targetHour = (int)gameSession.timeOfDay - 1;
             if (targetHour < 0)
             {
                 targetHour = 23;
@@ -91,8 +86,8 @@ namespace AF
 
         void _SetInternalTimeOfDay(float newValue)
         {
-            var oldHour = Mathf.Round(worldSettings.timeOfDay);
-            worldSettings.timeOfDay = newValue;
+            var oldHour = Mathf.Round(gameSession.timeOfDay);
+            gameSession.timeOfDay = newValue;
 
 
             if (oldHour != Mathf.Round(newValue))
@@ -101,26 +96,28 @@ namespace AF
             }
         }
 
-        private void Update()
+        private void OnEnable()
         {
             if (dayNightIcon == null || dayNightText == null)
             {
-                var root = FindObjectOfType<UIDocumentPlayerHUDV2>(true).root;
+                var root = uIDocumentPlayerHUDV2.root;
                 if (root != null)
                 {
                     dayNightIcon = root.Q<IMGUIContainer>("DayTimeIcon");
                     dayNightText = root.Q<VisualElement>("Clock").Q<Label>("Value");
                 }
             }
+        }
 
+        private void Update()
+        {
             if (Application.isPlaying)
             {
-
-                var newTimeOfDayValue = worldSettings.timeOfDay;
+                var newTimeOfDayValue = gameSession.timeOfDay;
 
                 if (TimePassageAllowed() && tick)
                 {
-                    newTimeOfDayValue += ((Time.deltaTime * worldSettings.daySpeed));
+                    newTimeOfDayValue += Time.deltaTime * gameSession.daySpeed;
                 }
 
                 var copy = newTimeOfDayValue;
@@ -130,18 +127,17 @@ namespace AF
 
                 if (copy >= 24 && newTimeOfDayValue >= 0 && newTimeOfDayValue < 23)
                 {
-                    worldSettings.daysPassed++;
+                    gameSession.daysPassed++;
                 }
 
 
                 _SetInternalTimeOfDay(newTimeOfDayValue);
-
             }
 
 
             if (canUpdateLighting)
             {
-                UpdateLighting(worldSettings.timeOfDay / 24f);
+                UpdateLighting(gameSession.timeOfDay / 24f);
             }
 
             ShowClockText();
@@ -160,8 +156,8 @@ namespace AF
                 return;
             }
 
-            var hour = (int)(worldSettings.timeOfDay);
-            var minutes = Mathf.Abs(hour - worldSettings.timeOfDay) * 60;
+            var hour = (int)gameSession.timeOfDay;
+            var minutes = Mathf.Abs(hour - gameSession.timeOfDay) * 60;
             minutes = (int)System.Math.Round(minutes, 2);
             string hourString = hour.ToString();
             if (hourString.Length == 1)
@@ -190,19 +186,19 @@ namespace AF
                 return;
             }
 
-            if (worldSettings.timeOfDay >= 5 && worldSettings.timeOfDay < 8)
+            if (gameSession.timeOfDay >= 5 && gameSession.timeOfDay < 8)
             {
                 dayNightIcon.style.backgroundImage = new StyleBackground(dawnSprite);
             }
-            else if (worldSettings.timeOfDay > 8 && worldSettings.timeOfDay < 17)
+            else if (gameSession.timeOfDay > 8 && gameSession.timeOfDay < 17)
             {
                 dayNightIcon.style.backgroundImage = new StyleBackground(daySprite);
             }
-            else if (worldSettings.timeOfDay > 17 && worldSettings.timeOfDay < 21)
+            else if (gameSession.timeOfDay > 17 && gameSession.timeOfDay < 21)
             {
                 dayNightIcon.style.backgroundImage = new StyleBackground(eveningSprite);
             }
-            else if (worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay < 5 || worldSettings.timeOfDay > 21 && worldSettings.timeOfDay <= 24)
+            else if (gameSession.timeOfDay >= 0 && gameSession.timeOfDay < 5 || gameSession.timeOfDay > 21 && gameSession.timeOfDay <= 24)
             {
                 dayNightIcon.style.backgroundImage = new StyleBackground(nightSprite);
             }
@@ -210,37 +206,37 @@ namespace AF
 
         void UpdateLighting(float timePercent)
         {
-            if (worldSettings.timeOfDay >= 7 && worldSettings.timeOfDay < 18f)
+            if (gameSession.timeOfDay >= 7 && gameSession.timeOfDay < 18f)
             {
                 RenderSettings.skybox = daySky;
             }
-            else if (worldSettings.timeOfDay >= 18f && worldSettings.timeOfDay < 20)
+            else if (gameSession.timeOfDay >= 18f && gameSession.timeOfDay < 20)
             {
                 RenderSettings.skybox = duskSky;
             }
-            else if (worldSettings.timeOfDay >= 20 && worldSettings.timeOfDay <= 22)
+            else if (gameSession.timeOfDay >= 20 && gameSession.timeOfDay <= 22)
             {
                 RenderSettings.skybox = nightfallSky;
             }
-            else if (worldSettings.timeOfDay >= 22 && worldSettings.timeOfDay <= 24 || worldSettings.timeOfDay >= 0 && worldSettings.timeOfDay < 5)
+            else if (gameSession.timeOfDay >= 22 && gameSession.timeOfDay <= 24 || gameSession.timeOfDay >= 0 && gameSession.timeOfDay < 5)
             {
                 RenderSettings.skybox = nightSky;
             }
-            else if (worldSettings.timeOfDay >= 5 && worldSettings.timeOfDay < 7)
+            else if (gameSession.timeOfDay >= 5 && gameSession.timeOfDay < 7)
             {
                 RenderSettings.skybox = dawnSky;
             }
 
-            RenderSettings.ambientLight = AmbientColor.Evaluate(timePercent);
+            RenderSettings.ambientLight = useOverride ? AmbientColor.Evaluate(timePercent) : gameSession.AmbientColor.Evaluate(timePercent);
 
             if (useFog)
             {
-                RenderSettings.fogColor = FogColor.Evaluate(timePercent);
+                RenderSettings.fogColor = useOverride ? FogColor.Evaluate(timePercent) : gameSession.FogColor.Evaluate(timePercent);
             }
 
             if (directionalLight != null)
             {
-                directionalLight.color = DirectionalColor.Evaluate(timePercent);
+                directionalLight.color = useOverride ? DirectionalColor.Evaluate(timePercent) : gameSession.DirectionalColor.Evaluate(timePercent);
                 directionalLight.transform.localRotation = Quaternion.Euler(new Vector3((timePercent * 360f) - 90f, -170f, 0));
             }
         }
@@ -273,7 +269,5 @@ namespace AF
                 }
             }
         }
-
     }
-
 }

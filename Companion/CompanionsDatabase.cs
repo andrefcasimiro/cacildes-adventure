@@ -16,9 +16,6 @@ namespace AF.Companions
         [SerializedDictionary("Companion ID", "Companion State")]
         public SerializedDictionary<string, CompanionState> companionsInParty = new();
 
-        // Used for companion comments
-        public Enemy lastEnemyKilled;
-
         [Header("Settings")]
         public float companionToPlayerStoppingDistance = 2f;
 

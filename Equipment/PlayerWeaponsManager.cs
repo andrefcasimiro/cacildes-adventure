@@ -5,7 +5,6 @@ using AF.Events;
 using AF.Stats;
 using TigerForge;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace AF.Equipment
 {
@@ -102,7 +101,7 @@ namespace AF.Equipment
 
             if (CurrentWeapon != null)
             {
-                var gameObjectWeapon = weaponInstances.FirstOrDefault(x => x.weapon.name.GetEnglishText() == CurrentWeapon.name.GetEnglishText());
+                var gameObjectWeapon = weaponInstances.FirstOrDefault(x => x.weapon.name == CurrentWeapon.name);
                 currentWeaponInstance = gameObjectWeapon;
                 currentWeaponInstance.gameObject.SetActive(true);
             }
@@ -159,7 +158,7 @@ namespace AF.Equipment
 
             if (CurrentShield != null)
             {
-                var gameObjectShield = shieldInstances.FirstOrDefault(x => x.shield.name.GetEnglishText() == CurrentShield.name.GetEnglishText());
+                var gameObjectShield = shieldInstances.FirstOrDefault(x => x.shield.name == CurrentShield.name);
                 currentShieldInstance = gameObjectShield;
                 currentShieldInstance.gameObject.SetActive(true);
             }

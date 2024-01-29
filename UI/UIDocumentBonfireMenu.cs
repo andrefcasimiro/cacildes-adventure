@@ -1,4 +1,5 @@
 using System.Collections;
+using AF.Bonfires;
 using AF.Inventory;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -25,7 +26,7 @@ namespace AF
         [Header("References")]
         public Item blacksmithKit;
         public Item alchemyKit;
-        public WorldSettings worldSettings;
+        public GameSession gameSession;
 
         [Header("UI Elements")]
         VisualElement root;
@@ -41,7 +42,7 @@ namespace AF
 
         private void Start()
         {
-            originalDaySpeed = worldSettings.daySpeed;
+            originalDaySpeed = gameSession.daySpeed;
             gameObject.SetActive(false);
         }
 
@@ -81,7 +82,7 @@ namespace AF
 
             if (currentBonfire != null)
             {
-                bonfireName.text = currentBonfire.bonfireName.GetEnglishText();
+                bonfireName.text = currentBonfire.bonfireName;
             }
 
             bonfireNameLabelUI.text = "Bonfire Name";
@@ -160,7 +161,7 @@ namespace AF
         void ExitBonfire()
         {
             cursorManager.HideCursor();
-            worldSettings.daySpeed = originalDaySpeed;
+            gameSession.daySpeed = originalDaySpeed;
             currentBonfire.ExitBonfire();
             currentBonfire = null;
         }
@@ -170,21 +171,21 @@ namespace AF
             if (!isPassingTime)
             {
                 isPassingTime = true;
-                var originalDaySpeed = worldSettings.daySpeed;
-                var targetHour = Mathf.Floor(worldSettings.timeOfDay) + 1;
+                var originalDaySpeed = gameSession.daySpeed;
+                var targetHour = Mathf.Floor(gameSession.timeOfDay) + 1;
 
                 if (targetHour > 23)
                 {
-                    worldSettings.timeOfDay = 0;
+                    gameSession.timeOfDay = 0;
                     targetHour = 0;
                 }
 
                 yield return null;
-                worldSettings.daySpeed = 2;
+                gameSession.daySpeed = 2;
 
-                yield return new WaitUntil(() => Mathf.FloorToInt(worldSettings.timeOfDay) == Mathf.FloorToInt(targetHour));
+                yield return new WaitUntil(() => Mathf.FloorToInt(gameSession.timeOfDay) == Mathf.FloorToInt(targetHour));
 
-                worldSettings.daySpeed = originalDaySpeed;
+                gameSession.daySpeed = originalDaySpeed;
                 isPassingTime = false;
             }
         }

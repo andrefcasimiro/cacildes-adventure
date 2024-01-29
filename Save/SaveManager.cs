@@ -7,8 +7,8 @@ using UnityEditor;
 using AF.Inventory;
 using System.Linq;
 using AF.Companions;
-using UnityEngine.UIElements.Experimental;
 using AF.Flags;
+using AF.Bonfires;
 
 namespace AF
 {
@@ -120,16 +120,16 @@ namespace AF
             equipment.Write("currentArrowIndex", equipmentDatabase.currentArrowIndex);
             equipment.Write("currentSpellIndex", equipmentDatabase.currentSpellIndex);
             equipment.Write("currentConsumableIndex", equipmentDatabase.currentConsumableIndex);
-            equipment.Write("weapons", equipmentDatabase.weapons.Select(weapon => weapon != null ? weapon.name.GetEnglishText() + "|" + weapon.level : ""));
-            equipment.Write("shields", equipmentDatabase.shields.Select(shield => shield != null ? shield.name.GetEnglishText() : ""));
-            equipment.Write("arrows", equipmentDatabase.arrows.Select(arrow => arrow != null ? arrow.name.GetEnglishText() : ""));
-            equipment.Write("spells", equipmentDatabase.spells.Select(spell => spell != null ? spell.name.GetEnglishText() : ""));
-            equipment.Write("accessories", equipmentDatabase.accessories.Select(accessory => accessory != null ? accessory.name.GetEnglishText() : ""));
-            equipment.Write("consumables", equipmentDatabase.consumables.Select(consumable => consumable != null ? consumable.name.GetEnglishText() : ""));
-            equipment.Write("helmet", equipmentDatabase.helmet != null ? equipmentDatabase.helmet.name.GetEnglishText() : "");
-            equipment.Write("armor", equipmentDatabase.armor != null ? equipmentDatabase.armor.name.GetEnglishText() : "");
-            equipment.Write("gauntlet", equipmentDatabase.gauntlet != null ? equipmentDatabase.gauntlet.name.GetEnglishText() : "");
-            equipment.Write("legwear", equipmentDatabase.legwear != null ? equipmentDatabase.legwear.name.GetEnglishText() : "");
+            equipment.Write("weapons", equipmentDatabase.weapons.Select(weapon => weapon != null ? weapon.name + "|" + weapon.level : ""));
+            equipment.Write("shields", equipmentDatabase.shields.Select(shield => shield != null ? shield.name : ""));
+            equipment.Write("arrows", equipmentDatabase.arrows.Select(arrow => arrow != null ? arrow.name : ""));
+            equipment.Write("spells", equipmentDatabase.spells.Select(spell => spell != null ? spell.name : ""));
+            equipment.Write("accessories", equipmentDatabase.accessories.Select(accessory => accessory != null ? accessory.name : ""));
+            equipment.Write("consumables", equipmentDatabase.consumables.Select(consumable => consumable != null ? consumable.name : ""));
+            equipment.Write("helmet", equipmentDatabase.helmet != null ? equipmentDatabase.helmet.name : "");
+            equipment.Write("armor", equipmentDatabase.armor != null ? equipmentDatabase.armor.name : "");
+            equipment.Write("gauntlet", equipmentDatabase.gauntlet != null ? equipmentDatabase.gauntlet.name : "");
+            equipment.Write("legwear", equipmentDatabase.legwear != null ? equipmentDatabase.legwear.name : "");
             equipment.TryCommit();
         }
 
@@ -323,11 +323,12 @@ namespace AF
 
             foreach (var ownedItem in inventoryDatabase.ownedItems)
             {
-                string itemFilePath = AssetDatabase.GetAssetPath(ownedItem.Key)
-                        .Replace("Assets/Resources/", "")
-                        .Replace(".asset", "");
+                string path = Utils.GetItemPath(ownedItem.Key);
 
-                keyValuePairs.Add(itemFilePath, ownedItem.Value);
+                if (!keyValuePairs.ContainsKey(path))
+                {
+                    keyValuePairs.Add(path, ownedItem.Value);
+                }
             }
 
             inventory.Write("ownedItems", keyValuePairs);
@@ -394,10 +395,7 @@ namespace AF
 
             questsDatabase.questsReceived.ForEach(questReceived =>
             {
-                payload.Add(
-                    AssetDatabase.GetAssetPath(questReceived)
-                        .Replace("Assets/Resources/", "")
-                        .Replace(".asset", ""),
+                payload.Add("Quests/" + questReceived.name,
                     questReceived.questProgress);
             });
 

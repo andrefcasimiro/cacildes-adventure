@@ -12,7 +12,6 @@ namespace AF
         public CursorManager cursorManager;
         public UIDocumentTitleScreenCredits uIDocumentTitleScreenCredits;
         public UIDocumentTitleScreenOptions uIDocumentTitleScreenOptions;
-        public UIDocumentTitleScreenControls uIDocumentTitleScreenControls;
         public Soundbank soundbank;
         public SaveManager saveManager;
 
@@ -67,12 +66,6 @@ namespace AF
             UIUtils.SetupButton(optionsButton, () =>
             {
                 uIDocumentTitleScreenOptions.gameObject.SetActive(true);
-                gameObject.SetActive(false);
-            }, soundbank);
-
-            UIUtils.SetupButton(controlsButton, () =>
-            {
-                uIDocumentTitleScreenControls.gameObject.SetActive(true);
                 gameObject.SetActive(false);
             }, soundbank);
 

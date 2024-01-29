@@ -13,10 +13,6 @@ namespace AF
         public VisualTreeAsset sectionEntry;
         ScrollView scrollPanel;
 
-        [Header("Localization")]
-        public LocalizedText creditsText;
-        public LocalizedText creditsRequestNoteText;
-
         [Header("Components")]
         public UIManager uiManager;
         public Soundbank soundbank;
@@ -34,7 +30,7 @@ namespace AF
             root = GetComponent<UIDocument>().rootVisualElement;
 
             root.Q<Label>("CreditsTitle").text = "Credits";
-            root.Q<Label>("RequestCreditsLabel").text = creditsRequestNoteText.GetEnglishText();
+            root.Q<Label>("RequestCreditsLabel").text = "If your name is missing, please contact: cacildesadventure@gmail.com";
             scrollPanel = root.Q<ScrollView>();
 
 
@@ -67,7 +63,7 @@ namespace AF
             foreach (var creditSection in credits.creditsSections)
             {
                 var sectionTitleClone = sectionTitle.CloneTree();
-                sectionTitleClone.Q<Label>("SectionTitle").text = creditSection.sectionTitle.GetEnglishText();
+                sectionTitleClone.Q<Label>("SectionTitle").text = creditSection.sectionTitle;
                 scrollPanel.Add(sectionTitleClone);
 
                 foreach (var creditEntry in creditSection.creditEntry)

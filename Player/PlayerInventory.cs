@@ -17,7 +17,6 @@ namespace AF
 
         [Header("UI Components")]
         public NotificationManager notificationManager;
-        public ViewClockMenu viewClockMenu;
         public UIDocumentPlayerHUDV2 uIDocumentPlayerHUDV2;
 
         [SerializeField] private UIManager uIManager;

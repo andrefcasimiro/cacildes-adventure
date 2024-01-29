@@ -258,7 +258,7 @@ namespace AF.UI.EquipmentMenu
                 var instance = itemButtonPrefab.CloneTree();
                 instance.Q<VisualElement>("Sprite").style.backgroundImage = new StyleBackground(item.Key.sprite);
                 var itemName = instance.Q<Label>("ItemName");
-                itemName.text = item.Key.name.GetEnglishText();
+                itemName.text = item.Key.name;
 
                 if (item.Key is Consumable || item.Key is Arrow || showOnlyKeyItems)
                 {

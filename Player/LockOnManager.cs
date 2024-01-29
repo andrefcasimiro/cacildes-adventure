@@ -179,6 +179,21 @@ namespace AF
             isLockedOn = true;
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="duration"></param>
+        public void DisableLockOnAfter(float duration)
+        {
+            IEnumerator DisableLockOnAfter()
+            {
+                yield return new WaitForSeconds(duration);
+                DisableLockOn();
+            }
+
+            StartCoroutine(DisableLockOnAfter());
+        }
+
         public void DisableLockOn()
         {
             Camera.main.GetComponent<Cinemachine.CinemachineBrain>().m_DefaultBlend.m_Time = 0f;

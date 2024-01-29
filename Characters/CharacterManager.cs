@@ -29,6 +29,7 @@ namespace AF
         [Header("Settings")]
         public float patrolSpeed = 2f;
         public float chaseSpeed = 4.5f;
+        public float rotationSpeed = 6f;
 
         [Header("Events")]
         public UnityEvent onResetStates;

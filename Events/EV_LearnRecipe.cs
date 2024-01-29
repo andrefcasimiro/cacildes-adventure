@@ -41,7 +41,7 @@ namespace AF
             {
                 soundbank.PlaySound(soundbank.uiItemReceived);
 
-                notificationManager.ShowNotification("Learned recipe: " + recipe.name.GetEnglishText(), notificationManager.recipeIcon);
+                notificationManager.ShowNotification("Learned recipe: " + recipe.name, notificationManager.recipeIcon);
             }
 
             yield return null;

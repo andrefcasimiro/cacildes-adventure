@@ -8,6 +8,7 @@ namespace AF
     public class EV_PlayMusic : EventBase
     {
         [Header("Components")]
+        public SceneSettings sceneSettings;
         public BGMManager bgmManager;
         public AudioClip bgm;
 
@@ -19,7 +20,6 @@ namespace AF
 
             if (playMapMusic)
             {
-                SceneSettings sceneSettings = FindObjectOfType<SceneSettings>(true);
                 sceneSettings.HandleSceneSound(true);
             }
             else if (bgm != null)

@@ -26,9 +26,6 @@ namespace AF.Shops
         public PlayerStatsDatabase playerStatsDatabase;
         public InventoryDatabase inventoryDatabase;
 
-        [Header("Systems")]
-        public WorldSettings worldSettings;
-
         Label buyerName, buyerGold, sellerName, sellerGold;
         VisualElement buyerIcon, sellerIcon;
 
@@ -212,7 +209,7 @@ namespace AF.Shops
             {
                 VisualElement cloneButton = buySellButton.CloneTree();
                 cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.sprite);
-                cloneButton.Q<Label>("ItemName").text = item.name.GetEnglishText();
+                cloneButton.Q<Label>("ItemName").text = item.name;
 
                 bool canBuy = playerIsBuying && playerStatsDatabase.gold >= item.value;
                 bool canSell = !playerIsBuying && characterShop.shopGold >= item.value;
@@ -272,7 +269,7 @@ namespace AF.Shops
                 playerManager.playerInventory.AddItem(item, 1);
 
                 soundbank.PlaySound(soundbank.uiItemReceived);
-                notificationManager.ShowNotification("Bought " + item.name.GetEnglishText() + "", item.sprite);
+                notificationManager.ShowNotification("Bought " + item.name + "", item.sprite);
 
                 DrawBuyMenu(characterShop);
             }
@@ -287,7 +284,7 @@ namespace AF.Shops
             playerManager.playerInventory.RemoveItem(item, 1);
 
             soundbank.PlaySound(soundbank.uiItemReceived);
-            notificationManager.ShowNotification("Sold " + item.name.GetEnglishText() + "", item.sprite);
+            notificationManager.ShowNotification("Sold " + item.name + "", item.sprite);
 
             DrawSellMenu(characterShop);
         }
@@ -300,7 +297,7 @@ namespace AF.Shops
             }
 
             itemPreviewItemIcon.style.backgroundImage = new StyleBackground(item.sprite);
-            itemPreviewItemDescription.text = item.description.GetEnglishText();
+            itemPreviewItemDescription.text = item.description;
             itemPreview.style.opacity = 1;
         }
 

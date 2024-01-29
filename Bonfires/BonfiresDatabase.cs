@@ -1,33 +1,37 @@
 using System.Collections.Generic;
-using AF;
 using UnityEditor;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Bonfires Database", menuName = "System/New Bonfires Database", order = 0)]
-public class BonfiresDatabase : ScriptableObject
+namespace AF.Bonfires
 {
-    public List<string> unlockedBonfires = new();
 
-#if UNITY_EDITOR 
-    private void OnEnable()
+    [CreateAssetMenu(fileName = "Bonfires Database", menuName = "System/New Bonfires Database", order = 0)]
+    public class BonfiresDatabase : ScriptableObject
     {
-        // No need to populate the list; it's serialized directly
-        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-    }
+        public List<string> unlockedBonfires = new();
 
-    private void OnPlayModeStateChanged(PlayModeStateChange state)
-    {
-        if (state == PlayModeStateChange.ExitingPlayMode)
+#if UNITY_EDITOR
+        private void OnEnable()
         {
-            // Clear the list when exiting play mode
-            Clear();
+            // No need to populate the list; it's serialized directly
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
-    }
+
+        private void OnPlayModeStateChanged(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.ExitingPlayMode)
+            {
+                // Clear the list when exiting play mode
+                Clear();
+            }
+        }
 #endif
 
-    public void Clear()
-    {
-        unlockedBonfires.Clear();
+        public void Clear()
+        {
+            unlockedBonfires.Clear();
+        }
+
     }
 
 }

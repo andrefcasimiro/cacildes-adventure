@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace AF
 {
@@ -7,8 +6,7 @@ namespace AF
     public class Character : ScriptableObject
     {
         public new string name;
-        public LocalizedText title;
+        public string title;
         public Sprite avatar;
-
     }
 }

@@ -15,11 +15,27 @@ public class GameSession : ScriptableObject
     public Vector3 savedPlayerPosition;
     public Quaternion savedPlayerRotation;
 
+    [Header("World Settings")]
+    public Gradient AmbientColor;
+    public Gradient DirectionalColor;
+    public bool useFog = true;
+    public Gradient FogColor;
+
+    [Header("Time Settings")]
+    [Range(0, 24)] public float timeOfDay;
+    public float initialTimeOfDay = 11;
+
+    public int daysPassed = 0;
+    public float daySpeed = 0.005f;
+
     public bool shouldClearOnExitPlayMode = false;
 
-#if UNITY_EDITOR 
+
+#if UNITY_EDITOR
     private void OnEnable()
     {
+        timeOfDay = initialTimeOfDay;
+
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
     }
 
@@ -30,7 +46,6 @@ public class GameSession : ScriptableObject
             if (shouldClearOnExitPlayMode)
             {
                 Clear();
-
             }
         }
     }

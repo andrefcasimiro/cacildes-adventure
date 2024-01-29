@@ -8,8 +8,7 @@ namespace AF
         // Use this for initialization
         void Start()
         {
-            var meshRenderer = GetComponent<MeshRenderer>();
-            if (meshRenderer != null) meshRenderer.enabled = false;
+            if (TryGetComponent<MeshRenderer>(out var meshRenderer)) meshRenderer.enabled = false;
         }
     }
 

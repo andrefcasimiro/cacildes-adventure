@@ -111,8 +111,6 @@ namespace AF
         public GameObject _mainCamera;
         public UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
 
-        public ViewClockMenu viewClockMenu;
-
         public MenuManager menuManager;
 
         public LockOnManager lockOnManager;
@@ -676,11 +674,6 @@ namespace AF
         bool CanJump()
         {
             if (playerManager.IsBusy())
-            {
-                return false;
-            }
-
-            if (viewClockMenu != null && viewClockMenu.isActiveAndEnabled)
             {
                 return false;
             }

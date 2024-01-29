@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using AF.Bonfires;
 using UnityEngine;
 using UnityEngine.UIElements;
 
