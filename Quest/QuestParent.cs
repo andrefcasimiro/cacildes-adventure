@@ -23,6 +23,10 @@ namespace AF
         [Header("Databases")]
         public QuestsDatabase questsDatabase;
 
+        [Header("Testing")]
+        public bool useDefaultQuestProgress = false;
+        public int defaultQuestProgress = 0;
+
 #if UNITY_EDITOR 
 
         private void OnEnable()
@@ -35,7 +39,7 @@ namespace AF
         {
             if (state == PlayModeStateChange.ExitingPlayMode)
             {
-                questProgress = -1;
+                questProgress = useDefaultQuestProgress ? defaultQuestProgress : -1;
             }
         }
 #endif

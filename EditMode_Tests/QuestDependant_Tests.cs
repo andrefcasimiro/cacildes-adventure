@@ -1,10 +1,9 @@
 using UnityEngine;
 using NUnit.Framework;
-using AF.Quests;
+using AF.Conditions;
 
 namespace AF.Tests
 {
-
     public class QuestDependant_Tests : MonoBehaviour
     {
         QuestsDatabase questsDatabase;

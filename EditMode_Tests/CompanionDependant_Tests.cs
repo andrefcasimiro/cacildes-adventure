@@ -1,10 +1,10 @@
 using UnityEngine;
 using NUnit.Framework;
 using AF.Companions;
+using AF.Conditions;
 
 namespace AF.Tests
 {
-
     public class CompanionDependant_Tests : MonoBehaviour
     {
         CompanionDependant companionDependant;

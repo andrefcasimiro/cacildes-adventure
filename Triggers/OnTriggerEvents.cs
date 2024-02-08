@@ -39,8 +39,25 @@ namespace AF.Triggers
         public UnityEvent onTriggerStayEvent;
         public UnityEvent onTriggerExitEvent;
 
+        bool isActive = true;
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="collider"></param>
+        /// <returns></returns>
+        public void SetIsActive(bool value)
+        {
+            isActive = value;
+        }
+
         bool ShouldTrigger(Collider collider)
         {
+            if (!isActive)
+            {
+                return false;
+            }
+
             if (target != null && collider.gameObject.Equals(target))
             {
                 return true;

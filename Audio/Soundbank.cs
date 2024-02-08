@@ -27,7 +27,7 @@ namespace AF
         [Header("Movement")]
         public AudioClip cloth;
         public AudioClip dodge;
-        public AudioClip landing;
+        public AudioClip impact;
 
 
         [Header("Misc Sounds")]

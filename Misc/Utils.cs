@@ -13,7 +13,12 @@ namespace AF
             lookPos.y = 0;
             var rotation = Quaternion.LookRotation(lookPos);
 
-            origin.rotation = rotation;
+            // Smoothly interpolate between the current rotation and the target rotation
+            origin.transform.rotation = Quaternion.Slerp(
+           origin.transform.rotation,
+           rotation,
+           100 * Time.deltaTime
+       );
         }
 
         public static Vector3 GetNearestNavMeshPoint(Vector3 reference)

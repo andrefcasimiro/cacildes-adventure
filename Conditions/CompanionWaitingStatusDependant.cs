@@ -1,8 +1,9 @@
+using AF.Companions;
 using AF.Events;
 using TigerForge;
 using UnityEngine;
 
-namespace AF.Companions
+namespace AF.Conditions
 {
     public class CompanionWaitingStatusDependant : MonoBehaviour
     {

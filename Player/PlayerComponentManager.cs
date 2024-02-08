@@ -63,6 +63,25 @@ namespace AF
             characterController.enabled = true;
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <returns></returns>
+        public void DisablePlayerControl()
+        {
+            DisableCharacterController();
+            DisableComponents();
+        }
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <returns></returns>
+        public void EnablePlayerControl()
+        {
+            EnableCharacterController();
+            EnableComponents();
+        }
+
         public bool IsBusy()
         {
             if (isInTutorial)

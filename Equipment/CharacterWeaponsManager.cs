@@ -9,6 +9,7 @@ namespace AF.Equipment
         public CharacterWeaponHitbox[] weapons;
         public GameObject bow;
         public GameObject shield;
+        public bool shouldHideShield = true;
 
         public void ResetStates()
         {
@@ -59,7 +60,7 @@ namespace AF.Equipment
         }
         public void HideShield()
         {
-            if (shield != null)
+            if (shield != null && shouldHideShield)
             {
                 shield.SetActive(false);
             }

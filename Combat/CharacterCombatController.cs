@@ -121,6 +121,8 @@ namespace AF.Combat
 
         public void ExecuteCurrentCombatAction()
         {
+            Utils.FaceTarget(characterManager.transform, characterManager.targetManager?.currentTarget?.transform);
+
             if (currentCombatAction.attackAnimationClip != null)
             {
                 characterManager.UpdateAnimatorOverrideControllerClips(ANIMATION_CLIP_TO_OVERRIDE_NAME, currentCombatAction.attackAnimationClip);

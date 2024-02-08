@@ -3,7 +3,7 @@ using AF.Events;
 using TigerForge;
 using UnityEngine;
 
-namespace AF.Quests
+namespace AF.Conditions
 {
     public class QuestDependant : MonoBehaviour
     {

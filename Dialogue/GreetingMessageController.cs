@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF.Dialogue
 {
@@ -8,16 +9,33 @@ namespace AF.Dialogue
     {
         [Header("Greetings")]
         public CharacterGreeting[] characterGreetings;
+        public float timeBeforeDisplayingAgain = 15f;
+        Coroutine DisplayAgainCoroutine;
 
         [Header("Components")]
         public GreetingMessageUI greetingMessageUI;
 
+        [Header("Events")]
+        public UnityEvent onGreetingBegin;
+        public UnityEvent onGreetingEnd;
+
         bool hasDisplayed = false;
+        bool hasStoppedDisplaying = false;
 
         Coroutine HideGreetingMessageCoroutine;
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void StopDisplayingGreetingMessage()
+        {
+            HideGreetingMessage();
+            hasStoppedDisplaying = true;
+        }
+
         public void HideGreetingMessage()
         {
+            onGreetingEnd?.Invoke();
             greetingMessageUI.Hide();
         }
 
@@ -26,10 +44,12 @@ namespace AF.Dialogue
         /// </summary>
         public void DisplayGreetingMessage()
         {
-            if (hasDisplayed || characterGreetings == null || characterGreetings.Length <= 0)
+            if (hasStoppedDisplaying || hasDisplayed || characterGreetings == null || characterGreetings.Length <= 0)
             {
                 return;
             }
+
+            onGreetingBegin?.Invoke();
 
             hasDisplayed = true;
 
@@ -40,6 +60,7 @@ namespace AF.Dialogue
             {
                 return;
             }
+
             greetingMessageUI.Display(greetingMessage.greeting);
 
             if (HideGreetingMessageCoroutine != null)
@@ -55,6 +76,32 @@ namespace AF.Dialogue
             yield return new WaitForSeconds(duration);
 
             HideGreetingMessage();
+
+            if (DisplayAgainCoroutine != null)
+            {
+                StopCoroutine(DisplayAgainCoroutine);
+            }
+
+            DisplayAgainCoroutine = StartCoroutine(ResetIsDiplayed_Coroutine());
+        }
+
+        IEnumerator ResetIsDiplayed_Coroutine()
+        {
+            yield return new WaitForSeconds(timeBeforeDisplayingAgain);
+            hasDisplayed = false;
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void ResetIsDisplayed()
+        {
+            if (DisplayAgainCoroutine != null)
+            {
+                StopCoroutine(DisplayAgainCoroutine);
+            }
+
+            hasDisplayed = false;
         }
 
     }

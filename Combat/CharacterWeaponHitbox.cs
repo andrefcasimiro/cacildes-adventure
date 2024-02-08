@@ -30,6 +30,7 @@ namespace AF
         [Header("Events")]
         public UnityEvent onOpenHitbox;
         public UnityEvent onCloseHitbox;
+        public UnityEvent onDamageInflicted;
 
         // Internal flags
         bool canPlayHitSfx = true;
@@ -119,6 +120,7 @@ namespace AF
                     }
                 });
 
+                onDamageInflicted?.Invoke();
                 damageReceiversHit.Add(damageReceiver);
             }
         }

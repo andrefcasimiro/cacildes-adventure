@@ -1,7 +1,8 @@
+using AF.Companions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace AF.Companions
+namespace AF.Conditions
 {
     public class CompanionHomeDependant : MonoBehaviour
     {

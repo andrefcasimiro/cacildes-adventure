@@ -1,8 +1,9 @@
 using AF.Events;
+using AF.Flags;
 using TigerForge;
 using UnityEngine;
 
-namespace AF.Flags
+namespace AF.Conditions
 {
     public class FlagDependant : MonoBehaviour
     {

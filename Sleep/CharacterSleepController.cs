@@ -25,6 +25,11 @@ namespace AF
         [Header("Systems")]
         public GameSession gameSession;
 
+        private void Awake()
+        {
+            gameObject.SetActive(canSleep);
+        }
+
         void Start()
         {
             OnHourChanged();

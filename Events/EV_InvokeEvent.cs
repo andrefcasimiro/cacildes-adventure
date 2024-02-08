@@ -8,6 +8,8 @@ namespace AF
     {
         public UnityEvent eventToInvoke;
         public float waitBeforeInvoke = 0f;
+        [TextArea]
+        public string comment;
 
         public override IEnumerator Dispatch()
         {

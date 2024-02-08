@@ -163,7 +163,7 @@ namespace AF.Animations
 
         public void OnImpact()
         {
-
+            soundbank.PlaySound(soundbank.impact, combatAudioSource);
         }
 
         public void OnBuff()

@@ -46,10 +46,10 @@ namespace AF
 
 
         [Header("Target Switching")]
-        public int mouseXSwitchThreshold = 2;
+        public float mouseXSwitchThreshold = 0.5f;
         public float maxTargetSwitchingCooldown = 1f;
         [HideInInspector] public float targetSwitchingCooldown = Mathf.Infinity;
-
+        Vector2 previousInputsLook = Vector2.zero;
 
         // Internal
         public List<LockOnRef> availableTargets = new List<LockOnRef>();
@@ -103,10 +103,12 @@ namespace AF
                 }
             }
 
-            if (isLockedOn)
+            if (isLockedOn && Vector2.Distance(previousInputsLook, inputs.look) >= mouseXSwitchThreshold)
             {
                 HandleTargetSwitching();
             }
+
+            previousInputsLook = inputs.look;
         }
 
         bool IsViewBlocked()
@@ -329,14 +331,27 @@ namespace AF
                 return false;
             }
 
+            // Calculate the direction from the camera to the target
+            Vector3 direction = target.transform.position - Camera.main.transform.position;
+
+            // Create a ray from the camera position with the calculated direction
+            Ray ray = new(Camera.main.transform.position, direction);
+
+            // Perform the raycast with the maximum distance
+            if (Physics.Raycast(
+                ray, out RaycastHit hit, Vector3.Distance(target.transform.position, Camera.main.transform.position), blockLayers) && hit.transform != null)
+            {
+                return false;
+            }
+
             return true;
         }
 
 
         public void HandleTargetSwitching()
         {
-            bool lookedRight = Mathf.FloorToInt(Input.GetAxisRaw("Mouse X")) >= mouseXSwitchThreshold || (Gamepad.current != null && Gamepad.current.rightStick.right.IsActuated());
-            bool lookedLeft = Mathf.FloorToInt(Input.GetAxisRaw("Mouse X")) <= -mouseXSwitchThreshold || (Gamepad.current != null && Gamepad.current.rightStick.left.IsActuated());
+            bool lookedRight = inputs.look.x > 0 || (Gamepad.current != null && Gamepad.current.rightStick.right.IsActuated());
+            bool lookedLeft = inputs.look.x < 0 || (Gamepad.current != null && Gamepad.current.rightStick.left.IsActuated());
 
             if (nearestLockOnTarget == null || lookedRight == false && lookedLeft == false)
             {

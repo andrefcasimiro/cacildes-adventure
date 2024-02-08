@@ -25,6 +25,10 @@ namespace AF
         {
             onStateEnter?.Invoke();
 
+            if (characterManager.targetManager.currentTarget != null)
+            {
+                RotateTowardsTarget(characterManager.targetManager.currentTarget.transform);
+            }
         }
 
         public override void OnStateExit(StateManager stateManager)
@@ -43,7 +47,6 @@ namespace AF
             // If Has Target
             if (characterManager.targetManager.currentTarget != null)
             {
-                RotateTowardsTarget(characterManager.targetManager.currentTarget.transform);
 
                 // If Target Is Still Alive, Attack If Within Range Or Chase
                 if (characterManager.targetManager.currentTarget.health.GetCurrentHealth() > 0)

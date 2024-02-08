@@ -13,9 +13,28 @@ namespace AF
 
         [Header("Unity Events")]
         public UnityEvent duringFadeTransitionsEventCallback;
+        [Header("Settings")]
+        public bool fadeIn = false;
+        public bool fadeOut = false;
+
+        [TextArea]
+        public string comment;
 
         public override IEnumerator Dispatch()
         {
+            if (fadeIn)
+            {
+                fadeManager.FadeIn(duration);
+                yield return new WaitForSeconds(duration);
+                yield break;
+            }
+            else if (fadeOut)
+            {
+                fadeManager.FadeOut(duration);
+                yield return new WaitForSeconds(duration);
+                yield break;
+            }
+
             fadeManager.FadeIn(duration);
             yield return new WaitForSeconds(duration);
             fadeManager.FadeOut(1f);

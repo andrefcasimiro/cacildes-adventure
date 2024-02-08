@@ -25,7 +25,7 @@ namespace AF
         [Header("Optional AI Components")]
 
         public UnityEngine.UI.Slider postureBarSlider;
-        public CharacterManager characterManager;
+        public CharacterBaseManager characterBaseManager;
 
         public bool isStunned = false;
 
@@ -111,12 +111,12 @@ namespace AF
             isDecreasingPosture = true;
         }
 
-        void BreakPosture()
+        public void BreakPosture()
         {
             onPostureBreakDamage?.Invoke();
             currentPostureDamage = 0f;
             isStunned = true;
-            characterManager.health.PlayPostureBroke();
+            characterBaseManager.health.PlayPostureBroke();
         }
 
         public void RecoverFromStunned()
