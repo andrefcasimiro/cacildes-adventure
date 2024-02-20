@@ -180,5 +180,10 @@ namespace AF.Animations
         {
             playerManager.projectileSpawner.ThrowProjectile();
         }
+
+        public void OnBlood()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -661,10 +661,10 @@ namespace AF
                     _verticalVelocity += (Gravity * Time.deltaTime) + (playerManager.playerCombatController.isJumpAttacking ? jumpAttackVelocityFinal : 0f);
                 }
             }
-            else if ((equipmentDatabase.GetCurrentWeapon() == null) || (equipmentDatabase.GetCurrentWeapon() != null && equipmentDatabase.GetCurrentWeapon().stopInAir == true))
+            /*else if ((equipmentDatabase.GetCurrentWeapon() == null) || (equipmentDatabase.GetCurrentWeapon() != null && equipmentDatabase.GetCurrentWeapon().stopInAir == true))
             {
                 _verticalVelocity = 0f;
-            }
+            }*/
             else
             {
                 _verticalVelocity += Gravity * Time.deltaTime;

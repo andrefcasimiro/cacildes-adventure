@@ -36,6 +36,7 @@ namespace AF
         public PlayerBlockInput playerBlockInput;
         public StarterAssetsInputs starterAssetsInputs;
         public PlayerAnimationEventListener playerAnimationEventListener;
+        public PlayerBackstabController playerBackstabController;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -56,12 +57,14 @@ namespace AF
             playerCombatController.ResetStates();
             playerShootingManager.ResetStates();
 
+
+
             dodgeController.ResetStates();
             playerInventory.ResetStates();
             characterPosture.ResetStates();
             damageReceiver.ResetStates();
 
-            playerComponentManager.EnableCollisionWithEnemies();
+            playerComponentManager.ResetStates();
 
             playerWeaponsManager.ResetStates();
             playerWeaponsManager.ShowEquipment();

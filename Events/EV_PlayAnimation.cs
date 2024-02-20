@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace AF
 {
@@ -16,7 +15,14 @@ namespace AF
         {
             yield return null;
 
-            animator.Play(animationName);
+            if (crossFadeTime <= 0)
+            {
+                animator.Play(animationName);
+            }
+            else
+            {
+                animator.CrossFade(animationName, crossFadeTime);
+            }
 
             yield return null;
 

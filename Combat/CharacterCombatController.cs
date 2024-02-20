@@ -77,7 +77,7 @@ namespace AF.Combat
             }
 
             this.currentCombatAction = newCombatAction;
-            ExecuteCurrentCombatAction();
+            ExecuteCurrentCombatAction(0f);
         }
 
         public void UseChaseAction()
@@ -115,18 +115,26 @@ namespace AF.Combat
             if (newCombatAction != null)
             {
                 this.currentCombatAction = newCombatAction;
-                ExecuteCurrentCombatAction();
+                ExecuteCurrentCombatAction(0f);
             }
         }
 
-        public void ExecuteCurrentCombatAction()
+        public void ExecuteCurrentCombatAction(float crossFade)
         {
-            Utils.FaceTarget(characterManager.transform, characterManager.targetManager?.currentTarget?.transform);
+            characterManager.FaceTarget();
 
             if (currentCombatAction.attackAnimationClip != null)
             {
                 characterManager.UpdateAnimatorOverrideControllerClips(ANIMATION_CLIP_TO_OVERRIDE_NAME, currentCombatAction.attackAnimationClip);
-                characterManager.PlayBusyAnimationWithRootMotion(hashLightAttack1);
+
+                if (crossFade > 0)
+                {
+                    characterManager.PlayAnimationWithCrossFade(hashLightAttack1, true, true, crossFade);
+                }
+                else
+                {
+                    characterManager.PlayBusyAnimationWithRootMotion(hashLightAttack1);
+                }
             }
             else if (!string.IsNullOrEmpty(currentCombatAction.attackAnimationName))
             {
@@ -173,7 +181,7 @@ namespace AF.Combat
             }
         }
 
-        IEnumerable<CombatAction> Randomize(CombatAction[] source)
+        public IEnumerable<CombatAction> Randomize(CombatAction[] source)
         {
             System.Random rnd = new System.Random();
             return source.OrderBy((item) => rnd.Next());

@@ -13,6 +13,7 @@ namespace AF.Animations
         [Header("Animator Settings")]
         public string speedParameter = "Speed";
         public float animatorSpeed = 1f;
+        public bool ignoreAnimatorSpeed = false;
 
         [Header("Animation Clip Overrides")]
         public SerializedDictionary<string, AnimationClip> clipOverrides;
@@ -32,6 +33,7 @@ namespace AF.Animations
         public UnityEvent onCloth;
         public UnityEvent onImpact;
         public UnityEvent onOpenCombo;
+        public UnityEvent onBlood;
 
         private void Awake()
         {
@@ -41,6 +43,11 @@ namespace AF.Animations
         private void Start()
         {
             OverrideAnimatorClips();
+
+            if (ignoreAnimatorSpeed)
+            {
+                characterManager.animator.SetFloat(speedParameter, 0f);
+            }
         }
 
         void OverrideAnimatorClips()
@@ -53,6 +60,10 @@ namespace AF.Animations
 
         private void OnAnimatorMove()
         {
+            if (ignoreAnimatorSpeed)
+            {
+                return;
+            }
 
             if (characterManager.isBusy)
             {
@@ -125,7 +136,7 @@ namespace AF.Animations
                 return;
             }
 
-            Utils.FaceTarget(characterManager.transform, characterManager.targetManager.currentTarget.transform);
+            characterManager.FaceTarget();
         }
 
         public void EnableRootMotion()
@@ -170,7 +181,11 @@ namespace AF.Animations
 
         public void OnThrow()
         {
+        }
 
+        public void OnBlood()
+        {
+            onBlood?.Invoke();
         }
     }
 }

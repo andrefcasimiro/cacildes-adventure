@@ -9,16 +9,32 @@ namespace AF.Events
         public bool shouldRun = false;
         public Transform targetDestination;
 
+        [Header("Settings")]
+        public bool shouldWaitUntilReachingWaypoint = true;
+        float elapsedTime = 0f;
+        public float maxTimeToTryReachingThePlace = 5f;
+
         public override IEnumerator Dispatch()
         {
             if (characterManager.agent.enabled)
             {
                 characterManager.agent.speed = shouldRun ? characterManager.chaseSpeed : characterManager.patrolSpeed;
-                characterManager.agent.destination = targetDestination.position;
 
-                yield return new WaitUntil(() => characterManager.agent.remainingDistance <= characterManager.agent.stoppingDistance);
+                characterManager.agent.destination = targetDestination.transform.position;
 
-                characterManager.agent.speed = 0f;
+                yield return new WaitForSeconds(0.1f);
+
+                yield return new WaitUntil(() =>
+                {
+                    elapsedTime += Time.deltaTime;
+
+                    return !shouldWaitUntilReachingWaypoint || characterManager.agent.remainingDistance <= characterManager.agent.stoppingDistance || elapsedTime >= maxTimeToTryReachingThePlace;
+                });
+
+                if (shouldWaitUntilReachingWaypoint)
+                {
+                    characterManager.agent.speed = 0f;
+                }
             }
         }
     }

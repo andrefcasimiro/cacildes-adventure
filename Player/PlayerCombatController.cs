@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Numerics;
 using AF.Ladders;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ namespace AF
 
     public class PlayerCombatController : MonoBehaviour
     {
+
         public readonly int hashLightAttack1 = Animator.StringToHash("Light Attack 1");
         public readonly int hashLightAttack2 = Animator.StringToHash("Light Attack 2");
         public readonly int hashLightAttack1WithShield = Animator.StringToHash("Light Attack 1 With Shield");
@@ -45,6 +47,7 @@ namespace AF
         public bool isHeavyAttacking = false;
         public bool isJumpAttacking = false;
 
+
         // Coroutines
         Coroutine ResetLightAttackComboIndexCoroutine, ResetHeavyAttackComboIndexCoroutine;
 
@@ -76,11 +79,15 @@ namespace AF
 
             if (playerManager.thirdPersonController.Grounded)
             {
+                if (playerManager.playerBackstabController.PerformBackstab())
+                {
+                    return;
+                }
+
                 if (lightAttackComboIndex > 1)
                 {
                     lightAttackComboIndex = 0;
                 }
-
 
                 if (lightAttackComboIndex == 0)
                 {
@@ -238,5 +245,7 @@ namespace AF
         {
             ResetStates();
         }
+
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using AF.Animations;
+﻿using System.Collections;
+using AF.Animations;
 using AF.Combat;
 using AF.Equipment;
 using AF.Events;
@@ -30,6 +31,10 @@ namespace AF
         public float patrolSpeed = 2f;
         public float chaseSpeed = 4.5f;
         public float rotationSpeed = 6f;
+
+        [Header("Partners")]
+        public CharacterManager[] partners;
+        public int partnerOrder = 0;
 
         [Header("Events")]
         public UnityEvent onResetStates;
@@ -93,17 +98,32 @@ namespace AF
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void FaceTarget(Transform target)
+        public void FaceTarget()
         {
-            if (target == null)
+            StartCoroutine(SmoothFaceTarget());
+        }
+
+        public IEnumerator SmoothFaceTarget()
+        {
+            if (targetManager.currentTarget == null)
             {
-                return;
+                yield break;
             }
 
-            var lookPos = target.transform.position - transform.position;
+            var lookPos = targetManager.currentTarget.transform.position - transform.position;
             lookPos.y = 0;
-            transform.rotation = Quaternion.LookRotation(lookPos);
+            var targetRotation = Quaternion.LookRotation(lookPos);
+
+            while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
+            {
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+                yield return null;
+            }
+
+            // Ensure the final rotation is exactly what we want
+            transform.rotation = targetRotation;
         }
+
 
         /// <summary>
         /// Unity Event
@@ -115,7 +135,7 @@ namespace AF
 
         void Revive()
         {
-            if (characterBossController != null && characterBossController.IsBoss())
+            if (characterBossController.IsBoss())
             {
                 return;
             }

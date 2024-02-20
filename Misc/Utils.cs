@@ -7,20 +7,6 @@ namespace AF
     public static class Utils
     {
 
-        public static void FaceTarget(Transform origin, Transform target)
-        {
-            var lookPos = target.position - origin.position;
-            lookPos.y = 0;
-            var rotation = Quaternion.LookRotation(lookPos);
-
-            // Smoothly interpolate between the current rotation and the target rotation
-            origin.transform.rotation = Quaternion.Slerp(
-           origin.transform.rotation,
-           rotation,
-           100 * Time.deltaTime
-       );
-        }
-
         public static Vector3 GetNearestNavMeshPoint(Vector3 reference)
         {
             // Teleport near player

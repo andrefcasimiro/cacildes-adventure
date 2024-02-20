@@ -19,6 +19,12 @@ namespace AF
         [Header("Audio Sources")]
         public AudioSource combatAudioSource;
 
+        [Header("Faction")]
+        public CharacterFaction characterFaction;
+
+        [Header("Flags")]
+        public bool isBusy = false;
+
         [Header("Components")]
         public StatusController statusController;
         public CharacterBaseHealth health;
@@ -27,13 +33,6 @@ namespace AF
         public CharacterBlockController characterBlockController;
         public DamageReceiver damageReceiver;
         public CharacterPushController characterPushController;
-
-        [Header("Faction")]
-        public CharacterFaction characterFaction;
-
-        [Header("Flags")]
-        public bool isBusy = false;
-
         public abstract void ResetStates();
 
         public bool IsBusy()
@@ -48,6 +47,14 @@ namespace AF
 
         public void PlayAnimationWithCrossFade(string animationName)
         {
+            PlayAnimationWithCrossFade(animationName, false, false, 0.2f);
+        }
+
+        public void PlayAnimationWithCrossFade(string animationName, bool isBusy, bool applyRootMotion, float crossFade)
+        {
+            this.isBusy = isBusy;
+            animator.applyRootMotion = applyRootMotion;
+
             animator.CrossFade(animationName, 0.2f);
         }
 
@@ -61,6 +68,14 @@ namespace AF
         {
             animator.applyRootMotion = true;
             PlayBusyAnimation(animationName);
+        }
+
+
+        public void PlayCrossFadeBusyAnimationWithRootMotion(string animationName, float crossFade)
+        {
+            animator.applyRootMotion = true;
+            isBusy = true;
+            animator.CrossFade(animationName, crossFade);
         }
 
         #region Hashed Animations

@@ -102,14 +102,14 @@ namespace AF
             counterAttackWindowCoroutine = StartCoroutine(HandleCounterAttackWindowCoroutine());
         }
 
-        public void HandleParriedEvent()
+        public void HandleParriedEvent(int receivedPostureDamageFromParry)
         {
             onParriedEvent?.Invoke();
 
             characterManager.PlayBusyHashedAnimationWithRootMotion(hashParried);
 
             characterManager.characterPosture.TakePostureDamage(
-                postureDamageFromParry
+                receivedPostureDamageFromParry
             );
         }
 

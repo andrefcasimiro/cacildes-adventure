@@ -32,6 +32,9 @@ namespace AF.Animations
         public void OnCloth();
         public void OnImpact();
 
+        // FX
+        public void OnBlood();
+
         public void OpenCombo();
 
     }

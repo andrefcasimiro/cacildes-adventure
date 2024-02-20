@@ -10,9 +10,12 @@ namespace AF
 
     public class DamageReceiver : MonoBehaviour
     {
+        public readonly int hashBackstabExecuted = Animator.StringToHash("AI Humanoid - Backstabbed");
+
         [Header("Character")]
         public CharacterBaseManager character;
         [Range(0, 1f)] public float pushForceAbsorption = 1;
+        public bool canBeBackstabbed = true;
 
         [Header("Components")]
         public DamageResistances damageResistances;
@@ -31,6 +34,7 @@ namespace AF
         [Header("Flags")]
         public bool canTakeDamage = true;
         public bool damageOnDodge = false;
+        public bool waitingForBackstab = false;
 
         public void ResetStates()
         {
@@ -89,20 +93,18 @@ namespace AF
                     aiCharacter.targetManager.SetTarget(damageOwner);
                 }
 
-
-
-                if (character.characterPosture.isStunned)
+                if (character.characterPosture.isStunned && waitingForBackstab == false)
                 {
                     character.characterPosture.RecoverFromStunned();
                 }
 
                 if (character.characterBlockController.IsWithinParryingWindow())
                 {
-                    Utils.FaceTarget(character.transform, damageOwner.transform);
-                    Utils.FaceTarget(damageOwner.transform, character.transform);
+                    (character as CharacterManager)?.FaceTarget();
+                    (character as CharacterManager)?.FaceTarget();
 
                     character.characterBlockController.HandleParryEvent();
-                    damageOwner.characterBlockController.HandleParriedEvent();
+                    damageOwner.characterBlockController.HandleParriedEvent(character.characterBlockController.postureDamageFromParry);
                     return;
                 }
 
@@ -116,15 +118,15 @@ namespace AF
 
                 if (character.characterBlockController.CanBlockDamage(incomingDamage))
                 {
-                    Utils.FaceTarget(character.transform, damageOwner.transform);
-                    Utils.FaceTarget(damageOwner.transform, character.transform);
+                    (character as CharacterManager)?.FaceTarget();
+                    (character as CharacterManager)?.FaceTarget();
 
                     character.characterBlockController.BlockAttack(incomingDamage);
                     return;
                 }
             }
 
-            TakeDamage(incomingDamage);
+            ApplyDamage(incomingDamage);
 
             onTakeDamage?.Invoke();
         }
@@ -163,11 +165,20 @@ namespace AF
                     return;
                 }
 
+                if (waitingForBackstab)
+                {
+                    waitingForBackstab = false;
 
-                bool isPostureBroken = character.characterPosture.TakePostureDamage(damage.postureDamage);
-                health.TakeDamage(GetTotalDamage(damage, isPostureBroken));
+                    character.PlayBusyHashedAnimationWithRootMotion(hashBackstabExecuted);
+                    health.TakeDamage(GetTotalDamage(damage, true));
+                }
+                else
+                {
+                    bool isPostureBroken = character.characterPosture.TakePostureDamage(damage.postureDamage);
+                    health.TakeDamage(GetTotalDamage(damage, isPostureBroken));
 
-                character.characterPoise.TakePoiseDamage(damage.poiseDamage);
+                    character.characterPoise.TakePoiseDamage(damage.poiseDamage);
+                }
 
                 if (character.statusController != null && damage.statusEffect != null)
                 {

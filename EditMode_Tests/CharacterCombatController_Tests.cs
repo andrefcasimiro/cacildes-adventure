@@ -44,7 +44,7 @@ namespace AF.Tests
             characterCombatController.currentCombatAction = characterCombatController.combatActions[0];
 
             Assert.IsFalse(wasCalled);
-            characterCombatController.ExecuteCurrentCombatAction();
+            characterCombatController.ExecuteCurrentCombatAction(0f);
             Assert.IsTrue(wasCalled);
         }
 

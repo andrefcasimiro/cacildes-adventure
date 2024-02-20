@@ -109,6 +109,8 @@ namespace AF
 
                 damageReceiver.HandleIncomingDamage(character, () =>
                 {
+                    onDamageInflicted?.Invoke();
+
                     if (hitSfx != null && canPlayHitSfx && character != null)
                     {
                         canPlayHitSfx = false;
@@ -120,7 +122,6 @@ namespace AF
                     }
                 });
 
-                onDamageInflicted?.Invoke();
                 damageReceiversHit.Add(damageReceiver);
             }
         }

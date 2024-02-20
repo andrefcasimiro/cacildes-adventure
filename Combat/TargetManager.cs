@@ -14,13 +14,10 @@ namespace AF.Combat
         [Header("Components")]
         public CharacterBaseManager currentTarget;
 
-        public CharacterBaseManager characterBaseManager;
+        public CharacterManager characterManager;
 
         [Header("Faction Settings")]
         public CharacterFaction[] characterFactions;
-
-        [Header("Combat Partners")]
-        public TargetManager[] combatPartners;
 
         public void SetTarget(CharacterBaseManager target)
         {
@@ -43,11 +40,11 @@ namespace AF.Combat
 
             onTargetSet_Event?.Invoke();
 
-            if (combatPartners.Length > 0)
+            if (characterManager.partners.Length > 0)
             {
-                foreach (var combatPartner in combatPartners)
+                foreach (var combatPartner in characterManager.partners)
                 {
-                    combatPartner.SetTarget(target);
+                    combatPartner.targetManager.SetTarget(target);
                 }
             }
 
@@ -62,13 +59,13 @@ namespace AF.Combat
         {
             foreach (CompanionID companionID in FindObjectsByType<CompanionID>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
             {
-                companionID.characterManager.targetManager.SetTarget(this.characterBaseManager);
+                companionID.characterManager.targetManager.SetTarget(this.characterManager);
             }
         }
 
         bool CanSetTarget()
         {
-            if (characterBaseManager.characterPosture.isStunned)
+            if (characterManager.characterPosture.isStunned)
             {
                 return false;
             }

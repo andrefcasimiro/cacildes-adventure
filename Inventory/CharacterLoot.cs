@@ -112,6 +112,8 @@ namespace AF
 
             if (isBoss && itemsToDisplay.Count > 0)
             {
+                uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
+
                 uIDocumentReceivedItemPrompt.DisplayItemsReceived(itemsToDisplay);
             }
         }

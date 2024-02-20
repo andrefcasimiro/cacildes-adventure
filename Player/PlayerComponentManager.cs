@@ -17,6 +17,7 @@ namespace AF
         public bool isInTutorial = false;
         public bool isInBonfire = false;
 
+        public bool regainControlOnResetState = false;
 
         // Cache
         int nothingLayer;
@@ -31,6 +32,18 @@ namespace AF
         public bool PlayerMovementIsEnabled()
         {
             return thirdPersonController.enabled;
+        }
+
+        public void ResetStates()
+        {
+            if (regainControlOnResetState)
+            {
+                regainControlOnResetState = false;
+
+                EnablePlayerControl();
+            }
+
+            EnableCollisionWithEnemies();
         }
 
         public void EnableComponents()
@@ -72,6 +85,16 @@ namespace AF
             DisableCharacterController();
             DisableComponents();
         }
+
+
+        public void DisablePlayerControlAndRegainControlAfterResetStates()
+        {
+            DisableCharacterController();
+            DisableComponents();
+
+            regainControlOnResetState = true;
+        }
+
         /// <summary>
         /// Unity Event
         /// </summary>

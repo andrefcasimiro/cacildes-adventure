@@ -1,4 +1,5 @@
 using System.Linq;
+using AF.Combat;
 using AF.Flags;
 using AF.Health;
 using AF.Music;
@@ -20,11 +21,8 @@ namespace AF
 
         public UIDocument bossHud;
         public IMGUIContainer bossFillBar;
-        public CharacterHealth characterHealth;
 
-        [Header("Partner")]
-        public CharacterBossController[] partners;
-        public int order = 0;
+        public CharacterManager characterManager;
 
         [Header("Events")]
         public UnityEvent onBattleBegin;
@@ -49,7 +47,7 @@ namespace AF
         {
             if (IsBossHUDEnabled())
             {
-                if (characterHealth.GetCurrentHealth() <= 0)
+                if (characterManager.health.GetCurrentHealth() <= 0)
                 {
                     HideBossHud();
                     return;
@@ -60,7 +58,7 @@ namespace AF
                     bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
                 }
 
-                bossFillBar.style.width = new Length(characterHealth.GetCurrentHealth() * 100 / characterHealth.GetMaxHealth(), LengthUnit.Percent);
+                bossFillBar.style.width = new Length(characterManager.health.GetCurrentHealth() * 100 / characterManager.health.GetMaxHealth(), LengthUnit.Percent);
             }
         }
 
@@ -69,7 +67,7 @@ namespace AF
             bossHud.enabled = true;
             bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName;
             bossHud.rootVisualElement.style.display = DisplayStyle.Flex;
-            bossHud.rootVisualElement.Q<VisualElement>("container").style.marginBottom = order;
+            bossHud.rootVisualElement.Q<VisualElement>("container").style.marginBottom = characterManager.partnerOrder == 0 ? 0 : 60 * characterManager.partnerOrder;
         }
 
         public void HideBossHud()
@@ -104,6 +102,17 @@ namespace AF
                     bgmManager.isPlayingBossMusic = true;
                 }
             }
+
+            if (characterManager.partnerOrder == 0)
+            {
+                // Notify other boss companions that battle has begun
+                foreach (CharacterManager partner in characterManager.partners)
+                {
+                    partner.characterBossController.BeginBossBattle();
+                }
+            }
+
+            onBattleBegin?.Invoke();
         }
 
         /// <summary>
@@ -111,15 +120,12 @@ namespace AF
         /// </summary>
         public void OnAllBossesDead()
         {
-            if (partners?.Length > 0)
-            {
-                if (characterHealth.GetCurrentHealth() <= 0 && partners.All(partner => partner.characterHealth.GetCurrentHealth() <= 0))
-                {
-                    onBossDefeated?.Invoke();
-                    UpdateBossFlag();
-                }
-            }
-            else if (characterHealth.GetCurrentHealth() <= 0)
+            bool isDead = characterManager.health.GetCurrentHealth() <= 0;
+
+            bool allPartnersAreDead = isDead && characterManager.partners?.Length > 0
+                && characterManager.partners.All(partner => partner.health.GetCurrentHealth() <= 0);
+
+            if (characterManager.partners?.Length > 0 ? allPartnersAreDead : isDead)
             {
                 onBossDefeated?.Invoke();
                 UpdateBossFlag();
@@ -138,6 +144,11 @@ namespace AF
 
         void UpdateBossFlag()
         {
+            if (monoBehaviourID == null || flagsDatabase == null)
+            {
+                return;
+            }
+
             flagsDatabase.AddFlag(monoBehaviourID.ID, "Boss killed: " + bossName);
         }
 
