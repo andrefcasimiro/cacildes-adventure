@@ -35,9 +35,12 @@ namespace AF.Animations
         public UnityEvent onOpenCombo;
         public UnityEvent onBlood;
 
+        float defaultAnimatorSpeed;
+
         private void Awake()
         {
             characterManager.animator.speed = animatorSpeed;
+            defaultAnimatorSpeed = animatorSpeed;
         }
 
         private void Start()
@@ -186,6 +189,18 @@ namespace AF.Animations
         public void OnBlood()
         {
             onBlood?.Invoke();
+        }
+
+        public void RestoreDefaultAnimatorSpeed()
+        {
+            this.animatorSpeed = defaultAnimatorSpeed;
+            characterManager.animator.speed = animatorSpeed;
+        }
+
+        public void SetAnimatorSpeed(float speed)
+        {
+            this.animatorSpeed = speed;
+            characterManager.animator.speed = animatorSpeed;
         }
     }
 }

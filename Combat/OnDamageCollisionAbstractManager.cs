@@ -6,7 +6,7 @@ using UnityEngine.Events;
 
 namespace AF
 {
-    public class OnParticleCollisionManager : MonoBehaviour
+    public class OnDamageCollisionAbstractManager : MonoBehaviour
     {
         [Header("Projectile Settings")]
         public Projectile projectile;
@@ -17,10 +17,11 @@ namespace AF
         Coroutine ResetDamageReceiversCoroutine;
         public CharacterBaseManager damageOwner;
         public float damageCooldown = 1f;
+
         [Header("Events")]
         public UnityEvent onParticleDamage;
 
-        private void OnParticleCollision(GameObject other)
+        public void OnCollision(GameObject other)
         {
             if (!other.TryGetComponent<DamageReceiver>(out var damageReceiver))
             {

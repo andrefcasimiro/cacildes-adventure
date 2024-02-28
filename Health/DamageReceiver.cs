@@ -68,6 +68,11 @@ namespace AF
                 return false;
             }
 
+            if (character is PlayerManager player && player.climbController.climbState != Ladders.ClimbState.NONE)
+            {
+                return false;
+            }
+
             return true;
         }
 

@@ -16,6 +16,16 @@ namespace AF.Animations
         public AudioSource combatAudioSource;
         public Soundbank soundbank;
 
+        [Header("Settings")]
+        public float animatorSpeed = 1f;
+        float defaultAnimatorSpeed;
+
+        private void Awake()
+        {
+            playerManager.animator.speed = animatorSpeed;
+            defaultAnimatorSpeed = animatorSpeed;
+        }
+
         public void OpenLeftWeaponHitbox()
         {
             if (playerManager.playerWeaponsManager.leftHandHitbox != null)
@@ -184,6 +194,20 @@ namespace AF.Animations
         public void OnBlood()
         {
             throw new System.NotImplementedException();
+        }
+
+        public void RestoreDefaultAnimatorSpeed()
+        {
+            this.animatorSpeed = defaultAnimatorSpeed;
+            playerManager.animator.speed = animatorSpeed;
+
+        }
+
+        public void SetAnimatorSpeed(float speed)
+        {
+            this.animatorSpeed = speed;
+            playerManager.animator.speed = animatorSpeed;
+
         }
     }
 }

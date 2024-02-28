@@ -15,7 +15,6 @@ namespace AF
 
         [Header("Components")]
         public CharacterBaseManager character;
-        public Soundbank soundbank;
 
         [Header("Tags To Ignore")]
         public List<string> tagsToIgnore = new();
@@ -32,8 +31,12 @@ namespace AF
         public UnityEvent onCloseHitbox;
         public UnityEvent onDamageInflicted;
 
+        // Scene References
+        Soundbank soundbank;
+
         // Internal flags
         bool canPlayHitSfx = true;
+
 
         void Start()
         {
@@ -64,7 +67,9 @@ namespace AF
                 hitCollider.enabled = true;
             }
 
-            if (swingSfx != null && soundbank != null)
+
+
+            if (swingSfx != null && HasSoundbank())
             {
                 soundbank.PlaySound(swingSfx, combatAudioSource);
             }
@@ -115,7 +120,7 @@ namespace AF
                     {
                         canPlayHitSfx = false;
 
-                        if (soundbank != null)
+                        if (HasSoundbank())
                         {
                             soundbank.PlaySound(hitSfx, combatAudioSource);
                         }
@@ -124,6 +129,18 @@ namespace AF
 
                 damageReceiversHit.Add(damageReceiver);
             }
+        }
+
+        bool HasSoundbank()
+        {
+            if (soundbank == null)
+            {
+                soundbank = FindAnyObjectByType<Soundbank>(FindObjectsInactive.Include);
+
+                return soundbank != null;
+            }
+
+            return true;
         }
     }
 }

@@ -53,7 +53,7 @@ namespace AF
 
                         if (uiManager.CanShowGUI())
                         {
-                            currentTarget.OnCaptured();
+                            currentTarget?.OnCaptured();
                         }
                     }
                 }

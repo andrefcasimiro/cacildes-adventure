@@ -31,6 +31,7 @@ namespace AF
                     playerManager.transform.position = enemy.transform.position;
                     playerManager.transform.rotation = enemy.transform.rotation;
                     playerManager.playerComponentManager.DisablePlayerControlAndRegainControlAfterResetStates();
+                    enemy.targetManager.SetTarget(playerManager);
 
                     playerManager.PlayBusyHashedAnimationWithRootMotion(hashBackstabExecution);
                 });

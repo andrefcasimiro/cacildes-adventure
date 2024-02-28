@@ -19,6 +19,7 @@ namespace AF
         public float maximumTeleportRadiusFromTarget = 10f;
         public float minimumTeleportTime = 1f;
         public float maximumTeleportTime = 4f;
+        public bool teleportNearPlayer = false;
 
         public PlayerManager playerManager;
         public State chaseState;
@@ -71,7 +72,9 @@ namespace AF
         }
         void TeleportEnemy()
         {
-            Vector3 randomPoint = RandomNavmeshPoint(playerManager.transform.position, maximumTeleportRadiusFromTarget, -1, minimumTeleportRadiusFromTarget);
+            Vector3 randomPoint = teleportNearPlayer
+                ? playerManager.transform.position + playerManager.transform.forward * -1f
+                : RandomNavmeshPoint(playerManager.transform.position, maximumTeleportRadiusFromTarget, -1, minimumTeleportRadiusFromTarget);
 
             characterManager.agent.Warp(randomPoint);
         }

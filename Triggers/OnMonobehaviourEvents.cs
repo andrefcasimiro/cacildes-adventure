@@ -8,6 +8,7 @@ namespace AF.Triggers
     {
         public UnityEvent onAwake;
         public UnityEvent onStart;
+        public UnityEvent onEnable;
 
         private void Awake()
         {
@@ -16,6 +17,10 @@ namespace AF.Triggers
         private void Start()
         {
             onStart?.Invoke();
+        }
+        private void OnEnable()
+        {
+            onEnable?.Invoke();
         }
 
     }

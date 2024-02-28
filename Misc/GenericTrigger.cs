@@ -22,12 +22,16 @@ namespace AF
 
         public void OnInvoked()
         {
-            uIDocumentKeyPrompt.gameObject.SetActive(false);
-
+            DisableKeyPrompt();
             onActivate?.Invoke();
         }
 
         public void OnReleased()
+        {
+            DisableKeyPrompt();
+        }
+
+        public void DisableKeyPrompt()
         {
             uIDocumentKeyPrompt.gameObject.SetActive(false);
         }

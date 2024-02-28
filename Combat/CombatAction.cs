@@ -62,7 +62,7 @@ namespace AF.Combat
             if (characterManager.targetManager.currentTarget != null)
             {
                 var distanceToPlayer = Vector3.Distance(characterManager.transform.position, characterManager.targetManager.currentTarget.transform.position)
-                    + characterManager.agent.stoppingDistance;
+                    + characterManager.characterController.radius / 2;
 
                 if (distanceToPlayer > maximumDistanceToTarget || distanceToPlayer < minimumDistanceToTarget)
                 {
