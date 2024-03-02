@@ -29,7 +29,9 @@ namespace AF.Companions
 
         public void ClearInactiveCompanions()
         {
-            foreach (var companionInstance in companionInstancesInScene)
+            Dictionary<string, GameObject> companionInstancesInSceneClone = companionInstancesInScene.ToDictionary(item => item.Key, item => item.Value);
+
+            foreach (var companionInstance in companionInstancesInSceneClone)
             {
                 if (!companionsDatabase.companionsInParty.ContainsKey(companionInstance.Key))
                 {
