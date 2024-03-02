@@ -7,14 +7,14 @@ namespace AF
 
     public class EV_LeaveParty : EventBase
     {
-        public CompanionID companionId;
+        public CharacterManager characterManager;
 
         [Header("Databases")]
         public CompanionsDatabase companionsDatabase;
 
         public override IEnumerator Dispatch()
         {
-            companionsDatabase.RemoveFromParty(companionId.companionId);
+            companionsDatabase.RemoveFromParty(characterManager.GetCharacterID());
             yield return null;
         }
     }

@@ -60,6 +60,10 @@ namespace AF
         {
             AddNotification("- " + amount, combatNotificationManager.lightningDamage);
         }
+        public void ShowDarknessDamage(int amount)
+        {
+            AddNotification("- " + amount, combatNotificationManager.darknessDamage);
+        }
         public void ShowMagicDamage(int amount)
         {
             AddNotification("- " + amount, combatNotificationManager.magicDamage);

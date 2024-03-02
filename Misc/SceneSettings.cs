@@ -69,6 +69,14 @@ namespace AF
             EventManager.StartListening(EventMessages.ON_HOUR_CHANGED, () => OnHourChanged(true));
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void DisplaySceneName()
+        {
+            StartCoroutine(DisplaySceneName_Coroutine());
+        }
+
         IEnumerator DisplaySceneName_Coroutine()
         {
             yield return new WaitForSeconds(displaySceneNameDelay);
@@ -99,6 +107,15 @@ namespace AF
                   1f
             );
 
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="audioClip"></param>
+        public void SetDayMusic(AudioClip audioClip)
+        {
+            this.dayMusic = audioClip;
         }
 
         public void HandleSceneSound(bool evaluateMusic)

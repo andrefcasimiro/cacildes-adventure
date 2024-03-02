@@ -8,7 +8,7 @@ namespace AF
     {
         public float duration = 1f;
 
-        [Header("Components")]
+        [Header("Scene Refs (Optional assignment, but recommended)")]
         public FadeManager fadeManager;
 
         [Header("Unity Events")]
@@ -24,21 +24,31 @@ namespace AF
         {
             if (fadeIn)
             {
-                fadeManager.FadeIn(duration);
+                GetFadeManager().FadeIn(duration);
                 yield return new WaitForSeconds(duration);
                 yield break;
             }
             else if (fadeOut)
             {
-                fadeManager.FadeOut(duration);
+                GetFadeManager().FadeOut(duration);
                 yield return new WaitForSeconds(duration);
                 yield break;
             }
 
-            fadeManager.FadeIn(duration);
+            GetFadeManager().FadeIn(duration);
             yield return new WaitForSeconds(duration);
-            fadeManager.FadeOut(1f);
+            GetFadeManager().FadeOut(1f);
             duringFadeTransitionsEventCallback?.Invoke();
+        }
+
+        FadeManager GetFadeManager()
+        {
+            if (fadeManager == null)
+            {
+                fadeManager = FindAnyObjectByType<FadeManager>(FindObjectsInactive.Include);
+            }
+
+            return fadeManager;
         }
     }
 }

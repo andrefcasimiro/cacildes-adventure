@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using AF.Inventory;
-using AF.Stats;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 
@@ -20,15 +19,15 @@ namespace AF
 
         [Header("Components")]
         public CharacterManager lootOwner;
-        public PlayerManager playerManager;
-        public NotificationManager notificationManager;
 
-        public StatsBonusController playerStatsBonusController;
-        public Soundbank soundbank;
+        // Scene References
+        private PlayerManager playerManager;
+        private NotificationManager notificationManager;
 
-        [Header("UI Components")]
-        public UIDocumentPlayerGold uIDocumentPlayerGold;
-        public UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
+        private Soundbank soundbank;
+
+        private UIDocumentPlayerGold uIDocumentPlayerGold;
+        private UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
 
         public void GiveLoot()
         {
@@ -41,9 +40,9 @@ namespace AF
 
             yield return new WaitForSeconds(1f);
 
-            if (playerStatsBonusController != null)
+            if (GetPlayerManager().statsBonusController != null)
             {
-                var additionalCoinPercentage = playerStatsBonusController.additionalCoinPercentage;
+                var additionalCoinPercentage = GetPlayerManager().statsBonusController.additionalCoinPercentage;
 
                 if (additionalCoinPercentage != 0)
                 {
@@ -52,7 +51,7 @@ namespace AF
                     goldToReceive += additionalCoin;
                 }
 
-                if (playerStatsBonusController.ShouldDoubleCoinFromFallenEnemy())
+                if (GetPlayerManager().statsBonusController.ShouldDoubleCoinFromFallenEnemy())
                 {
                     goldToReceive *= 2;
                 }
@@ -62,7 +61,7 @@ namespace AF
 
             yield return new WaitForSeconds(0.2f);
 
-            uIDocumentPlayerGold.AddGold(goldToReceive);
+            GetUIDocumentPlayerGold().AddGold(goldToReceive);
         }
 
         private void GetLoot()
@@ -80,7 +79,7 @@ namespace AF
                     if (hasPlayedFanfare == false)
                     {
 
-                        soundbank.PlaySound(soundbank.uiItemReceived);
+                        GetSoundbank().PlaySound(GetSoundbank().uiItemReceived);
                         hasPlayedFanfare = true;
                     }
 
@@ -93,9 +92,9 @@ namespace AF
             List<UIDocumentReceivedItemPrompt.ItemsReceived> itemsToDisplay = new();
             foreach (var item in itemsToReceive)
             {
-                playerManager.playerInventory.AddItem(item.Key, item.Value.amount);
+                GetPlayerManager().playerInventory.AddItem(item.Key, item.Value.amount);
 
-                if (isBoss && uIDocumentReceivedItemPrompt != null)
+                if (isBoss && GetUIDocumentReceivedItemPrompt() != null)
                 {
                     itemsToDisplay.Add(new()
                     {
@@ -106,16 +105,66 @@ namespace AF
                 }
                 else
                 {
-                    notificationManager.ShowNotification("Found " + item.Key.name, item.Key.sprite);
+                    GetNotificationManager().ShowNotification("Found " + item.Key.name, item.Key.sprite);
                 }
             }
 
             if (isBoss && itemsToDisplay.Count > 0)
             {
-                uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
+                GetUIDocumentReceivedItemPrompt().gameObject.SetActive(true);
 
-                uIDocumentReceivedItemPrompt.DisplayItemsReceived(itemsToDisplay);
+                GetUIDocumentReceivedItemPrompt().DisplayItemsReceived(itemsToDisplay);
             }
+        }
+
+        PlayerManager GetPlayerManager()
+        {
+            if (playerManager == null)
+            {
+                playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
+            }
+
+            return playerManager;
+        }
+
+        Soundbank GetSoundbank()
+        {
+            if (soundbank == null)
+            {
+                soundbank = FindAnyObjectByType<Soundbank>(FindObjectsInactive.Include);
+            }
+
+            return soundbank;
+        }
+
+        NotificationManager GetNotificationManager()
+        {
+            if (notificationManager == null)
+            {
+                notificationManager = FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include);
+            }
+
+            return notificationManager;
+        }
+
+        UIDocumentPlayerGold GetUIDocumentPlayerGold()
+        {
+            if (uIDocumentPlayerGold == null)
+            {
+                uIDocumentPlayerGold = FindAnyObjectByType<UIDocumentPlayerGold>(FindObjectsInactive.Include);
+            }
+
+            return uIDocumentPlayerGold;
+        }
+
+        UIDocumentReceivedItemPrompt GetUIDocumentReceivedItemPrompt()
+        {
+            if (uIDocumentReceivedItemPrompt == null)
+            {
+                uIDocumentReceivedItemPrompt = FindAnyObjectByType<UIDocumentReceivedItemPrompt>(FindObjectsInactive.Include);
+            }
+
+            return uIDocumentReceivedItemPrompt;
         }
     }
 }

@@ -21,6 +21,11 @@ namespace AF
         [Header("Events")]
         public UnityEvent onParticleDamage;
 
+        private void OnEnable()
+        {
+            damageReceivers.Clear();
+        }
+
         public void OnCollision(GameObject other)
         {
             if (!other.TryGetComponent<DamageReceiver>(out var damageReceiver))

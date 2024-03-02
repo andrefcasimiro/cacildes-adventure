@@ -64,19 +64,23 @@ namespace AF
             yield return new WaitForSeconds(delayBeforeTeleportationBegins);
             onDisappear?.Invoke();
 
-            TeleportEnemy();
-
             yield return new WaitForSeconds(Random.Range(minimumTeleportTime, maximumTeleportTime));
+
+            TeleportEnemy();
 
             hasFinishedTeleporting = true;
         }
         void TeleportEnemy()
         {
             Vector3 randomPoint = teleportNearPlayer
-                ? playerManager.transform.position + playerManager.transform.forward * -1f
+                ? Camera.main.transform.position + Camera.main.transform.forward * -2f
                 : RandomNavmeshPoint(playerManager.transform.position, maximumTeleportRadiusFromTarget, -1, minimumTeleportRadiusFromTarget);
 
             characterManager.agent.Warp(randomPoint);
+
+            Vector3 lookRot = randomPoint - characterManager.transform.position;
+            lookRot.y = 0;
+            characterManager.transform.rotation = Quaternion.LookRotation(lookRot);
         }
 
         Vector3 RandomNavmeshPoint(Vector3 center, float radius, int areaMask, float minDistance)

@@ -150,6 +150,11 @@ namespace AF
         {
             RestoreHealthPercentage(100);
         }
+
+        public override void SetCurrentHealth(float value)
+        {
+            this.playerStatsDatabase.currentHealth = value;
+        }
     }
 
 }

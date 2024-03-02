@@ -20,12 +20,20 @@ namespace AF
         public PlayerManager playerManager;
         public FadeManager fadeManager;
         public BGMManager bGMManager;
+        public CompanionsSceneManager companionsSceneManager;
 
         public float teleportFadeOutDuration = 1f;
 
         void Start()
         {
-            SpawnPlayerAndCompanions();
+            SpawnPlayer();
+
+            companionsSceneManager.SpawnCompanions();
+        }
+
+        public void Teleport(string sceneName)
+        {
+            Teleport(sceneName, "A");
         }
 
         public void Teleport(string sceneName, string spawnGameObjectNameRef)
@@ -42,7 +50,7 @@ namespace AF
             });
         }
 
-        void SpawnPlayerAndCompanions()
+        void SpawnPlayer()
         {
             if (gameSession.loadSavedPlayerPositionAndRotation)
             {
@@ -58,14 +66,6 @@ namespace AF
                 if (spawnGameObject != null)
                 {
                     playerManager.playerComponentManager.TeleportPlayer(spawnGameObject.transform);
-                }
-            }
-
-            foreach (CompanionID companionID in FindObjectsByType<CompanionID>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
-            {
-                if (companionsDatabase.IsCompanionAndIsActivelyInParty(companionID.companionId))
-                {
-                    companionID.SpawnCompanion(playerManager.transform.position);
                 }
             }
         }

@@ -6,14 +6,14 @@ namespace AF
 {
     public class EV_MarkCompanionToFollow : EventBase
     {
-        public CompanionID companionId;
+        public CharacterManager characterManager;
 
         [Header("Databases")]
         public CompanionsDatabase companionsDatabase;
 
         public override IEnumerator Dispatch()
         {
-            companionsDatabase.FollowPlayer(companionId.companionId);
+            companionsDatabase.FollowPlayer(characterManager.GetCharacterID());
 
             yield return null;
         }

@@ -16,11 +16,19 @@ namespace AF
         public UnityEvent onStateExit;
 
         [Header("Companion Settings")]
-        [Tooltip("If set, make sure all properties below are set")] public CompanionID companionId;
-        public PlayerManager playerManager;
+        public bool isCompanion = false;
+        PlayerManager playerManager;
 
         public CompanionsDatabase companionsDatabase;
         public State chaseState;
+
+        private void Awake()
+        {
+            if (isCompanion)
+            {
+                playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
+            }
+        }
 
         public override void OnStateEnter(StateManager stateManager)
         {
@@ -48,12 +56,12 @@ namespace AF
 
         bool ShouldFollowPlayer()
         {
-            if (companionId == null)
+            if (isCompanion == false)
             {
                 return false;
             }
 
-            if (companionsDatabase.IsCompanionAndIsActivelyInParty(companionId.companionId))
+            if (companionsDatabase.IsCompanionAndIsActivelyInParty(characterManager.GetCharacterID()))
             {
                 return Vector3.Distance(characterManager.agent.transform.position, playerManager.transform.position)
                     > characterManager.agent.stoppingDistance + companionsDatabase.companionToPlayerStoppingDistance;

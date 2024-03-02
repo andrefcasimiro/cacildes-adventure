@@ -12,11 +12,16 @@ namespace AF.Tests
         GameObject child2;
         CompanionsDatabase companionsDatabase;
 
+        string companionId = "companion1";
+
         [SetUp]
         public void SetUp()
         {
             GameObject go = new();
+            go.name = companionId;
+
             companionDependant = go.AddComponent<CompanionDependant>();
+            companionDependant.characterManager = go.AddComponent<CharacterManager>();
 
             companionsDatabase = ScriptableObject.CreateInstance<CompanionsDatabase>();
             companionDependant.companionsDatabase = companionsDatabase;
@@ -29,8 +34,6 @@ namespace AF.Tests
         [Test]
         public void ShouldActivateChildren_IfCompanionIsInParty_AndIsRequiredToBeInParty()
         {
-            string companionId = "companion1";
-            companionDependant.companionId = new CompanionID() { companionId = companionId, characterManager = new CharacterManager() };
             companionDependant.requireInParty = true;
 
             companionDependant.Evaluate();
@@ -55,8 +58,6 @@ namespace AF.Tests
         [Test]
         public void ShouldActivateChildren_IfCompanionIsNotInParty_AndIsNotRequiredToBeInParty()
         {
-            string companionId = "companion1";
-            companionDependant.companionId = new CompanionID() { companionId = companionId, characterManager = new CharacterManager() };
             companionDependant.requireInParty = false;
 
             companionDependant.Evaluate();

@@ -80,6 +80,7 @@ namespace AF
                     frost: (int)weapon.frostAttack,
                     magic: (int)weapon.magicAttack,
                     lightning: (int)weapon.lightningAttack,
+                    darkness: (int)weapon.darknessAttack,
                     postureDamage: (IsHeavyAttacking() || IsJumpAttacking())
                     ? weapon.heavyAttackPostureDamage
                     : weapon.lightAttackPostureDamage,
@@ -97,6 +98,7 @@ namespace AF
                 frost: 0,
                 magic: 0,
                 lightning: 0,
+                darkness: 0,
                 postureDamage: (IsHeavyAttacking() || IsJumpAttacking())
                     ? unarmedLightAttackPostureDamage
                     : unarmedHeavyAttackPostureDamage,
@@ -298,6 +300,11 @@ namespace AF
             if (spellDamage.magic > 0)
             {
                 spellDamage.magic += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.magic / 2;
+            }
+
+            if (spellDamage.darkness > 0)
+            {
+                spellDamage.darkness += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.darkness / 2;
             }
 
             return spellDamage;

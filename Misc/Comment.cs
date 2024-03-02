@@ -6,7 +6,7 @@ namespace AF
 {
     public class Comment : MonoBehaviour
     {
-        [TextArea(1, 200)]
+        [TextArea(10, 200)]
         public string text;
     }
 }

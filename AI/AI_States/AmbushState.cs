@@ -30,7 +30,11 @@ namespace AF
         {
             onStateEnter?.Invoke();
 
-            characterManager.agent.ResetPath();
+            if (characterManager.agent.isOnNavMesh)
+            {
+                characterManager.agent.ResetPath();
+            }
+
             characterManager.agent.speed = 0f;
         }
 

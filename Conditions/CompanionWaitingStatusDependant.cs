@@ -7,7 +7,7 @@ namespace AF.Conditions
 {
     public class CompanionWaitingStatusDependant : MonoBehaviour
     {
-        public CompanionID companionId;
+        public CharacterManager characterManager;
 
         public bool requireWaitingStatus = false;
 
@@ -25,8 +25,8 @@ namespace AF.Conditions
             bool isActive = false;
 
             if (
-                requireWaitingStatus && companionsDatabase.IsCompanionWaiting(companionId.companionId)
-                || requireWaitingStatus == false && companionsDatabase.IsCompanionWaiting(companionId.companionId) == false
+                requireWaitingStatus && companionsDatabase.IsCompanionWaiting(characterManager.GetCharacterID())
+                || requireWaitingStatus == false && companionsDatabase.IsCompanionWaiting(characterManager.GetCharacterID()) == false
             )
             {
                 isActive = true;

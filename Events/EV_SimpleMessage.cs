@@ -7,7 +7,7 @@ using UnityEngine;
 public class EV_SimpleMessage : EventBase
 {
 
-    [Header("Components")]
+    [Header("UI (Assignment is optional, but recommended)")]
     public UIDocumentDialogueWindow uIDocumentDialogueWindow;
 
     [Header("Actor")]
@@ -24,7 +24,17 @@ public class EV_SimpleMessage : EventBase
         // Only consider responses that are active - we hide responses based on composition of nested objects
         Response[] filteredResponses = responses.Where(response => response.gameObject.activeInHierarchy).ToArray();
 
-        yield return uIDocumentDialogueWindow.DisplayMessage(
+        yield return GetUIDocumentDialogueWindow().DisplayMessage(
             character, message, filteredResponses);
+    }
+
+    UIDocumentDialogueWindow GetUIDocumentDialogueWindow()
+    {
+        if (uIDocumentDialogueWindow == null)
+        {
+            uIDocumentDialogueWindow = FindAnyObjectByType<UIDocumentDialogueWindow>(FindObjectsInactive.Include);
+        }
+
+        return uIDocumentDialogueWindow;
     }
 }

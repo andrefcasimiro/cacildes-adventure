@@ -8,6 +8,7 @@ namespace AF.Health
         public int frost;
         public int magic;
         public int lightning;
+        public int darkness;
         public int postureDamage;
         public int poiseDamage;
         public float pushForce = 0;
@@ -22,6 +23,7 @@ namespace AF.Health
             int frost,
             int magic,
             int lightning,
+            int darkness,
             int postureDamage,
             int poiseDamage,
             WeaponAttackType weaponAttackType,
@@ -34,6 +36,7 @@ namespace AF.Health
             this.frost = frost;
             this.magic = magic;
             this.lightning = lightning;
+            this.darkness = darkness;
             this.postureDamage = postureDamage;
             this.poiseDamage = poiseDamage;
             this.weaponAttackType = weaponAttackType;

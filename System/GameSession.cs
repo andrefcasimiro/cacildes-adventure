@@ -56,4 +56,9 @@ public class GameSession : ScriptableObject
         hasShownTitleScreen = false;
     }
 
+    public void SetTimeOfDay(int hour)
+    {
+        this.timeOfDay = hour;
+    }
+
 }

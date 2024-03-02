@@ -7,21 +7,19 @@ namespace AF
 {
     public class EV_MarkCompanionToWait : EventBase
     {
-        public CompanionID companionId;
-
         [Header("Components")]
-        public CharacterBaseManager characterBaseManager;
+        public CharacterManager characterManager;
 
         [Header("Databases")]
         public CompanionsDatabase companionsDatabase;
 
         public override IEnumerator Dispatch()
         {
-            companionsDatabase.WaitForPlayer(companionId.companionId, new()
+            companionsDatabase.WaitForPlayer(characterManager.GetCharacterID(), new()
             {
                 sceneNameWhereCompanionsIsWaitingForPlayer = SceneManager.GetActiveScene().name,
                 isWaitingForPlayer = true,
-                waitingPosition = characterBaseManager.transform.position,
+                waitingPosition = characterManager.transform.position,
             });
 
             yield return null;

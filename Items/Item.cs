@@ -12,8 +12,6 @@ namespace AF
         public float value = 0;
         public bool lostUponUse = true;
 
-        public new string name;
-
         [Header("Descriptions")]
 
         public string description;

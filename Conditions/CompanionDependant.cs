@@ -7,7 +7,7 @@ namespace AF.Conditions
 {
     public class CompanionDependant : MonoBehaviour
     {
-        public CompanionID companionId;
+        public CharacterManager characterManager;
 
         public bool requireInParty = true;
 
@@ -25,8 +25,8 @@ namespace AF.Conditions
         {
             Utils.UpdateTransformChildren(
                 transform,
-                (requireInParty && companionsDatabase.IsInParty(companionId.companionId))
-                || (requireInParty == false && companionsDatabase.IsInParty(companionId.companionId) == false)
+                (requireInParty && companionsDatabase.IsInParty(characterManager.GetCharacterID()))
+                || (requireInParty == false && companionsDatabase.IsInParty(characterManager.GetCharacterID()) == false)
             );
         }
     }

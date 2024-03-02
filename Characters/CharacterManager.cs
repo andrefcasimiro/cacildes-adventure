@@ -13,7 +13,7 @@ namespace AF
 {
     public class CharacterManager : CharacterBaseManager
     {
-
+        public string characterID = "";
         public CharacterCombatController characterCombatController;
         public TargetManager targetManager;
 
@@ -38,6 +38,9 @@ namespace AF
 
         [Header("Events")]
         public UnityEvent onResetStates;
+
+        // Scene Reference
+        PlayerManager playerManager;
 
         private void Awake()
         {
@@ -100,30 +103,35 @@ namespace AF
         /// </summary>
         public void FaceTarget()
         {
-            StartCoroutine(SmoothFaceTarget());
-        }
-
-        public IEnumerator SmoothFaceTarget()
-        {
-            if (targetManager.currentTarget == null)
+            if (targetManager == null)
             {
-                yield break;
+                return;
             }
 
             var lookPos = targetManager.currentTarget.transform.position - transform.position;
             lookPos.y = 0;
-            var targetRotation = Quaternion.LookRotation(lookPos);
-
-            while (Quaternion.Angle(transform.rotation, targetRotation) > 0.1f)
-            {
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-                yield return null;
-            }
-
-            // Ensure the final rotation is exactly what we want
-            transform.rotation = targetRotation;
+            transform.rotation = Quaternion.LookRotation(lookPos);
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void FacePlayer()
+        {
+            var lookPos = GetPlayerManager().transform.position - transform.position;
+            lookPos.y = 0;
+            transform.rotation = Quaternion.LookRotation(lookPos);
+        }
+
+        PlayerManager GetPlayerManager()
+        {
+            if (playerManager == null)
+            {
+                playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
+            }
+
+            return playerManager;
+        }
 
         /// <summary>
         /// Unity Event
@@ -146,6 +154,11 @@ namespace AF
 
                 transform.position = initialPosition;
             }
+        }
+
+        public string GetCharacterID()
+        {
+            return characterID;
         }
     }
 }

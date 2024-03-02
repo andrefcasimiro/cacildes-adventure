@@ -29,10 +29,17 @@ namespace AF
         float currentIntervalBetweenChaseActions = 0f;
 
         [Header("Companion Settings")]
-        public PlayerManager playerManager;
-        public CompanionID companionId;
-
+        public bool isCompanion = false;
+        PlayerManager playerManager;
         public CompanionsDatabase companionsDatabase;
+
+        private void Awake()
+        {
+            if (isCompanion)
+            {
+                playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
+            }
+        }
 
         public override void OnStateEnter(StateManager stateManager)
         {
@@ -96,7 +103,7 @@ namespace AF
                 }
             }
             // Is Active Companion And Is Not Targetting Any Enemy
-            else if (companionId != null && companionsDatabase.IsCompanionAndIsActivelyInParty(companionId.companionId))
+            else if (isCompanion && companionsDatabase.IsCompanionAndIsActivelyInParty(characterManager.GetCharacterID()))
             {
                 return FollowPlayer();
             }

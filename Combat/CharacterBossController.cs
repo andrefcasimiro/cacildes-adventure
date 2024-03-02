@@ -15,10 +15,6 @@ namespace AF
         public string bossName;
         public AudioClip bossMusic;
 
-        [Header("Components")]
-        public BGMManager bgmManager;
-        public SceneSettings sceneSettings;
-
         public UIDocument bossHud;
         public IMGUIContainer bossFillBar;
 
@@ -29,13 +25,17 @@ namespace AF
         public UnityEvent onBossDefeated;
 
         // Flags
-        bool bossBattleHasBegun = false;
+        [HideInInspector] public bool bossBattleHasBegun = false;
 
         [Header("Flags")]
         public MonoBehaviourID monoBehaviourID;
         public FlagsDatabase flagsDatabase;
 
-        private void Awake()
+        // Scene References
+        private BGMManager bgmManager;
+        private SceneSettings sceneSettings;
+
+        public void Awake()
         {
             HideBossHud();
         }
@@ -53,17 +53,18 @@ namespace AF
                     return;
                 }
 
-                if (bossFillBar == null)
-                {
-                    bossFillBar = bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
-                }
-
+                bossFillBar ??= bossHud.rootVisualElement.Q<IMGUIContainer>("hp-bar");
                 bossFillBar.style.width = new Length(characterManager.health.GetCurrentHealth() * 100 / characterManager.health.GetMaxHealth(), LengthUnit.Percent);
             }
         }
 
         public void ShowBossHud()
         {
+            if (bossHud == null)
+            {
+                return;
+            }
+
             bossHud.enabled = true;
             bossHud.rootVisualElement.Q<Label>("boss-name").text = bossName;
             bossHud.rootVisualElement.style.display = DisplayStyle.Flex;
@@ -78,7 +79,7 @@ namespace AF
             }
         }
 
-        bool IsBossHUDEnabled()
+        public bool IsBossHUDEnabled()
         {
             return bossHud != null && bossHud.enabled;
         }
@@ -94,12 +95,12 @@ namespace AF
 
             ShowBossHud();
 
-            if (bossMusic != null && bgmManager != null)
+            if (bossMusic != null && GetBGMManager() != null)
             {
-                if (bgmManager.IsPlayingMusicClip(bossMusic.name) == false)
+                if (GetBGMManager().IsPlayingMusicClip(bossMusic.name) == false)
                 {
-                    bgmManager.PlayMusic(bossMusic);
-                    bgmManager.isPlayingBossMusic = true;
+                    GetBGMManager().PlayMusic(bossMusic);
+                    GetBGMManager().isPlayingBossMusic = true;
                 }
             }
 
@@ -131,15 +132,13 @@ namespace AF
                 UpdateBossFlag();
             }
 
-            if (bgmManager != null)
+            if (GetBGMManager() != null)
             {
-                bgmManager.isPlayingBossMusic = false;
+                GetBGMManager().isPlayingBossMusic = false;
             }
 
-            if (sceneSettings != null)
-            {
-                sceneSettings.HandleSceneSound(true);
-            }
+            GetSceneSettings().HandleSceneSound(true);
+
         }
 
         void UpdateBossFlag()
@@ -155,6 +154,25 @@ namespace AF
         public bool IsBoss()
         {
             return !string.IsNullOrEmpty(bossName);
+        }
+
+        BGMManager GetBGMManager()
+        {
+            if (bgmManager == null)
+            {
+                bgmManager = FindAnyObjectByType<BGMManager>(FindObjectsInactive.Include);
+            }
+
+            return bgmManager;
+        }
+
+        SceneSettings GetSceneSettings()
+        {
+            if (sceneSettings == null)
+            {
+                sceneSettings = FindAnyObjectByType<SceneSettings>(FindObjectsInactive.Include);
+            }
+            return sceneSettings;
         }
     }
 }

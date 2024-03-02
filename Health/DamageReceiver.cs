@@ -29,6 +29,7 @@ namespace AF
         public UnityEvent onFrostDamage;
         public UnityEvent onMagicDamage;
         public UnityEvent onLightningDamage;
+        public UnityEvent onDarknessDamage;
 
 
         [Header("Flags")]
@@ -236,6 +237,15 @@ namespace AF
 
                 onLightningDamage?.Invoke();
             }
+            if (damage.darkness > 0)
+            {
+                if (combatNotificationsController != null)
+                {
+                    combatNotificationsController.ShowDarknessDamage(damage.darkness);
+                }
+
+                onDarknessDamage?.Invoke();
+            }
 
             onDamageReceived?.Invoke();
         }
@@ -251,6 +261,7 @@ namespace AF
                     frost: 0,
                     magic: 0,
                     lightning: 0,
+                    darkness: 0,
                     poiseDamage: 1,
                     postureDamage: 2,
                     weaponAttackType: WeaponAttackType.Slash,
@@ -267,7 +278,7 @@ namespace AF
             }
 
             return (int)(damage.physical + damage.fire
-                + damage.frost + damage.magic + damage.lightning);
+                + damage.frost + damage.magic + damage.lightning + damage.darkness);
         }
     }
 }

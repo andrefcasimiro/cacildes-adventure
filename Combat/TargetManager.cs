@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Linq;
 using AF.Characters;
+using AF.Companions;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -19,6 +21,14 @@ namespace AF.Combat
         [Header("Faction Settings")]
         public CharacterFaction[] characterFactions;
 
+        [Header("Combat Start Settings")]
+        bool hasBeenInCombat = false;
+        public float delayWhenBeginningCombatForFirstTime = 1f;
+
+        // Scene Reference
+        PlayerManager playerManager;
+        CompanionsSceneManager companionsSceneManager;
+
         public void SetTarget(CharacterBaseManager target)
         {
             if (!CanSetTarget())
@@ -36,6 +46,26 @@ namespace AF.Combat
                 return;
             }
 
+            if (!hasBeenInCombat)
+            {
+                hasBeenInCombat = true;
+
+                IEnumerator PrepareCombat_Coroutine()
+                {
+                    yield return new WaitForSeconds(delayWhenBeginningCombatForFirstTime);
+                    HandleSetTarget(target);
+                }
+
+                StartCoroutine(PrepareCombat_Coroutine());
+            }
+            else
+            {
+                HandleSetTarget(target);
+            }
+        }
+
+        void HandleSetTarget(CharacterBaseManager target)
+        {
             currentTarget = target;
 
             onTargetSet_Event?.Invoke();
@@ -57,9 +87,10 @@ namespace AF.Combat
 
         void NotifyCompanions()
         {
-            foreach (CompanionID companionID in FindObjectsByType<CompanionID>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
+
+            foreach (var companionInstance in GetCompanionsSceneManager().companionInstancesInScene)
             {
-                companionID.characterManager.targetManager.SetTarget(this.characterManager);
+                companionInstance.Value.GetComponent<CharacterManager>().targetManager.SetTarget(this.characterManager);
             }
         }
 
@@ -97,5 +128,34 @@ namespace AF.Combat
 
             return false;
         }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void SetPlayerAsTarget()
+        {
+            SetTarget(GetPlayerManager());
+        }
+
+        PlayerManager GetPlayerManager()
+        {
+            if (playerManager == null)
+            {
+                playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
+            }
+
+            return playerManager;
+        }
+
+        CompanionsSceneManager GetCompanionsSceneManager()
+        {
+            if (companionsSceneManager == null)
+            {
+                companionsSceneManager = FindAnyObjectByType<CompanionsSceneManager>(FindObjectsInactive.Include);
+            }
+
+            return companionsSceneManager;
+        }
+
     }
 }

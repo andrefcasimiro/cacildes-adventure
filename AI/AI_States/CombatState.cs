@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,6 +21,7 @@ namespace AF
 
         [Header("Events")]
         public UnityEvent onStateEnter;
+
 
         public override void OnStateEnter(StateManager stateManager)
         {

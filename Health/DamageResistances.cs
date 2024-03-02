@@ -31,6 +31,9 @@ namespace AF
         [Range(0.1f, 1f)] public float lightningDamageFilter = 1;
         [Range(1, 5f)] public float lightningDamageBonus = 1;
 
+        [Range(0.1f, 1f)] public float darknessDamageFilter = 1;
+        [Range(1, 5f)] public float darknessDamageBonus = 1;
+
         public Damage FilterIncomingDamage(Damage incomingDamage)
         {
             Damage filteredDamage = incomingDamage;
@@ -42,6 +45,7 @@ namespace AF
             filteredDamage.frost = ApplyElementalDamageBonus(filteredDamage.frost, frostDamageBonus, frostDamageFilter);
             filteredDamage.magic = ApplyElementalDamageBonus(filteredDamage.magic, magicDamageBonus, magicDamageFilter);
             filteredDamage.lightning = ApplyElementalDamageBonus(filteredDamage.lightning, lightningDamageBonus, lightningDamageFilter);
+            filteredDamage.darkness = ApplyElementalDamageBonus(filteredDamage.darkness, darknessDamageBonus, darknessDamageFilter);
 
             return filteredDamage;
         }

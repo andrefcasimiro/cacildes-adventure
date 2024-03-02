@@ -7,14 +7,14 @@ namespace AF
 
     public class EV_JoinParty : EventBase
     {
-        public CompanionID companionId;
+        public CharacterManager characterManager;
 
         [Header("Databases")]
         public CompanionsDatabase companionsDatabase;
 
         public override IEnumerator Dispatch()
         {
-            companionsDatabase.AddToParty(companionId.companionId);
+            companionsDatabase.AddToParty(characterManager.GetCharacterID());
             yield return null;
         }
     }

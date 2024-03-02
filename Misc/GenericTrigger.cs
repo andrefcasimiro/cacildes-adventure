@@ -5,7 +5,7 @@ namespace AF
 {
     public class GenericTrigger : MonoBehaviour, IEventNavigatorCapturable
     {
-        [Header("Components")]
+        [Header("Components (Optional assignment, but recommended)")]
         public UIDocumentKeyPrompt uIDocumentKeyPrompt;
 
         [Header("Events")]
@@ -17,7 +17,7 @@ namespace AF
 
         public void OnCaptured()
         {
-            uIDocumentKeyPrompt.DisplayPrompt(key, action);
+            GetUIDocumentKeyPrompt().DisplayPrompt(key, action);
         }
 
         public void OnInvoked()
@@ -33,7 +33,7 @@ namespace AF
 
         public void DisableKeyPrompt()
         {
-            uIDocumentKeyPrompt.gameObject.SetActive(false);
+            GetUIDocumentKeyPrompt().gameObject.SetActive(false);
         }
 
         /// <summary>
@@ -50,6 +50,16 @@ namespace AF
         public void DisableCapturable()
         {
             this.gameObject.layer = 0;
+        }
+
+        UIDocumentKeyPrompt GetUIDocumentKeyPrompt()
+        {
+            if (uIDocumentKeyPrompt == null)
+            {
+                uIDocumentKeyPrompt = FindAnyObjectByType<UIDocumentKeyPrompt>(FindObjectsInactive.Include);
+            }
+
+            return uIDocumentKeyPrompt;
         }
     }
 }

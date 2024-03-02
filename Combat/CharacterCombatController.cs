@@ -127,6 +127,8 @@ namespace AF.Combat
             {
                 characterManager.UpdateAnimatorOverrideControllerClips(ANIMATION_CLIP_TO_OVERRIDE_NAME, currentCombatAction.attackAnimationClip);
 
+                characterManager.animator.ForceStateNormalizedTime(0f);
+
                 if (crossFade > 0)
                 {
                     characterManager.PlayAnimationWithCrossFade(hashLightAttack1, true, true, crossFade);

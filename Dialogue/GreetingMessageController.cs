@@ -54,7 +54,7 @@ namespace AF.Dialogue
             hasDisplayed = true;
 
             var greetingMessage =
-                characterGreetings.FirstOrDefault(messageGameObject => messageGameObject.isActiveAndEnabled);
+                characterGreetings.FirstOrDefault(messageGameObject => messageGameObject != null && messageGameObject.isActiveAndEnabled);
 
             if (greetingMessage == null)
             {

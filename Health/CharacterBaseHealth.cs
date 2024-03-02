@@ -39,8 +39,13 @@ namespace AF.Health
         public abstract void TakeDamage(float value);
 
         public abstract float GetCurrentHealth();
+        public abstract void SetCurrentHealth(float value);
 
         public abstract int GetMaxHealth();
+        public void SetMaxHealth(int value)
+        {
+            this.maxHealth = value;
+        }
 
         public void PlayPostureHit()
         {

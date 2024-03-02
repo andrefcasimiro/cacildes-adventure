@@ -91,6 +91,7 @@ namespace AF
                     fire: 0,
                     frost: 0,
                     lightning: 0,
+                    darkness: 0,
                     magic: 0,
                     poiseDamage: 0,
                     postureDamage: 0,

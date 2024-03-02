@@ -70,6 +70,7 @@ namespace AF
         public float fireAttack;
         public float frostAttack;
         public float lightningAttack;
+        public float darknessAttack;
         public float magicAttack;
 
         [Header("Poise Damage")]
@@ -188,6 +189,16 @@ namespace AF
         public int GetWeaponLightningAttackForLevel(int level)
         {
             return CalculateValue((int)lightningAttack, level);
+        }
+
+        public int GetWeaponDarknessAttack()
+        {
+            return CalculateValue((int)darknessAttack, this.level);
+        }
+
+        public int GetWeaponDarknessAttackForLevel(int level)
+        {
+            return CalculateValue((int)darknessAttack, level);
         }
 
         public int GetWeaponMagicAttack()

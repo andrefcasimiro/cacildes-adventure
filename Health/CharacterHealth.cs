@@ -2,7 +2,6 @@
 using AF.Events;
 using TigerForge;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.Events;
 
 namespace AF.Health
@@ -87,6 +86,10 @@ namespace AF.Health
             onRevive?.Invoke();
         }
 
+        public override void SetCurrentHealth(float value)
+        {
+            this.CurrentHealth = value;
+        }
     }
 
 }

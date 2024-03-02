@@ -1,12 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using AF;
 using AF.Events;
 using AYellowpaper.SerializedCollections;
 using TigerForge;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace AF.Companions
 {
@@ -36,6 +35,11 @@ namespace AF.Companions
         }
 #endif
 
+        public void AddToParty(CharacterManager characterManager)
+        {
+            AddToParty(characterManager.GetCharacterID());
+        }
+
         public void AddToParty(string companionId)
         {
             if (companionsInParty.ContainsKey(companionId))
@@ -53,6 +57,12 @@ namespace AF.Companions
 
             EventManager.EmitEvent(EventMessages.ON_PARTY_CHANGED);
         }
+
+        public void RemoveFromParty(CharacterManager characterManager)
+        {
+            RemoveFromParty(characterManager.GetCharacterID());
+        }
+
         public void RemoveFromParty(string companionId)
         {
             if (!companionsInParty.ContainsKey(companionId))
@@ -123,6 +133,18 @@ namespace AF.Companions
         public void Clear()
         {
             companionsInParty.Clear();
+        }
+
+        public Dictionary<string, CompanionState> GetActiveCompanins()
+        {
+            return companionsInParty.Where(x => x.Value.isWaitingForPlayer == false)
+                                    .ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        public Dictionary<string, CompanionState> GetWaitingCompanions()
+        {
+            return companionsInParty.Where(x => x.Value.isWaitingForPlayer)
+                                    .ToDictionary(x => x.Key, x => x.Value);
         }
     }
 
