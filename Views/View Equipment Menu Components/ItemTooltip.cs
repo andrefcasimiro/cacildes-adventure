@@ -113,7 +113,15 @@ namespace AF.UI.EquipmentMenu
             }
 
             tooltipItemSprite.style.backgroundImage = new StyleBackground(item.sprite);
-            tooltipItemDescription.text = item.name.ToUpper() + " \n" + '"' + item.itemDescription + '"';
+
+            string itemName = item.name.ToUpper();
+
+            if (item is Weapon wp)
+            {
+                itemName += " +" + wp.level;
+            }
+
+            tooltipItemDescription.text = itemName + " \n" + '"' + item.itemDescription + '"';
 
             if (item is Weapon weapon)
             {

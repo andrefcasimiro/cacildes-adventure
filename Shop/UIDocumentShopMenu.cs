@@ -211,6 +211,12 @@ namespace AF.Shops
                 cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.sprite);
                 cloneButton.Q<Label>("ItemName").text = item.name;
 
+                if (item is Weapon wp)
+                {
+                    cloneButton.Q<Label>("ItemName").text += " +" + wp.level;
+                }
+
+
                 bool canBuy = playerIsBuying && playerStatsDatabase.gold >= item.value;
                 bool canSell = !playerIsBuying && characterShop.shopGold >= item.value;
 
@@ -269,6 +275,7 @@ namespace AF.Shops
                 playerManager.playerInventory.AddItem(item, 1);
 
                 soundbank.PlaySound(soundbank.uiItemReceived);
+
                 notificationManager.ShowNotification("Bought " + item.name + "", item.sprite);
 
                 DrawBuyMenu(characterShop);
@@ -297,7 +304,7 @@ namespace AF.Shops
             }
 
             itemPreviewItemIcon.style.backgroundImage = new StyleBackground(item.sprite);
-            itemPreviewItemDescription.text = item.description;
+            itemPreviewItemDescription.text = item.itemDescription;
             itemPreview.style.opacity = 1;
         }
 

@@ -9,15 +9,13 @@ namespace AF
         [Header("General")]
         public Sprite sprite;
         [TextAreaAttribute(minLines: 5, maxLines: 10)] public string itemDescription;
+        public string shortDescription;
+
+        [Header("Value")]
         public float value = 0;
         public bool lostUponUse = true;
 
-        [Header("Descriptions")]
-
-        public string description;
-
-        public string shortDescription;
-
+        [Header("Debug")]
         [TextAreaAttribute(minLines: 5, maxLines: 10)] public string notes;
 
     }

@@ -47,14 +47,7 @@ namespace AF
 
         public void ReplenishItems()
         {
-            foreach (var item in inventoryDatabase.ownedItems)
-            {
-                if (item.Value.usages > 0)
-                {
-                    item.Value.amount += item.Value.usages;
-                    item.Value.usages = 0;
-                }
-            }
+            inventoryDatabase.ReplenishItems();
 
             uIDocumentPlayerHUDV2.UpdateEquipment();
         }
@@ -63,7 +56,7 @@ namespace AF
         {
             if (item is Weapon)
             {
-                int numberOfWeapons = inventoryDatabase.ownedItems.Count(x => x.Key is Weapon);
+                int numberOfWeapons = inventoryDatabase.GetWeaponsCount();
 
                 if (numberOfWeapons <= 0)
                 {
@@ -76,7 +69,7 @@ namespace AF
             }
             else if (item is Spell)
             {
-                int numberOfSpells = inventoryDatabase.ownedItems.Count(x => x.Key is Spell);
+                int numberOfSpells = inventoryDatabase.GetSpellsCount();
 
                 if (numberOfSpells <= 0)
                 {
@@ -89,15 +82,7 @@ namespace AF
         {
             HandleItemAchievements(item);
 
-            if (inventoryDatabase.HasItem(item))
-            {
-                inventoryDatabase.ownedItems[item].amount += quantity;
-            }
-            else
-            {
-                inventoryDatabase.ownedItems.Add(item, new ItemAmount() { amount = quantity, usages = 0 });
-            }
-
+            inventoryDatabase.AddItem(item, quantity);
 
             uIDocumentPlayerHUDV2.UpdateEquipment();
         }

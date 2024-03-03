@@ -23,6 +23,7 @@ namespace AF
         public VisualTreeAsset ingredientItem;
         public Sprite alchemyBackgroundImage;
         public Sprite cookingBackgroundImage;
+        public Sprite blacksmithBackgroundImage;
 
         public Sprite goldSprite;
 
@@ -50,6 +51,9 @@ namespace AF
         public InventoryDatabase inventoryDatabase;
         public PlayerStatsDatabase playerStatsDatabase;
 
+        int buttonIndexToFocusAfterRedraw;
+        Button buttonToFocusAfterRedraw;
+
         private void Awake()
         {
             this.gameObject.SetActive(false);
@@ -70,7 +74,25 @@ namespace AF
             cursorManager.HideCursor();
         }
 
-        void Close()
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OpenBlacksmithMenu()
+        {
+            this.craftActivity = CraftActivity.BLACKSMITH;
+            this.gameObject.SetActive(true);
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OpenAlchemyMenu()
+        {
+            this.craftActivity = CraftActivity.ALCHEMY;
+            this.gameObject.SetActive(true);
+        }
+
+        public void Close()
         {
             if (returnToBonfire)
             {
@@ -89,11 +111,10 @@ namespace AF
             cursorManager.HideCursor();
         }
 
-        void DrawUI()
+        void ClearPreviews()
         {
             root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
 
-            // Clear Weapon preview
             root.Q<Label>("WeaponLevelPreview").text = "";
             root.Q<Label>("WeaponLevelPreview").style.display = DisplayStyle.None;
             root.Q<Label>("PhysicalAttack").style.display = DisplayStyle.None;
@@ -101,12 +122,32 @@ namespace AF
             root.Q<Label>("FrostAttack").style.display = DisplayStyle.None;
             root.Q<Label>("LightningAttack").style.display = DisplayStyle.None;
             root.Q<Label>("MagicAttack").style.display = DisplayStyle.None;
+        }
 
-            var craftActivityTitle = root.Q<Label>("CraftActivityTitle");
+        void SetupActivity()
+        {
+            string targetActivityTitleText = "";
+            StyleBackground targetBackground = null;
+            if (craftActivity == CraftActivity.ALCHEMY)
+            {
+                targetActivityTitleText = "Crafting Table";
+                targetBackground = new StyleBackground(alchemyBackgroundImage);
+            }
+            else if (craftActivity == CraftActivity.BLACKSMITH)
+            {
+                targetActivityTitleText = "Weapon Upgrades";
+                targetBackground = new StyleBackground(blacksmithBackgroundImage);
+            }
+            root.Q<VisualElement>("ImageBack").style.backgroundImage = targetBackground;
+            root.Q<Label>("CraftActivityTitle").text = targetActivityTitleText;
+        }
 
-            root.Q<VisualElement>("ImageBack").style.backgroundImage = new StyleBackground(alchemyBackgroundImage);
+        void DrawUI()
+        {
+            ClearPreviews();
 
-            craftActivityTitle.text = "Crafting Table";
+            SetupActivity();
+
             PopulateScrollView(recipesDatabase.craftingRecipes.ToArray());
         }
 
@@ -125,10 +166,7 @@ namespace AF
                 Close();
             }, soundbank);
 
-            exitButton.Focus();
-
             scrollView.nestedInteractionKind = ScrollView.NestedInteractionKind.ForwardScrolling;
-
             scrollView.Add(exitButton);
 
             if (craftActivity == CraftActivity.BLACKSMITH)
@@ -139,11 +177,41 @@ namespace AF
             {
                 PopulateCraftingScroll(scrollView, ownedCraftingRecipes);
             }
+
+            if (buttonToFocusAfterRedraw != null)
+            {
+                buttonToFocusAfterRedraw.Focus();
+                scrollView.ScrollTo(buttonToFocusAfterRedraw);
+                buttonToFocusAfterRedraw = null;
+            }
+            else
+            {
+                exitButton.Focus();
+            }
+        }
+
+        public string GetItemDescription(CraftingRecipe recipe)
+        {
+            string itemDescription = recipe.resultingItem.shortDescription?.Length > 0 ?
+                                     recipe.resultingItem.shortDescription.Substring(0, System.Math.Min(60, recipe.resultingItem.shortDescription.Length)) : "";
+            return itemDescription + (recipe.resultingItem.shortDescription?.Length > 60 ? "..." : "");
+        }
+
+        void MemoizeButtonToFocusAfterRedraw(int index, Button targetButton)
+        {
+            if (buttonIndexToFocusAfterRedraw == index)
+            {
+                buttonIndexToFocusAfterRedraw = -1;
+                buttonToFocusAfterRedraw = targetButton;
+            }
         }
 
         void PopulateCraftingScroll(ScrollView scrollView, CraftingRecipe[] ownedCraftingRecipes)
         {
-            if (ownedCraftingRecipes.Length <= 0) { return; }
+            if (ownedCraftingRecipes.Length <= 0)
+            {
+                return;
+            }
 
             int i = 0;
             foreach (var recipe in ownedCraftingRecipes)
@@ -154,96 +222,49 @@ namespace AF
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(recipe.resultingItem.sprite);
                 scrollItem.Q<Label>("ItemName").text = recipe.resultingItem.name;
-                scrollItem.Q<Label>("ItemDescription").text = recipe.resultingItem.shortDescription;
+                scrollItem.Q<Label>("ItemDescription").text = GetItemDescription(recipe);
 
-                var craftBtn = scrollItem.Q<Button>("CraftButton");
+                var craftBtn = scrollItem.Q<Button>("CraftButtonItem");
+                var craftLabel = scrollItem.Q<Label>("CraftLabel");
 
-                craftBtn.text = "";
-                if (craftActivity == CraftActivity.ALCHEMY)
-                {
-                    craftBtn.text = "Craft";
-                }
-                else if (craftActivity == CraftActivity.COOKING)
-                {
-                    craftBtn.text = "Cook";
-                }
-                else if (craftActivity == CraftActivity.BLACKSMITH)
-                {
-                    craftBtn.text = "Upgrade";
-                }
+                craftLabel.text = GetCraftLabel();
 
-                if (CanCraftItem(recipe))
-                {
-                    craftBtn.style.opacity = 1f;
-                }
-                else
-                {
-                    craftBtn.style.opacity = 0.25f;
-                }
+                craftBtn.style.opacity = CraftingUtils.CanCraftItem(inventoryDatabase, recipe) ? 1f : 0.25f;
 
-                UIUtils.SetupButton(craftBtn, () =>
+                UIUtils.SetupButton(craftBtn,
+                () =>
                 {
-                    if (craftBtn.enabledSelf == false)
+                    buttonIndexToFocusAfterRedraw = i;
+
+                    if (!CraftingUtils.CanCraftItem(inventoryDatabase, recipe))
                     {
+                        HandleCraftError("Missing ingredients!");
                         return;
                     }
 
-                    if (!CanCraftItem(recipe))
+                    if (ShouldRuinMixture(recipe))
                     {
-                        soundbank.PlaySound(soundbank.craftError);
-                        notificationManager.ShowNotification("Missing ingredients!", notificationManager.alchemyLackOfIngredients);
+                        HandleCraftError("Crafting failed! Try again...");
                         return;
                     }
 
-                    var ingredientThatCanRuinMixture = recipe.ingredients.FirstOrDefault(x => x.ingredient.chanceToRuinMixture > 0);
-                    float chanceToRuinMixture = 0;
-                    if (ingredientThatCanRuinMixture != null)
-                    {
-                        chanceToRuinMixture = ingredientThatCanRuinMixture.ingredient.chanceToRuinMixture;
-                    }
-
-                    if (chanceToRuinMixture > 0 && Random.Range(0, 100) < chanceToRuinMixture)
-                    {
-                        soundbank.PlaySound(soundbank.craftError);
-                        notificationManager.ShowNotification("Crafting failed! Try again...", notificationManager.alchemyLackOfIngredients);
-                    }
-                    else
-                    {
-                        if (craftActivity == CraftActivity.COOKING)
-                        {
-                            playerManager.playerAchievementsManager.achievementForCookingFirstMeal.AwardAchievement();
-                        }
-                        else if (craftActivity == CraftActivity.ALCHEMY)
-                        {
-                            playerManager.playerAchievementsManager.achievementForBrewingFirstPotion.AwardAchievement();
-                        }
-
-
-                        soundbank.PlaySound(soundbank.craftSuccess);
-                        playerManager.playerInventory.AddItem(recipe.resultingItem, 1);
-                        notificationManager.ShowNotification("Received " + " " + recipe.resultingItem.name, recipe.resultingItem.sprite);
-
-                    }
-
-                    foreach (var ingredient in recipe.ingredients)
-                    {
-                        playerManager.playerInventory.RemoveItem(ingredient.ingredient, ingredient.amount);
-                    }
+                    HandleCraftSuccess(recipe);
 
                     DrawUI();
                 },
                 () =>
                 {
                     ShowRequiredIngredients(recipe);
-
                     scrollView.ScrollTo(craftBtn);
                 },
                 () =>
                 {
-                    root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
+
                 },
                 true,
                 soundbank);
+
+                MemoizeButtonToFocusAfterRedraw(i, craftBtn);
 
                 scrollView.Add(scrollItem);
             }
@@ -252,26 +273,15 @@ namespace AF
         void PopulateWeaponsScrollView()
         {
             var scrollView = this.root.Q<ScrollView>();
-            scrollView.Clear();
 
-            List<Item> weapons = new();
-
-            foreach (var it in inventoryDatabase.ownedItems)
+            int i = 0;
+            foreach (var itemEntry in GetUpgradeableWeapons())
             {
-                Weapon wp = it.Key as Weapon;
-                if (wp != null && wp.canBeUpgraded)
-                {
-                    weapons.Add(it.Key);
-                }
-            }
+                i++;
 
-            foreach (var itemEntry in weapons)
-            {
-                Weapon wp = itemEntry as Weapon;
-                var nextLevel = wp.level;
-                nextLevel++;
+                Weapon wp = itemEntry.Key as Weapon;
 
-                if (wp.upgradeMaterial == null || nextLevel >= 11)
+                if (ShouldSkipUpgrade(wp, wp.level))
                 {
                     continue;
                 }
@@ -279,64 +289,113 @@ namespace AF
                 var scrollItem = this.recipeItem.CloneTree();
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(wp.sprite);
-                scrollItem.Q<Label>("ItemName").text = wp.name + (wp.level > 1 ? "+" + wp.level : "");
+                scrollItem.Q<Label>("ItemName").text = GetWeaponName(wp);
                 scrollItem.Q<Label>("ItemDescription").text = "";
 
-                var craftBtn = scrollItem.Q<Button>("CraftButton");
-                craftBtn.text = "Upgrade";
-
-                if (CanImproveWeapon(wp))
-                {
-                    craftBtn.style.opacity = 1f;
-                }
-                else
-                {
-                    craftBtn.style.opacity = 0.25f;
-                }
+                var craftBtn = scrollItem.Q<Button>("CraftButtonItem");
+                craftBtn.style.opacity = CraftingUtils.CanImproveWeapon(inventoryDatabase, wp, playerStatsDatabase.gold) ? 1f : 0.25f;
 
                 UIUtils.SetupButton(craftBtn, () =>
                 {
-                    if (!CanImproveWeapon(wp))
+                    buttonIndexToFocusAfterRedraw = i;
+
+                    if (!CraftingUtils.CanImproveWeapon(inventoryDatabase, wp, playerStatsDatabase.gold))
                     {
-                        soundbank.PlaySound(soundbank.craftError);
-                        notificationManager.ShowNotification("Missing ingredients", notificationManager.alchemyLackOfIngredients);
+                        HandleCraftError("Missing ingredients");
                         return;
                     }
 
-                    playerManager.playerAchievementsManager.achievementForUpgradingFirstWeapon.AwardAchievement();
-
-                    //SteamAPI.instance.SetAchievementProgress(SteamAPI.AchievementName.WEAPONSMITH, 1);
-
-                    soundbank.PlaySound(soundbank.craftSuccess);
-
-                    notificationManager.ShowNotification("Weapon improved!", wp.sprite);
-
-                    var currentWeaponLevel = wp.level;
-                    uIDocumentPlayerGold.LoseGold(wp.GetRequiredUpgradeGoldForGivenLevel(currentWeaponLevel + 1));
-                    playerManager.playerInventory.RemoveItem(wp.upgradeMaterial, wp.GetRequiredOresForGivenLevel(currentWeaponLevel + 1));
-
-                    wp.level++;
-
+                    HandleWeaponUpgrade(wp);
 
                     DrawUI();
                 },
                 () =>
                 {
                     ShowRequirements(wp);
-
                     scrollView.ScrollTo(craftBtn);
                 },
-                () =>
-                {
-                    root.Q<VisualElement>("IngredientsListPreview").style.opacity = 0;
-                },
+                () => { },
                 true,
                 soundbank);
+
+                MemoizeButtonToFocusAfterRedraw(i, craftBtn);
 
                 scrollView.Add(scrollItem);
             }
         }
 
+        // Helper methods
+        string GetCraftLabel()
+        {
+            return craftActivity switch
+            {
+                CraftActivity.ALCHEMY => "Craft",
+                CraftActivity.COOKING => "Cook",
+                CraftActivity.BLACKSMITH => "Upgrade",
+                _ => "",
+            };
+        }
+
+        void HandleCraftError(string errorMessage)
+        {
+            soundbank.PlaySound(soundbank.craftError);
+            notificationManager.ShowNotification(errorMessage, notificationManager.alchemyLackOfIngredients);
+        }
+
+        bool ShouldRuinMixture(CraftingRecipe recipe)
+        {
+            var ingredientThatCanRuinMixture = recipe.ingredients.FirstOrDefault(x => x.ingredient.chanceToRuinMixture > 0);
+            return ingredientThatCanRuinMixture != null && Random.Range(0, 100) < ingredientThatCanRuinMixture.ingredient.chanceToRuinMixture;
+        }
+
+        void HandleCraftSuccess(CraftingRecipe recipe)
+        {
+            if (craftActivity == CraftActivity.COOKING)
+            {
+                playerManager.playerAchievementsManager.achievementForCookingFirstMeal.AwardAchievement();
+            }
+            else if (craftActivity == CraftActivity.ALCHEMY)
+            {
+                playerManager.playerAchievementsManager.achievementForBrewingFirstPotion.AwardAchievement();
+            }
+
+            soundbank.PlaySound(soundbank.craftSuccess);
+            playerManager.playerInventory.AddItem(recipe.resultingItem, 1);
+            notificationManager.ShowNotification("Received " + recipe.resultingItem.name, recipe.resultingItem.sprite);
+
+            foreach (var ingredient in recipe.ingredients)
+            {
+                playerManager.playerInventory.RemoveItem(ingredient.ingredient, ingredient.amount);
+            }
+        }
+
+        Dictionary<Item, ItemAmount> GetUpgradeableWeapons()
+        {
+            return inventoryDatabase.ownedItems.Where(itemEntry => itemEntry.Key is Weapon wp && wp.canBeUpgraded).ToDictionary(item => item.Key, item => item.Value);
+        }
+
+        bool ShouldSkipUpgrade(Weapon wp, int nextLevel)
+        {
+            return wp.canBeUpgraded == false || nextLevel >= wp.weaponUpgrades.Count();
+        }
+
+        string GetWeaponName(Weapon wp)
+        {
+            return $"{wp.name} +{wp.level} > {wp.name} +{wp.level + 1}";
+        }
+
+        void HandleWeaponUpgrade(Weapon wp)
+        {
+            playerManager.playerAchievementsManager.achievementForUpgradingFirstWeapon.AwardAchievement();
+            soundbank.PlaySound(soundbank.craftSuccess);
+            notificationManager.ShowNotification("Weapon improved!", wp.sprite);
+
+            CraftingUtils.UpgradeWeapon(
+                wp,
+                (goldUsed) => uIDocumentPlayerGold.LoseGold(goldUsed),
+                (upgradeMaterialUsed) => playerManager.playerInventory.RemoveItem(upgradeMaterialUsed.Key, upgradeMaterialUsed.Value)
+            );
+        }
 
         void ShowRequiredIngredients(CraftingRecipe recipe)
         {
@@ -348,12 +407,17 @@ namespace AF
                 ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(ingredient.ingredient.sprite);
                 ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name;
 
-                var playerOwnedIngredient = inventoryDatabase.ownedItems[ingredient.ingredient];
                 var playerOwnedIngredientAmount = 0;
+
+                var playerOwnedIngredient = inventoryDatabase.HasItem(ingredient.ingredient)
+                    ? inventoryDatabase.ownedItems[ingredient.ingredient]
+                    : null;
+
                 if (playerOwnedIngredient != null)
                 {
                     playerOwnedIngredientAmount = playerOwnedIngredient.amount;
                 }
+
                 ingredientItemEntry.Q<Label>("Amount").text = playerOwnedIngredientAmount + " / " + ingredient.amount;
                 ingredientItemEntry.Q<Label>("Amount").style.opacity = playerOwnedIngredientAmount >= ingredient.amount ? 1 : 0.25f;
 
@@ -362,45 +426,16 @@ namespace AF
 
             root.Q<VisualElement>("IngredientsListPreview").style.opacity = 1;
         }
-
-        bool CanCraftItem(CraftingRecipe recipe)
-        {
-            bool hasEnoughMaterial = true;
-
-            foreach (var ingredient in recipe.ingredients)
-            {
-                var itemEntry = inventoryDatabase.ownedItems[ingredient.ingredient];
-
-                if (itemEntry == null)
-                {
-                    hasEnoughMaterial = false;
-                    break;
-                }
-
-                if (itemEntry.amount >= ingredient.amount)
-                {
-                    hasEnoughMaterial = true;
-                }
-                else
-                {
-                    hasEnoughMaterial = false;
-                    break;
-                }
-            }
-
-            return hasEnoughMaterial;
-        }
-
         void ShowRequirements(Weapon weapon)
         {
+            WeaponUpgradeLevel weaponUpgradeLevel = weapon.weaponUpgrades.ElementAtOrDefault(weapon.level - 1);
 
-            var nextLevel = weapon.level;
-            nextLevel++;
-
-            if (weapon.upgradeMaterial == null)
+            if (weaponUpgradeLevel == null)
             {
                 return;
             }
+
+            var nextLevel = weapon.level + 1;
 
             // Weapon preview
             root.Q<Label>("WeaponLevelPreview").text = weapon.name + " +" + nextLevel;
@@ -413,46 +448,62 @@ namespace AF
             if (weapon.physicalAttack > 0)
             {
                 root.Q<Label>("PhysicalAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("PhysicalAttack").text = "Physical Damage: " + weapon.GetWeaponAttackForLevel(weapon.level) + " > " + weapon.GetWeaponAttackForLevel(nextLevel);
+                root.Q<Label>("PhysicalAttack").text = "Next Physical Damage: "
+                    + weapon.GetWeaponAttackForLevel(weapon.level) + " > " + weapon.GetWeaponAttackForLevel(nextLevel);
             }
             if (weapon.fireAttack > 0)
             {
                 root.Q<Label>("FireAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("FireAttack").text = "Fire Bonus: " + weapon.GetWeaponFireAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFireAttackForLevel(nextLevel);
+                root.Q<Label>("FireAttack").text = "Next Fire Bonus: "
+                    + weapon.GetWeaponFireAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFireAttackForLevel(nextLevel);
             }
             if (weapon.frostAttack > 0)
             {
                 root.Q<Label>("FrostAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("FrostAttack").text = "Frost Bonus: " + weapon.GetWeaponFrostAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFrostAttackForLevel(nextLevel);
+                root.Q<Label>("FrostAttack").text = "Next Frost Bonus: "
+                    + weapon.GetWeaponFrostAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFrostAttackForLevel(nextLevel);
             }
             if (weapon.lightningAttack > 0)
             {
                 root.Q<Label>("LightningAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("LightningAttack").text = "Lightning Bonus: " + weapon.GetWeaponLightningAttackForLevel(weapon.level) + " > " + weapon.GetWeaponLightningAttackForLevel(nextLevel);
+                root.Q<Label>("LightningAttack").text = "Next Lightning Bonus: "
+                    + weapon.GetWeaponLightningAttackForLevel(weapon.level) + " > " + weapon.GetWeaponLightningAttackForLevel(nextLevel);
             }
             if (weapon.magicAttack > 0)
             {
                 root.Q<Label>("MagicAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("MagicAttack").text = "Magic Bonus: " + weapon.GetWeaponMagicAttackForLevel(weapon.level) + " > " + weapon.GetWeaponMagicAttackForLevel(nextLevel);
+                root.Q<Label>("MagicAttack").text = "Next Magic Bonus: "
+                    + weapon.GetWeaponMagicAttackForLevel(weapon.level) + " > " + weapon.GetWeaponMagicAttackForLevel(nextLevel);
             }
 
-            // Requiremnts
+            // Requirements
+
             root.Q<VisualElement>("ItemInfo").Clear();
 
-            var ingredientItemEntry = ingredientItem.CloneTree();
-            ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(weapon.upgradeMaterial.sprite);
-            ingredientItemEntry.Q<Label>("Title").text = weapon.upgradeMaterial.name;
-
-            var playerOwnedIngredient = inventoryDatabase.ownedItems[weapon.upgradeMaterial];
-            var playerOwnedIngredientAmount = 0;
-            if (playerOwnedIngredient != null)
+            foreach (var upgradeMaterial in weaponUpgradeLevel.upgradeMaterials)
             {
-                playerOwnedIngredientAmount = playerOwnedIngredient.amount;
-            }
-            ingredientItemEntry.Q<Label>("Amount").text = playerOwnedIngredientAmount + " / " + weapon.GetRequiredOresForGivenLevel(nextLevel);
-            ingredientItemEntry.Q<Label>("Amount").style.opacity = playerOwnedIngredient != null && playerOwnedIngredientAmount >= playerOwnedIngredient.amount ? 1 : 0.25f;
+                UpgradeMaterial upgradeMaterialItem = upgradeMaterial.Key;
+                int amountRequiredFoUpgrade = upgradeMaterial.Value;
 
-            root.Q<VisualElement>("ItemInfo").Add(ingredientItemEntry);
+                var ingredientItemEntry = ingredientItem.CloneTree();
+                ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(upgradeMaterialItem.sprite);
+                ingredientItemEntry.Q<Label>("Title").text = upgradeMaterialItem.name;
+
+                var playerOwnedIngredient = inventoryDatabase.HasItem(upgradeMaterialItem)
+                    ? inventoryDatabase.ownedItems[upgradeMaterialItem]
+                    : null;
+
+                var playerOwnedIngredientAmount = 0;
+                if (playerOwnedIngredient != null)
+                {
+                    playerOwnedIngredientAmount = playerOwnedIngredient.amount;
+                }
+                ingredientItemEntry.Q<Label>("Amount").text = playerOwnedIngredientAmount + " / " + amountRequiredFoUpgrade;
+                ingredientItemEntry.Q<Label>("Amount").style.opacity =
+                    playerOwnedIngredient != null && playerOwnedIngredientAmount >= amountRequiredFoUpgrade ? 1 : 0.25f;
+
+                root.Q<VisualElement>("ItemInfo").Add(ingredientItemEntry);
+            }
 
             // Add Gold
 
@@ -460,41 +511,11 @@ namespace AF
             goldItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(goldSprite);
             goldItemEntry.Q<Label>("Title").text = "Gold";
 
-            goldItemEntry.Q<Label>("Amount").text = playerStatsDatabase.gold + " / " + weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel);
-            goldItemEntry.Q<Label>("Amount").style.opacity = playerStatsDatabase.gold >= weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel) ? 1 : 0.25f;
+            goldItemEntry.Q<Label>("Amount").text = playerStatsDatabase.gold + " / " + weaponUpgradeLevel.goldCostForUpgrade;
+            goldItemEntry.Q<Label>("Amount").style.opacity = playerStatsDatabase.gold >= weaponUpgradeLevel.goldCostForUpgrade ? 1 : 0.25f;
 
             root.Q<VisualElement>("ItemInfo").Add(goldItemEntry);
             root.Q<VisualElement>("IngredientsListPreview").style.opacity = 1;
-        }
-
-        bool CanImproveWeapon(Weapon weapon)
-        {
-            var nextLevel = weapon.level;
-            nextLevel++;
-
-            if (weapon.upgradeMaterial == null)
-            {
-                return false;
-            }
-
-            var itemEntry = inventoryDatabase.ownedItems[weapon.upgradeMaterial];
-
-            if (itemEntry == null)
-            {
-                return false;
-            }
-
-            if (itemEntry.amount < weapon.GetRequiredOresForGivenLevel(nextLevel))
-            {
-                return false;
-            }
-
-            if (playerStatsDatabase.gold < weapon.GetRequiredUpgradeGoldForGivenLevel(nextLevel))
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }

@@ -78,9 +78,17 @@ namespace AF
 
             hasCollided = true;
 
-            if (shooter is PlayerManager playerManager && scaleWithIntelligence)
+            if (shooter is PlayerManager playerManager)
             {
-                damage = playerManager.attackStatManager.GetScaledSpellDamage(damage);
+                if (scaleWithIntelligence)
+                {
+                    damage = playerManager.attackStatManager.GetScaledSpellDamage(damage);
+                }
+                else if (playerManager.attackStatManager.HasBowEquipped())
+                {
+                    // Merge projectile damage with player weapon
+                    damage = playerManager.attackStatManager.GetArrowDamage(damage);
+                }
             }
 
             damageReceiver.TakeDamage(damage);

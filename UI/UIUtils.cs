@@ -69,11 +69,11 @@ namespace AF
             });
         }
 
-
         public static void PlayPopAnimation(VisualElement button)
         {
             PlayPopAnimation(button, Vector3.zero);
         }
+
         public static void PlayPopAnimation(VisualElement button, Vector3 startingScale)
         {
             button.transform.scale = Vector3.one;

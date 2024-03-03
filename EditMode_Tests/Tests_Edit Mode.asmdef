@@ -4,7 +4,8 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "AF"
+        "AF",
+        "AYellowpaper.SerializedCollections"
     ],
     "includePlatforms": [
         "Editor"

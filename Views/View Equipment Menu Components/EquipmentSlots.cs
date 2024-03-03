@@ -483,6 +483,11 @@ namespace AF.UI.EquipmentMenu
             {
                 menuLabel.text = item.name;
 
+                if (item is Weapon weapon)
+                {
+                    menuLabel.text += " +" + weapon.level;
+                }
+
                 itemTooltip.gameObject.SetActive(true);
                 itemTooltip.PrepareTooltipForItem(item);
             }

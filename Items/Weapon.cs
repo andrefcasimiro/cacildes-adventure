@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AF.Animations;
+using AYellowpaper.SerializedCollections;
+using UnityEditor;
 using UnityEngine;
 
 namespace AF
@@ -49,6 +52,15 @@ namespace AF
         Colossal = 6,
     }
 
+    [System.Serializable]
+    public class WeaponUpgradeLevel
+    {
+        public int goldCostForUpgrade;
+        public int bonusAttack;
+
+        public SerializedDictionary<UpgradeMaterial, int> upgradeMaterials;
+    }
+
     [CreateAssetMenu(menuName = "Items / Weapon / New Weapon")]
     public class Weapon : Item
     {
@@ -60,11 +72,8 @@ namespace AF
         [Header("Level & Upgrades")]
         public bool canBeUpgraded = true;
         public int level = 1;
-        public float attackMultiplierPerLevel = 5f;
-        public int baseGoldLevelToUpgradeWeapon = 100;
 
-        public UpgradeMaterial upgradeMaterial;
-        public float requiredOresPerLevelMultiplier = 2.25f;
+        public WeaponUpgradeLevel[] weaponUpgrades;
 
         [Header("Elemental Damages")]
         public float fireAttack;
@@ -75,7 +84,8 @@ namespace AF
 
         [Header("Poise Damage")]
         public int poiseDamageBonus = 0;
-        [Tooltip("How much block hit this weapon does on an enemy shield. Heavier weapons should do at least 2 or 3 hits.")] public int blockHitAmount = 1;
+        [Tooltip("How much block hit this weapon does on an enemy shield. Heavier weapons should do at least 2 or 3 hits.")]
+        public int blockHitAmount = 1;
 
         public float pushForce = 0;
 
@@ -149,13 +159,34 @@ namespace AF
         [Header("Is Holy?")]
         public bool isHolyWeapon = false;
 
+#if UNITY_EDITOR
+        private void OnEnable()
+        {
+            // No need to populate the list; it's serialized directly
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+        }
+
+        private void OnPlayModeStateChanged(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.ExitingPlayMode)
+            {
+                // Clear the list when exiting play mode
+                level = 1;
+            }
+        }
+#endif
+
         public int CalculateValue(int baseValue, int currentLevel)
         {
-            var levelAttackBonus = (int)(currentLevel * attackMultiplierPerLevel);
 
-            var baseAttack = baseValue + levelAttackBonus;
-            var bonusAttack = (baseValue / Mathf.Clamp(10 - currentLevel, 1, 10));
-            return (int)(baseAttack + bonusAttack);
+            WeaponUpgradeLevel weaponUpgradeLevel = weaponUpgrades.ElementAtOrDefault(currentLevel - 2);
+
+            if (weaponUpgradeLevel != null)
+            {
+                return baseValue + weaponUpgradeLevel.bonusAttack;
+            }
+
+            return baseValue;
         }
 
         public int GetWeaponAttack()
@@ -205,21 +236,11 @@ namespace AF
         {
             return CalculateValue((int)magicAttack, this.level);
         }
+
         public int GetWeaponMagicAttackForLevel(int level)
         {
             return CalculateValue((int)magicAttack, level);
         }
-
-        public int GetRequiredOresForGivenLevel(int level)
-        {
-            return (int)Mathf.Floor((level / 2) * requiredOresPerLevelMultiplier);
-        }
-
-        public int GetRequiredUpgradeGoldForGivenLevel(int level)
-        {
-            return (int)Mathf.Floor(level * baseGoldLevelToUpgradeWeapon);
-        }
-
     }
 
 }

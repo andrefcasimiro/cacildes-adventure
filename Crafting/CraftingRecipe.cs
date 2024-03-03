@@ -14,11 +14,9 @@ namespace AF
 
     public class CraftingRecipe : ScriptableObject
     {
-        [Header("!! English name must match filename")]
-        public new string name;
 
         public Item resultingItem;
 
-        public List<CraftingIngredientEntry> ingredients = new List<CraftingIngredientEntry>();
+        public List<CraftingIngredientEntry> ingredients = new();
     }
 }

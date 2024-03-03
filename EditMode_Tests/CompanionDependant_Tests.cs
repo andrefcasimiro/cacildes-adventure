@@ -18,10 +18,10 @@ namespace AF.Tests
         public void SetUp()
         {
             GameObject go = new();
-            go.name = companionId;
 
             companionDependant = go.AddComponent<CompanionDependant>();
             companionDependant.characterManager = go.AddComponent<CharacterManager>();
+            companionDependant.characterManager.characterID = companionId;
 
             companionsDatabase = ScriptableObject.CreateInstance<CompanionsDatabase>();
             companionDependant.companionsDatabase = companionsDatabase;

@@ -72,6 +72,7 @@ namespace AF
                 this.notificationsPanel.RemoveAt(0);
             }
 
+
             VisualElement notificationInstance = notificationItemPrefab.CloneTree();
             notificationInstance.Q<Label>().text = message;
 
@@ -84,6 +85,8 @@ namespace AF
                 notificationInstance.Q<IMGUIContainer>().style.backgroundImage = new StyleBackground(sprite);
                 notificationInstance.Q<IMGUIContainer>().style.display = DisplayStyle.Flex;
             }
+
+            UIUtils.PlayPopAnimation(notificationInstance);
 
             this.notificationsPanel.Add(notificationInstance);
             timePassed = 0f;

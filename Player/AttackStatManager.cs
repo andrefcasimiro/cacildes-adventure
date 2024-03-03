@@ -69,6 +69,11 @@ namespace AF
             return playerManager.playerCombatController.isJumpAttacking;
         }
 
+        public bool HasBowEquipped()
+        {
+            return equipmentDatabase.IsBowEquipped();
+        }
+
         public Damage GetAttackDamage()
         {
             Weapon weapon = equipmentDatabase.GetCurrentWeapon();
@@ -175,13 +180,14 @@ namespace AF
 
         public int GetWeaponAttack(Weapon weapon)
         {
-
             float strengthBonusFromWeapon = GetStrengthBonusFromWeapon(weapon);
             float dexterityBonus = GetDexterityBonusFromWeapon(weapon);
             float intelligenceBonus = GetIntelligenceBonusFromWeapon(weapon);
 
+
+
             var value = (int)(
-                GetCurrentPhysicalAttack()
+                (HasBowEquipped() ? 0 : GetCurrentPhysicalAttack())
                 + weapon.GetWeaponAttack()
                 + GetStrengthBonusFromWeapon(weapon)
                 + GetDexterityBonusFromWeapon(weapon)
@@ -263,9 +269,20 @@ namespace AF
 
         #endregion
 
-        public float GetArrowDamageBonus()
+        public Damage GetArrowDamage(Damage projectileDamage)
         {
-            return Mathf.Ceil(playerStatsDatabase.dexterity * levelMultiplier + playerManager.statsBonusController.dexterityBonus * levelMultiplier);
+            Damage bowDamage = GetAttackDamage();
+
+            projectileDamage.physical += bowDamage.physical;
+            projectileDamage.fire += bowDamage.fire;
+            projectileDamage.frost += bowDamage.frost;
+            projectileDamage.darkness += bowDamage.darkness;
+            projectileDamage.magic += bowDamage.magic;
+            projectileDamage.lightning += bowDamage.lightning;
+            projectileDamage.postureDamage += bowDamage.postureDamage;
+            projectileDamage.poiseDamage += bowDamage.poiseDamage;
+
+            return projectileDamage;
         }
 
         public Damage GetScaledSpellDamage(Damage spellDamage)

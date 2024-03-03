@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using AYellowpaper.SerializedCollections;
 using UnityEditor;
@@ -12,7 +11,7 @@ namespace AF.Inventory
 
         [Header("Inventory")]
         [SerializedDictionary("Item", "Quantity")]
-        public SerializedDictionary<Item, ItemAmount> ownedItems;
+        public SerializedDictionary<Item, ItemAmount> ownedItems = new();
 
         public bool shouldClearOnExitPlayMode = false;
 
@@ -36,6 +35,43 @@ namespace AF.Inventory
         public void Clear()
         {
             ownedItems.Clear();
+        }
+
+        public void ReplenishItems()
+        {
+            foreach (var item in ownedItems)
+            {
+                if (item.Value.usages > 0)
+                {
+                    item.Value.amount += item.Value.usages;
+                    item.Value.usages = 0;
+                }
+            }
+        }
+
+        public void AddItem(Item itemToAdd)
+        {
+            AddItem(itemToAdd, 1);
+        }
+
+        public void AddItem(Item itemToAdd, int quantity)
+        {
+
+            if (HasItem(itemToAdd))
+            {
+                ownedItems[itemToAdd].amount += quantity;
+            }
+            else
+            {
+                ownedItems.Add(itemToAdd, new ItemAmount() { amount = quantity, usages = 0 });
+            }
+
+        }
+
+
+        public void RemoveItem(Item itemToAdd)
+        {
+            RemoveItem(itemToAdd, 1);
         }
 
         public void RemoveItem(Item itemToRemove, int quantity)
@@ -82,6 +118,16 @@ namespace AF.Inventory
         public bool HasItem(Item itemToFind)
         {
             return this.ownedItems.ContainsKey(itemToFind);
+        }
+
+        public int GetWeaponsCount()
+        {
+            return ownedItems.Count(x => x.Key is Weapon);
+        }
+
+        public int GetSpellsCount()
+        {
+            return ownedItems.Count(x => x.Key is Spell);
         }
     }
 }
