@@ -222,7 +222,9 @@ namespace AF
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(recipe.resultingItem.sprite);
                 scrollItem.Q<Label>("ItemName").text = recipe.resultingItem.name;
+
                 scrollItem.Q<Label>("ItemDescription").text = GetItemDescription(recipe);
+                scrollItem.Q<Label>("ItemDescription").style.display = DisplayStyle.Flex;
 
                 var craftBtn = scrollItem.Q<Button>("CraftButtonItem");
                 var craftLabel = scrollItem.Q<Label>("CraftLabel");
@@ -290,7 +292,7 @@ namespace AF
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(wp.sprite);
                 scrollItem.Q<Label>("ItemName").text = GetWeaponName(wp);
-                scrollItem.Q<Label>("ItemDescription").text = "";
+                scrollItem.Q<Label>("ItemDescription").style.display = DisplayStyle.None;
 
                 var craftBtn = scrollItem.Q<Button>("CraftButtonItem");
                 craftBtn.style.opacity = CraftingUtils.CanImproveWeapon(inventoryDatabase, wp, playerStatsDatabase.gold) ? 1f : 0.25f;

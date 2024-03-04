@@ -48,6 +48,8 @@ namespace AF.Shooting
 
         public CinemachineImpulseSource cinemachineImpulseSource;
 
+        Coroutine FireDelayedProjectileCoroutine;
+
         public void ResetStates()
         {
             isShooting = false;
@@ -63,6 +65,9 @@ namespace AF.Shooting
             cinemachine3RdPersonFollow = aimingCamera.GetComponent<CinemachineVirtualCamera>().GetCinemachineComponent<Cinemachine3rdPersonFollow>();
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
         public void OnFireInput()
         {
             if (CanShoot())
@@ -138,14 +143,6 @@ namespace AF.Shooting
             GetPlayerManager().thirdPersonController.virtualCamera.gameObject.SetActive(false);
         }
 
-        private void Update()
-        {
-            if (isAiming && equipmentDatabase.IsBowEquipped())
-            {
-                lookAtConstraint.constraintActive = GetPlayerManager().thirdPersonController._input.move.magnitude <= 0;
-            }
-        }
-
         public void Aim_End()
         {
             if (!isAiming)
@@ -161,11 +158,13 @@ namespace AF.Shooting
             GetPlayerManager().thirdPersonController.virtualCamera.gameObject.SetActive(true);
         }
 
-        PlayerManager GetPlayerManager()
+        private void Update()
         {
-            return characterBaseManager as PlayerManager;
+            if (isAiming && equipmentDatabase.IsBowEquipped())
+            {
+                lookAtConstraint.constraintActive = GetPlayerManager().thirdPersonController._input.move.magnitude <= 0;
+            }
         }
-
         public void ShootBow(ConsumableProjectile consumableProjectile, Transform origin, Transform lockOnTarget)
         {
             if (equipmentDatabase.IsBowEquipped())
@@ -210,36 +209,73 @@ namespace AF.Shooting
             Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
             Vector3 lookPosition = ray.direction;
 
-            GameObject projectileInstance = Instantiate(projectile.gameObject, ray.GetPoint(originDistanceFromCamera), Quaternion.LookRotation(lookPosition));
-
-            projectileInstance.TryGetComponent(out IProjectile componentProjectile);
-            if (componentProjectile == null)
-            {
-                return;
-            }
 
             if (lookPosition.y > 0)
             {
                 lookPosition.y *= -1f;
             }
 
-            componentProjectile.Shoot(characterBaseManager, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
+            float delay = 0f;
 
-            if (lockOnTarget != null)
+            if (lockOnTarget != null && lockOnManager.isLockedOn)
             {
                 var rotation = lockOnTarget.transform.position - characterBaseManager.transform.position;
                 rotation.y = 0;
                 characterBaseManager.transform.rotation = Quaternion.LookRotation(rotation);
-
-                characterBaseManager.PlayBusyHashedAnimation(hashFireBowLockedOn);
             }
-            else if (equipmentDatabase.IsBowEquipped())
+
+            if (equipmentDatabase.IsBowEquipped())
             {
-                characterBaseManager.PlayBusyHashedAnimation(hashFireBow);
+                if (isAiming)
+                {
+                    characterBaseManager.PlayBusyHashedAnimation(hashFireBow);
+                }
+                else
+                {
+
+                    characterBaseManager.PlayBusyHashedAnimation(hashFireBowLockedOn);
+                    delay = 0.5f;
+                }
             }
 
             cinemachineImpulseSource.GenerateImpulse();
             isShooting = true;
+
+            if (FireDelayedProjectileCoroutine != null)
+            {
+                StopCoroutine(FireDelayedProjectileCoroutine);
+            }
+
+            FireDelayedProjectileCoroutine = StartCoroutine(FireDelayedProjectile_Coroutine(projectile, originDistanceFromCamera, Quaternion.LookRotation(lookPosition), ray, delay));
+        }
+
+        IEnumerator FireDelayedProjectile_Coroutine(GameObject projectile, float originDistanceFromCamera, Quaternion lookPosition, Ray ray, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            Vector3 origin = ray.GetPoint(originDistanceFromCamera);
+
+            // If shooting spell but not locked on, use player transform forward to direct the spell
+            if (lockOnManager.isLockedOn == false && isAiming == false)
+            {
+                origin = lookAtConstraint.transform.position;
+                ray.direction = characterBaseManager.transform.forward;
+
+
+                Vector3 lookDir = ray.direction;
+                lookDir.y = 0;
+                lookPosition = Quaternion.LookRotation(lookDir);
+            }
+
+            GameObject projectileInstance = Instantiate(projectile.gameObject, origin, lookPosition);
+
+            projectileInstance.TryGetComponent(out IProjectile componentProjectile);
+            if (componentProjectile == null)
+            {
+                yield break;
+            }
+
+            componentProjectile.Shoot(characterBaseManager, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
         }
 
         bool CanAim()
@@ -277,14 +313,14 @@ namespace AF.Shooting
                 return false;
             }
 
-            // Edge case, if locked on, allow shooting
-            if (lockOnManager.isLockedOn)
-            {
-                return true;
-            }
-
-            return isAiming;
+            return true;
         }
+
+        PlayerManager GetPlayerManager()
+        {
+            return characterBaseManager as PlayerManager;
+        }
+
     }
 
 }

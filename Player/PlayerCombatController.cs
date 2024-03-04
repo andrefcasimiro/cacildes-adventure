@@ -182,6 +182,11 @@ namespace AF
                 return false;
             }
 
+            if (equipmentDatabase.IsStaffEquipped() || equipmentDatabase.IsBowEquipped())
+            {
+                return false;
+            }
+
             return playerManager.staminaStatManager.HasEnoughStaminaForLightAttack();
         }
 
@@ -213,11 +218,6 @@ namespace AF
             }
 
             if (playerManager.playerShootingManager.isAiming)
-            {
-                return false;
-            }
-
-            if (equipmentDatabase.IsBowEquipped() && lockOnManager.isLockedOn)
             {
                 return false;
             }
