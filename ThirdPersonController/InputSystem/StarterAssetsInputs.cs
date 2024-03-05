@@ -38,6 +38,7 @@ namespace AF
 		public UnityEvent onSwitchShieldInput;
 
 		public UnityEvent onSwitchConsumableInput;
+		public UnityEvent onToggleTwoHandsInput;
 
 		[Header("UI")]
 		public UnityEvent onMenuEvent;
@@ -106,6 +107,7 @@ namespace AF
 
 		public void OnTab(InputValue value)
 		{
+			onToggleTwoHandsInput?.Invoke();
 		}
 
 		public void OnLightAttack(InputValue value)

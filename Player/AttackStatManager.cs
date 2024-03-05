@@ -40,7 +40,7 @@ namespace AF
         public float levelMultiplier = 3.25f;
 
         public float jumpAttackMultiplier = 2.25f;
-
+        public int twoHandAttackBonus = 15;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -79,22 +79,23 @@ namespace AF
             Weapon weapon = equipmentDatabase.GetCurrentWeapon();
             if (weapon != null)
             {
-                return new Damage(
+                Damage weaponDamage = new Damage(
                     physical: GetWeaponAttack(weapon),
-                    fire: (int)weapon.fireAttack,
-                    frost: (int)weapon.frostAttack,
-                    magic: (int)weapon.magicAttack,
-                    lightning: (int)weapon.lightningAttack,
-                    darkness: (int)weapon.darknessAttack,
+                    fire: (int)weapon.damage.fire,
+                    frost: (int)weapon.damage.frost,
+                    magic: (int)weapon.damage.magic,
+                    lightning: (int)weapon.damage.lightning,
+                    darkness: (int)weapon.damage.darkness,
                     postureDamage: (IsHeavyAttacking() || IsJumpAttacking())
                     ? weapon.heavyAttackPostureDamage
-                    : weapon.lightAttackPostureDamage,
-                    poiseDamage: weapon.poiseDamageBonus,
-                    weaponAttackType: weapon.weaponAttackType,
-                    statusEffect: null,
-                    statusEffectAmount: 0,
-                    pushForce: weapon.pushForce
+                    : weapon.damage.postureDamage,
+                    poiseDamage: weapon.damage.poiseDamage,
+                    weaponAttackType: weapon.damage.weaponAttackType,
+                    statusEffects: null,
+                    pushForce: weapon.damage.pushForce
                 );
+
+                return playerManager.playerWeaponsManager.GetBuffedDamage(weaponDamage);
             }
 
             return new Damage(
@@ -109,8 +110,7 @@ namespace AF
                     : unarmedHeavyAttackPostureDamage,
                 poiseDamage: 1,
                 weaponAttackType: WeaponAttackType.Blunt,
-                statusEffect: null,
-                statusEffectAmount: 0,
+                statusEffects: null,
                 pushForce: 0
             );
         }
@@ -184,8 +184,6 @@ namespace AF
             float dexterityBonus = GetDexterityBonusFromWeapon(weapon);
             float intelligenceBonus = GetIntelligenceBonusFromWeapon(weapon);
 
-
-
             var value = (int)(
                 (HasBowEquipped() ? 0 : GetCurrentPhysicalAttack())
                 + weapon.GetWeaponAttack()
@@ -194,6 +192,10 @@ namespace AF
                 + GetIntelligenceBonusFromWeapon(weapon)
             );
 
+            if (playerManager.twoHandingController.isTwoHanding)
+            {
+                value += twoHandAttackBonus + (int)strengthBonusFromWeapon;
+            }
 
             if (playerManager.playerCombatController.isHeavyAttacking)
             {
@@ -289,7 +291,7 @@ namespace AF
         {
             Weapon weapon = equipmentDatabase.GetCurrentWeapon();
 
-            if (weapon == null || weapon.weaponAttackType != WeaponAttackType.Staff)
+            if (weapon == null || weapon.damage.weaponAttackType != WeaponAttackType.Staff)
             {
                 return spellDamage;
             }

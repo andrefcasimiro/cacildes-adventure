@@ -31,8 +31,7 @@ namespace AF.Tests
                 postureDamage: 30,
                 poiseDamage: 1,
                 weaponAttackType: WeaponAttackType.Pierce,
-                statusEffect: null,
-                statusEffectAmount: 0,
+                statusEffects: null,
                 pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);
@@ -63,8 +62,7 @@ namespace AF.Tests
                 postureDamage: 30,
                 poiseDamage: 1,
                 weaponAttackType: WeaponAttackType.Blunt,
-                statusEffect: null,
-                statusEffectAmount: 0,
+                statusEffects: null,
                 pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);
@@ -95,8 +93,7 @@ namespace AF.Tests
                 postureDamage: 30,
                 poiseDamage: 1,
                 weaponAttackType: WeaponAttackType.Pierce,
-                statusEffect: null,
-                statusEffectAmount: 0,
+                statusEffects: null,
                 pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);
@@ -119,8 +116,7 @@ namespace AF.Tests
                 postureDamage: 30,
                 poiseDamage: 1,
                 weaponAttackType: WeaponAttackType.Pierce,
-                statusEffect: null,
-                statusEffectAmount: 0,
+                statusEffects: null,
                 pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);
@@ -143,8 +139,7 @@ namespace AF.Tests
                 postureDamage: 30,
                 poiseDamage: 1,
                 weaponAttackType: WeaponAttackType.Pierce,
-                statusEffect: null,
-                statusEffectAmount: 0,
+                statusEffects: null,
                 pushForce: 0);
 
             Damage filteredDamage = damageResistances.FilterIncomingDamage(incomingDamage);

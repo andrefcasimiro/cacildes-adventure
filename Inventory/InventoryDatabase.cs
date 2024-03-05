@@ -13,6 +13,9 @@ namespace AF.Inventory
         [SerializedDictionary("Item", "Quantity")]
         public SerializedDictionary<Item, ItemAmount> ownedItems = new();
 
+        [Header("Databases")]
+        public EquipmentDatabase equipmentDatabase;
+
         public bool shouldClearOnExitPlayMode = false;
 
 #if UNITY_EDITOR
@@ -84,25 +87,33 @@ namespace AF.Inventory
             if (ownedItems[itemToRemove].amount <= 1)
             {
                 // If not reusable item
-                if (itemToRemove.lostUponUse)
-                {
-                    // Remove item 
-                    ownedItems.Remove(itemToRemove);
-                }
-                else
+                if (itemToRemove.isRenewable)
                 {
                     ownedItems[itemToRemove].amount = 0;
                     ownedItems[itemToRemove].usages++;
+                }
+                else
+                {
+                    UnequipItemToRemove(itemToRemove);
+
+                    // Remove item 
+                    ownedItems.Remove(itemToRemove);
                 }
             }
             else
             {
                 ownedItems[itemToRemove].amount -= quantity;
-                if (itemToRemove.lostUponUse == false)
+
+                if (itemToRemove.isRenewable)
                 {
                     ownedItems[itemToRemove].usages++;
                 }
             }
+        }
+
+        void UnequipItemToRemove(Item item)
+        {
+            equipmentDatabase.UnequipItem(item);
         }
 
         public int GetItemAmount(Item itemToFind)

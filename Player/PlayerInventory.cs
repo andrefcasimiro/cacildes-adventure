@@ -18,6 +18,7 @@ namespace AF
         [Header("UI Components")]
         public NotificationManager notificationManager;
         public UIDocumentPlayerHUDV2 uIDocumentPlayerHUDV2;
+        public UIDocumentPlayerGold uIDocumentPlayerGold;
 
         [SerializeField] private UIManager uIManager;
         [SerializeField] private MenuManager menuManager;
@@ -101,7 +102,7 @@ namespace AF
                 return;
             }
 
-            if (consumable.lostUponUse == false && inventoryDatabase.GetItemAmount(consumable) <= 0)
+            if (consumable.isRenewable && inventoryDatabase.GetItemAmount(consumable) <= 0)
             {
                 notificationManager.ShowNotification("Consumable depleted", notificationManager.notEnoughSpells);
                 return;
@@ -156,7 +157,16 @@ namespace AF
                 playerManager.statusController.statusEffectInstances.FirstOrDefault(x => x.Key == statusEffect).Value?.onConsumeStart?.Invoke();
             }
 
-            playerManager.playerWeaponsManager.HideEquipment();
+            if (consumable.shouldHideEquipmentWhenConsuming)
+            {
+                playerManager.playerWeaponsManager.HideEquipment();
+            }
+
+            if (consumable.isBossToken)
+            {
+                uIDocumentPlayerGold.AddGold((int)consumable.value);
+            }
+
             playerManager.playerComponentManager.DisableCharacterController();
             playerManager.playerComponentManager.DisableComponents();
         }

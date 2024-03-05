@@ -37,9 +37,35 @@ namespace AF
         public StarterAssetsInputs starterAssetsInputs;
         public PlayerAnimationEventListener playerAnimationEventListener;
         public PlayerBackstabController playerBackstabController;
+        public TwoHandingController twoHandingController;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+
+        public EquipmentDatabase equipmentDatabase;
+
+        // Animator Overrides
+        protected AnimatorOverrideController animatorOverrideController;
+        RuntimeAnimatorController defaultAnimatorController;
+
+        private void Awake()
+        {
+            SetupAnimRefs();
+        }
+
+        void SetupAnimRefs()
+        {
+            if (defaultAnimatorController == null)
+            {
+                defaultAnimatorController = animator.runtimeAnimatorController;
+            }
+            if (animatorOverrideController == null)
+            {
+                animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
+            }
+
+        }
+
 
         public override void ResetStates()
         {
@@ -96,11 +122,60 @@ namespace AF
                     poiseDamage: 0,
                     postureDamage: 0,
                     weaponAttackType: WeaponAttackType.Blunt,
-                    statusEffect: null,
-                    statusEffectAmount: 0,
+                    statusEffects: null,
                     pushForce: 0
                 ));
             }
+        }
+
+
+        public void UpdateAnimatorOverrideControllerClips()
+        {
+            SetupAnimRefs();
+
+            var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
+            animatorOverrideController.GetOverrides(clipOverrides);
+
+            animator.runtimeAnimatorController = defaultAnimatorController;
+
+            Weapon currentWeapon = equipmentDatabase.GetCurrentWeapon();
+            if (currentWeapon != null)
+            {
+                if (currentWeapon.animationOverrides.Count > 0)
+                {
+                    UpdateAnimationOverrides(animator, clipOverrides, currentWeapon.animationOverrides);
+                }
+
+                if (twoHandingController.isTwoHanding && currentWeapon.twoHandOverrides != null && currentWeapon.twoHandOverrides.Count > 0)
+                {
+                    UpdateAnimationOverrides(animator, clipOverrides, currentWeapon.twoHandOverrides);
+                }
+            }
+        }
+
+        void UpdateAnimationOverrides(Animator animator, AnimationClipOverrides clipOverrides, System.Collections.Generic.List<AnimationOverride> clips)
+        {
+            foreach (var animationOverride in clips)
+            {
+                clipOverrides[animationOverride.animationName] = animationOverride.animationClip;
+                animatorOverrideController.ApplyOverrides(clipOverrides);
+            }
+
+            animator.runtimeAnimatorController = animatorOverrideController;
+        }
+
+
+        public void UpdateAnimatorOverrideControllerClip(string animationName, AnimationClip animationClip)
+        {
+            var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
+            animatorOverrideController.GetOverrides(clipOverrides);
+
+            animator.runtimeAnimatorController = defaultAnimatorController;
+
+            clipOverrides[animationName] = animationClip;
+
+            animatorOverrideController.ApplyOverrides(clipOverrides);
+            animator.runtimeAnimatorController = animatorOverrideController;
         }
     }
 }

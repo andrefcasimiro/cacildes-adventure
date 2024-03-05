@@ -214,6 +214,7 @@ namespace AF
 
                 UIUtils.SetupButton(newDialogueChoiceItem.Q<Button>(), () =>
                 {
+                    cursorManager.HideCursor();
                     selectedResponse = response;
                     response.onResponseSelected?.Invoke();
                 }, soundbank);
@@ -230,7 +231,6 @@ namespace AF
             yield return new WaitUntil(() => selectedResponse != null);
 
             playerManager.thirdPersonController.LockCameraPosition = false;
-            cursorManager.HideCursor();
 
             // Use Sub Events Option
             if (selectedResponse.subEventPage != null)

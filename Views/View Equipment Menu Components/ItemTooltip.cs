@@ -160,41 +160,41 @@ namespace AF.UI.EquipmentMenu
                     tooltipIsHolyWeapon.style.opacity = 1;
                 }
 
-                if (weapon.fireAttack > 0)
+                if (weapon.GetWeaponFireAttack() > 0)
                 {
-                    tooltipFire.Q<Label>().text = $"+ {weapon.fireAttack} Fire Attack";
+                    tooltipFire.Q<Label>().text = $"+ {weapon.GetWeaponFireAttack()} Fire Attack";
                     tooltipFire.style.display = DisplayStyle.Flex;
                 }
 
-                if (weapon.frostAttack > 0)
+                if (weapon.GetWeaponFrostAttack() > 0)
                 {
-                    tooltipFrost.Q<Label>().text = $"+ {weapon.frostAttack} Frost Attack";
+                    tooltipFrost.Q<Label>().text = $"+ {weapon.GetWeaponFrostAttack()} Frost Attack";
                     tooltipFrost.style.display = DisplayStyle.Flex;
                 }
 
-                if (weapon.lightningAttack > 0)
+                if (weapon.GetWeaponLightningAttack() > 0)
                 {
-                    tooltipLightning.Q<Label>().text = $"+ {weapon.lightningAttack} Lightning Attack";
+                    tooltipLightning.Q<Label>().text = $"+ {weapon.GetWeaponLightningAttack()} Lightning Attack";
                     tooltipLightning.style.display = DisplayStyle.Flex;
                 }
 
-                if (weapon.magicAttack > 0)
+                if (weapon.GetWeaponMagicAttack() > 0)
                 {
-                    tooltipMagic.Q<Label>().text = $"+ {weapon.magicAttack} Magic Attack";
+                    tooltipMagic.Q<Label>().text = $"+ {weapon.GetWeaponMagicAttack()} Magic Attack";
                     tooltipMagic.style.display = DisplayStyle.Flex;
                 }
 
-                if (weapon.weaponAttackType == WeaponAttackType.Blunt)
+                if (weapon.damage.weaponAttackType == WeaponAttackType.Blunt)
                 {
                     tooltipWeaponType.Q<Label>().text = $"Damage Type: Blunt";
                     tooltipWeaponType.style.display = DisplayStyle.Flex;
                 }
-                if (weapon.weaponAttackType == WeaponAttackType.Pierce)
+                if (weapon.damage.weaponAttackType == WeaponAttackType.Pierce)
                 {
                     tooltipWeaponType.Q<Label>().text = $"Damage Type: Pierce";
                     tooltipWeaponType.style.display = DisplayStyle.Flex;
                 }
-                if (weapon.weaponAttackType == WeaponAttackType.Slash)
+                if (weapon.damage.weaponAttackType == WeaponAttackType.Slash)
                 {
                     tooltipWeaponType.Q<Label>().text = $"Damage Type: Slash";
                     tooltipWeaponType.style.display = DisplayStyle.Flex;
@@ -212,9 +212,9 @@ namespace AF.UI.EquipmentMenu
                 tooltipWeaponIntelligenceScaling.Q<Label>().text = intelligenceScaling;
                 tooltipWeaponIntelligenceScaling.style.display = DisplayStyle.Flex;
 
-                if (weapon.statusEffects != null && weapon.statusEffects.Length > 0)
+                if (weapon.damage.statusEffects != null && weapon.damage.statusEffects.Length > 0)
                 {
-                    foreach (var statusEffect in weapon.statusEffects)
+                    foreach (var statusEffect in weapon.damage.statusEffects)
                     {
                         if (statusEffect.statusEffect.name == "Bleed")
                         {

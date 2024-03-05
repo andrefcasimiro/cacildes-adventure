@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using AF.Inventory;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 namespace AF.Shops
@@ -34,6 +37,9 @@ namespace AF.Shops
         IMGUIContainer itemPreviewItemIcon;
         Label itemPreviewItemDescription;
 
+        // Last scroll position
+        int lastScrollElementIndex = -1;
+
         private void Start()
         {
             this.gameObject.SetActive(false);
@@ -65,13 +71,10 @@ namespace AF.Shops
         public void BuyFromCharacter(CharacterShop characterShop)
         {
             characterShop?.onShopOpen?.Invoke();
-
             gameObject.SetActive(true);
-
-            cursorManager.ShowCursor();
-
             playerManager.playerComponentManager.DisableComponents();
 
+            Invoke(nameof(DisplayCursor), 0f);
             DrawBuyMenu(characterShop);
         }
 
@@ -82,14 +85,16 @@ namespace AF.Shops
         public void SellToCharacter(CharacterShop characterShop)
         {
             characterShop?.onShopOpen?.Invoke();
-
             gameObject.SetActive(true);
-
-            cursorManager.ShowCursor();
-
             playerManager.playerComponentManager.DisableComponents();
 
+            Invoke(nameof(DisplayCursor), 0f);
             DrawSellMenu(characterShop);
+        }
+
+        void DisplayCursor()
+        {
+            cursorManager.ShowCursor();
         }
 
         private void OnEnable()
@@ -97,7 +102,7 @@ namespace AF.Shops
             SetupRefs();
         }
 
-        void SetupExitButton(CharacterShop characterShop, ScrollView scrollView)
+        Button SetupExitButton(CharacterShop characterShop, ScrollView scrollView)
         {
             Button exitButton = new() { text = "Exit shop" };
             exitButton.AddToClassList("primary-button");
@@ -107,7 +112,8 @@ namespace AF.Shops
                 ExitShop();
                 characterShop.onShopExit?.Invoke();
             }
-            , () =>
+            ,
+            () =>
             {
                 root.Q<ScrollView>().ScrollTo(exitButton);
                 exitButton.Focus();
@@ -118,9 +124,9 @@ namespace AF.Shops
             },
             true, soundbank);
 
-            exitButton.Focus();
             scrollView.Add(exitButton);
-            scrollView.ScrollTo(exitButton);
+
+            return exitButton;
         }
 
         void ExitShop()
@@ -162,18 +168,37 @@ namespace AF.Shops
 
             foreach (var item in characterShop.itemsToSell)
             {
-                if (item.isUnique && inventoryDatabase.HasItem(item.item))
+                Item clonedItem = item.Key;
+
+                if (item.Value.dontShowIfPlayerAreadyOwns && inventoryDatabase.HasItem(item.Key))
                 {
                     continue;
                 }
 
-                ShopItemEntry shopItemEntryClone = item;
-                if (characterShop.requiredItemForDiscounts != null && inventoryDatabase.HasItem(characterShop.requiredItemForDiscounts))
+                if (item.Key.tradingItemRequirements != null && item.Key.tradingItemRequirements.Count() > 0)
                 {
-                    shopItemEntryClone.item.value *= characterShop.discountGivenByItemInInventory;
+                    bool hasAllItems = true;
+
+                    foreach (var requiredItemForTrading in item.Key.tradingItemRequirements)
+                    {
+                        if (!inventoryDatabase.HasItem(requiredItemForTrading.Key))
+                        {
+                            hasAllItems = false;
+                        }
+                    }
+
+                    if (!hasAllItems)
+                    {
+                        continue;
+                    }
                 }
 
-                shopItemsToDisplay.Add(shopItemEntryClone.item);
+                if (characterShop.requiredItemForDiscounts != null && inventoryDatabase.HasItem(characterShop.requiredItemForDiscounts))
+                {
+                    clonedItem.value *= characterShop.discountGivenByItemInInventory;
+                }
+
+                shopItemsToDisplay.Add(clonedItem);
             }
 
             DrawItemsList(shopItemsToDisplay, true, characterShop);
@@ -192,6 +217,11 @@ namespace AF.Shops
                     continue;
                 }
 
+                // Don't sell unique items like spells and so on
+                if (item.Key.isRenewable)
+                {
+                    continue;
+                }
 
                 shopItemsToDisplay.Add(item.Key);
             }
@@ -203,44 +233,60 @@ namespace AF.Shops
         {
             root.Q<ScrollView>().Clear();
 
-            SetupExitButton(characterShop, root.Q<ScrollView>());
+            Button exitButton = SetupExitButton(characterShop, root.Q<ScrollView>());
 
+            int i = 0;
             foreach (var item in itemsToSell)
             {
-                VisualElement cloneButton = buySellButton.CloneTree();
-                cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.sprite);
-                cloneButton.Q<Label>("ItemName").text = item.name;
+                int currentIndex = i;
 
-                if (item is Weapon wp)
+                VisualElement cloneButton = buySellButton.CloneTree();
+                Button buySellItemButton = cloneButton.Q<Button>("BuySellButton");
+
+                cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.sprite);
+                cloneButton.Q<Label>("ItemName").text = ShopUtils.GetItemDisplayName(item, playerIsBuying, inventoryDatabase, characterShop.itemsToSell);
+
+                bool playerCanBuy = playerIsBuying && ShopUtils.CanBuy(item, playerStatsDatabase.gold, inventoryDatabase.ownedItems);
+                bool playerCanSell = !playerIsBuying && ShopUtils.CanBuy(item, characterShop.shopGold);
+
+                buySellItemButton.style.opacity = (playerIsBuying && playerCanBuy || !playerIsBuying && playerCanSell) ? 1 : 0.5f;
+
+                Label buySellLabel = buySellItemButton.Q<Label>("BuySellItemLabel");
+                buySellLabel.text = playerIsBuying ? "Buy " : "Sell ";
+
+                buySellItemButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.None;
+                if (ShopUtils.ItemRequiresCoinsToBeBought(item))
                 {
-                    cloneButton.Q<Label>("ItemName").text += " +" + wp.level;
+                    buySellLabel.text += " (" + item.value + " Coins)";
+                }
+                else if (item.tradingItemRequirements != null && item.tradingItemRequirements.Count > 0)
+                {
+                    buySellItemButton.Q<VisualElement>("RequiredItemSprite").style.backgroundImage = new StyleBackground(item.tradingItemRequirements.ElementAt(0).Key.sprite);
+                    buySellItemButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.Flex;
+                    buySellLabel.text += " (Offer " + item.tradingItemRequirements.ElementAt(0).Key.name + ")";
                 }
 
 
-                bool canBuy = playerIsBuying && playerStatsDatabase.gold >= item.value;
-                bool canSell = !playerIsBuying && characterShop.shopGold >= item.value;
-
-                Button buySellItemButton = cloneButton.Q<Button>("BuySellItem");
-                buySellItemButton.style.opacity = playerIsBuying && canBuy || !playerIsBuying && canSell ? 1 : 0.5f;
-                buySellItemButton.text = (playerIsBuying ? "Buy " : "Sell ") + " (" + item.value + " Coins)";
-
-                cloneButton.RegisterCallback<PointerEnterEvent>((ev) =>
+                buySellItemButton.RegisterCallback<PointerEnterEvent>((ev) =>
                 {
                     RenderItemPreview(item);
                 });
 
-                cloneButton.RegisterCallback<PointerOutEvent>((ev) =>
+                buySellItemButton.RegisterCallback<PointerOutEvent>((ev) =>
                 {
                     HideItemPreview();
                 });
 
-                UIUtils.SetupButton(cloneButton.Q<Button>("BuySellItem"), () =>
+                UIUtils.SetupButton(buySellItemButton,
+                () =>
                 {
-                    if (canBuy)
+                    lastScrollElementIndex = currentIndex;
+
+                    if (playerCanBuy)
                     {
                         BuyItem(item, characterShop);
                     }
-                    else if (canSell)
+                    else if (playerCanSell)
                     {
                         SellItem(item, characterShop);
                     }
@@ -258,28 +304,63 @@ namespace AF.Shops
                 },
                 false, soundbank);
 
-                root.Q<ScrollView>().Add(cloneButton);
+                root.Q<ScrollView>().Add(buySellItemButton);
+
+                i++;
             }
 
+            if (lastScrollElementIndex == -1)
+            {
+                exitButton.Focus();
+            }
+
+            Invoke(nameof(GiveFocus), 0f);
+        }
+
+        void GiveFocus()
+        {
+            UIUtils.ScrollToLastPosition(
+                lastScrollElementIndex,
+                root.Q<ScrollView>(),
+                () =>
+                {
+                    lastScrollElementIndex = -1;
+                }
+            );
         }
 
         void BuyItem(Item item, CharacterShop characterShop)
         {
+            ShopUtils.BuyItem(
+                item,
+                playerStatsDatabase.gold,
+                inventoryDatabase.ownedItems,
+                (goldLost) =>
+                {
 
-            if (playerStatsDatabase.gold >= item.value)
-            {
-                uIDocumentPlayerGold.LoseGold((int)item.value);
-                characterShop.shopGold += (int)item.value;
+                    uIDocumentPlayerGold.LoseGold((int)item.value);
+                    characterShop.shopGold += (int)item.value;
+                },
+                (onItemsTraded) =>
+                {
+                    foreach (var tradedItem in onItemsTraded)
+                    {
 
-                // Give item to player
-                playerManager.playerInventory.AddItem(item, 1);
+                        playerManager.playerInventory.RemoveItem(tradedItem.Key, tradedItem.Value);
+                    }
+                },
+                (receivedItem) =>
+                {
+                    // Give item to player
+                    playerManager.playerInventory.AddItem(item, 1);
+                    soundbank.PlaySound(soundbank.uiItemReceived);
+                    notificationManager.ShowNotification("Bought " + item.name + "", item.sprite);
 
-                soundbank.PlaySound(soundbank.uiItemReceived);
+                    characterShop.RemoveItem(receivedItem, 1);
 
-                notificationManager.ShowNotification("Bought " + item.name + "", item.sprite);
-
-                DrawBuyMenu(characterShop);
-            }
+                    DrawBuyMenu(characterShop);
+                }
+            );
         }
 
         void SellItem(Item item, CharacterShop characterShop)
@@ -287,8 +368,11 @@ namespace AF.Shops
             uIDocumentPlayerGold.AddGold((int)item.value);
             characterShop.shopGold -= (int)item.value;
 
-            // Give item to player
+            // Remove item from player
             playerManager.playerInventory.RemoveItem(item, 1);
+
+            // Give item to NPC
+            characterShop.AddItem(item, 1);
 
             soundbank.PlaySound(soundbank.uiItemReceived);
             notificationManager.ShowNotification("Sold " + item.name + "", item.sprite);

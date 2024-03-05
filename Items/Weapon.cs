@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AF.Animations;
+using AF.Health;
 using AYellowpaper.SerializedCollections;
 using UnityEditor;
 using UnityEngine;
@@ -35,13 +36,6 @@ namespace AF
         Magic,
     }
 
-    [System.Serializable]
-    public class WeaponStatusEffectPerHit
-    {
-        public StatusEffect statusEffect;
-        public float amountPerHit;
-    }
-
     public enum PushForce
     {
         None = 1,
@@ -65,77 +59,40 @@ namespace AF
     public class Weapon : Item
     {
         [Header("Attack")]
-        public WeaponAttackType weaponAttackType;
-        public float physicalAttack;
+        public Damage damage;
         public int heavyAttackBonus;
+        public int heavyAttackPostureDamage;
 
         [Header("Level & Upgrades")]
         public bool canBeUpgraded = true;
         public int level = 1;
-
         public WeaponUpgradeLevel[] weaponUpgrades;
 
-        [Header("Elemental Damages")]
-        public float fireAttack;
-        public float frostAttack;
-        public float lightningAttack;
-        public float darknessAttack;
-        public float magicAttack;
-
-        [Header("Poise Damage")]
-        public int poiseDamageBonus = 0;
         [Tooltip("How much block hit this weapon does on an enemy shield. Heavier weapons should do at least 2 or 3 hits.")]
         public int blockHitAmount = 1;
 
-        public float pushForce = 0;
-
         [Header("Block Absorption")]
-        public bool hideShield = true;
         [Range(0, 100)] public int blockAbsorption = 75;
         public float blockStaminaCost = 30f;
 
-        public float blockLayerWeight = 1f;
-
-
-        [Header("Posture Damage")]
-        public int lightAttackPostureDamage = 20;
-
-        public int heavyAttackPostureDamage = 35;
 
         [Header("Stamina")]
         public int lightAttackStaminaCost = 20;
         public int heavyAttackStaminaCost = 35;
-
-        [Header("Status Effects")]
-        // Status Effect
-        public WeaponStatusEffectPerHit[] statusEffects;
 
         [Header("Scaling")]
         public Scaling strengthScaling = Scaling.E;
         public Scaling dexterityScaling = Scaling.E;
         public Scaling intelligenceScaling = Scaling.E;
 
-        [Header("Visual")]
-        public DestroyableParticle elementImpactFx;
-        public DestroyableParticle metalImpactFx;
-        public DestroyableParticle woodImpactFx;
-        public DestroyableParticle waterImpactFx;
-        public DestroyableParticle blockFx;
 
         [Header("Animation Overrides")]
         public List<AnimationOverride> animationOverrides;
-
-        [Header("Audio")]
-        public AudioClip swingSfx;
-        public AudioClip impactFleshSfx;
+        [Tooltip("Optional")] public List<AnimationOverride> twoHandOverrides;
 
         [Header("Dual Wielding Options")]
-        public bool isDualWielded = false;
         public bool halveDamage = false;
 
-        [Header("Hide Options")]
-        public bool useHolsterRef = false;
-        public bool useBackRef = false;
 
         [Header("Speed Penalty")]
         [Tooltip("Will be added as a negative speed to the animator when equipped")]
@@ -145,13 +102,9 @@ namespace AF
         public int amountOfGoldReceivedPerHit = 0;
         public bool doubleDamageDuringNightTime = false;
 
-        [Header("Custom Weapon Blocking")]
-        public string customWeaponBlockAnimationName = "Custom Weapon Blocking";
-        public bool useCustomWeaponBlock = false;
 
         [Header("Jump Attack")]
         public float jumpAttackVelocity = -5f;
-        public bool stopInAir = true;
 
         [Header("Shield Piercing")]
         public bool ignoreShields = false;
@@ -191,55 +144,55 @@ namespace AF
 
         public int GetWeaponAttack()
         {
-            return CalculateValue((int)physicalAttack, this.level);
+            return CalculateValue((int)damage.physical, this.level);
         }
         public int GetWeaponAttackForLevel(int level)
         {
-            return CalculateValue((int)physicalAttack, level);
+            return CalculateValue((int)damage.physical, level);
         }
         public int GetWeaponFireAttack()
         {
-            return CalculateValue((int)fireAttack, this.level);
+            return CalculateValue((int)damage.fire, this.level);
         }
         public int GetWeaponFireAttackForLevel(int level)
         {
-            return CalculateValue((int)fireAttack, level);
+            return CalculateValue((int)damage.fire, level);
         }
         public int GetWeaponFrostAttack()
         {
-            return CalculateValue((int)frostAttack, this.level);
+            return CalculateValue((int)damage.frost, this.level);
         }
         public int GetWeaponFrostAttackForLevel(int level)
         {
-            return CalculateValue((int)frostAttack, level);
+            return CalculateValue((int)damage.frost, level);
         }
         public int GetWeaponLightningAttack()
         {
-            return CalculateValue((int)lightningAttack, this.level);
+            return CalculateValue((int)damage.lightning, this.level);
         }
         public int GetWeaponLightningAttackForLevel(int level)
         {
-            return CalculateValue((int)lightningAttack, level);
+            return CalculateValue((int)damage.lightning, level);
         }
 
         public int GetWeaponDarknessAttack()
         {
-            return CalculateValue((int)darknessAttack, this.level);
+            return CalculateValue((int)damage.darkness, this.level);
         }
 
         public int GetWeaponDarknessAttackForLevel(int level)
         {
-            return CalculateValue((int)darknessAttack, level);
+            return CalculateValue((int)damage.darkness, level);
         }
 
         public int GetWeaponMagicAttack()
         {
-            return CalculateValue((int)magicAttack, this.level);
+            return CalculateValue((int)damage.magic, this.level);
         }
 
         public int GetWeaponMagicAttackForLevel(int level)
         {
-            return CalculateValue((int)magicAttack, level);
+            return CalculateValue((int)damage.magic, level);
         }
     }
 

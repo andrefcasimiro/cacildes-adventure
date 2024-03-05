@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using AF.Stats;
 using AF.Shooting;
 using AF.Ladders;
+using AF.Health;
 
 namespace AF
 {
@@ -131,7 +132,6 @@ namespace AF
         public float sprintFieldOfViewSpeedTransition = 2f;
 
         [Header("Fall Damage")]
-        public bool fallDamageInitialized = false;
         public bool trackFallDamage = true;
         public float minimumFallHeightToTakeDamage = 5f;
         public float damageMultiplierPerMeter = 25f;
@@ -145,8 +145,6 @@ namespace AF
         public bool isSliding = false;
         public bool isSlidingOnIce = false;
         public bool skateRotation = false;
-
-
 
         public bool canRotateCharacter = true;
 
@@ -231,29 +229,37 @@ namespace AF
             Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
 
-            if (fallDamageInitialized)
+            if (PreviousGrounded == true && Grounded == false)
             {
-
-                if (PreviousGrounded == true && Grounded == false)
-                {
-                    fallBeganHeight = playerManager.characterController.transform.position.y;
-
-                }
-                else if (PreviousGrounded == false && Grounded == true)
-                {
-                    float fallEndHeight = playerManager.characterController.transform.position.y;
-
-                    var currentFallHeight = Mathf.Abs(fallBeganHeight - fallEndHeight);
-
-                    // Takes fall damage?
-                    if (currentFallHeight > minimumFallHeightToTakeDamage && trackFallDamage)
-                    {
-                    }
-                }
-
-
-                PreviousGrounded = Grounded;
+                fallBeganHeight = playerManager.characterController.transform.position.y;
             }
+            else if (PreviousGrounded == false && Grounded == true)
+            {
+                float fallEndHeight = playerManager.characterController.transform.position.y;
+
+                var currentFallHeight = Mathf.Abs(fallBeganHeight - fallEndHeight);
+
+                // Takes fall damage?
+                if (currentFallHeight > minimumFallHeightToTakeDamage && trackFallDamage)
+                {
+                    playerManager.damageReceiver.TakeDamage(new Damage()
+                    {
+                        physical = (int)(currentFallHeight * damageMultiplierPerMeter),
+                        fire = 0,
+                        frost = 0,
+                        magic = 0,
+                        lightning = 0,
+                        darkness = 0,
+                        postureDamage = 0,
+                        poiseDamage = 0,
+                        weaponAttackType = 0f,
+                        statusEffects = null,
+                        pushForce = 0f,
+                    });
+                }
+            }
+
+            PreviousGrounded = Grounded;
 
             // update animator if using character
             if (_hasAnimator)

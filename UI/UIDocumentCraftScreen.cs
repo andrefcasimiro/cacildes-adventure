@@ -51,8 +51,9 @@ namespace AF
         public InventoryDatabase inventoryDatabase;
         public PlayerStatsDatabase playerStatsDatabase;
 
-        int buttonIndexToFocusAfterRedraw;
-        Button buttonToFocusAfterRedraw;
+        // Last scroll position
+        int lastScrollElementIndex = -1;
+
 
         private void Awake()
         {
@@ -178,32 +179,33 @@ namespace AF
                 PopulateCraftingScroll(scrollView, ownedCraftingRecipes);
             }
 
-            if (buttonToFocusAfterRedraw != null)
-            {
-                buttonToFocusAfterRedraw.Focus();
-                scrollView.ScrollTo(buttonToFocusAfterRedraw);
-                buttonToFocusAfterRedraw = null;
-            }
-            else
+
+            if (lastScrollElementIndex == -1)
             {
                 exitButton.Focus();
             }
+
+            Invoke(nameof(GiveFocus), 0f);
         }
+
+        void GiveFocus()
+        {
+            UIUtils.ScrollToLastPosition(
+                lastScrollElementIndex,
+                root.Q<ScrollView>(),
+                () =>
+                {
+                    lastScrollElementIndex = -1;
+                }
+            );
+        }
+
 
         public string GetItemDescription(CraftingRecipe recipe)
         {
             string itemDescription = recipe.resultingItem.shortDescription?.Length > 0 ?
                                      recipe.resultingItem.shortDescription.Substring(0, System.Math.Min(60, recipe.resultingItem.shortDescription.Length)) : "";
             return itemDescription + (recipe.resultingItem.shortDescription?.Length > 60 ? "..." : "");
-        }
-
-        void MemoizeButtonToFocusAfterRedraw(int index, Button targetButton)
-        {
-            if (buttonIndexToFocusAfterRedraw == index)
-            {
-                buttonIndexToFocusAfterRedraw = -1;
-                buttonToFocusAfterRedraw = targetButton;
-            }
         }
 
         void PopulateCraftingScroll(ScrollView scrollView, CraftingRecipe[] ownedCraftingRecipes)
@@ -216,8 +218,7 @@ namespace AF
             int i = 0;
             foreach (var recipe in ownedCraftingRecipes)
             {
-                i++;
-
+                int currentIndex = i;
                 var scrollItem = this.recipeItem.CloneTree();
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(recipe.resultingItem.sprite);
@@ -236,7 +237,7 @@ namespace AF
                 UIUtils.SetupButton(craftBtn,
                 () =>
                 {
-                    buttonIndexToFocusAfterRedraw = i;
+                    lastScrollElementIndex = currentIndex;
 
                     if (!CraftingUtils.CanCraftItem(inventoryDatabase, recipe))
                     {
@@ -266,10 +267,11 @@ namespace AF
                 true,
                 soundbank);
 
-                MemoizeButtonToFocusAfterRedraw(i, craftBtn);
+                scrollView.Add(craftBtn);
 
-                scrollView.Add(scrollItem);
+                i++;
             }
+
         }
 
         void PopulateWeaponsScrollView()
@@ -279,7 +281,7 @@ namespace AF
             int i = 0;
             foreach (var itemEntry in GetUpgradeableWeapons())
             {
-                i++;
+                int currentIndex = i;
 
                 Weapon wp = itemEntry.Key as Weapon;
 
@@ -299,7 +301,7 @@ namespace AF
 
                 UIUtils.SetupButton(craftBtn, () =>
                 {
-                    buttonIndexToFocusAfterRedraw = i;
+                    lastScrollElementIndex = currentIndex;
 
                     if (!CraftingUtils.CanImproveWeapon(inventoryDatabase, wp, playerStatsDatabase.gold))
                     {
@@ -320,9 +322,9 @@ namespace AF
                 true,
                 soundbank);
 
-                MemoizeButtonToFocusAfterRedraw(i, craftBtn);
+                scrollView.Add(craftBtn);
 
-                scrollView.Add(scrollItem);
+                i++;
             }
         }
 
@@ -447,31 +449,31 @@ namespace AF
             root.Q<Label>("LightningAttack").style.display = DisplayStyle.None;
             root.Q<Label>("MagicAttack").style.display = DisplayStyle.None;
 
-            if (weapon.physicalAttack > 0)
+            if (weapon.damage.physical > 0)
             {
                 root.Q<Label>("PhysicalAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("PhysicalAttack").text = "Next Physical Damage: "
                     + weapon.GetWeaponAttackForLevel(weapon.level) + " > " + weapon.GetWeaponAttackForLevel(nextLevel);
             }
-            if (weapon.fireAttack > 0)
+            if (weapon.damage.fire > 0)
             {
                 root.Q<Label>("FireAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("FireAttack").text = "Next Fire Bonus: "
                     + weapon.GetWeaponFireAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFireAttackForLevel(nextLevel);
             }
-            if (weapon.frostAttack > 0)
+            if (weapon.damage.frost > 0)
             {
                 root.Q<Label>("FrostAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("FrostAttack").text = "Next Frost Bonus: "
                     + weapon.GetWeaponFrostAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFrostAttackForLevel(nextLevel);
             }
-            if (weapon.lightningAttack > 0)
+            if (weapon.damage.lightning > 0)
             {
                 root.Q<Label>("LightningAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("LightningAttack").text = "Next Lightning Bonus: "
                     + weapon.GetWeaponLightningAttackForLevel(weapon.level) + " > " + weapon.GetWeaponLightningAttackForLevel(nextLevel);
             }
-            if (weapon.magicAttack > 0)
+            if (weapon.damage.magic > 0)
             {
                 root.Q<Label>("MagicAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("MagicAttack").text = "Next Magic Bonus: "

@@ -31,6 +31,9 @@ namespace AF.Shooting
 
         [Header("Components")]
         public LockOnManager lockOnManager;
+        public UIManager uIManager;
+        public MenuManager menuManager;
+
 
         [Header("Flags")]
         public bool isAiming = false;
@@ -108,7 +111,7 @@ namespace AF.Shooting
 
             if (currentSpell.castAnimationOverride != null)
             {
-                GetPlayerManager().playerWeaponsManager.UpdateAnimatorOverrideControllerClip("Cacildes - Spell - Cast", currentSpell.castAnimationOverride);
+                GetPlayerManager().UpdateAnimatorOverrideControllerClip("Cacildes - Spell - Cast", currentSpell.castAnimationOverride);
             }
         }
 
@@ -291,6 +294,16 @@ namespace AF.Shooting
         public override bool CanShoot()
         {
             if (playerStatsDatabase.currentStamina < minimumStaminaToShoot)
+            {
+                return false;
+            }
+
+            if (menuManager.isMenuOpen)
+            {
+                return false;
+            }
+
+            if (uIManager.IsShowingGUI())
             {
                 return false;
             }

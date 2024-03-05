@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using AF.Health;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -31,12 +33,15 @@ namespace AF
         public UnityEvent onCloseHitbox;
         public UnityEvent onDamageInflicted;
 
+        [Header("Character Weapon Addons")]
+        public CharacterTwoHandRef characterTwoHandRef;
+        public CharacterWeaponBuffs characterWeaponBuffs;
+
         // Scene References
         Soundbank soundbank;
 
         // Internal flags
         bool canPlayHitSfx = true;
-
 
         void Start()
         {
@@ -66,8 +71,6 @@ namespace AF
             {
                 hitCollider.enabled = true;
             }
-
-
 
             if (swingSfx != null && HasSoundbank())
             {
@@ -141,6 +144,11 @@ namespace AF
             }
 
             return true;
+        }
+
+        public bool UseCustomTwoHandTransform()
+        {
+            return characterTwoHandRef != null && characterTwoHandRef.useTwoHandingTransform;
         }
     }
 }

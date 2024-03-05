@@ -37,13 +37,16 @@ namespace AF.Conditions
         {
             bool isActive = false;
 
-            if (shouldBeWithinRange)
+            if (questParent != null && questProgresses != null)
             {
-                isActive = questProgresses.Contains(questParent.questProgress);
-            }
-            else if (shouldBeOutsideRange)
-            {
-                isActive = !questProgresses.Contains(questParent.questProgress);
+                if (shouldBeWithinRange)
+                {
+                    isActive = questProgresses.Contains(questParent.questProgress);
+                }
+                else if (shouldBeOutsideRange)
+                {
+                    isActive = !questProgresses.Contains(questParent.questProgress);
+                }
             }
 
             Utils.UpdateTransformChildren(transform, isActive);

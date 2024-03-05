@@ -86,5 +86,34 @@ namespace AF
             ).SetEase(Ease.OutElastic);
         }
 
+        public static void ScrollToLastPosition(int currentIndex, ScrollView scrollView, UnityAction onFinish)
+        {
+            VisualElement lastElement = null;
+
+            int lastScrollElementIndex = currentIndex;
+
+            if (lastScrollElementIndex != -1)
+            {
+                while (lastScrollElementIndex >= 0 && lastElement == null)
+                {
+                    lastElement = scrollView.ElementAt(lastScrollElementIndex + 1);
+
+                    if (lastElement != null)
+                    {
+                        lastElement.Focus();
+                        scrollView.ScrollTo(lastElement);
+                        break;
+                    }
+                    else
+                    {
+                        lastScrollElementIndex--;
+                    }
+                }
+
+            }
+
+            onFinish();
+        }
+
     }
 }

@@ -186,9 +186,12 @@ namespace AF
                     character.characterPoise.TakePoiseDamage(damage.poiseDamage);
                 }
 
-                if (character.statusController != null && damage.statusEffect != null)
+                if (character.statusController != null && damage.statusEffects != null && damage.statusEffects.Length > 0)
                 {
-                    character.statusController.InflictStatusEffect(damage.statusEffect, damage.statusEffectAmount, false);
+                    foreach (var statusEffectToApply in damage.statusEffects)
+                    {
+                        character.statusController.InflictStatusEffect(statusEffectToApply.statusEffect, statusEffectToApply.amountPerHit, false);
+                    }
                 }
             }
 
@@ -265,8 +268,7 @@ namespace AF
                     poiseDamage: 1,
                     postureDamage: 2,
                     weaponAttackType: WeaponAttackType.Slash,
-                    statusEffect: null,
-                    statusEffectAmount: 0,
+                    statusEffects: null,
                     pushForce: 0));
         }
 

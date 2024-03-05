@@ -142,8 +142,6 @@ namespace AF
 
             // Restore original fall damage tracking state
             thirdPersonController.trackFallDamage = originalTrackFallDamage;
-
-            thirdPersonController.fallDamageInitialized = true;
         }
 
         public void EnableCollisionWithEnemies()

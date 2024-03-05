@@ -11,8 +11,6 @@ namespace AF
 
         public readonly int hashLightAttack1 = Animator.StringToHash("Light Attack 1");
         public readonly int hashLightAttack2 = Animator.StringToHash("Light Attack 2");
-        public readonly int hashLightAttack1WithShield = Animator.StringToHash("Light Attack 1 With Shield");
-        public readonly int hashLightAttack2WithShield = Animator.StringToHash("Light Attack 2 With Shield");
         public readonly int hashHeavyAttack1 = Animator.StringToHash("Heavy Attack 1");
         public readonly int hashJumpAttack = Animator.StringToHash("Jump Attack");
 
@@ -91,26 +89,12 @@ namespace AF
 
                 if (lightAttackComboIndex == 0)
                 {
-                    if (playerManager.playerWeaponsManager.currentShieldInstance != null)
-                    {
-                        playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack1WithShield);
-                    }
-                    else
-                    {
-                        playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack1);
-                    }
+                    playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack1);
+
                 }
                 else if (lightAttackComboIndex == 1)
                 {
-                    if (playerManager.playerWeaponsManager.currentShieldInstance != null)
-                    {
-                        playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack2WithShield);
-
-                    }
-                    else
-                    {
-                        playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack2);
-                    }
+                    playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack2);
                 }
             }
             else
@@ -245,7 +229,5 @@ namespace AF
         {
             ResetStates();
         }
-
-
     }
 }

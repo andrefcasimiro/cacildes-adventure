@@ -41,6 +41,10 @@ namespace AF.Inventory
                 Quaternion targetRotation = Quaternion.LookRotation(lockOnManager.nearestLockOnTarget.transform.position - instance.transform.position);
                 instance.transform.rotation = targetRotation;
             }
+            else
+            {
+                instance.transform.rotation = playerManager.transform.rotation;
+            }
 
             instance.Shoot(playerManager, instance.GetForwardVelocity() * instance.transform.forward, instance.forceMode);
 

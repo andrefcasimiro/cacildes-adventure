@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AF.Animations;
 using AF.Events;
+using AF.Health;
 using AF.Stats;
 using TigerForge;
 using UnityEngine;
@@ -31,35 +32,21 @@ namespace AF.Equipment
         public PlayerManager playerManager;
         StatsBonusController statsBonusController;
 
-        // Animator Overrides
-        protected AnimatorOverrideController animatorOverrideController;
-        RuntimeAnimatorController defaultAnimatorController;
-
         private void Awake()
         {
-            defaultAnimatorController = playerManager.animator.runtimeAnimatorController;
-            animatorOverrideController = new AnimatorOverrideController(playerManager.animator.runtimeAnimatorController);
-
             statsBonusController = playerManager.statsBonusController;
 
             EventManager.StartListening(
-                EventMessages.ON_WEAPON_CHANGED,
-                UpdateCurrentWeapon);
-
-            EventManager.StartListening(
-                EventMessages.ON_SHIELD_CHANGED,
-                UpdateCurrentShield);
-
-            EventManager.StartListening(
-                EventMessages.ON_ARROW_CHANGED,
-                UpdateCurrentArrows);
-
-            EventManager.StartListening(
-                EventMessages.ON_SPELL_CHANGED,
-                UpdateCurrentSpells);
+                EventMessages.ON_EQUIPMENT_CHANGED,
+                UpdateEquipment);
         }
 
         private void Start()
+        {
+            UpdateEquipment();
+        }
+
+        void UpdateEquipment()
         {
             UpdateCurrentWeapon();
             UpdateCurrentShield();
@@ -106,7 +93,7 @@ namespace AF.Equipment
                 currentWeaponInstance.gameObject.SetActive(true);
             }
 
-            UpdateAnimatorOverrideControllerClips();
+            playerManager.UpdateAnimatorOverrideControllerClips();
 
             // If we equipped a bow, we must hide any active shield
             if (equipmentDatabase.IsBowEquipped() || equipmentDatabase.IsStaffEquipped())
@@ -154,6 +141,7 @@ namespace AF.Equipment
             foreach (ShieldInstance shieldInstance in shieldInstances)
             {
                 shieldInstance.gameObject.SetActive(false);
+                shieldInstance.shieldInTheBack.SetActive(false);
             }
 
             if (CurrentShield != null)
@@ -161,6 +149,7 @@ namespace AF.Equipment
                 var gameObjectShield = shieldInstances.FirstOrDefault(x => x.shield.name == CurrentShield.name);
                 currentShieldInstance = gameObjectShield;
                 currentShieldInstance.gameObject.SetActive(true);
+                currentShieldInstance.SetIsUsingShield(true);
             }
         }
 
@@ -169,6 +158,7 @@ namespace AF.Equipment
             if (currentShieldInstance != null)
             {
                 currentShieldInstance.gameObject.SetActive(false);
+                currentShieldInstance.shieldInTheBack.gameObject.SetActive(false);
                 currentShieldInstance = null;
             }
         }
@@ -178,6 +168,8 @@ namespace AF.Equipment
             equipmentDatabase.EquipWeapon(weaponToEquip, slot);
 
             UpdateCurrentWeapon();
+
+            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         public void UnequipWeapon(int slot)
@@ -185,6 +177,8 @@ namespace AF.Equipment
             equipmentDatabase.UnequipWeapon(slot);
 
             UpdateCurrentWeapon();
+
+            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         public void EquipShield(Shield shieldToEquip, int slot)
@@ -192,6 +186,8 @@ namespace AF.Equipment
             equipmentDatabase.EquipShield(shieldToEquip, slot);
 
             UpdateCurrentShield();
+
+            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         public void UnequipShield(int slot)
@@ -199,38 +195,8 @@ namespace AF.Equipment
             equipmentDatabase.UnequipShield(slot);
 
             UpdateCurrentShield();
-        }
 
-        public void UpdateAnimatorOverrideControllerClips()
-        {
-            var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
-            animatorOverrideController.GetOverrides(clipOverrides);
-
-            playerManager.animator.runtimeAnimatorController = defaultAnimatorController;
-
-            if (equipmentDatabase.GetCurrentWeapon() != null && equipmentDatabase.GetCurrentWeapon().animationOverrides.Count > 0)
-            {
-                foreach (var animationOverride in equipmentDatabase.GetCurrentWeapon().animationOverrides)
-                {
-                    clipOverrides[animationOverride.animationName] = animationOverride.animationClip;
-                    animatorOverrideController.ApplyOverrides(clipOverrides);
-                }
-
-                playerManager.animator.runtimeAnimatorController = animatorOverrideController;
-            }
-        }
-
-        public void UpdateAnimatorOverrideControllerClip(string animationName, AnimationClip animationClip)
-        {
-            var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
-            animatorOverrideController.GetOverrides(clipOverrides);
-
-            playerManager.animator.runtimeAnimatorController = defaultAnimatorController;
-
-            clipOverrides[animationName] = animationClip;
-
-            animatorOverrideController.ApplyOverrides(clipOverrides);
-            playerManager.animator.runtimeAnimatorController = animatorOverrideController;
+            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         public void ShowEquipment()
@@ -242,7 +208,7 @@ namespace AF.Equipment
 
             if (currentShieldInstance != null)
             {
-                currentShieldInstance.ShowShield();
+                currentShieldInstance.ResetStates();
             }
         }
 
@@ -265,6 +231,42 @@ namespace AF.Equipment
             {
                 currentShieldInstance.HideShield();
             }
+        }
+
+        public void ShowShield()
+        {
+            if (currentShieldInstance != null)
+            {
+                currentShieldInstance.ShowShield();
+            }
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void ApplyFireToWeapon()
+        {
+            if (currentWeaponInstance == null || currentWeaponInstance.characterWeaponBuffs == null)
+            {
+                return;
+            }
+
+            currentWeaponInstance.characterWeaponBuffs.ApplyFireBuff();
+        }
+
+        public Damage GetBuffedDamage(Damage weaponDamage)
+        {
+            if (currentWeaponInstance == null || currentWeaponInstance.characterWeaponBuffs == null || currentWeaponInstance.characterWeaponBuffs.hasBuff == false)
+            {
+                return weaponDamage;
+            }
+
+            if (currentWeaponInstance.characterWeaponBuffs.fireBuffContainer != null)
+            {
+                weaponDamage.fire += currentWeaponInstance.characterWeaponBuffs.fireBuffBonus;
+            }
+
+            return weaponDamage;
         }
     }
 }

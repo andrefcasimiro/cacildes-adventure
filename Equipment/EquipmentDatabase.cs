@@ -103,7 +103,7 @@ public class EquipmentDatabase : ScriptableObject
             currentWeaponIndex = 0;
         }
 
-        EventManager.EmitEvent(EventMessages.ON_WEAPON_CHANGED);
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
     public void EquipWeapon(Weapon weapon, int slotIndex)
@@ -150,7 +150,7 @@ public class EquipmentDatabase : ScriptableObject
             currentShieldIndex = 0;
         }
 
-        EventManager.EmitEvent(EventMessages.ON_SHIELD_CHANGED);
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
     public void SwitchToNextArrow()
@@ -162,7 +162,7 @@ public class EquipmentDatabase : ScriptableObject
             currentArrowIndex = 0;
         }
 
-        EventManager.EmitEvent(EventMessages.ON_ARROW_CHANGED);
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
 
@@ -188,7 +188,7 @@ public class EquipmentDatabase : ScriptableObject
             currentSpellIndex = 0;
         }
 
-        EventManager.EmitEvent(EventMessages.ON_SPELL_CHANGED);
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
     public void EquipConsumable(Consumable consumable, int slotIndex)
@@ -304,12 +304,12 @@ public class EquipmentDatabase : ScriptableObject
 
     public bool IsBowEquipped()
     {
-        return GetCurrentWeapon() != null && GetCurrentWeapon().weaponAttackType == WeaponAttackType.Range;
+        return GetCurrentWeapon() != null && GetCurrentWeapon().damage.weaponAttackType == WeaponAttackType.Range;
     }
 
     public bool IsStaffEquipped()
     {
-        return GetCurrentWeapon() != null && GetCurrentWeapon().weaponAttackType == WeaponAttackType.Staff;
+        return GetCurrentWeapon() != null && GetCurrentWeapon().damage.weaponAttackType == WeaponAttackType.Staff;
     }
 
     public bool HasEnoughCurrentArrows()
@@ -327,5 +327,89 @@ public class EquipmentDatabase : ScriptableObject
     public bool IsPlayerNaked()
     {
         return helmet == null && armor == null && legwear == null && gauntlet == null;
+    }
+
+    public void UnequipItem(Item item)
+    {
+        // Check weapons
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] == item)
+            {
+                weapons[i] = null;
+                EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+            }
+        }
+
+        // Check shields
+        for (int i = 0; i < shields.Length; i++)
+        {
+            if (shields[i] == item)
+            {
+                shields[i] = null;
+                EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+            }
+        }
+
+        // Check helmet
+        if (helmet == item)
+        {
+            helmet = null;
+            EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+        }
+
+        // Check armor
+        if (armor == item)
+        {
+            armor = null;
+            EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+        }
+
+        // Check gauntlet
+        if (gauntlet == item)
+        {
+            gauntlet = null;
+            EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+        }
+
+        // Check legwear
+        if (legwear == item)
+        {
+            legwear = null;
+            EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+        }
+
+        // Check arrows
+        for (int i = 0; i < arrows.Length; i++)
+        {
+            if (arrows[i] == item)
+            {
+                arrows[i] = null;
+                EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+            }
+        }
+
+        // Check spells
+        for (int i = 0; i < spells.Length; i++)
+        {
+            if (spells[i] == item)
+            {
+                spells[i] = null;
+                EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+            }
+        }
+
+        // Check accessories
+        for (int i = 0; i < accessories.Length; i++)
+        {
+            if (accessories[i] == item)
+            {
+                accessories[i] = null;
+                EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+            }
+        }
+
+        // Item not found equipped
+        Debug.LogWarning($"UnequipItem: Item '{item.name}' not found equipped");
     }
 }

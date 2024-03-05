@@ -1,5 +1,13 @@
 namespace AF.Health
 {
+
+    [System.Serializable]
+    public class StatusEffectEntry
+    {
+        public StatusEffect statusEffect;
+        public float amountPerHit;
+    }
+
     [System.Serializable]
     public class Damage
     {
@@ -14,8 +22,12 @@ namespace AF.Health
         public float pushForce = 0;
 
         public WeaponAttackType weaponAttackType;
-        public StatusEffect statusEffect;
-        public float statusEffectAmount;
+
+        public StatusEffectEntry[] statusEffects;
+
+        public Damage()
+        {
+        }
 
         public Damage(
             int physical,
@@ -27,8 +39,7 @@ namespace AF.Health
             int postureDamage,
             int poiseDamage,
             WeaponAttackType weaponAttackType,
-            StatusEffect statusEffect,
-            float statusEffectAmount,
+            StatusEffectEntry[] statusEffects,
             float pushForce)
         {
             this.physical = physical;
@@ -40,8 +51,7 @@ namespace AF.Health
             this.postureDamage = postureDamage;
             this.poiseDamage = poiseDamage;
             this.weaponAttackType = weaponAttackType;
-            this.statusEffect = statusEffect;
-            this.statusEffectAmount = statusEffectAmount;
+            this.statusEffects = statusEffects;
             this.pushForce = pushForce;
         }
 

@@ -44,7 +44,7 @@ namespace AF
 
             int itemAmount = inventoryDatabase.GetItemAmount(currentItem);
 
-            if (itemAmount <= 1 && currentItem.lostUponUse)
+            if (itemAmount <= 1 && !currentItem.isRenewable)
             {
                 equipmentDatabase.UnequipConsumable(equipmentDatabase.currentConsumableIndex);
             }
@@ -68,6 +68,8 @@ namespace AF
             equipmentDatabase.SwitchToNextWeapon();
 
             uIDocumentPlayerHUDV2.OnSwitchWeapon();
+
+            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         /// <summary>
@@ -83,6 +85,8 @@ namespace AF
             equipmentDatabase.SwitchToNextShield();
 
             uIDocumentPlayerHUDV2.OnSwitchShield();
+
+            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         /// <summary>

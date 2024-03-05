@@ -11,6 +11,8 @@ namespace AF.Equipment
         public GameObject shieldInTheBack;
         public bool shouldHide = true;
 
+        private bool isUsingShield = true;
+
         private void Awake()
         {
             if (!shouldHide)
@@ -21,6 +23,14 @@ namespace AF.Equipment
             shieldInTheBack.SetActive(false);
         }
 
+        public void ResetStates()
+        {
+            if (isUsingShield)
+            {
+                ShowShield();
+            }
+        }
+
         public void HideShield()
         {
             if (!shouldHide)
@@ -28,12 +38,12 @@ namespace AF.Equipment
                 return;
             }
 
-            gameObject.SetActive(false);
-
             if (shieldInTheBack != null)
             {
                 shieldInTheBack.SetActive(true);
             }
+
+            gameObject.SetActive(false);
         }
 
         public void ShowShield()
@@ -44,6 +54,11 @@ namespace AF.Equipment
             {
                 shieldInTheBack.SetActive(false);
             }
+        }
+
+        public void SetIsUsingShield(bool isUsingShield)
+        {
+            this.isUsingShield = isUsingShield;
         }
     }
 }
