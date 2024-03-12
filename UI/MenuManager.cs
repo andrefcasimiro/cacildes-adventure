@@ -1,5 +1,6 @@
 using System;
 using AF.Ladders;
+using AF.UI;
 using AF.UI.EquipmentMenu;
 using UnityEngine;
 using UnityEngine.Events;
@@ -35,6 +36,7 @@ namespace AF
         [Header("Menu Views")]
         public ViewMenu[] viewMenus;
         public int viewMenuIndex = 0;
+
 
         /// <summary>
         /// Unity Event
@@ -77,13 +79,13 @@ namespace AF
         public void OpenMenu()
         {
             isMenuOpen = true;
-            cursorManager.ShowCursor();
 
             viewMenuIndex = 0;
             SetMenuView();
 
             playerManager.thirdPersonController.LockCameraPosition = true;
             onMenuOpen?.Invoke();
+            cursorManager.ShowCursor();
         }
 
         public void CloseMenu()
@@ -98,7 +100,7 @@ namespace AF
             cursorManager.HideCursor();
         }
 
-        void CloseMenuViews()
+        public void CloseMenuViews()
         {
             foreach (ViewMenu viewMenu in viewMenus)
             {

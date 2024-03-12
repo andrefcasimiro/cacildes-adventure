@@ -1,70 +1,55 @@
-﻿using UnityEngine.UIElements;
+﻿using AF.UI;
+using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 namespace AF
 {
     public class ViewSettingsMenu : ViewMenu
     {
-        public enum ActiveMenu { OPTIONS, LOAD_GAME }
-
-        public ActiveMenu activeMenu = ActiveMenu.OPTIONS;
-
-        #region Buttons
-        Button optionMenu;
-        Button loadGame;
-        #endregion
-
         VisualElement optionsContainer;
-
         ViewComponent_GameSettings viewComponent_GameSettings => GetComponent<ViewComponent_GameSettings>();
 
+        Button saveProgress, exitButton;
+        public const string saveGameLabel = "SaveGame";
+        public const string exitGameLabel = "ExitGame";
 
         protected override void OnEnable()
         {
             base.OnEnable();
 
-
             SetupRefs();
-            RedrawUI();
         }
-
 
         void SetupRefs()
         {
             viewComponent_GameSettings.SetupRefs(root);
-
             optionsContainer = root.Q<VisualElement>("OptionsMenu");
+            optionsContainer.style.display = DisplayStyle.Flex;
 
-            optionMenu = root.Q<Button>("Options");
-            optionMenu.text = "Options";
+            saveProgress = root.Q<Button>(saveGameLabel);
+            exitButton = root.Q<Button>(exitGameLabel);
+            saveProgress.SetEnabled(saveManager.CanSave());
 
-            loadGame = root.Q<Button>("LoadGame");
-            loadGame.text = "Load Game";
-
-
-            optionMenu.clicked += () =>
+            UIUtils.SetupButton(saveProgress, () =>
             {
-                activeMenu = ActiveMenu.OPTIONS;
-                RedrawUI();
-            };
+                soundbank.PlaySound(soundbank.uiHover);
 
-            loadGame.clicked += () =>
+                saveManager.SaveGameData();
+
+            }, soundbank);
+
+            UIUtils.SetupButton(exitButton, () =>
             {
-                menuManager.CloseMenu();
-            };
-        }
+                soundbank.PlaySound(soundbank.uiHover);
 
-        void RedrawUI()
-        {
-            optionMenu.style.opacity = .5f;
-            optionsContainer.style.display = DisplayStyle.None;
+                fadeManager.FadeIn(1f, () =>
+                {
+                    saveManager.ResetGameState();
+                    gameSession.gameState = GameSession.GameState.INITIALIZED;
+                    SceneManager.LoadScene(0);
+                });
 
-            if (activeMenu == ActiveMenu.OPTIONS)
-            {
-                optionsContainer.style.display = DisplayStyle.Flex;
-                optionMenu.style.opacity = 1.5f;
-
-                viewComponent_GameSettings.TranslateSettingsUI(root);
-            }
+            }, soundbank);
         }
     }
 }

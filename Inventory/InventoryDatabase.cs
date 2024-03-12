@@ -68,9 +68,7 @@ namespace AF.Inventory
             {
                 ownedItems.Add(itemToAdd, new ItemAmount() { amount = quantity, usages = 0 });
             }
-
         }
-
 
         public void RemoveItem(Item itemToAdd)
         {

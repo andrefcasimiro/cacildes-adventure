@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UIElements;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
 
-namespace AF
+namespace AF.UI
 {
     public class ViewMenu : MonoBehaviour
     {
@@ -12,12 +13,12 @@ namespace AF
         public const string EQUIPMENT_BUTTON = "EquipmentButton";
         public const string OBJECTIVES_BUTTON = "ObjectivesButton";
         public const string OPTIONS_BUTTON = "OptionsGameButton";
-        public const string EXIT_BUTTON = "ExitGameButton";
+        public const string LABEL_DESCRIPTOR = "Descriptor";
 
         Button equipmentButton;
         Button objectivesButton;
         Button optionsButton;
-        Button exitButton;
+        Label descriptor;
 
         // Components
         protected MenuManager menuManager;
@@ -25,6 +26,9 @@ namespace AF
         [Header("Components")]
         public CursorManager cursorManager;
         public Soundbank soundbank;
+        public FadeManager fadeManager;
+        public SaveManager saveManager;
+        public GameSession gameSession;
 
         protected virtual void OnEnable()
         {
@@ -33,21 +37,20 @@ namespace AF
             equipmentButton.RemoveFromClassList("active");
             objectivesButton.RemoveFromClassList("active");
             optionsButton.RemoveFromClassList("active");
-            exitButton.RemoveFromClassList("active");
 
             switch (menuManager.viewMenuIndex)
             {
                 case 0:
                     equipmentButton.AddToClassList("active");
+                    descriptor.text = "Equipment";
                     break;
                 case 1:
                     objectivesButton.AddToClassList("active");
+                    descriptor.text = "Quests";
                     break;
                 case 2:
                     optionsButton.AddToClassList("active");
-                    break;
-                case 3:
-                    exitButton.AddToClassList("active");
+                    descriptor.text = "Settings";
                     break;
                 default:
                     return;
@@ -80,8 +83,8 @@ namespace AF
                       1,
                       .25f
                 );
-
             }
+            descriptor = root.Q<Label>(LABEL_DESCRIPTOR);
 
             equipmentButton = root.Q<Button>(EQUIPMENT_BUTTON);
             UIUtils.SetupButton(equipmentButton, () =>
@@ -103,18 +106,10 @@ namespace AF
             optionsButton = root.Q<Button>(OPTIONS_BUTTON);
             UIUtils.SetupButton(optionsButton, () =>
             {
-
                 soundbank.PlaySound(soundbank.uiHover);
                 menuManager.viewMenuIndex = 2;
                 menuManager.SetMenuView();
             }, soundbank);
-
-            exitButton = root.Q<Button>(EXIT_BUTTON);
-            UIUtils.SetupButton(exitButton, () =>
-            {
-                Application.Quit();
-            }, soundbank);
-
         }
     }
 }

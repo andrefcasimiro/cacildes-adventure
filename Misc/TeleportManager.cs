@@ -46,7 +46,7 @@ namespace AF
 
             fadeManager.FadeIn(1f, () =>
             {
-                SceneManager.LoadSceneAsync(sceneName);
+                SceneManager.LoadScene(sceneName);
             });
         }
 

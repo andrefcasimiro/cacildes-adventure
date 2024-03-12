@@ -13,9 +13,17 @@ namespace AF
         [Header("Game Session")]
         public GameSession gameSession;
 
+        private void Awake()
+        {
+            if (gameSession.gameState == GameSession.GameState.NOT_INITIALIZED)
+            {
+                gameSession.gameState = GameSession.GameState.INITIALIZED;
+            }
+        }
+
         private void Start()
         {
-            if (gameSession.hasShownTitleScreen)
+            if (gameSession.gameState == GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN)
             {
                 ifPlayerHasSeenTitleScreen_Event?.Invoke();
                 gameObject.SetActive(false);
@@ -27,7 +35,7 @@ namespace AF
 
         public void StartGame()
         {
-            gameSession.hasShownTitleScreen = true;
+            gameSession.gameState = GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN;
             onPlayerBeginsGame_Event?.Invoke();
             gameObject.SetActive(false);
         }

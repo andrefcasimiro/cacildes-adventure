@@ -15,7 +15,15 @@ namespace AF
         private void Awake()
         {
             canvasGroup.alpha = 1;
+        }
 
+        void Start()
+        {
+            Invoke(nameof(FadeOutOnStart), 0f);
+        }
+
+        void FadeOutOnStart()
+        {
             FadeOut(sceneFadeInSpeed);
         }
 

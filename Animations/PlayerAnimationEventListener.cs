@@ -28,7 +28,11 @@ namespace AF.Animations
 
         public void OpenLeftWeaponHitbox()
         {
-            if (playerManager.playerWeaponsManager.leftHandHitbox != null)
+            if (playerManager.playerWeaponsManager.leftWeaponInstance != null)
+            {
+                playerManager.playerWeaponsManager.leftWeaponInstance.EnableHitbox();
+            }
+            else if (playerManager.playerWeaponsManager.leftHandHitbox != null)
             {
                 playerManager.playerWeaponsManager.leftHandHitbox.EnableHitbox();
             }
@@ -38,7 +42,11 @@ namespace AF.Animations
 
         public void CloseLeftWeaponHitbox()
         {
-            if (playerManager.playerWeaponsManager.leftHandHitbox != null)
+            if (playerManager.playerWeaponsManager.leftWeaponInstance != null)
+            {
+                playerManager.playerWeaponsManager.leftWeaponInstance.DisableHitbox();
+            }
+            else if (playerManager.playerWeaponsManager.leftHandHitbox != null)
             {
                 playerManager.playerWeaponsManager.leftHandHitbox.DisableHitbox();
             }

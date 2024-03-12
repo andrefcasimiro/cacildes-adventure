@@ -13,15 +13,7 @@ namespace AF
 
         public void ShowCursor()
         {
-            if (Gamepad.current != null)
-            {
-                Cursor.visible = false;
-            }
-            else
-            {
-                Cursor.visible = true;
-            }
-
+            Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
 

@@ -23,6 +23,7 @@ namespace AF
         public AudioClip uiUnequip;
         public AudioClip uiLockOn;
         public AudioClip uiLockOnSwitchTarget;
+        public AudioClip switchTwoHand;
 
         [Header("Movement")]
         public AudioClip cloth;

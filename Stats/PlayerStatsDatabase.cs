@@ -12,7 +12,17 @@ public class PlayerStatsDatabase : ScriptableObject
     public int dexterity = 1;
     public int intelligence = 1;
 
-    [Header("Attributes")]
+    [Header("Max Attributes")]
+    public int maxHealth = 300;
+    public float levelMultiplierForHealth = 2.25f;
+    public int maxStamina = 300;
+    public float levelMultiplierForStamina = 3.25f;
+    public int maxMana = 100;
+    public float levelMultiplierForMana = 3.25f;
+
+
+    [Header("Current Attributes")]
+
     public float currentHealth = -1;
     public float currentStamina = -1;
     public float currentMana = -1;
@@ -50,9 +60,9 @@ public class PlayerStatsDatabase : ScriptableObject
         dexterity = 1;
         intelligence = 1;
 
-        currentHealth = -1;
-        currentStamina = -1;
-        currentMana = -1;
+        currentHealth = maxHealth;
+        currentStamina = maxStamina;
+        currentMana = maxMana;
         reputation = 1;
         gold = 0;
     }

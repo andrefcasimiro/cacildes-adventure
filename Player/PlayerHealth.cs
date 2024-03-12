@@ -6,7 +6,6 @@ namespace AF
 {
     public class PlayerHealth : CharacterBaseHealth
     {
-        public float levelMultiplier = 3.25f;
 
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;
@@ -23,10 +22,12 @@ namespace AF
             }
         }
 
+
         public override int GetMaxHealth()
         {
-            return maxHealth + (int)((playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus) * levelMultiplier);
+            return playerStatsDatabase.maxHealth + (int)((playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus) * playerStatsDatabase.levelMultiplierForHealth);
         }
+
 
         public void SubtractAmountMultipliedByTimeDeltaTime(float amount)
         {
@@ -44,7 +45,7 @@ namespace AF
 
         public float GetHealthPointsForGivenVitality(int vitality)
         {
-            return GetCurrentHealth() + (int)(vitality * levelMultiplier);
+            return GetCurrentHealth() + (int)(vitality * playerStatsDatabase.levelMultiplierForHealth);
         }
 
         public override void RestoreHealth(float value)
@@ -154,6 +155,10 @@ namespace AF
         public override void SetCurrentHealth(float value)
         {
             this.playerStatsDatabase.currentHealth = value;
+        }
+
+        public override void SetMaxHealth(int value)
+        {
         }
     }
 

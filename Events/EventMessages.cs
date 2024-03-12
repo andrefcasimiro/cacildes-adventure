@@ -6,6 +6,9 @@ namespace AF.Events
 
         // Events
         public static readonly string ON_MOMENT_START = "ON_MOMENT_START";
+        public static readonly string ON_MOMENT_END = "ON_MOMENT_END";
+        public static readonly string ON_BOSS_BATTLE_BEGINS = "ON_BOSS_BATTLE_BEGINS";
+        public static readonly string ON_BOSS_BATTLE_ENDS = "ON_BOSS_BATTLE_ENDS";
 
         // Quests
         public static readonly string ON_QUEST_TRACKED = "ON_QUEST_TRACKED";
@@ -25,6 +28,9 @@ namespace AF.Events
 
         // Misc
         public static readonly string ON_LEAVING_BONFIRE = "ON_LEAVING_BONFIRE";
+
+        // Game Settings
+        public static readonly string ON_GRAPHICS_QUALITY_CHANGED = "ON_GRAPHICS_QUALITY_CHANGED";
 
     }
 }

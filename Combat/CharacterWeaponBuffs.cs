@@ -1,3 +1,5 @@
+using System.Linq;
+using AYellowpaper.SerializedCollections;
 using UnityEngine;
 namespace AF
 {
@@ -5,57 +7,100 @@ namespace AF
     public class CharacterWeaponBuffs : MonoBehaviour
     {
 
+        [System.Serializable]
+        public class WeaponBuff
+        {
+            public GameObject container;
+            public int damageBonus;
+            public StatusEffect statusEffect;
+            public int statusEffectAmountToApply;
+        }
+
+        public enum WeaponBuffName
+        {
+            NONE,
+            PHYSICAL,
+            FIRE,
+            FROST,
+            MAGIC,
+            LIGHTNING,
+            DARKNESS,
+            POISON,
+            BLOOD,
+            SHARPNESS,
+        }
+
 
         [Header("Enchantments and Buffs")]
-        public bool hasBuff = false;
+        public WeaponBuffName appliedBuff = WeaponBuffName.NONE;
         public float buffDuration = 60f;
-        public int fireBuffBonus = 50;
-        public GameObject fireBuffContainer;
+        public SerializedDictionary<WeaponBuffName, WeaponBuff> weaponBuffs = new();
 
         private void Awake()
         {
-            if (fireBuffContainer != null)
+            DisableAllBuffContainers();
+        }
+
+        void DisableAllBuffContainers()
+        {
+            foreach (var weaponBuff in weaponBuffs)
             {
-                fireBuffContainer.gameObject.SetActive(false);
+                if (weaponBuff.Value != null && weaponBuff.Value.container != null)
+                {
+                    weaponBuff.Value.container.SetActive(false);
+                }
             }
         }
 
-        public void ApplyFireBuff()
+        public void ApplyBuff(WeaponBuffName weaponBuffName)
         {
-            if (!CanUseBuff())
+            if (!CanUseBuff(weaponBuffName))
             {
                 return;
             }
 
-            hasBuff = true;
+            appliedBuff = weaponBuffName;
 
-            if (fireBuffContainer != null)
-            {
-                fireBuffContainer.gameObject.SetActive(true);
-            }
+            weaponBuffs[weaponBuffName].container.SetActive(true);
 
             Invoke(nameof(DisableBuff), buffDuration);
         }
 
         void DisableBuff()
         {
-            Debug.Log("has finished");
-            if (fireBuffContainer != null)
-            {
-                fireBuffContainer.gameObject.SetActive(false);
-            }
+            DisableAllBuffContainers();
 
-            hasBuff = false;
+            appliedBuff = WeaponBuffName.NONE;
         }
 
-        bool CanUseBuff()
+        bool CanUseBuff(WeaponBuffName weaponBuffName)
         {
-            if (hasBuff)
+            if (HasOnGoingBuff())
+            {
+                return false;
+            }
+
+            if (!weaponBuffs.ContainsKey(weaponBuffName))
             {
                 return false;
             }
 
             return true;
+        }
+
+        public bool HasOnGoingBuff()
+        {
+            return appliedBuff != WeaponBuffName.NONE;
+        }
+
+        public int GetCurrentBuffDamage()
+        {
+            if (!HasOnGoingBuff())
+            {
+                return 0;
+            }
+
+            return weaponBuffs[appliedBuff].damageBonus;
         }
     }
 }

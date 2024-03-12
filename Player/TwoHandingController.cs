@@ -7,9 +7,10 @@ namespace AF
     {
         public PlayerManager playerManager;
         public LockOnManager lockOnManager;
+        public Soundbank soundbank;
 
-        [Header("Flags")]
-        public bool isTwoHanding = false;
+        [Header("Databases")]
+        public EquipmentDatabase equipmentDatabase;
 
         private void Awake()
         {
@@ -21,19 +22,20 @@ namespace AF
         /// </summary>
         public void OnInput()
         {
-            SetIsTwoHanding(!isTwoHanding);
+            SetIsTwoHanding(!equipmentDatabase.isTwoHanding);
+            soundbank.PlaySound(soundbank.switchTwoHand);
         }
 
         public void SetIsTwoHanding(bool value)
         {
-            this.isTwoHanding = value;
+            equipmentDatabase.isTwoHanding = value;
 
             UpdateTwoHandingMode();
         }
 
         public void UpdateTwoHandingMode()
         {
-            if (isTwoHanding)
+            if (equipmentDatabase.isTwoHanding)
             {
                 playerManager.playerWeaponsManager.HideShield();
                 playerManager.playerWeaponsManager.currentShieldInstance?.SetIsUsingShield(false);

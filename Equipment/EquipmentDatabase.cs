@@ -18,7 +18,7 @@ public class EquipmentDatabase : ScriptableObject
 
     public Spell[] spells = new Spell[5];
 
-    public Consumable[] consumables = new Consumable[5];
+    public Consumable[] consumables = new Consumable[10];
 
     [Header("Defensive Gear")]
     public Helmet helmet;
@@ -32,6 +32,9 @@ public class EquipmentDatabase : ScriptableObject
     public int currentWeaponIndex, currentShieldIndex, currentConsumableIndex, currentSpellIndex, currentArrowIndex = 0;
 
     public bool shouldClearOnExitPlayMode = false;
+
+    [Header("Flags")]
+    public bool isTwoHanding = false;
 
     [Header("Databases")]
     public InventoryDatabase inventoryDatabase;
@@ -93,7 +96,6 @@ public class EquipmentDatabase : ScriptableObject
         helmet = null;
         gauntlet = null;
     }
-
     public void SwitchToNextWeapon()
     {
         currentWeaponIndex++;

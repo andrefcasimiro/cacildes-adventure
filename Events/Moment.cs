@@ -1,13 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using AF;
-using AF.Events;
 using TigerForge;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Events
+namespace AF.Events
 {
 #if UNITY_EDITOR
 
@@ -104,6 +102,7 @@ namespace Events
         {
             onMoment_End?.Invoke();
             isRunning = false;
+            EventManager.EmitEvent(EventMessages.ON_MOMENT_END);
         }
 
         private void OnDisable()

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using AF.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -93,7 +94,7 @@ namespace AF
                 questsScrollView.Add(clone);
             }
 
-            if (questsScrollView.ElementAt(elementToFocusIndex) != null)
+            if (questsScrollView.childCount > 0 && questsScrollView.childCount <= elementToFocusIndex && questsScrollView.ElementAt(elementToFocusIndex) != null)
             {
                 var btn = questsScrollView.ElementAt(elementToFocusIndex).Q<Button>("QuestButton");
                 btn.Focus();

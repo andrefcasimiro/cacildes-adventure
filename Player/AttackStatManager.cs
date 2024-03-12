@@ -192,7 +192,7 @@ namespace AF
                 + GetIntelligenceBonusFromWeapon(weapon)
             );
 
-            if (playerManager.twoHandingController.isTwoHanding)
+            if (equipmentDatabase.isTwoHanding)
             {
                 value += twoHandAttackBonus + (int)strengthBonusFromWeapon;
             }

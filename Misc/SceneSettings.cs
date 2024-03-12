@@ -61,7 +61,14 @@ namespace AF
         {
             if (displaySceneName)
             {
-                StartCoroutine(DisplaySceneName_Coroutine());
+                StartCoroutine(DisplaySceneName_Coroutine(() =>
+                {
+                    HandleSceneSound(true);
+                }));
+            }
+            else
+            {
+                HandleSceneSound(true);
             }
 
             OnHourChanged(!displaySceneName);
@@ -74,10 +81,13 @@ namespace AF
         /// </summary>
         public void DisplaySceneName()
         {
-            StartCoroutine(DisplaySceneName_Coroutine());
+            StartCoroutine(DisplaySceneName_Coroutine(() =>
+            {
+                HandleSceneSound(true);
+            }));
         }
 
-        IEnumerator DisplaySceneName_Coroutine()
+        IEnumerator DisplaySceneName_Coroutine(UnityAction onFinish)
         {
             yield return new WaitForSeconds(displaySceneNameDelay);
 
@@ -96,8 +106,6 @@ namespace AF
                 yield return new WaitForSeconds(sceneNameSfx.length);
             }
 
-            HandleSceneSound(true);
-
             yield return new WaitForSeconds(displaySceneNameDuration);
 
             DOTween.To(
@@ -107,6 +115,7 @@ namespace AF
                   1f
             );
 
+            onFinish?.Invoke();
         }
 
         /// <summary>

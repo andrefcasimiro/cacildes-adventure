@@ -1,11 +1,19 @@
-using AF;
+using AF.Events;
+using TigerForge;
 using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "GameSession", menuName = "System/New Game Session", order = 0)]
 public class GameSession : ScriptableObject
 {
-    public bool hasShownTitleScreen = false;
+    public enum GameState
+    {
+        NOT_INITIALIZED,
+        INITIALIZED,
+        INITIALIZED_AND_SHOWN_TITLE_SCREEN
+    }
+
+    public GameState gameState = GameState.NOT_INITIALIZED;
 
     [Header("Teleport")]
     public string nextMap_SpawnGameObjectName;
@@ -28,7 +36,13 @@ public class GameSession : ScriptableObject
     public int daysPassed = 0;
     public float daySpeed = 0.005f;
 
-    public bool shouldClearOnExitPlayMode = false;
+    [Header("Game Settings")]
+    public float mouseSensitivity = 1f;
+    public float minimumMouseSensitivity = 0f;
+    public float maximumMouseSensitivity = 10f;
+
+    public enum GraphicsQuality { LOW, MEDIUM, GOOD, ULTRA };
+    public GraphicsQuality graphicsQuality = GraphicsQuality.GOOD;
 
 
 #if UNITY_EDITOR
@@ -43,22 +57,47 @@ public class GameSession : ScriptableObject
     {
         if (state == PlayModeStateChange.ExitingPlayMode)
         {
-            if (shouldClearOnExitPlayMode)
-            {
-                Clear();
-            }
+            Clear();
         }
     }
 #endif
 
     void Clear()
     {
-        hasShownTitleScreen = false;
+        gameState = GameState.NOT_INITIALIZED;
+        initialTimeOfDay = 11;
     }
 
     public void SetTimeOfDay(int hour)
     {
         this.timeOfDay = hour;
+    }
+
+    public void SetGameQuality(int newValue)
+    {
+
+        if (newValue == 0)
+        {
+            graphicsQuality = GraphicsQuality.LOW;
+            QualitySettings.SetQualityLevel(0);
+        }
+        else if (newValue == 1)
+        {
+            graphicsQuality = GraphicsQuality.MEDIUM;
+            QualitySettings.SetQualityLevel(2);
+        }
+        else if (newValue == 2)
+        {
+            graphicsQuality = GraphicsQuality.GOOD;
+            QualitySettings.SetQualityLevel(4);
+        }
+        else if (newValue == 3)
+        {
+            graphicsQuality = GraphicsQuality.ULTRA;
+            QualitySettings.SetQualityLevel(5);
+        }
+
+        EventManager.EmitEvent(EventMessages.ON_GRAPHICS_QUALITY_CHANGED);
     }
 
 }

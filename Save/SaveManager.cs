@@ -9,6 +9,8 @@ using System.Linq;
 using AF.Companions;
 using AF.Flags;
 using AF.Bonfires;
+using TigerForge;
+using AF.Events;
 
 namespace AF
 {
@@ -29,6 +31,36 @@ namespace AF
         [Header("Components")]
         public FadeManager fadeManager;
         public PlayerManager playerManager;
+        public NotificationManager notificationManager;
+
+        // Flags that allow us to save the game
+        bool hasMomentOnGoing = false;
+        bool hasBossFightOnGoing = false;
+
+        private void Awake()
+        {
+            EventManager.StartListening(EventMessages.ON_MOMENT_START, () => { hasMomentOnGoing = true; });
+            EventManager.StartListening(EventMessages.ON_MOMENT_END, () => { hasMomentOnGoing = false; });
+            EventManager.StartListening(EventMessages.ON_BOSS_BATTLE_BEGINS, () => { hasBossFightOnGoing = true; });
+            EventManager.StartListening(EventMessages.ON_BOSS_BATTLE_ENDS, () => { hasBossFightOnGoing = false; });
+        }
+
+        public bool CanSave()
+        {
+            return hasMomentOnGoing == false && hasBossFightOnGoing == false;
+        }
+
+        public void ResetGameState()
+        {
+            playerStatsDatabase.Clear();
+            equipmentDatabase.Clear();
+            inventoryDatabase.Clear();
+            pickupDatabase.Clear();
+            questsDatabase.Clear();
+            companionsDatabase.Clear();
+            bonfiresDatabase.Clear();
+            flagsDatabase.Clear();
+        }
 
         void SavePlayerStats()
         {
@@ -130,6 +162,8 @@ namespace AF
             equipment.Write("armor", equipmentDatabase.armor != null ? equipmentDatabase.armor.name : "");
             equipment.Write("gauntlet", equipmentDatabase.gauntlet != null ? equipmentDatabase.gauntlet.name : "");
             equipment.Write("legwear", equipmentDatabase.legwear != null ? equipmentDatabase.legwear.name : "");
+            equipment.Write("isTwoHanding", equipmentDatabase.isTwoHanding);
+
             equipment.TryCommit();
         }
 
@@ -313,6 +347,10 @@ namespace AF
                     }
                 }
             });
+            playerEquipment.Read<bool>("isTwoHanding", (value) =>
+            {
+                equipmentDatabase.isTwoHanding = value;
+            });
         }
 
         void SavePlayerInventory()
@@ -489,6 +527,36 @@ namespace AF
             gameSession.loadSavedPlayerPositionAndRotation = true;
         }
 
+        void SaveGameSettings()
+        {
+            var data = QuickSaveWriter.Create("GameSession");
+            data.Write("timeOfDay", gameSession.timeOfDay);
+            data.Write("graphicsQuality", gameSession.graphicsQuality);
+            data.Write("mouseSensitivity", gameSession.mouseSensitivity);
+            data.TryCommit();
+        }
+
+
+        void LoadGameSettings()
+        {
+            var data = QuickSaveReader.Create("GameSession");
+            data.TryRead<float>("timeOfDay", out var timeOfDay);
+            data.TryRead<int>("graphicsQuality", out var graphicsQuality);
+            data.TryRead<float>("mouseSensitivity", out var mouseSensitivity);
+
+            gameSession.timeOfDay = timeOfDay;
+
+            if (graphicsQuality != -1)
+            {
+                gameSession.SetGameQuality(graphicsQuality);
+            }
+
+            if (mouseSensitivity > 0)
+            {
+                gameSession.mouseSensitivity = mouseSensitivity;
+            }
+        }
+
         void SaveCompanions()
         {
             var companions = QuickSaveWriter.Create("Companions");
@@ -557,10 +625,15 @@ namespace AF
             SaveFlags();
             SaveQuests();
             SaveSceneSettings();
+            SaveGameSettings();
+
+            notificationManager.ShowNotification("Game saved", notificationManager.systemSuccess);
         }
 
         public void LoadLastSavedGame(bool isFromGameOver)
         {
+            gameSession.gameState = GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN;
+
             fadeManager.FadeIn(1f, () =>
             {
                 LoadBonfires();
@@ -572,6 +645,7 @@ namespace AF
                 LoadFlags();
                 LoadQuests();
                 LoadSceneSettings();
+                LoadGameSettings();
             });
         }
 

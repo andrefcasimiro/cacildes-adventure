@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
 using UnityEngine.Events;
 
 namespace AF
@@ -57,6 +56,15 @@ namespace AF
 		public UnityEvent onAdvanceOneHour;
 		public UnityEvent onGoBackOneHour;
 
+		public GameSession gameSession;
+
+		Vector2 scaleVector = new(1, 1);
+
+		private void Awake()
+		{
+			scaleVector = new(gameSession.mouseSensitivity, gameSession.mouseSensitivity);
+		}
+
 		public void OnMove(InputValue value)
 		{
 			move = value.Get<Vector2>();
@@ -70,6 +78,13 @@ namespace AF
 			{
 				look = value.Get<Vector2>();
 			}
+
+			if (scaleVector.x != gameSession.mouseSensitivity)
+			{
+				scaleVector = new(gameSession.mouseSensitivity, gameSession.mouseSensitivity);
+			}
+
+			look.Scale(scaleVector);
 		}
 
 		public void OnJump(InputValue value)

@@ -6,8 +6,6 @@ namespace AF
 {
     public class StaminaStatManager : MonoBehaviour
     {
-        public int baseStamina = 100;
-        public float levelMultiplier = 3.25f;
 
         [Header("Regeneration Settings")]
         public float STAMINA_REGENERATION_RATE = 20f;
@@ -47,8 +45,8 @@ namespace AF
 
         public int GetMaxStamina()
         {
-            return baseStamina + Mathf.RoundToInt((
-                playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * levelMultiplier);
+            return playerStatsDatabase.maxStamina + Mathf.RoundToInt((
+                playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * playerStatsDatabase.levelMultiplierForStamina);
         }
 
         public float GetCurrentStaminaPercentage()
@@ -125,7 +123,7 @@ namespace AF
 
         public float GetStaminaPointsForGivenEndurance(int endurance)
         {
-            return baseStamina + (int)Mathf.Ceil(endurance * levelMultiplier);
+            return playerStatsDatabase.maxStamina + (int)Mathf.Ceil(endurance * playerStatsDatabase.levelMultiplierForStamina);
         }
 
         public void DecreaseLightAttackStamina()

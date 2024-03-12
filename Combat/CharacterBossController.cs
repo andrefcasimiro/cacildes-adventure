@@ -1,8 +1,10 @@
 using System.Linq;
 using AF.Combat;
+using AF.Events;
 using AF.Flags;
 using AF.Health;
 using AF.Music;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
@@ -114,6 +116,8 @@ namespace AF
             }
 
             onBattleBegin?.Invoke();
+
+            EventManager.EmitEvent(EventMessages.ON_BOSS_BATTLE_BEGINS);
         }
 
         /// <summary>
@@ -128,6 +132,7 @@ namespace AF
 
             if (characterManager.partners?.Length > 0 ? allPartnersAreDead : isDead)
             {
+                EventManager.EmitEvent(EventMessages.ON_BOSS_BATTLE_ENDS);
                 onBossDefeated?.Invoke();
                 UpdateBossFlag();
             }

@@ -47,6 +47,11 @@ namespace AF.UI.EquipmentMenu
         Button consumableButtonSlot3;
         Button consumableButtonSlot4;
         Button consumableButtonSlot5;
+        Button consumableButtonSlot6;
+        Button consumableButtonSlot7;
+        Button consumableButtonSlot8;
+        Button consumableButtonSlot9;
+        Button consumableButtonSlot10;
 
         Button otherItemsButton;
 
@@ -122,6 +127,12 @@ namespace AF.UI.EquipmentMenu
             consumableButtonSlot3 = root.Q<Button>("ConsumablesButton_Slot3");
             consumableButtonSlot4 = root.Q<Button>("ConsumablesButton_Slot4");
             consumableButtonSlot5 = root.Q<Button>("ConsumablesButton_Slot5");
+
+            consumableButtonSlot6 = root.Q<Button>("ConsumablesButton_Slot6");
+            consumableButtonSlot7 = root.Q<Button>("ConsumablesButton_Slot7");
+            consumableButtonSlot8 = root.Q<Button>("ConsumablesButton_Slot8");
+            consumableButtonSlot9 = root.Q<Button>("ConsumablesButton_Slot9");
+            consumableButtonSlot10 = root.Q<Button>("ConsumablesButton_Slot10");
 
             otherItemsButton = root.Q<Button>("OtherItemsButton");
 
@@ -399,7 +410,12 @@ namespace AF.UI.EquipmentMenu
                 { consumableButtonSlot2, () => equipmentDatabase.consumables[1] },
                 { consumableButtonSlot3, () => equipmentDatabase.consumables[2] },
                 { consumableButtonSlot4, () => equipmentDatabase.consumables[3] },
-                { consumableButtonSlot5, () => equipmentDatabase.consumables[4] }
+                { consumableButtonSlot5, () => equipmentDatabase.consumables[4] },
+                { consumableButtonSlot6, () => equipmentDatabase.consumables[5] },
+                { consumableButtonSlot7, () => equipmentDatabase.consumables[6] },
+                { consumableButtonSlot8, () => equipmentDatabase.consumables[7] },
+                { consumableButtonSlot9, () => equipmentDatabase.consumables[8] },
+                { consumableButtonSlot10, () => equipmentDatabase.consumables[9] },
             };
 
             int slotIndex = 0;
@@ -541,6 +557,12 @@ namespace AF.UI.EquipmentMenu
             SetBackgroundImage(consumableButtonSlot3, equipmentDatabase.consumables, 2, txt_UnequippedConsumable);
             SetBackgroundImage(consumableButtonSlot4, equipmentDatabase.consumables, 3, txt_UnequippedConsumable);
             SetBackgroundImage(consumableButtonSlot5, equipmentDatabase.consumables, 4, txt_UnequippedConsumable);
+
+            SetBackgroundImage(consumableButtonSlot6, equipmentDatabase.consumables, 5, txt_UnequippedConsumable);
+            SetBackgroundImage(consumableButtonSlot7, equipmentDatabase.consumables, 6, txt_UnequippedConsumable);
+            SetBackgroundImage(consumableButtonSlot8, equipmentDatabase.consumables, 7, txt_UnequippedConsumable);
+            SetBackgroundImage(consumableButtonSlot9, equipmentDatabase.consumables, 8, txt_UnequippedConsumable);
+            SetBackgroundImage(consumableButtonSlot10, equipmentDatabase.consumables, 9, txt_UnequippedConsumable);
         }
 
         void SetBackgroundImage(VisualElement button, Item[] items, int index, Texture2D unequippedTexture)

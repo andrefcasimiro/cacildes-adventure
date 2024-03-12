@@ -449,7 +449,6 @@ namespace AF.UI.EquipmentMenu
 
                         playerManager.playerInventory.PrepareItemForConsuming(item.Key as Consumable);
                         menuManager.CloseMenu();
-                        cursorManager.HideCursor();
                     }
                 });
 

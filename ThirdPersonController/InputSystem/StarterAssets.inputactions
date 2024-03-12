@@ -284,7 +284,7 @@
                     "path": "<Gamepad>/leftStick",
                     "interactions": "",
                     "processors": "StickDeadzone",
-                    "groups": "Gamepad",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller;KeyboardMouse",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -306,7 +306,7 @@
                     "path": "<Gamepad>/rightStick",
                     "interactions": "",
                     "processors": "InvertVector2(invertX=false),StickDeadzone,ScaleVector2",
-                    "groups": "Gamepad",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller;KeyboardMouse",
                     "action": "Look",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -328,7 +328,7 @@
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Gamepad",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "Jump",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -350,7 +350,7 @@
                     "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Gamepad",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -372,7 +372,7 @@
                     "path": "<Gamepad>/leftStickPress",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "ToggleWalk",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -394,7 +394,7 @@
                     "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "Dodge",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -427,7 +427,7 @@
                     "path": "<Gamepad>/start",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -438,7 +438,7 @@
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "LightAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -449,7 +449,7 @@
                     "path": "<Gamepad>/rightShoulder",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "LightAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -460,7 +460,7 @@
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "Block",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -471,7 +471,7 @@
                     "path": "<Gamepad>/leftShoulder",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "Block",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -482,7 +482,7 @@
                     "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "LockOn",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -493,7 +493,7 @@
                     "path": "<Gamepad>/rightStickPress",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "LockOn",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -504,7 +504,7 @@
                     "path": "<Keyboard>/g",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "HeavyAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -515,7 +515,7 @@
                     "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "HeavyAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -537,7 +537,7 @@
                     "path": "<Gamepad>/buttonWest",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -548,7 +548,7 @@
                     "path": "<Gamepad>/dpad/up",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "SwitchSpell",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -559,7 +559,7 @@
                     "path": "<Keyboard>/2",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchSpell",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -581,7 +581,7 @@
                     "path": "<Mouse>/scroll/up",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchSpell",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -592,7 +592,7 @@
                     "path": "<Keyboard>/upArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchSpell",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -603,7 +603,7 @@
                     "path": "<Keyboard>/r",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "ConsumeFavoriteItem",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -614,7 +614,7 @@
                     "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "ConsumeFavoriteItem",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -625,7 +625,7 @@
                     "path": "<Keyboard>/f5",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "QuickSave",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -636,7 +636,7 @@
                     "path": "<Keyboard>/f9",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "QuickLoad",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -647,7 +647,7 @@
                     "path": "<Gamepad>/dpad/down",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "SwitchConsumable",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -658,7 +658,7 @@
                     "path": "<Keyboard>/4",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchConsumable",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -680,7 +680,7 @@
                     "path": "<Mouse>/scroll/down",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchConsumable",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -691,7 +691,7 @@
                     "path": "<Keyboard>/downArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchConsumable",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -702,7 +702,7 @@
                     "path": "<Keyboard>/tab",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "Tab",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -724,7 +724,7 @@
                     "path": "<Gamepad>/select",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "Tab",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -735,7 +735,7 @@
                     "path": "<Gamepad>/dpad/right",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "SwitchWeapon",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -746,7 +746,7 @@
                     "path": "<Keyboard>/3",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchWeapon",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -757,7 +757,7 @@
                     "path": "<Keyboard>/rightArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchWeapon",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -768,7 +768,7 @@
                     "path": "<Gamepad>/dpad/left",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "SwitchShield",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -779,7 +779,7 @@
                     "path": "<Keyboard>/1",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchShield",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -790,7 +790,7 @@
                     "path": "<Keyboard>/leftArrow",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "SwitchShield",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -801,7 +801,7 @@
                     "path": "<Gamepad>/rightTrigger",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "NextMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -812,7 +812,7 @@
                     "path": "<Keyboard>/x",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "NextMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -823,7 +823,7 @@
                     "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Gamepad;Xbox Controller;PS4 Controller",
                     "action": "PreviousMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -834,7 +834,7 @@
                     "path": "<Keyboard>/z",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "PreviousMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -845,7 +845,7 @@
                     "path": "<Keyboard>/numpadPlus",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "AdvanceOneHour",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -856,7 +856,7 @@
                     "path": "<Keyboard>/numpadMinus",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "KeyboardMouse",
                     "action": "GoBackOneHour",
                     "isComposite": false,
                     "isPartOfComposite": false

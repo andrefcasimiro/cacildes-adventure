@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -11,6 +12,9 @@ namespace AF
 
         [Header("Options")]
         public float backStabAngle = 90f;
+
+        [Header("FX")]
+        public UnityEvent onBackstab;
 
         [Header("Components")]
         public PlayerManager playerManager;
@@ -28,18 +32,24 @@ namespace AF
                 // If backstab sucess
                 enemy.damageReceiver.HandleIncomingDamage(playerManager, () =>
                 {
-                    playerManager.transform.position = enemy.transform.position;
+                    playerManager.transform.position = enemy.transform.position + enemy.transform.forward * -1f;
                     playerManager.transform.rotation = enemy.transform.rotation;
                     playerManager.playerComponentManager.DisablePlayerControlAndRegainControlAfterResetStates();
                     enemy.targetManager.SetTarget(playerManager);
 
                     playerManager.PlayBusyHashedAnimationWithRootMotion(hashBackstabExecution);
+                    Invoke(nameof(PlayDelayedBackstab), 0.8f);
                 });
 
                 return true;
             }
 
             return false;
+        }
+
+        void PlayDelayedBackstab()
+        {
+            onBackstab?.Invoke();
         }
 
         CharacterManager GetPossibleTarget()

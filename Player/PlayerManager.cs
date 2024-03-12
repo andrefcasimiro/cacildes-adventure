@@ -146,7 +146,7 @@ namespace AF
                     UpdateAnimationOverrides(animator, clipOverrides, currentWeapon.animationOverrides);
                 }
 
-                if (twoHandingController.isTwoHanding && currentWeapon.twoHandOverrides != null && currentWeapon.twoHandOverrides.Count > 0)
+                if (equipmentDatabase.isTwoHanding && currentWeapon.twoHandOverrides != null && currentWeapon.twoHandOverrides.Count > 0)
                 {
                     UpdateAnimationOverrides(animator, clipOverrides, currentWeapon.twoHandOverrides);
                 }

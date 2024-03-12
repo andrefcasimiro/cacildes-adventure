@@ -108,6 +108,7 @@ namespace AF
         public PlayerManager playerManager;
         private PlayerInput _playerInput;
         [HideInInspector] public StarterAssetsInputs _input;
+        public UIManager uIManager;
 
         public GameObject _mainCamera;
         public UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
@@ -148,7 +149,6 @@ namespace AF
 
         public bool canRotateCharacter = true;
 
-        [Header("Components")]
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -575,6 +575,7 @@ namespace AF
                     && enableCooldown >= maxEnableCooldown
                     && uIDocumentReceivedItemPrompt.isActiveAndEnabled == false
                     && menuManager.isMenuOpen == false
+                    && !uIManager.IsShowingGUI()
                 )
                 {
                     if (CanJump())

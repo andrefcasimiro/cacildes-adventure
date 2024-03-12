@@ -36,7 +36,6 @@ namespace AF
             }, soundbank);
 
             viewComponent_GameSettings.SetupRefs(root);
-            viewComponent_GameSettings.TranslateSettingsUI(root);
 
             viewComponent_GameSettings.onLanguageChanged += () =>
             {

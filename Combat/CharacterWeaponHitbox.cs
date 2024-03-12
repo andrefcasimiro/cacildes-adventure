@@ -148,7 +148,7 @@ namespace AF
 
         public bool UseCustomTwoHandTransform()
         {
-            return characterTwoHandRef != null && characterTwoHandRef.useTwoHandingTransform;
+            return characterTwoHandRef != null;
         }
     }
 }

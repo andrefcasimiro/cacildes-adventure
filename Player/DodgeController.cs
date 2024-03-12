@@ -14,6 +14,7 @@ namespace AF
         [Header("Components")]
         public PlayerManager playerManager;
         public LockOnManager lockOnManager;
+        public UIManager uIManager;
 
         [Header("Stamina Settings")]
         public int dodgeCost = 15;
@@ -125,6 +126,11 @@ namespace AF
             }
 
             if (!playerManager.staminaStatManager.HasEnoughStaminaForAction(dodgeCost))
+            {
+                return false;
+            }
+
+            if (uIManager.IsShowingGUI())
             {
                 return false;
             }

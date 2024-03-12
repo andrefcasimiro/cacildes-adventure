@@ -6,8 +6,6 @@ namespace AF
 {
     public class ManaManager : MonoBehaviour
     {
-        public int baseMana = 100;
-        public float levelMultiplier = 3.25f;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -33,8 +31,8 @@ namespace AF
 
         public int GetMaxMana()
         {
-            return baseMana + Mathf.RoundToInt((
-                playerStatsDatabase.intelligence + playerStatsBonusController.intelligenceBonus) * levelMultiplier);
+            return playerStatsDatabase.maxMana + Mathf.RoundToInt((
+                playerStatsDatabase.intelligence + playerStatsBonusController.intelligenceBonus) * playerStatsDatabase.levelMultiplierForMana);
         }
 
         public void DecreaseMana(float amount)
@@ -74,7 +72,7 @@ namespace AF
 
         public float GetManaPointsForGivenIntelligence(int intelligence)
         {
-            return baseMana + (int)Mathf.Ceil(intelligence * levelMultiplier);
+            return playerStatsDatabase.maxMana + (int)Mathf.Ceil(intelligence * playerStatsDatabase.levelMultiplierForMana);
         }
 
 

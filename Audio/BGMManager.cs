@@ -71,7 +71,7 @@ namespace AF.Music
             while (this.bgmAudioSource.volume < volumeInGamePreferences)
             {
                 this.bgmAudioSource.volume += fadeMusicSpeed * Time.deltaTime;
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
         }
         private IEnumerator FadeOutCore()
@@ -79,7 +79,7 @@ namespace AF.Music
             while (this.bgmAudioSource.volume > 0)
             {
                 this.bgmAudioSource.volume -= fadeMusicSpeed * Time.deltaTime;
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
 
             this.bgmAudioSource.Stop();

@@ -7,8 +7,6 @@ namespace AF.Health
 {
     public abstract class CharacterBaseHealth : MonoBehaviour
     {
-        [SerializeField]
-        protected int maxHealth = 100;
 
         [Header("Events")]
         public UnityEvent onStart;
@@ -42,10 +40,7 @@ namespace AF.Health
         public abstract void SetCurrentHealth(float value);
 
         public abstract int GetMaxHealth();
-        public void SetMaxHealth(int value)
-        {
-            this.maxHealth = value;
-        }
+        public abstract void SetMaxHealth(int value);
 
         public void PlayPostureHit()
         {

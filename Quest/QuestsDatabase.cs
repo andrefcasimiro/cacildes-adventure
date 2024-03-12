@@ -41,6 +41,11 @@ namespace AF
         {
             questsReceived.Clear();
             currentTrackedQuestIndex = -1;
+
+            foreach (var quest in Resources.LoadAll<QuestParent>("Quests"))
+            {
+                quest.SetProgress(-1);
+            }
         }
 
         public bool IsQuestTracked(QuestParent questParent)
@@ -74,9 +79,14 @@ namespace AF
                 return "";
             }
 
+            if (questsReceived == null || questsReceived.Count <= 0)
+            {
+                return "";
+            }
+
             QuestParent questParent = questsReceived[currentTrackedQuestIndex];
 
-            if (questParent.questProgress >= 0 && questParent.IsCompleted() == false)
+            if (questParent != null && questParent.questProgress >= 0 && questParent.IsCompleted() == false)
             {
                 return questParent.questObjectives[questParent.questProgress];
             }

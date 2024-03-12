@@ -20,6 +20,19 @@ namespace AF
         [Header("Components")]
         public PlayerManager playerManager;
 
+        bool canSwitch = true;
+
+        void ResetCanSwitchFlag()
+        {
+            canSwitch = true;
+        }
+
+        void UpdateCanSwitchFlag()
+        {
+            canSwitch = false;
+            Invoke(nameof(ResetCanSwitchFlag), 0.1f);
+        }
+
         /// <summary>
         /// Unity Event
         /// </summary>
@@ -70,6 +83,7 @@ namespace AF
             uIDocumentPlayerHUDV2.OnSwitchWeapon();
 
             playerManager.twoHandingController.UpdateTwoHandingMode();
+            UpdateCanSwitchFlag();
         }
 
         /// <summary>
@@ -87,6 +101,7 @@ namespace AF
             uIDocumentPlayerHUDV2.OnSwitchShield();
 
             playerManager.twoHandingController.UpdateTwoHandingMode();
+            UpdateCanSwitchFlag();
         }
 
         /// <summary>
@@ -102,6 +117,7 @@ namespace AF
             equipmentDatabase.SwitchToNextConsumable();
 
             uIDocumentPlayerHUDV2.OnSwitchConsumable();
+            UpdateCanSwitchFlag();
         }
 
         /// <summary>
@@ -124,6 +140,7 @@ namespace AF
             }
 
             uIDocumentPlayerHUDV2.OnSwitchSpell();
+            UpdateCanSwitchFlag();
         }
 
         bool CanSwitchEquipment()
@@ -134,6 +151,11 @@ namespace AF
             }
 
             if (playerManager.isBusy)
+            {
+                return false;
+            }
+
+            if (canSwitch == false)
             {
                 return false;
             }

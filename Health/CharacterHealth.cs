@@ -8,6 +8,10 @@ namespace AF.Health
 {
     public class CharacterHealth : CharacterBaseHealth
     {
+
+        [SerializeField]
+        protected int maxHealth = 100;
+
         [SerializeField] float m_currentHealth;
         protected float CurrentHealth
         {
@@ -89,6 +93,11 @@ namespace AF.Health
         public override void SetCurrentHealth(float value)
         {
             this.CurrentHealth = value;
+        }
+
+        public override void SetMaxHealth(int value)
+        {
+            this.maxHealth = value;
         }
     }
 
