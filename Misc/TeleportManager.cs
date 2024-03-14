@@ -66,6 +66,13 @@ namespace AF
                 if (spawnGameObject != null)
                 {
                     playerManager.playerComponentManager.TeleportPlayer(spawnGameObject.transform);
+
+                    if (spawnGameObject.transform.childCount > 0)
+                    {
+                        var targetRot = spawnGameObject.transform.GetChild(0).transform.position - spawnGameObject.transform.position;
+                        targetRot.y = 0;
+                        playerManager.transform.rotation = Quaternion.LookRotation(targetRot);
+                    }
                 }
             }
         }

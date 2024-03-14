@@ -154,7 +154,6 @@ namespace AF.Equipment
                 var gameObjectShield = shieldInstances.FirstOrDefault(x => x.shield.name == CurrentShield.name);
                 currentShieldInstance = gameObjectShield;
                 currentShieldInstance.gameObject.SetActive(true);
-                currentShieldInstance.SetIsUsingShield(true);
             }
         }
 
@@ -174,7 +173,6 @@ namespace AF.Equipment
 
             UpdateCurrentWeapon();
 
-            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         public void UnequipWeapon(int slot)
@@ -183,7 +181,6 @@ namespace AF.Equipment
 
             UpdateCurrentWeapon();
 
-            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         public void EquipShield(Shield shieldToEquip, int slot)
@@ -191,8 +188,6 @@ namespace AF.Equipment
             equipmentDatabase.EquipShield(shieldToEquip, slot);
 
             UpdateCurrentShield();
-
-            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         public void UnequipShield(int slot)
@@ -200,8 +195,6 @@ namespace AF.Equipment
             equipmentDatabase.UnequipShield(slot);
 
             UpdateCurrentShield();
-
-            playerManager.twoHandingController.UpdateTwoHandingMode();
         }
 
         public void ShowEquipment()

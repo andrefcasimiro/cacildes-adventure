@@ -13,12 +13,10 @@ namespace AF.Pickups
         [SerializedDictionary("Item", "Quantity")]
         public SerializedDictionary<Item, ItemAmount> itemsToAdd;
 
-        [Header("UI Components")]
-        public UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
-
-        [Header("Components")]
-        public PlayerInventory playerInventory;
-        public Soundbank soundbank;
+        // Scene References
+        UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
+        PlayerInventory playerInventory;
+        Soundbank soundbank;
 
         public void OnAddItem()
         {
@@ -42,13 +40,43 @@ namespace AF.Pickups
                     sprite = item.Key.sprite
                 });
 
-                playerInventory.AddItem(item.Key, item.Value.amount);
+                GetPlayerInventory().AddItem(item.Key, item.Value.amount);
             }
 
-            uIDocumentReceivedItemPrompt.gameObject.SetActive(true);
-            uIDocumentReceivedItemPrompt.DisplayItemsReceived(itemsToDisplay);
+            GetUIDocumentReceivedItemPrompt().gameObject.SetActive(true);
+            GetUIDocumentReceivedItemPrompt().DisplayItemsReceived(itemsToDisplay);
 
-            soundbank.PlaySound(soundbank.uiItemReceived);
+            GetSoundbank().PlaySound(GetSoundbank().uiItemReceived);
+        }
+
+        UIDocumentReceivedItemPrompt GetUIDocumentReceivedItemPrompt()
+        {
+            if (uIDocumentReceivedItemPrompt == null)
+            {
+                uIDocumentReceivedItemPrompt = FindAnyObjectByType<UIDocumentReceivedItemPrompt>(FindObjectsInactive.Include);
+            }
+
+            return uIDocumentReceivedItemPrompt;
+        }
+
+        Soundbank GetSoundbank()
+        {
+            if (soundbank == null)
+            {
+                soundbank = FindAnyObjectByType<Soundbank>(FindObjectsInactive.Include);
+            }
+
+            return soundbank;
+        }
+
+        PlayerInventory GetPlayerInventory()
+        {
+            if (playerInventory == null)
+            {
+                playerInventory = FindAnyObjectByType<PlayerInventory>(FindObjectsInactive.Include);
+            }
+
+            return playerInventory;
         }
     }
 }

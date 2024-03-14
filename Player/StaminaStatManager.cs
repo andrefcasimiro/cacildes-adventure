@@ -49,6 +49,11 @@ namespace AF
                 playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * playerStatsDatabase.levelMultiplierForStamina);
         }
 
+        public bool CanPerformAction(int amountDrained)
+        {
+            return playerStatsDatabase.currentStamina - amountDrained > 0;
+        }
+
         public float GetCurrentStaminaPercentage()
         {
             return playerStatsDatabase.currentStamina * 100 / GetMaxStamina();
@@ -155,6 +160,17 @@ namespace AF
                 ? equipmentDatabase.GetCurrentWeapon().heavyAttackStaminaCost : unarmedHeavyAttackStaminaCost;
 
             return HasEnoughStaminaForAction(staminaCost);
+        }
+
+
+        public void SetNegativeStaminaRegenerationBonus(int value)
+        {
+            negativeStaminaRegenerationBonus = value;
+        }
+
+        public void ResetNegativeStaminaRegenerationBonus()
+        {
+            negativeStaminaRegenerationBonus = 0f;
         }
     }
 }

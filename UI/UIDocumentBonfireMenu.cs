@@ -39,6 +39,7 @@ namespace AF
         bool hasEnoughForLevellingUp = false;
 
         Bonfire currentBonfire;
+        bool canEscape = false;
 
         private void Start()
         {
@@ -66,8 +67,15 @@ namespace AF
 
         private void OnEnable()
         {
+            canEscape = false;
             SetupRefs();
             DrawUI();
+            Invoke(nameof(ResetCanEscapeFlag), 0.5f);
+        }
+
+        void ResetCanEscapeFlag()
+        {
+            canEscape = true;
         }
 
         public void SetCurrentBonfire(Bonfire bonfire)
@@ -156,6 +164,25 @@ namespace AF
             {
                 ExitBonfire();
             }, soundbank);
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnClose()
+        {
+            if (this.isActiveAndEnabled == false || canEscape == false)
+            {
+                return;
+            }
+
+            if (uiDocumentLevelUp.isActiveAndEnabled == false
+                && uiDocumentTravel.isActiveAndEnabled == false
+                && uIDocumentCraftScreen.isActiveAndEnabled == false
+                )
+            {
+                ExitBonfire();
+            }
         }
 
         void ExitBonfire()

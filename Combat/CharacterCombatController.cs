@@ -19,7 +19,9 @@ namespace AF.Combat
         public List<CombatAction> chaseActions = new();
         [HideInInspector] public CombatAction currentCombatAction;
 
-        [Header("Cooldowns")]
+        [Header("Combat Options")]
+        [Range(0, 100f)] public float chanceToReact = 90f;
+
         [HideInInspector] public List<CombatAction> usedCombatActions = new();
 
         [Header("Animation Settings")]
@@ -37,9 +39,24 @@ namespace AF.Combat
             OnAttackEnd();
         }
 
+        bool CanReact()
+        {
+            if (reactionsToTarget.Count <= 0)
+            {
+                return false;
+            }
+
+            if (Random.Range(0, 100) > chanceToReact)
+            {
+                return false;
+            }
+
+            return characterManager.targetManager.IsTargetBusy() || characterManager.targetManager.IsTargetShooting();
+        }
+
         CombatAction GetCombatAction()
         {
-            if (reactionsToTarget.Count > 0 && (characterManager.targetManager.IsTargetBusy() || characterManager.targetManager.IsTargetShooting()))
+            if (CanReact())
             {
                 var shuffledReactions = Randomize(reactionsToTarget.ToArray());
 

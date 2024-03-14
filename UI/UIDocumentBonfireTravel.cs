@@ -42,6 +42,18 @@ namespace AF
             gameObject.SetActive(false);
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnClose()
+        {
+            if (this.isActiveAndEnabled)
+            {
+                Close();
+            }
+        }
+
+
         void Close()
         {
             uIDocumentBonfireMenu.gameObject.SetActive(true);

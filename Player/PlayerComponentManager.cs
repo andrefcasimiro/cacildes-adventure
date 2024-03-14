@@ -86,7 +86,6 @@ namespace AF
             DisableComponents();
         }
 
-
         public void DisablePlayerControlAndRegainControlAfterResetStates()
         {
             DisableCharacterController();

@@ -82,7 +82,6 @@ namespace AF
 
             uIDocumentPlayerHUDV2.OnSwitchWeapon();
 
-            playerManager.twoHandingController.UpdateTwoHandingMode();
             UpdateCanSwitchFlag();
         }
 
@@ -100,7 +99,6 @@ namespace AF
 
             uIDocumentPlayerHUDV2.OnSwitchShield();
 
-            playerManager.twoHandingController.UpdateTwoHandingMode();
             UpdateCanSwitchFlag();
         }
 

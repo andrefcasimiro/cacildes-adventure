@@ -4,6 +4,7 @@ namespace AF.Events
     {
         public static readonly string ON_EQUIPMENT_CHANGED = "ON_EQUIPMENT_CHANGED";
 
+        public static readonly string ON_TWO_HANDING_CHANGED = "ON_TWO_HANDING_CHANGED";
         // Events
         public static readonly string ON_MOMENT_START = "ON_MOMENT_START";
         public static readonly string ON_MOMENT_END = "ON_MOMENT_END";

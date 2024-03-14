@@ -12,11 +12,14 @@ namespace AF
 
         [Header("Game Session")]
         public GameSession gameSession;
+        public SaveManager saveManager;
 
         private void Awake()
         {
             if (gameSession.gameState == GameSession.GameState.NOT_INITIALIZED)
             {
+                saveManager.ResetGameState();
+
                 gameSession.gameState = GameSession.GameState.INITIALIZED;
             }
         }

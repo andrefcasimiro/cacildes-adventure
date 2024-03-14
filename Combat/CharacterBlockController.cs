@@ -33,6 +33,7 @@ namespace AF
         [Header("Blocking Settings")]
         [Tooltip("The effectivness of the shield. If 1f, the shield will not give any bonus. If higher, the shield is less effective.")]
         public float blockMultiplier = 1.1f;
+        public int amountOfStaminaDrainedPerBlock = 30;
 
         [Header("Unity Events")]
         public UnityEvent onBlockDamageEvent;
@@ -40,9 +41,13 @@ namespace AF
         // Flags
         public bool isBlocking = false;
 
+        public UnityAction onBlockChanged;
+
         public void SetIsBlocking(bool value)
         {
             isBlocking = value;
+
+            onBlockChanged?.Invoke();
         }
 
         public void BlockAttack(Damage damage)

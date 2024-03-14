@@ -124,11 +124,21 @@ namespace AF
 
                 if (character.characterBlockController.CanBlockDamage(incomingDamage))
                 {
-                    (character as CharacterManager)?.FaceTarget();
-                    (character as CharacterManager)?.FaceTarget();
-
-                    character.characterBlockController.BlockAttack(incomingDamage);
-                    return;
+                    if (character is PlayerManager playerManager && playerManager.playerWeaponsManager.currentShieldInstance != null)
+                    {
+                        if (playerManager.staminaStatManager.CanPerformAction((int)playerManager.playerWeaponsManager.currentShieldInstance.shield.blockStaminaCost))
+                        {
+                            incomingDamage.physical = (int)Mathf.Clamp(incomingDamage.physical - (int)(incomingDamage.physical * playerManager.playerWeaponsManager.currentShieldInstance.shield.defenseAbsorption / 100), 0, incomingDamage.physical);
+                            playerManager.staminaStatManager.DecreaseStamina((int)playerManager.playerWeaponsManager.currentShieldInstance.shield.blockStaminaCost);
+                            character.characterBlockController.BlockAttack(incomingDamage);
+                        }
+                    }
+                    else
+                    {
+                        (character as CharacterManager)?.FaceTarget();
+                        character.characterBlockController.BlockAttack(incomingDamage);
+                        return;
+                    }
                 }
             }
 

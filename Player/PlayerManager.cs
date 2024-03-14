@@ -38,6 +38,7 @@ namespace AF
         public PlayerAnimationEventListener playerAnimationEventListener;
         public PlayerBackstabController playerBackstabController;
         public TwoHandingController twoHandingController;
+        public LockOnManager lockOnManager;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -63,7 +64,6 @@ namespace AF
             {
                 animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
             }
-
         }
 
 
@@ -135,7 +135,6 @@ namespace AF
 
             var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
             animatorOverrideController.GetOverrides(clipOverrides);
-
             animator.runtimeAnimatorController = defaultAnimatorController;
 
             Weapon currentWeapon = equipmentDatabase.GetCurrentWeapon();
@@ -146,11 +145,25 @@ namespace AF
                     UpdateAnimationOverrides(animator, clipOverrides, currentWeapon.animationOverrides);
                 }
 
-                if (equipmentDatabase.isTwoHanding && currentWeapon.twoHandOverrides != null && currentWeapon.twoHandOverrides.Count > 0)
+                if (equipmentDatabase.isTwoHanding)
                 {
-                    UpdateAnimationOverrides(animator, clipOverrides, currentWeapon.twoHandOverrides);
+                    if (currentWeapon.twoHandOverrides != null && currentWeapon.twoHandOverrides.Count > 0)
+                    {
+                        UpdateAnimationOverrides(animator, clipOverrides, currentWeapon.twoHandOverrides);
+                    }
                 }
             }
+        }
+
+        public void UpdateAnimatorOverrideControllerClips(System.Collections.Generic.List<AnimationOverride> animationOverrides)
+        {
+            SetupAnimRefs();
+
+            var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
+            animatorOverrideController.GetOverrides(clipOverrides);
+
+            animator.runtimeAnimatorController = defaultAnimatorController;
+            UpdateAnimationOverrides(animator, clipOverrides, animationOverrides);
         }
 
         void UpdateAnimationOverrides(Animator animator, AnimationClipOverrides clipOverrides, System.Collections.Generic.List<AnimationOverride> clips)
@@ -162,6 +175,15 @@ namespace AF
             }
 
             animator.runtimeAnimatorController = animatorOverrideController;
+
+            // Hack to refresh lock on while switching animations
+            if (lockOnManager.isLockedOn)
+            {
+                LockOnRef tmp = lockOnManager.nearestLockOnTarget;
+                lockOnManager.DisableLockOn();
+                lockOnManager.nearestLockOnTarget = tmp;
+                lockOnManager.EnableLockOn();
+            }
         }
 
 

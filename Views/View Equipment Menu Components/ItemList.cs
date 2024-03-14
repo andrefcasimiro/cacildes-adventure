@@ -5,6 +5,7 @@ using AF.Inventory;
 using AF.Stats;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace AF.UI.EquipmentMenu
@@ -57,10 +58,12 @@ namespace AF.UI.EquipmentMenu
 
         [HideInInspector] public bool shouldRerender = true;
 
-        VisualElement itemListKeyHints, equipItemKeyHint, useItemKeyHint;
+        VisualElement itemListKeyHints, itemListGamepadHints, equipItemKeyHint, equipItemButtonHint, useItemKeyHint, useItemButtonHint;
 
         // Scroll Index
         int elementToFocusIndex = 0;
+
+        Item focusedItem;
 
         private void OnEnable()
         {
@@ -73,13 +76,25 @@ namespace AF.UI.EquipmentMenu
 
             returnButton.transform.scale = new Vector3(1, 1, 1);
             root.Q<VisualElement>("ItemList").style.display = DisplayStyle.Flex;
-            itemListKeyHints.style.display = DisplayStyle.Flex;
-
+            itemListKeyHints.style.display = DisplayStyle.None;
+            itemListGamepadHints.style.display = DisplayStyle.None;
         }
 
         private void OnDisable()
         {
+            focusedItem = null;
             root.Q<VisualElement>("ItemList").style.display = DisplayStyle.None;
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnUseItem()
+        {
+            if (isActiveAndEnabled && focusedItem != null && focusedItem is Consumable c)
+            {
+                playerManager.playerInventory.PrepareItemForConsuming(c);
+            }
         }
 
         public void SetupRefs()
@@ -95,19 +110,32 @@ namespace AF.UI.EquipmentMenu
 
             itemsScrollView = root.Q<ScrollView>(SCROLL_ITEMS_LIST);
             itemListKeyHints = root.Q<VisualElement>("ItemListKeyboardHints");
-            equipItemKeyHint = root.Q<VisualElement>("EquipItemKeyHint");
-            equipItemKeyHint.style.display = DisplayStyle.None;
+            itemListGamepadHints = root.Q<VisualElement>("ItemListGamepadHints");
+            equipItemKeyHint = itemListKeyHints.Q<VisualElement>("EquipItemKeyHint");
+            equipItemButtonHint = itemListGamepadHints.Q<VisualElement>("EquipItemButtonHint");
             useItemKeyHint = itemListKeyHints.Q<VisualElement>("UseItemKeyHint");
-            useItemKeyHint.style.display = DisplayStyle.None;
+            useItemButtonHint = itemListGamepadHints.Q<VisualElement>("UseItemButtonHint");
         }
 
-        void ReturnToEquipmentSlots()
+        public void ReturnToEquipmentSlots()
         {
-
             itemListKeyHints.style.display = DisplayStyle.None;
+            itemListGamepadHints.style.display = DisplayStyle.None;
 
             equipmentSlots.gameObject.SetActive(true);
             this.gameObject.SetActive(false);
+        }
+
+        void ShowEquipmentHint()
+        {
+            if (Gamepad.current == null) equipItemKeyHint.style.display = DisplayStyle.Flex;
+            else equipItemButtonHint.style.display = DisplayStyle.Flex;
+        }
+
+        void ShowUseItemHint()
+        {
+            if (Gamepad.current == null) useItemKeyHint.style.display = DisplayStyle.Flex;
+            else useItemButtonHint.style.display = DisplayStyle.Flex;
         }
 
         public void DrawUI(EquipmentType equipmentType, int slotIndex)
@@ -115,55 +143,84 @@ namespace AF.UI.EquipmentMenu
             elementToFocusIndex = 0;
 
             menuLabel.style.display = DisplayStyle.None;
-
+            equipItemKeyHint.style.display = DisplayStyle.None;
+            equipItemButtonHint.style.display = DisplayStyle.None;
             useItemKeyHint.style.display = DisplayStyle.None;
-            equipItemKeyHint.style.display = DisplayStyle.Flex;
+            useItemButtonHint.style.display = DisplayStyle.None;
+
+            if (Gamepad.current == null)
+            {
+                itemListKeyHints.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                itemListGamepadHints.style.display = DisplayStyle.Flex;
+            }
 
             if (equipmentType == EquipmentType.WEAPON)
             {
+                ShowEquipmentHint();
                 PopulateScrollView<Weapon>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.SHIELD)
             {
+                ShowEquipmentHint();
+
                 PopulateScrollView<Shield>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.ARROW)
             {
+                ShowEquipmentHint();
+
                 PopulateScrollView<Arrow>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.SPELL)
             {
+                ShowEquipmentHint();
+
                 PopulateScrollView<Spell>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.HELMET)
             {
+                ShowEquipmentHint();
+
                 PopulateScrollView<Helmet>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.ARMOR)
             {
+                ShowEquipmentHint();
+
                 PopulateScrollView<Armor>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.GAUNTLET)
             {
+                ShowEquipmentHint();
+
                 PopulateScrollView<Gauntlet>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.BOOTS)
             {
+                ShowEquipmentHint();
+
                 PopulateScrollView<Legwear>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.ACCESSORIES)
             {
+                ShowEquipmentHint();
+
                 PopulateScrollView<Accessory>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.CONSUMABLES)
             {
-                useItemKeyHint.style.display = DisplayStyle.Flex;
+                ShowEquipmentHint();
+
+                ShowUseItemHint();
 
                 PopulateScrollView<Consumable>(false, slotIndex);
             }
             else if (equipmentType == EquipmentType.OTHER_ITEMS)
             {
-                equipItemKeyHint.style.display = DisplayStyle.None;
+                ShowUseItemHint();
 
                 PopulateScrollView<Item>(true, slotIndex);
             }
@@ -425,6 +482,8 @@ namespace AF.UI.EquipmentMenu
                 });
                 instance.RegisterCallback<FocusInEvent>(ev =>
                 {
+                    focusedItem = item.Key;
+
                     ShowTooltipAndStats(item.Key);
                 });
                 instance.RegisterCallback<MouseOutEvent>(ev =>
@@ -433,6 +492,7 @@ namespace AF.UI.EquipmentMenu
                 });
                 instance.RegisterCallback<FocusOutEvent>(ev =>
                 {
+                    focusedItem = null;
                     HideTooltipAndClearStats();
                 });
 

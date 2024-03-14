@@ -1,3 +1,5 @@
+using AF.Events;
+using TigerForge;
 using UnityEngine;
 
 namespace AF.Equipment
@@ -11,7 +13,8 @@ namespace AF.Equipment
         public GameObject shieldInTheBack;
         public bool shouldHide = true;
 
-        private bool isUsingShield = true;
+        [Header("Equipment Database")]
+        public EquipmentDatabase equipmentDatabase;
 
         private void Awake()
         {
@@ -20,14 +23,23 @@ namespace AF.Equipment
                 return;
             }
 
-            shieldInTheBack.SetActive(false);
+            EventManager.StartListening(EventMessages.ON_TWO_HANDING_CHANGED, OnTwoHandingChanged);
+        }
+
+        private void OnEnable()
+        {
+            ResetStates();
         }
 
         public void ResetStates()
         {
-            if (isUsingShield)
+            if (equipmentDatabase != null && equipmentDatabase.isTwoHanding == false)
             {
                 ShowShield();
+            }
+            else
+            {
+                HideShield();
             }
         }
 
@@ -56,9 +68,16 @@ namespace AF.Equipment
             }
         }
 
-        public void SetIsUsingShield(bool isUsingShield)
+        public void OnTwoHandingChanged()
         {
-            this.isUsingShield = isUsingShield;
+            if (!equipmentDatabase.isTwoHanding)
+            {
+                ShowShield();
+            }
+            else
+            {
+                HideShield();
+            }
         }
     }
 }

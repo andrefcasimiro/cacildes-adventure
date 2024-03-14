@@ -1,5 +1,6 @@
 using System;
 using AF.Ladders;
+using AF.Shops;
 using AF.UI;
 using AF.UI.EquipmentMenu;
 using UnityEngine;
@@ -23,6 +24,7 @@ namespace AF
         public TitleScreenManager titleScreenManager;
         public UIDocumentBook uIDocumentBook;
         public UIDocumentGameOver uIDocumentGameOver;
+        public UIDocumentShopMenu uIDocumentShopMenu;
 
         public PlayerManager playerManager;
 
@@ -37,6 +39,9 @@ namespace AF
         public ViewMenu[] viewMenus;
         public int viewMenuIndex = 0;
 
+        [Header("Nested Edge Case")]
+        public ItemList itemList;
+
 
         /// <summary>
         /// Unity Event
@@ -50,13 +55,39 @@ namespace AF
 
             hasPlayedFadeIn = false;
 
-            if (isMenuOpen)
+            if (itemList.isActiveAndEnabled)
             {
-                CloseMenu();
+                itemList.ReturnToEquipmentSlots();
+            }
+            else if (!isMenuOpen)
+            {
+                OpenMenu();
             }
             else
             {
-                OpenMenu();
+                CloseMenu();
+            }
+        }
+
+        /// <summary>
+        /// UnityEvent
+        /// </summary>
+        public void OnCancelInput()
+        {
+            if (!CanUseMenu() || isMenuOpen == false)
+            {
+                return;
+            }
+
+            hasPlayedFadeIn = false;
+
+            if (itemList.isActiveAndEnabled)
+            {
+                itemList.ReturnToEquipmentSlots();
+            }
+            else if (isMenuOpen)
+            {
+                CloseMenu();
             }
         }
 
@@ -83,7 +114,9 @@ namespace AF
             viewMenuIndex = 0;
             SetMenuView();
 
+            playerManager.playerComponentManager.DisablePlayerControl();
             playerManager.thirdPersonController.LockCameraPosition = true;
+
             onMenuOpen?.Invoke();
             cursorManager.ShowCursor();
         }
@@ -95,6 +128,9 @@ namespace AF
             CloseMenuViews();
 
             playerManager.thirdPersonController.LockCameraPosition = false;
+
+            playerManager.playerComponentManager.EnablePlayerControl();
+
             onMenuClose?.Invoke();
 
             cursorManager.HideCursor();
@@ -174,6 +210,11 @@ namespace AF
             }
 
             if (craftScreen.isActiveAndEnabled)
+            {
+                return false;
+            }
+
+            if (uIDocumentShopMenu.isActiveAndEnabled)
             {
                 return false;
             }

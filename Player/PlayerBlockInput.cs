@@ -11,6 +11,7 @@ namespace AF
 
         [Header("Components")]
         public PlayerManager playerManager;
+        public NotificationManager notificationManager;
 
         [Tooltip("Once we stop blocking, what's the cooldown before we can block again")]
         public float maxBlockCooldown = .5f;
@@ -99,6 +100,19 @@ namespace AF
 
         bool CanBlock()
         {
+            if (equipmentDatabase.GetCurrentShield() == null)
+            {
+                notificationManager.ShowNotification("Can't block without a shield equipped", notificationManager.systemError);
+
+                return false;
+            }
+
+            if (equipmentDatabase.isTwoHanding)
+            {
+                notificationManager.ShowNotification("Can't block while two handing", notificationManager.systemError);
+                return false;
+            }
+
             if (equipmentDatabase.IsBowEquipped())
             {
                 return false;

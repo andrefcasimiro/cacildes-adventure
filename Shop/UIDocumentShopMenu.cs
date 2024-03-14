@@ -40,9 +40,28 @@ namespace AF.Shops
         // Last scroll position
         int lastScrollElementIndex = -1;
 
+        // Memoizations
+        CharacterShop currentCharacterShop;
+
         private void Start()
         {
             this.gameObject.SetActive(false);
+        }
+
+        private void OnDisable()
+        {
+            currentCharacterShop = null;
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnClose()
+        {
+            if (this.isActiveAndEnabled)
+            {
+                ExitShop();
+            }
         }
 
         void SetupRefs()
@@ -70,6 +89,8 @@ namespace AF.Shops
         /// <param name="characterShop"></param>
         public void BuyFromCharacter(CharacterShop characterShop)
         {
+            currentCharacterShop = characterShop;
+
             characterShop?.onShopOpen?.Invoke();
             gameObject.SetActive(true);
             playerManager.playerComponentManager.DisableComponents();
@@ -84,6 +105,8 @@ namespace AF.Shops
         /// <param name="characterShop"></param>
         public void SellToCharacter(CharacterShop characterShop)
         {
+            currentCharacterShop = characterShop;
+
             characterShop?.onShopOpen?.Invoke();
             gameObject.SetActive(true);
             playerManager.playerComponentManager.DisableComponents();
@@ -102,7 +125,7 @@ namespace AF.Shops
             SetupRefs();
         }
 
-        Button SetupExitButton(CharacterShop characterShop, ScrollView scrollView)
+        Button SetupExitButton(ScrollView scrollView)
         {
             Button exitButton = new() { text = "Exit shop" };
             exitButton.AddToClassList("primary-button");
@@ -110,7 +133,6 @@ namespace AF.Shops
             UIUtils.SetupButton(exitButton, () =>
             {
                 ExitShop();
-                characterShop.onShopExit?.Invoke();
             }
             ,
             () =>
@@ -131,6 +153,8 @@ namespace AF.Shops
 
         void ExitShop()
         {
+            currentCharacterShop?.onShopExit?.Invoke();
+
             playerManager.playerComponentManager.EnableComponents();
             cursorManager.HideCursor();
             this.gameObject.SetActive(false);
@@ -233,7 +257,7 @@ namespace AF.Shops
         {
             root.Q<ScrollView>().Clear();
 
-            Button exitButton = SetupExitButton(characterShop, root.Q<ScrollView>());
+            Button exitButton = SetupExitButton(root.Q<ScrollView>());
 
             int i = 0;
             foreach (var item in itemsToSell)

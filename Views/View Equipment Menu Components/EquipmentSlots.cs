@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace AF.UI.EquipmentMenu
@@ -67,7 +68,7 @@ namespace AF.UI.EquipmentMenu
 
         [HideInInspector] public bool shouldRerender = true;
 
-        VisualElement keyboardHints;
+        VisualElement keyboardHints, gamepadHints;
 
         Button activeButton;
 
@@ -87,13 +88,14 @@ namespace AF.UI.EquipmentMenu
         private void OnDisable()
         {
             keyboardHints.style.display = DisplayStyle.None;
+            gamepadHints.style.display = DisplayStyle.None;
 
             root.Q<VisualElement>("EquipmentSlots").style.display = DisplayStyle.None;
         }
 
         public void SetupRefs()
         {
-            activeButton = null;
+            //            activeButton = null;
 
             root = uIDocument.rootVisualElement;
 
@@ -138,6 +140,9 @@ namespace AF.UI.EquipmentMenu
 
             keyboardHints = root.Q<VisualElement>("EquipmentSlotsKeyboardHints");
             keyboardHints.style.display = DisplayStyle.None;
+
+            gamepadHints = root.Q<VisualElement>("EquipmentSlotsGamepadHints");
+            gamepadHints.style.display = DisplayStyle.None;
 
             AssignWeaponButtonCallbacks();
             AssignShieldButtonCallbacks();
@@ -467,7 +472,14 @@ namespace AF.UI.EquipmentMenu
 
         void DrawUI()
         {
-            keyboardHints.style.display = DisplayStyle.Flex;
+            if (Gamepad.current != null)
+            {
+                gamepadHints.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                keyboardHints.style.display = DisplayStyle.Flex;
+            }
 
             DrawSlotSprites();
 

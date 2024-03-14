@@ -184,6 +184,11 @@ namespace AF
             _fallTimeoutDelta = FallTimeout;
         }
 
+        public bool CanControlPlayer()
+        {
+            return menuManager.isMenuOpen == false;
+        }
+
         private void Update()
         {
             if (enableCooldown < maxEnableCooldown)
@@ -198,8 +203,10 @@ namespace AF
                 JumpAndGravity();
                 GroundedCheck();
 
-                Move();
-
+                if (CanControlPlayer())
+                {
+                    Move();
+                }
             }
             else
             {
@@ -354,15 +361,25 @@ namespace AF
             }
 
             // update animator if using character
-            if (_hasAnimator)
+            if (_hasAnimator && CanControlPlayer())
             {
                 playerManager.animator.SetFloat(_animIDSpeed, _animationBlend);
                 playerManager.animator.SetBool(_animIDIsMoving, _animationBlend > 0);
+            }
+            else
+            {
+                playerManager.animator.SetFloat(_animIDSpeed, 0f);
+                playerManager.animator.SetBool(_animIDIsMoving, false);
             }
         }
 
         private void Rotate()
         {
+            if (!CanControlPlayer())
+            {
+                return;
+            }
+
             // normalise input direction
             Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
 
@@ -505,7 +522,6 @@ namespace AF
                 targetDirection = Vector3.zero;
             }
 
-
             if ((
                 // If is locked on
                 lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn
@@ -574,8 +590,8 @@ namespace AF
                     && _jumpTimeoutDelta <= 0.0f
                     && enableCooldown >= maxEnableCooldown
                     && uIDocumentReceivedItemPrompt.isActiveAndEnabled == false
-                    && menuManager.isMenuOpen == false
-                    && !uIManager.IsShowingGUI()
+                    && CanControlPlayer()
+                    && uIManager.IsShowingGUI() == false
                 )
                 {
                     if (CanJump())

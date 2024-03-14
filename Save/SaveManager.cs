@@ -54,7 +54,7 @@ namespace AF
         {
             playerStatsDatabase.Clear();
             equipmentDatabase.Clear();
-            inventoryDatabase.Clear();
+            inventoryDatabase.SetDefaultItems();
             pickupDatabase.Clear();
             questsDatabase.Clear();
             companionsDatabase.Clear();
@@ -310,6 +310,10 @@ namespace AF
                         equipmentDatabase.helmet = helmetInstance;
                     }
                 }
+                else
+                {
+                    equipmentDatabase.UnequipHelmet();
+                }
             });
             playerEquipment.Read<string>("armor", (value) =>
             {
@@ -321,6 +325,10 @@ namespace AF
                     {
                         equipmentDatabase.armor = armorInstance;
                     }
+                }
+                else
+                {
+                    equipmentDatabase.UnequipArmor();
                 }
             });
             playerEquipment.Read<string>("gauntlet", (value) =>
@@ -334,6 +342,10 @@ namespace AF
                         equipmentDatabase.gauntlet = gauntletInstance;
                     }
                 }
+                else
+                {
+                    equipmentDatabase.UnequipGauntlet();
+                }
             });
             playerEquipment.Read<string>("legwear", (value) =>
             {
@@ -345,6 +357,10 @@ namespace AF
                     {
                         equipmentDatabase.legwear = legwearInstance;
                     }
+                }
+                else
+                {
+                    equipmentDatabase.UnequipLegwear();
                 }
             });
             playerEquipment.Read<bool>("isTwoHanding", (value) =>

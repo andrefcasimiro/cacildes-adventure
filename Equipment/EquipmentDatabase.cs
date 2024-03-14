@@ -5,6 +5,7 @@ using TigerForge;
 using AF.Events;
 using System.Linq;
 using AF.Inventory;
+using System;
 
 [CreateAssetMenu(fileName = "Equipment Database", menuName = "System/New Equipment Database", order = 0)]
 public class EquipmentDatabase : ScriptableObject
@@ -35,6 +36,7 @@ public class EquipmentDatabase : ScriptableObject
 
     [Header("Flags")]
     public bool isTwoHanding = false;
+    public bool isUsingShield = false;
 
     [Header("Databases")]
     public InventoryDatabase inventoryDatabase;
@@ -94,7 +96,9 @@ public class EquipmentDatabase : ScriptableObject
         }
 
         helmet = null;
+        armor = null;
         gauntlet = null;
+        legwear = null;
     }
     public void SwitchToNextWeapon()
     {
@@ -121,6 +125,18 @@ public class EquipmentDatabase : ScriptableObject
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
+    public void SwitchToNextShield()
+    {
+        currentShieldIndex++;
+
+        if (currentShieldIndex >= shields.Length)
+        {
+            currentShieldIndex = 0;
+        }
+
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+
     public void EquipShield(Shield shield, int slotIndex)
     {
         shields[slotIndex] = shield;
@@ -129,6 +145,13 @@ public class EquipmentDatabase : ScriptableObject
     public void UnequipShield(int slotIndex)
     {
         shields[slotIndex] = null;
+        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+    }
+
+    public void SwitchToNextArrow()
+    {
+        currentArrowIndex = UpdateIndex(currentArrowIndex, arrows);
+
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
@@ -143,30 +166,12 @@ public class EquipmentDatabase : ScriptableObject
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
-    public void SwitchToNextShield()
+    public void SwitchToNextSpell()
     {
-        currentShieldIndex++;
-
-        if (currentShieldIndex >= shields.Length)
-        {
-            currentShieldIndex = 0;
-        }
+        currentSpellIndex = UpdateIndex(currentSpellIndex, spells);
 
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
-
-    public void SwitchToNextArrow()
-    {
-        currentArrowIndex++;
-
-        if (currentArrowIndex >= arrows.Length)
-        {
-            currentArrowIndex = 0;
-        }
-
-        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
-    }
-
 
     public void EquipSpell(Spell spell, int slotIndex)
     {
@@ -181,16 +186,9 @@ public class EquipmentDatabase : ScriptableObject
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
-    public void SwitchToNextSpell()
+    public void SwitchToNextConsumable()
     {
-        currentSpellIndex++;
-
-        if (currentSpellIndex >= spells.Length)
-        {
-            currentSpellIndex = 0;
-        }
-
-        EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+        currentConsumableIndex = UpdateIndex(currentConsumableIndex, consumables);
     }
 
     public void EquipConsumable(Consumable consumable, int slotIndex)
@@ -207,14 +205,23 @@ public class EquipmentDatabase : ScriptableObject
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
     }
 
-    public void SwitchToNextConsumable()
+    public int UpdateIndex<T>(int index, T[] targetList)
     {
-        currentConsumableIndex++;
+        index++;
 
-        if (currentConsumableIndex >= consumables.Length)
+        int nextIndexWithEquippedSlot = Array.FindIndex(targetList, index, x => x != null);
+
+        if (nextIndexWithEquippedSlot != -1)
         {
-            currentConsumableIndex = 0;
+            index = nextIndexWithEquippedSlot;
         }
+        else
+        {
+            int fallbackIndex = Array.FindIndex(targetList, 0, x => x != null);
+            index = fallbackIndex == -1 ? 0 : fallbackIndex;
+        }
+
+        return index;
     }
 
     public void EquipHelmet(Helmet equip)
@@ -414,4 +421,13 @@ public class EquipmentDatabase : ScriptableObject
         // Item not found equipped
         Debug.LogWarning($"UnequipItem: Item '{item.name}' not found equipped");
     }
+
+
+    public void SetIsTwoHanding(bool value)
+    {
+        isTwoHanding = value;
+
+        EventManager.EmitEvent(EventMessages.ON_TWO_HANDING_CHANGED);
+    }
+
 }

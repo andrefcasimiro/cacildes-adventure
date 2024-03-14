@@ -328,5 +328,15 @@ namespace AF
 
             return spellDamage;
         }
+
+        public void SetBonusPhysicalAttack(int value)
+        {
+            physicalAttackBonus = value;
+        }
+
+        public void ResetBonusPhysicalAttack()
+        {
+            physicalAttackBonus = 0f;
+        }
     }
 }

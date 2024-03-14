@@ -5,8 +5,6 @@ namespace AF
 {
     public class GenericTrigger : MonoBehaviour, IEventNavigatorCapturable
     {
-        [Header("Components (Optional assignment, but recommended)")]
-        public UIDocumentKeyPrompt uIDocumentKeyPrompt;
 
         [Header("Events")]
         public UnityEvent onActivate;
@@ -14,6 +12,9 @@ namespace AF
         [Header("Prompt")]
         public string key = "E";
         public string action = "Pickup";
+
+        // Scene Refs
+        UIDocumentKeyPrompt uIDocumentKeyPrompt;
 
         public void OnCaptured()
         {

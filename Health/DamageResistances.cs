@@ -34,7 +34,7 @@ namespace AF
         [Range(0.1f, 1f)] public float darknessDamageFilter = 1;
         [Range(1, 5f)] public float darknessDamageBonus = 1;
 
-        public Damage FilterIncomingDamage(Damage incomingDamage)
+        public virtual Damage FilterIncomingDamage(Damage incomingDamage)
         {
             Damage filteredDamage = incomingDamage;
 

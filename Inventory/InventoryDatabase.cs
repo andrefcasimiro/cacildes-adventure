@@ -13,6 +13,8 @@ namespace AF.Inventory
         [SerializedDictionary("Item", "Quantity")]
         public SerializedDictionary<Item, ItemAmount> ownedItems = new();
 
+        public SerializedDictionary<Item, ItemAmount> defaultItems = new();
+
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
 
@@ -38,6 +40,25 @@ namespace AF.Inventory
         public void Clear()
         {
             ownedItems.Clear();
+        }
+
+        public void SetDefaultItems()
+        {
+            ownedItems.Clear();
+
+            foreach (var defaultItem in defaultItems)
+            {
+                ownedItems.Add(defaultItem.Key, defaultItem.Value);
+
+                if (defaultItem.Key is Armor armor)
+                {
+                    equipmentDatabase.EquipArmor(armor);
+                }
+                else if (defaultItem.Key is Legwear legwear)
+                {
+                    equipmentDatabase.EquipLegwear(legwear);
+                }
+            }
         }
 
         public void ReplenishItems()

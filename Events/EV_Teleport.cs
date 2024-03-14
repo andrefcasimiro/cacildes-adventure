@@ -9,8 +9,8 @@ namespace AF
         public string sceneName;
         public string spawnGameObjectName;
 
-        [Header("Components")]
-        public TeleportManager teleportManager;
+        // Scene Refs
+        TeleportManager teleportManager;
 
         public override IEnumerator Dispatch()
         {
@@ -20,7 +20,17 @@ namespace AF
 
         public void Teleport()
         {
-            teleportManager.Teleport(sceneName, spawnGameObjectName);
+            GetTeleportManager().Teleport(sceneName, spawnGameObjectName);
+        }
+
+        TeleportManager GetTeleportManager()
+        {
+            if (teleportManager == null)
+            {
+                teleportManager = FindAnyObjectByType<TeleportManager>(FindObjectsInactive.Include);
+            }
+
+            return teleportManager;
         }
     }
 }

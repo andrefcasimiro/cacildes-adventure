@@ -89,6 +89,7 @@ namespace AF
         [Header("Animation Overrides")]
         public List<AnimationOverride> animationOverrides;
         [Tooltip("Optional")] public List<AnimationOverride> twoHandOverrides;
+        [Tooltip("Optional")] public List<AnimationOverride> blockOverrides;
 
         [Header("Dual Wielding Options")]
         public bool halveDamage = false;

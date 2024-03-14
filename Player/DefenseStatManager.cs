@@ -15,8 +15,7 @@ namespace AF
         [Header("Status defense bonus")]
         [Tooltip("Increased by buffs like potions, or equipment like accessories")]
         public float physicalDefenseBonus = 0f;
-
-        EquipmentGraphicsHandler equipmentGraphicsHandler => GetComponent<EquipmentGraphicsHandler>();
+        [Range(0, 100f)] public float physicalDefenseAbsorption = 0f;
 
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;
@@ -155,6 +154,16 @@ namespace AF
             }
 
             return -1;
+        }
+
+        public void SetDefenseAbsorption(int value)
+        {
+            physicalDefenseAbsorption = value;
+        }
+
+        public void ResetDefenseAbsorption()
+        {
+            physicalDefenseAbsorption = 0f;
         }
     }
 }

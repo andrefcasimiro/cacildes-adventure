@@ -25,6 +25,18 @@ namespace AF
             gameObject.SetActive(false);
         }
 
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnClose()
+        {
+            if (this.isActiveAndEnabled)
+            {
+                Close();
+            }
+        }
+
         private void OnEnable()
         {
             root = GetComponent<UIDocument>().rootVisualElement;

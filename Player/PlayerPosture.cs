@@ -17,5 +17,10 @@ namespace AF
         {
             return playerStatsDatabase.strength / 2 * 10;
         }
+
+        public void ResetPosture()
+        {
+            currentPostureDamage = 0;
+        }
     }
 }

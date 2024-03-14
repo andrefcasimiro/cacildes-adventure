@@ -14,18 +14,13 @@ namespace AF.Stats
         public int strengthBonus = 0;
         public int dexterityBonus = 0;
         public int intelligenceBonus = 0;
-
         public float fireDefenseBonus = 0;
         public float frostDefenseBonus = 0;
         public float lightningDefenseBonus = 0;
         public float magicDefenseBonus = 0;
-
         public float additionalCoinPercentage = 0;
-
         public int parryPostureDamageBonus = 0;
-
         public int reputationBonus = 0;
-
         public float chanceToStealBonus = 0;
 
         [Header("Equipment Modifiers")]

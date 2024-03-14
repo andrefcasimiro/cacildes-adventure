@@ -28,7 +28,7 @@ namespace AF.Pickups
 
         public void OnEnable()
         {
-            if (
+            if (pickupDatabase != null && monoBehaviourID != null &&
                 IsReplenishable() && pickupDatabase.ContainsReplenishable(monoBehaviourID.ID)
                 || pickupDatabase.ContainsPickup(monoBehaviourID.ID))
             {

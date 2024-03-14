@@ -93,6 +93,19 @@ namespace AF
             this.gameObject.SetActive(true);
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnClose()
+        {
+            if (!this.isActiveAndEnabled)
+            {
+                return;
+            }
+
+            Close();
+        }
+
         public void Close()
         {
             if (returnToBonfire)
@@ -203,8 +216,14 @@ namespace AF
 
         public string GetItemDescription(CraftingRecipe recipe)
         {
+            if (recipe.resultingItem == null)
+            {
+                return "";
+            }
+
             string itemDescription = recipe.resultingItem.shortDescription?.Length > 0 ?
-                                     recipe.resultingItem.shortDescription.Substring(0, System.Math.Min(60, recipe.resultingItem.shortDescription.Length)) : "";
+                                     recipe.resultingItem.shortDescription.Substring(
+                                        0, System.Math.Min(60, recipe.resultingItem.shortDescription.Length)) : "";
             return itemDescription + (recipe.resultingItem.shortDescription?.Length > 60 ? "..." : "");
         }
 
@@ -221,8 +240,8 @@ namespace AF
                 int currentIndex = i;
                 var scrollItem = this.recipeItem.CloneTree();
 
-                scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(recipe.resultingItem.sprite);
-                scrollItem.Q<Label>("ItemName").text = recipe.resultingItem.name;
+                scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(recipe.resultingItem?.sprite);
+                scrollItem.Q<Label>("ItemName").text = recipe.resultingItem?.name;
 
                 scrollItem.Q<Label>("ItemDescription").text = GetItemDescription(recipe);
                 scrollItem.Q<Label>("ItemDescription").style.display = DisplayStyle.Flex;
@@ -354,6 +373,11 @@ namespace AF
 
         void HandleCraftSuccess(CraftingRecipe recipe)
         {
+            if (recipe.resultingItem == null)
+            {
+                return;
+            }
+
             if (craftActivity == CraftActivity.COOKING)
             {
                 playerManager.playerAchievementsManager.achievementForCookingFirstMeal.AwardAchievement();
@@ -365,7 +389,7 @@ namespace AF
 
             soundbank.PlaySound(soundbank.craftSuccess);
             playerManager.playerInventory.AddItem(recipe.resultingItem, 1);
-            notificationManager.ShowNotification("Received " + recipe.resultingItem.name, recipe.resultingItem.sprite);
+            notificationManager.ShowNotification("Received " + recipe.resultingItem?.name, recipe.resultingItem?.sprite);
 
             foreach (var ingredient in recipe.ingredients)
             {
