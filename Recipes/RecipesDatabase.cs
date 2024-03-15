@@ -29,7 +29,7 @@ public class RecipesDatabase : ScriptableObject
     }
 #endif
 
-    void Clear()
+    public void Clear()
     {
         craftingRecipes.Clear();
     }

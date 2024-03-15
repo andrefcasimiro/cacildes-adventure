@@ -9,7 +9,6 @@ namespace AF
     {
         [Header("Components")]
         public CharacterBaseManager characterManager;
-        public readonly int hashBlockingHit = Animator.StringToHash("Blocking Hit");
         public readonly int hashParried = Animator.StringToHash("Parried");
 
         [Header("Parrying Settings")]
@@ -33,7 +32,8 @@ namespace AF
         [Header("Blocking Settings")]
         [Tooltip("The effectivness of the shield. If 1f, the shield will not give any bonus. If higher, the shield is less effective.")]
         public float blockMultiplier = 1.1f;
-        public int amountOfStaminaDrainedPerBlock = 30;
+        public int unarmedStaminaCostPerBlock = 50;
+        public float unarmedDefenseAbsorption = 15;
 
         [Header("Unity Events")]
         public UnityEvent onBlockDamageEvent;
@@ -42,6 +42,9 @@ namespace AF
         public bool isBlocking = false;
 
         public UnityAction onBlockChanged;
+
+        [Header("Settings")]
+        public bool shouldFaceTargetWhenBlockingAttack = true;
 
         public void SetIsBlocking(bool value)
         {
@@ -52,6 +55,11 @@ namespace AF
 
         public void BlockAttack(Damage damage)
         {
+            if (shouldFaceTargetWhenBlockingAttack)
+            {
+                (characterManager as CharacterManager)?.FaceTarget();
+            }
+
             characterManager.characterPosture.TakePostureDamage((int)(damage.postureDamage * blockMultiplier));
 
             onBlockDamageEvent?.Invoke();

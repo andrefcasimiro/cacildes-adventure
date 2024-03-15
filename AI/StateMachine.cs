@@ -9,6 +9,13 @@ namespace AF
         public State currentState;
         State scheduledState;
 
+        State defaultState;
+
+        private void Awake()
+        {
+            this.defaultState = currentState;
+        }
+
         private void Start()
         {
             if (currentState != null)
@@ -40,11 +47,17 @@ namespace AF
         {
             if (scheduledState == null)
             {
-                currentState.OnStateExit(this);
+                currentState?.OnStateExit(this);
                 currentState = null;
 
                 scheduledState = state;
             }
+        }
+
+        public void ResetDefaultState()
+        {
+            this.currentState = defaultState;
+            ScheduleState(defaultState);
         }
 
     }

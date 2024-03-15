@@ -11,6 +11,7 @@ using AF.Flags;
 using AF.Bonfires;
 using TigerForge;
 using AF.Events;
+using System.Collections.Generic;
 
 namespace AF
 {
@@ -27,6 +28,7 @@ namespace AF
         public BonfiresDatabase bonfiresDatabase;
         public GameSession gameSession;
         public FlagsDatabase flagsDatabase;
+        public RecipesDatabase recipesDatabase;
 
         [Header("Components")]
         public FadeManager fadeManager;
@@ -60,6 +62,33 @@ namespace AF
             companionsDatabase.Clear();
             bonfiresDatabase.Clear();
             flagsDatabase.Clear();
+            recipesDatabase.Clear();
+        }
+
+        void SaveRecipes()
+        {
+            var recipes = QuickSaveWriter.Create("Recipes");
+            recipes.Write("craftingRecipes", recipesDatabase.craftingRecipes.Select(craftingRecipe => craftingRecipe.name));
+            recipes.TryCommit();
+        }
+
+        void LoadRecipes()
+        {
+            var recipes = QuickSaveReader.Create("Recipes");
+
+            recipes.TryRead<string[]>("craftingRecipes", out string[] craftingRecipes);
+
+            if (craftingRecipes != null && craftingRecipes.Count() > 0)
+            {
+                foreach (var recipeName in craftingRecipes)
+                {
+                    CraftingRecipe craftingRecipe = Resources.Load<CraftingRecipe>("Recipes/" + recipeName);
+                    if (craftingRecipe != null)
+                    {
+                        recipesDatabase.AddCraftingRecipe(craftingRecipe);
+                    }
+                }
+            }
         }
 
         void SavePlayerStats()
@@ -640,6 +669,7 @@ namespace AF
             SavePickups();
             SaveFlags();
             SaveQuests();
+            SaveRecipes();
             SaveSceneSettings();
             SaveGameSettings();
 
@@ -660,6 +690,7 @@ namespace AF
                 LoadPickups();
                 LoadFlags();
                 LoadQuests();
+                LoadRecipes();
                 LoadSceneSettings();
                 LoadGameSettings();
             });

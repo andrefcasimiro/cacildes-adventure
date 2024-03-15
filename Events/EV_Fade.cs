@@ -8,8 +8,6 @@ namespace AF
     {
         public float duration = 1f;
 
-        [Header("Scene Refs (Optional assignment, but recommended)")]
-        public FadeManager fadeManager;
 
         [Header("Unity Events")]
         public UnityEvent duringFadeTransitionsEventCallback;
@@ -19,6 +17,9 @@ namespace AF
 
         [TextArea]
         public string comment;
+
+        // Scene Refs    
+        FadeManager fadeManager;
 
         public override IEnumerator Dispatch()
         {

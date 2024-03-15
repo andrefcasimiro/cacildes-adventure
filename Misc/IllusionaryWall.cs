@@ -15,12 +15,17 @@ namespace AF
 
         public UnityEvent onHit;
 
-        [Header("Components")]
-        public Soundbank soundbank;
+        // Scene Refs
+        Soundbank soundbank;
 
         private void Start()
         {
             this.material = Instantiate(fadeMaterial);
+        }
+
+        public void SetHasBeenHit()
+        {
+            hasBeenHit = true;
         }
 
         private void Update()
@@ -54,7 +59,7 @@ namespace AF
 
                 hasDeactivatedColliders = true;
 
-                soundbank.PlaySound(soundbank.illusionaryWallSound);
+                GetSoundBank().PlaySound(GetSoundBank().illusionaryWallSound);
             }
 
             if (alpha <= 0)
@@ -77,6 +82,16 @@ namespace AF
                     hasBeenHit = true;
                 }
             }
+        }
+
+        Soundbank GetSoundBank()
+        {
+            if (soundbank == null)
+            {
+                soundbank = FindAnyObjectByType<Soundbank>(FindObjectsInactive.Include);
+            }
+
+            return soundbank;
         }
 
     }

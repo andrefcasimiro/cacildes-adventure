@@ -14,7 +14,10 @@ namespace AF
 
         public Transform respawnPoint;
 
+        [Header("Ignore Options")]
         public bool ignoreEnemies = false;
+        public CharacterManager[] enemiesToIgnore;
+
         [Header("Components")]
         public BGMManager bgmManager;
         public SceneSettings sceneSettings;
@@ -47,6 +50,13 @@ namespace AF
             {
                 if (other.TryGetComponent<CharacterManager>(out var characterManager))
                 {
+                    if (enemiesToIgnore != null && enemiesToIgnore.Length > 0)
+                    {
+                        if (enemiesToIgnore.Contains(characterManager))
+                        {
+                            return;
+                        }
+                    }
                     bgmManager.PlaySound(waterSfx, characterManager.combatAudioSource);
                     characterManager.health.TakeDamage(damageTaken);
                 }

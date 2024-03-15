@@ -52,7 +52,18 @@ namespace AF
             }
         }
 
+
+        public void ApplyBuff(WeaponBuffName weaponBuffName, float customDuration)
+        {
+            HandleApplyBuff(weaponBuffName, customDuration);
+        }
+
         public void ApplyBuff(WeaponBuffName weaponBuffName)
+        {
+            HandleApplyBuff(weaponBuffName, this.buffDuration);
+        }
+
+        void HandleApplyBuff(WeaponBuffName weaponBuffName, float duration)
         {
             if (!CanUseBuff(weaponBuffName))
             {
@@ -63,7 +74,7 @@ namespace AF
 
             weaponBuffs[weaponBuffName].container.SetActive(true);
 
-            Invoke(nameof(DisableBuff), buffDuration);
+            Invoke(nameof(DisableBuff), duration);
         }
 
         void DisableBuff()

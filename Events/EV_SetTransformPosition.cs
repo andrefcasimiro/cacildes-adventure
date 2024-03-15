@@ -8,6 +8,10 @@ namespace AF
         public Transform target;
         public Transform desiredTransformPosition;
 
+        [Header("Optional Vector3 Setter")]
+        public bool useDesiredPositionVector = false;
+        public Vector3 desiredPosition;
+
         Vector3 originalPosition;
 
         [Header("Options")]
@@ -35,6 +39,12 @@ namespace AF
             if (resetToOrigin)
             {
                 target.transform.position = originalPosition;
+                return;
+            }
+
+            if (useDesiredPositionVector)
+            {
+                target.transform.localPosition = desiredPosition;
                 return;
             }
 

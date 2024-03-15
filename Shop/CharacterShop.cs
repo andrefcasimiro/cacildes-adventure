@@ -23,7 +23,7 @@ namespace AF.Shops
         public UnityEvent onShopExit;
 
         // Scene References
-        public UIDocumentShopMenu uIDocumentShopMenu;
+        UIDocumentShopMenu uIDocumentShopMenu;
 
         public void BuyFromCharacter()
         {

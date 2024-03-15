@@ -241,9 +241,14 @@ namespace AF.Equipment
 
         bool CanApplyBuff()
         {
-            if (currentWeaponInstance == null || currentWeaponInstance.characterWeaponBuffs == null || currentWeaponInstance.characterWeaponBuffs.HasOnGoingBuff())
+            if (currentWeaponInstance == null || currentWeaponInstance.characterWeaponBuffs == null)
             {
-                notificationManager.ShowNotification("Can not apply buff", notificationManager.systemError);
+                notificationManager.ShowNotification("Can not apply buff to this weapon", notificationManager.systemError);
+                return false;
+            }
+            else if (currentWeaponInstance.characterWeaponBuffs.HasOnGoingBuff())
+            {
+                notificationManager.ShowNotification("Weapon is already buffed", notificationManager.systemError);
                 return false;
             }
 
@@ -253,107 +258,84 @@ namespace AF.Equipment
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void ApplyFireToWeapon()
+        public void ApplyFireToWeapon(float customDuration)
         {
-            if (!CanApplyBuff())
-            {
-                return;
-            }
-
-            currentWeaponInstance.characterWeaponBuffs.ApplyBuff(CharacterWeaponBuffs.WeaponBuffName.FIRE);
+            ApplyWeaponBuffToWeapon(CharacterWeaponBuffs.WeaponBuffName.FIRE, customDuration);
         }
 
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void ApplyFrostToWeapon()
+        public void ApplyFrostToWeapon(float customDuration)
         {
-            if (!CanApplyBuff())
-            {
-                return;
-            }
-
-            currentWeaponInstance.characterWeaponBuffs.ApplyBuff(CharacterWeaponBuffs.WeaponBuffName.FROST);
+            ApplyWeaponBuffToWeapon(CharacterWeaponBuffs.WeaponBuffName.FROST, customDuration);
         }
 
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void ApplyLightningToWeapon()
+        public void ApplyLightningToWeapon(float customDuration)
         {
-            if (!CanApplyBuff())
-            {
-                return;
-            }
-
-            currentWeaponInstance.characterWeaponBuffs.ApplyBuff(CharacterWeaponBuffs.WeaponBuffName.LIGHTNING);
+            ApplyWeaponBuffToWeapon(CharacterWeaponBuffs.WeaponBuffName.LIGHTNING, customDuration);
         }
 
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void ApplyMagicToWeapon()
+        public void ApplyMagicToWeapon(float customDuration)
         {
-            if (!CanApplyBuff())
-            {
-                return;
-            }
-
-            currentWeaponInstance.characterWeaponBuffs.ApplyBuff(CharacterWeaponBuffs.WeaponBuffName.MAGIC);
+            ApplyWeaponBuffToWeapon(CharacterWeaponBuffs.WeaponBuffName.MAGIC, customDuration);
         }
 
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void ApplyDarknessToWeapon()
+        public void ApplyDarknessToWeapon(float customDuration)
         {
-            if (!CanApplyBuff())
-            {
-                return;
-            }
-
-            currentWeaponInstance.characterWeaponBuffs.ApplyBuff(CharacterWeaponBuffs.WeaponBuffName.DARKNESS);
+            ApplyWeaponBuffToWeapon(CharacterWeaponBuffs.WeaponBuffName.DARKNESS, customDuration);
         }
 
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void ApplyPoisonToWeapon()
+        public void ApplyPoisonToWeapon(float customDuration)
         {
-            if (!CanApplyBuff())
-            {
-                return;
-            }
-
-            currentWeaponInstance.characterWeaponBuffs.ApplyBuff(CharacterWeaponBuffs.WeaponBuffName.POISON);
+            ApplyWeaponBuffToWeapon(CharacterWeaponBuffs.WeaponBuffName.POISON, customDuration);
         }
 
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void ApplyBloodToWeapon()
+        public void ApplyBloodToWeapon(float customDuration)
         {
-            if (!CanApplyBuff())
-            {
-                return;
-            }
-
-            currentWeaponInstance.characterWeaponBuffs.ApplyBuff(CharacterWeaponBuffs.WeaponBuffName.BLOOD);
+            ApplyWeaponBuffToWeapon(CharacterWeaponBuffs.WeaponBuffName.BLOOD, customDuration);
         }
 
         /// <summary>
         /// Unity Event
         /// </summary>
-        public void ApplySharpnessToWeapon()
+        public void ApplySharpnessToWeapon(float customDuration)
+        {
+            ApplyWeaponBuffToWeapon(CharacterWeaponBuffs.WeaponBuffName.SHARPNESS, customDuration);
+        }
+
+
+        public void ApplyWeaponBuffToWeapon(CharacterWeaponBuffs.WeaponBuffName weaponBuffName, float customDuration)
         {
             if (!CanApplyBuff())
             {
                 return;
             }
 
-            currentWeaponInstance.characterWeaponBuffs.ApplyBuff(CharacterWeaponBuffs.WeaponBuffName.SHARPNESS);
+            if (customDuration > 0)
+            {
+                currentWeaponInstance.characterWeaponBuffs.ApplyBuff(weaponBuffName, customDuration);
+            }
+            else
+            {
+                currentWeaponInstance.characterWeaponBuffs.ApplyBuff(weaponBuffName);
+            }
         }
-
 
         public Damage GetBuffedDamage(Damage weaponDamage)
         {
@@ -449,6 +431,26 @@ namespace AF.Equipment
             }
 
             leftWeaponInstance = null;
+        }
+
+        public int GetCurrentBlockStaminaCost()
+        {
+            if (playerManager.playerWeaponsManager.currentShieldInstance == null)
+            {
+                return playerManager.characterBlockController.unarmedStaminaCostPerBlock;
+            }
+
+            return (int)playerManager.playerWeaponsManager.currentShieldInstance.shield.blockStaminaCost;
+        }
+
+        public float GetCurrentShieldDefenseAbsorption()
+        {
+            if (currentShieldInstance == null)
+            {
+                return playerManager.characterBlockController.unarmedDefenseAbsorption;
+            }
+
+            return currentShieldInstance.shield.defenseAbsorption;
         }
 
     }

@@ -1,4 +1,6 @@
 using System.Collections;
+using AF.Events;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -25,6 +27,15 @@ namespace AF
         public bool shouldAwake = false;
 
         Coroutine ambushCoroutine;
+
+        private void Awake()
+        {
+            EventManager.StartListening(EventMessages.ON_LEAVING_BONFIRE, () =>
+            {
+                ambushHasBegun = false;
+                shouldAwake = false;
+            });
+        }
 
         public override void OnStateEnter(StateManager stateManager)
         {

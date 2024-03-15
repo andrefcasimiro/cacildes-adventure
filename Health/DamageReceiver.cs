@@ -107,7 +107,6 @@ namespace AF
                 if (character.characterBlockController.IsWithinParryingWindow())
                 {
                     (character as CharacterManager)?.FaceTarget();
-                    (character as CharacterManager)?.FaceTarget();
 
                     character.characterBlockController.HandleParryEvent();
                     damageOwner.characterBlockController.HandleParriedEvent(character.characterBlockController.postureDamageFromParry);
@@ -124,18 +123,18 @@ namespace AF
 
                 if (character.characterBlockController.CanBlockDamage(incomingDamage))
                 {
-                    if (character is PlayerManager playerManager && playerManager.playerWeaponsManager.currentShieldInstance != null)
+                    if (character is PlayerManager playerManager)
                     {
-                        if (playerManager.staminaStatManager.CanPerformAction((int)playerManager.playerWeaponsManager.currentShieldInstance.shield.blockStaminaCost))
+                        if (playerManager.staminaStatManager.CanPerformAction(playerManager.playerWeaponsManager.GetCurrentBlockStaminaCost()))
                         {
-                            incomingDamage.physical = (int)Mathf.Clamp(incomingDamage.physical - (int)(incomingDamage.physical * playerManager.playerWeaponsManager.currentShieldInstance.shield.defenseAbsorption / 100), 0, incomingDamage.physical);
-                            playerManager.staminaStatManager.DecreaseStamina((int)playerManager.playerWeaponsManager.currentShieldInstance.shield.blockStaminaCost);
+                            incomingDamage.physical = Mathf.Clamp(
+                                incomingDamage.physical - (int)(incomingDamage.physical * playerManager.playerWeaponsManager.GetCurrentShieldDefenseAbsorption() / 100), 0, incomingDamage.physical);
+                            playerManager.staminaStatManager.DecreaseStamina((int)playerManager.playerWeaponsManager.GetCurrentBlockStaminaCost());
                             character.characterBlockController.BlockAttack(incomingDamage);
                         }
                     }
                     else
                     {
-                        (character as CharacterManager)?.FaceTarget();
                         character.characterBlockController.BlockAttack(incomingDamage);
                         return;
                     }

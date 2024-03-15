@@ -26,7 +26,7 @@ namespace AF.Combat
 
         [Header("Animation Settings")]
         public string ANIMATION_CLIP_TO_OVERRIDE_NAME = "Cacildes - Light Attack - 1";
-        public readonly string hashLightAttack1 = "Light Attack 1";
+        public string hashLightAttack1 = "Light Attack 1";
 
         [Header("Unity Events")]
         public UnityEvent onResetState;

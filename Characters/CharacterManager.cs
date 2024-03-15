@@ -150,9 +150,10 @@ namespace AF
 
             if (health is CharacterHealth characterHealth)
             {
+                transform.position = initialPosition;
+                transform.rotation = initialRotation;
                 characterHealth.Revive();
 
-                transform.position = initialPosition;
             }
         }
 
