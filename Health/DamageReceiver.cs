@@ -30,6 +30,7 @@ namespace AF
         public UnityEvent onMagicDamage;
         public UnityEvent onLightningDamage;
         public UnityEvent onDarknessDamage;
+        public UnityEvent onBackstabbed;
 
 
         [Header("Flags")]
@@ -186,6 +187,7 @@ namespace AF
 
                     character.PlayBusyHashedAnimationWithRootMotion(hashBackstabExecuted);
                     health.TakeDamage(GetTotalDamage(damage, true));
+                    onBackstabbed?.Invoke();
                 }
                 else
                 {

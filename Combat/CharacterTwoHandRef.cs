@@ -30,10 +30,28 @@ namespace AF
         {
             this.originalPosition = transform.localPosition;
             this.originalRotation = transform.localRotation;
+        }
+
+        private void OnEnable()
+        {
 
             playerManager.twoHandingController.onTwoHandingModeChanged += EvaluateTwoHandingUpdate;
             //playerManager.characterBlockController.onBlockChanged += EvaluateBlockAnimationUpdate;
             playerManager.characterBlockController.onBlockChanged += EvaluateTwoHandingUpdate;
+        }
+
+        private void OnDisable()
+        {
+
+            playerManager.twoHandingController.onTwoHandingModeChanged -= EvaluateTwoHandingUpdate;
+            //playerManager.characterBlockController.onBlockChanged += EvaluateBlockAnimationUpdate;
+            playerManager.characterBlockController.onBlockChanged -= EvaluateTwoHandingUpdate;
+
+
+            if (leftWeapon != null)
+            {
+                playerManager.playerWeaponsManager.UnequipLeftWeapon();
+            }
         }
 
         void EvaluateBlockAnimationUpdate()
@@ -51,7 +69,7 @@ namespace AF
             }
         }
 
-        void EvaluateTwoHandingUpdate()
+        public void EvaluateTwoHandingUpdate()
         {
             if (equipmentDatabase.isTwoHanding == false)
             {
@@ -107,14 +125,6 @@ namespace AF
             if (leftWeapon != null)
             {
                 playerManager.playerWeaponsManager.EquipLeftWeapon(leftWeapon);
-            }
-        }
-
-        private void OnDisable()
-        {
-            if (leftWeapon != null)
-            {
-                playerManager.playerWeaponsManager.UnequipLeftWeapon();
             }
         }
 

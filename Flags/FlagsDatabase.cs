@@ -44,6 +44,15 @@ namespace AF.Flags
             AddFlag(flag.name, flag.name);
         }
 
+        public void RemoveFlag(MonoBehaviourID monoBehaviourID)
+        {
+            if (ContainsFlag(monoBehaviourID.ID))
+            {
+                flags.Remove(monoBehaviourID.ID);
+                EventManager.EmitEvent(EventMessages.ON_FLAGS_CHANGED);
+            }
+        }
+
         public void AddFlag(string flagId, string description)
         {
             if (!ContainsFlag(flagId))

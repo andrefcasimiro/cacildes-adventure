@@ -16,7 +16,7 @@ namespace AF.Tests
             {
                 weaponAttackType = WeaponAttackType.Pierce,
                 damageResistance = .5f,
-                damageWeakness = 1
+                damageBonus = 1
             };
 
             damageResistances.weaponTypeResistances = new DamageResistances.WeaponTypeResistance[] { weaponTypeResistance };
@@ -47,7 +47,7 @@ namespace AF.Tests
             {
                 weaponAttackType = WeaponAttackType.Blunt,
                 damageResistance = 1f,
-                damageWeakness = 2
+                damageBonus = 2
             };
 
             damageResistances.weaponTypeResistances = new DamageResistances.WeaponTypeResistance[] { weaponTypeResistance };
@@ -78,7 +78,7 @@ namespace AF.Tests
             {
                 weaponAttackType = WeaponAttackType.Blunt,
                 damageResistance = 1f,
-                damageWeakness = 2
+                damageBonus = 2
             };
 
             damageResistances.weaponTypeResistances = new DamageResistances.WeaponTypeResistance[] { weaponTypeResistance };

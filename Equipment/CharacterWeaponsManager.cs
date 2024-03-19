@@ -100,19 +100,19 @@ namespace AF.Equipment
 
         public void OpenCharacterWeaponHitbox(CharacterWeaponHitbox characterWeaponHitbox)
         {
-            characterWeaponHitbox.EnableHitbox();
+            characterWeaponHitbox?.EnableHitbox();
         }
 
         public void CloseCharacterWeaponHitbox(CharacterWeaponHitbox characterWeaponHitbox)
         {
-            characterWeaponHitbox.DisableHitbox();
+            characterWeaponHitbox?.DisableHitbox();
         }
 
         public void CloseAllWeaponHitboxes()
         {
             foreach (CharacterWeaponHitbox characterWeaponHitbox in weapons)
             {
-                characterWeaponHitbox.DisableHitbox();
+                characterWeaponHitbox?.DisableHitbox();
             }
         }
     }

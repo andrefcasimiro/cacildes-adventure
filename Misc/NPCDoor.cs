@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
     public class NPCDoor : MonoBehaviour
     {
         public GameObject open;
-        public GameObject close;
 
         public bool requireGoodOrNeutralReputation = true;
         public bool requireBadReputation = false;
@@ -17,9 +15,31 @@ namespace AF
         public PlayerStatsDatabase playerStatsDatabase;
 
         [Header("Components")]
-        public NotificationManager notificationManager;
-        public Soundbank soundbank;
+        NotificationManager notificationManager;
+        Soundbank soundbank;
 
+        [Header("Events")]
+        public UnityEvent onDoorOpen;
+
+        Soundbank GetSoundbank()
+        {
+            if (soundbank == null)
+            {
+                soundbank = FindAnyObjectByType<Soundbank>(FindObjectsInactive.Include);
+            }
+
+            return soundbank;
+        }
+
+        NotificationManager GetNotificationManager()
+        {
+            if (notificationManager == null)
+            {
+                notificationManager = FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include);
+            }
+
+            return notificationManager;
+        }
 
         public void ActivateDoor()
         {
@@ -51,15 +71,15 @@ namespace AF
 
             if (showNotification)
             {
-                soundbank.PlaySound(soundbank.uiCancel);
+                GetSoundbank().PlaySound(GetSoundbank().uiCancel);
 
-                notificationManager.ShowNotification("Your bad reputation prevents you from entering this house.", notificationManager.personBusy);
+                GetNotificationManager().ShowNotification("Your bad reputation prevents you from entering this house.", GetNotificationManager().personBusy);
             }
 
             if (shouldOpen)
             {
-                close.SetActive(false);
                 open.SetActive(true);
+                onDoorOpen?.Invoke();
             }
         }
     }

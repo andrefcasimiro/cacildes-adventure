@@ -22,10 +22,21 @@ namespace AF
         public UnityEvent onRead_Begin;
         public UnityEvent onRead_End;
 
-        [Header("Components")]
-        public UIDocumentKeyPrompt documentKeyPrompt;
-        public UIDocumentBook uIDocumentBook;
-        public PlayerManager playerManager;
+        // Scene Refs
+        UIDocumentBook uIDocumentBook;
+        PlayerManager playerManager;
+
+        UIDocumentBook GetUIDocumentBook()
+        {
+            if (uIDocumentBook == null) { uIDocumentBook = FindAnyObjectByType<UIDocumentBook>(FindObjectsInactive.Include); }
+            return uIDocumentBook;
+        }
+
+        PlayerManager GetPlayerManager()
+        {
+            if (playerManager == null) { playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include); }
+            return playerManager;
+        }
 
         private void Awake()
         {
@@ -46,20 +57,20 @@ namespace AF
         {
             onRead_Begin?.Invoke();
 
-            playerManager.playerComponentManager.DisableComponents();
-            playerManager.playerComponentManager.DisableCharacterController();
+            GetPlayerManager().playerComponentManager.DisableComponents();
+            GetPlayerManager().playerComponentManager.DisableCharacterController();
 
-            uIDocumentBook.BeginRead(this);
+            GetUIDocumentBook().BeginRead(this);
         }
 
         public void CloseBook()
         {
-            uIDocumentBook.gameObject.SetActive(false);
+            GetUIDocumentBook().gameObject.SetActive(false);
 
             onRead_End?.Invoke();
 
-            playerManager.playerComponentManager.EnableCharacterController();
-            playerManager.playerComponentManager.EnableComponents();
+            GetPlayerManager().playerComponentManager.EnableCharacterController();
+            GetPlayerManager().playerComponentManager.EnableComponents();
         }
     }
 }

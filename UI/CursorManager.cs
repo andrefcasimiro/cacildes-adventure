@@ -1,14 +1,17 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace AF
 {
     public class CursorManager : MonoBehaviour
     {
-        private void Awake()
+        public GameSession gameSession;
+
+        private void Start()
         {
-            // Hide Cursor By Default On Every Scene
-            HideCursor();
+            if (gameSession.gameState == GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN)
+            {
+                Invoke(nameof(HideCursor), 1f);
+            }
         }
 
         public void ShowCursor()

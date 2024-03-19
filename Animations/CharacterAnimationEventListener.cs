@@ -14,6 +14,7 @@ namespace AF.Animations
         public string speedParameter = "Speed";
         public float animatorSpeed = 1f;
         public bool ignoreAnimatorSpeed = false;
+        public float overrideChaseSpeed = -1f;
 
         [Header("Animation Clip Overrides")]
         public SerializedDictionary<string, AnimationClip> clipOverrides;
@@ -74,7 +75,15 @@ namespace AF.Animations
                 return;
             }
 
-            characterManager.animator.SetFloat(speedParameter, Mathf.Clamp01(characterManager.agent.speed / characterManager.chaseSpeed));
+            if (overrideChaseSpeed >= 0 && characterManager.agent.speed > 0)
+            {
+                characterManager.animator.SetFloat(speedParameter, overrideChaseSpeed);
+            }
+            else
+            {
+                characterManager.animator.SetFloat(speedParameter, Mathf.Clamp01(characterManager.agent.speed / characterManager.chaseSpeed));
+            }
+
         }
 
         public void OnLeftFootstep()

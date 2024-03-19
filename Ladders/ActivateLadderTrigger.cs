@@ -7,8 +7,6 @@ namespace AF.Ladders
 {
     public class ClimbLadderTrigger : MonoBehaviour
     {
-        [Header("Components")]
-        public PlayerManager playerManager;
 
         [Header("Settings")]
         public bool isFromBottom = false;
@@ -19,12 +17,23 @@ namespace AF.Ladders
         public UnityEvent onLadderEnter_AfterDelay;
         public float onLadderEnter_Delay = 2f;
 
+        PlayerManager playerManager;
+
+        PlayerManager GetPlayerManager()
+        {
+            if (playerManager == null)
+            {
+                playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
+            }
+            return playerManager;
+        }
+
         /// <summary>
         /// Unity Event
         /// </summary>
         public void BeginClimbing()
         {
-            playerManager.climbController.StartClimbing(targetTransform, isFromBottom);
+            GetPlayerManager().climbController.StartClimbing(targetTransform, isFromBottom);
             StartCoroutine(DelayOnLadderEnter_Coroutine());
         }
 

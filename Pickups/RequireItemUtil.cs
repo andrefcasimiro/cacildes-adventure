@@ -19,13 +19,14 @@ namespace AF.Pickups
         [Header("Databases")]
         public InventoryDatabase inventoryDatabase;
 
-        [Header("Notifications")]
-        public NotificationManager notificationManager;
-        public Soundbank soundbank;
 
         [Header("Flags")]
         public MonoBehaviourID monoBehaviourID;
         public FlagsDatabase flagsDatabase;
+
+        // Scene Refs
+        NotificationManager notificationManager;
+        Soundbank soundbank;
 
         private void Awake()
         {
@@ -46,16 +47,36 @@ namespace AF.Pickups
                 return;
             }
 
-            notificationManager.ShowNotification(
+            GetNotificationManager().ShowNotification(
                 requiredItem.name + " was lost with use.",
-                notificationManager.systemError
+                GetNotificationManager().systemError
             );
 
-            soundbank.PlaySound(soundbank.itemLostWithUse);
+            GetSoundbank().PlaySound(GetSoundbank().itemLostWithUse);
 
             inventoryDatabase.RemoveItem(requiredItem, 1);
             onItemUsed?.Invoke();
             flagsDatabase.AddFlag(monoBehaviourID);
+        }
+
+        Soundbank GetSoundbank()
+        {
+            if (soundbank == null)
+            {
+                soundbank = FindAnyObjectByType<Soundbank>(FindObjectsInactive.Include);
+            }
+
+            return soundbank;
+        }
+
+        NotificationManager GetNotificationManager()
+        {
+            if (notificationManager == null)
+            {
+                notificationManager = FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include);
+            }
+
+            return notificationManager;
         }
     }
 }

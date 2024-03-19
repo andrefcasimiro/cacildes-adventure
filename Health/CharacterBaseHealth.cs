@@ -44,8 +44,9 @@ namespace AF.Health
 
         public void PlayPostureHit()
         {
-            if (audioSource != null && postureHitSfx != null)
+            if (audioSource != null && postureHitSfx != null && Random.Range(0, 100f) >= 50f)
             {
+                audioSource.pitch = Random.Range(0.91f, 1.05f);
                 audioSource.PlayOneShot(postureHitSfx);
             }
         }

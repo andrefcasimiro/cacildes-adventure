@@ -16,6 +16,14 @@ namespace AF
             yield return new WaitForSeconds(waitBeforeInvoke);
             eventToInvoke.Invoke();
         }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void ExecuteImmediately()
+        {
+            eventToInvoke.Invoke();
+        }
     }
 
 }

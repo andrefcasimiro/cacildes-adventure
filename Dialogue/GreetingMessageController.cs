@@ -36,7 +36,7 @@ namespace AF.Dialogue
         public void HideGreetingMessage()
         {
             onGreetingEnd?.Invoke();
-            greetingMessageUI.Hide();
+            greetingMessageUI?.Hide();
         }
 
         /// <summary>

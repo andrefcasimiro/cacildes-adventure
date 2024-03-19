@@ -51,6 +51,11 @@ namespace AF
         public void ShowWeapon()
         {
             gameObject.SetActive(true);
+
+            if (characterTwoHandRef != null)
+            {
+                characterTwoHandRef.EvaluateTwoHandingUpdate();
+            }
         }
 
         public void HideWeapon()

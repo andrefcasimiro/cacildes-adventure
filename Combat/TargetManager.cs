@@ -31,6 +31,11 @@ namespace AF.Combat
 
         public void SetTarget(CharacterBaseManager target)
         {
+            SetTarget(target, () => { });
+        }
+
+        public void SetTarget(CharacterBaseManager target, UnityAction onTargetSetCallback)
+        {
             if (!CanSetTarget())
             {
                 return;
@@ -53,7 +58,10 @@ namespace AF.Combat
                 IEnumerator PrepareCombat_Coroutine()
                 {
                     yield return new WaitForSeconds(delayWhenBeginningCombatForFirstTime);
+
                     HandleSetTarget(target);
+
+                    onTargetSetCallback?.Invoke();
                 }
 
                 StartCoroutine(PrepareCombat_Coroutine());

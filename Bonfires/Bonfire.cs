@@ -50,6 +50,7 @@ namespace AF.Bonfires
             playerManager.health.RestoreFullHealth();
             playerManager.staminaStatManager.RestoreStaminaPercentage(100);
             playerManager.statusController.RemoveAllStatuses();
+            playerManager.manaManager.RestoreManaPercentage(100);
         }
 
         bool CanUseBonfire()

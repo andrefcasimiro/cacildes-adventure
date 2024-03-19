@@ -32,6 +32,10 @@ namespace AF
         public float chaseSpeed = 4.5f;
         public float rotationSpeed = 6f;
 
+        [Header("Face Target Settings")]
+        public bool faceTarget = false;
+        public float faceTargetDuration = 0.25f;
+
         [Header("Partners")]
         public CharacterManager[] partners;
         public int partnerOrder = 0;
@@ -79,6 +83,14 @@ namespace AF
         {
             //agent.updatePosition = !animator.applyRootMotion;
 
+            if (faceTarget && targetManager?.currentTarget != null)
+            {
+                var lookPos = targetManager.currentTarget.transform.position - transform.position;
+                lookPos.y = 0;
+                var lookRotation = Quaternion.LookRotation(lookPos);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+            }
+
             if (animator.applyRootMotion)
             {
                 // Extract root motion position and rotation from the Animator
@@ -103,14 +115,13 @@ namespace AF
         /// </summary>
         public void FaceTarget()
         {
-            if (targetManager == null)
-            {
-                return;
-            }
+            faceTarget = true;
+            Invoke(nameof(ResetFaceTargetFlag), faceTargetDuration);
+        }
 
-            var lookPos = targetManager.currentTarget.transform.position - transform.position;
-            lookPos.y = 0;
-            transform.rotation = Quaternion.LookRotation(lookPos);
+        void ResetFaceTargetFlag()
+        {
+            faceTarget = false;
         }
 
         /// <summary>

@@ -68,9 +68,10 @@ namespace AF.Detection
 
                 if (isSighted && hit.TryGetComponent(out CharacterBaseManager target))
                 {
-                    targetManager.SetTarget(target);
-
-                    OnTargetSighted?.Invoke();
+                    targetManager.SetTarget(target, () =>
+                    {
+                        OnTargetSighted?.Invoke();
+                    });
                 }
             }
         }

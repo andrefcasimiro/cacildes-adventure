@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using AF.Music;
 using UnityEngine;
@@ -19,18 +18,37 @@ namespace AF
         public CharacterManager[] enemiesToIgnore;
 
         [Header("Components")]
-        public BGMManager bgmManager;
-        public SceneSettings sceneSettings;
+        BGMManager bgmManager;
+        SceneSettings sceneSettings;
 
         [Header("Settings")]
         [HideInInspector] public int damageTaken = 9999999;
+
+        BGMManager GetBGMManager()
+        {
+            if (bgmManager == null)
+            {
+                bgmManager = FindAnyObjectByType<BGMManager>(FindObjectsInactive.Include);
+            }
+
+            return bgmManager;
+        }
+        SceneSettings GetSceneSettings()
+        {
+            if (sceneSettings == null)
+            {
+                sceneSettings = FindAnyObjectByType<SceneSettings>(FindObjectsInactive.Include);
+            }
+
+            return sceneSettings;
+        }
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.CompareTag("Player"))
             {
                 PlayerManager playerManager = other.GetComponent<PlayerManager>();
-                bgmManager.PlaySound(waterSfx, other.GetComponent<PlayerManager>().combatAudioSource);
+                GetBGMManager().PlaySound(waterSfx, other.GetComponent<PlayerManager>().combatAudioSource);
 
                 if (respawnInstead)
                 {
@@ -38,7 +56,7 @@ namespace AF
                     playerManager.thirdPersonController.isSliding = false;
                     playerManager.thirdPersonController.isSlidingOnIce = false;
                     playerManager.playerComponentManager.UpdatePosition(respawnPoint.transform.position, Quaternion.identity);
-                    Instantiate(sceneSettings.respawnFx, respawnPoint.transform.position, Quaternion.identity);
+                    Instantiate(GetSceneSettings().respawnFx, respawnPoint.transform.position, Quaternion.identity);
                     playerManager.thirdPersonController.trackFallDamage = true;
                     Physics.autoSyncTransforms = false;
                     return;
@@ -57,7 +75,7 @@ namespace AF
                             return;
                         }
                     }
-                    bgmManager.PlaySound(waterSfx, characterManager.combatAudioSource);
+                    GetBGMManager().PlaySound(waterSfx, characterManager.combatAudioSource);
                     characterManager.health.TakeDamage(damageTaken);
                 }
             }

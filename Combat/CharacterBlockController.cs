@@ -63,6 +63,8 @@ namespace AF
             characterManager.characterPosture.TakePostureDamage((int)(damage.postureDamage * blockMultiplier));
 
             onBlockDamageEvent?.Invoke();
+
+            isBlocking = false;
         }
 
         public bool CanBlockDamage(Damage damage)

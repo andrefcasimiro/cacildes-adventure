@@ -11,8 +11,8 @@ namespace AF
         public class WeaponTypeResistance
         {
             public WeaponAttackType weaponAttackType;
-            [Range(1, 2.5f)] public float damageResistance = 1;
-            [Range(0.1f, 1f)] public float damageWeakness = 1;
+            [Range(0.1f, 1f)] public float damageResistance = 1;
+            [Range(1f, 2.5f)] public float damageBonus = 1;
         }
 
         [Header("Resistant To Weapons")]
@@ -36,11 +36,24 @@ namespace AF
 
         public virtual Damage FilterIncomingDamage(Damage incomingDamage)
         {
-            Damage filteredDamage = incomingDamage;
+            Damage filteredDamage = new()
+            {
+                physical = incomingDamage.physical,
+                fire = incomingDamage.fire,
+                frost = incomingDamage.frost,
+                magic = incomingDamage.magic,
+                lightning = incomingDamage.lightning,
+                darkness = incomingDamage.darkness,
+                postureDamage = incomingDamage.postureDamage,
+                poiseDamage = incomingDamage.poiseDamage,
+                pushForce = incomingDamage.pushForce,
+                weaponAttackType = incomingDamage.weaponAttackType,
+                statusEffects = incomingDamage.statusEffects
+            };
 
             filteredDamage.physical = (int)(filteredDamage.physical
                 * GetDamageMultiplier(incomingDamage.weaponAttackType, weaponTypeResistances, r => r.damageResistance)
-                * GetDamageMultiplier(incomingDamage.weaponAttackType, weaponTypeResistances, r => r.damageWeakness));
+                * GetDamageMultiplier(incomingDamage.weaponAttackType, weaponTypeResistances, r => r.damageBonus));
             filteredDamage.fire = ApplyElementalDamageBonus(filteredDamage.fire, fireDamageBonus, fireDamageFilter);
             filteredDamage.frost = ApplyElementalDamageBonus(filteredDamage.frost, frostDamageBonus, frostDamageFilter);
             filteredDamage.magic = ApplyElementalDamageBonus(filteredDamage.magic, magicDamageBonus, magicDamageFilter);
@@ -58,7 +71,12 @@ namespace AF
             }
 
             var match = Array.Find(typeResistances, r => r.weaponAttackType == attackType);
-            return match != null ? selector(match) : 1f;
+            if (match == null)
+            {
+                return 1f;
+            }
+
+            return selector(match);
         }
 
         int ApplyElementalDamageBonus(int damage, float bonus, float filter)

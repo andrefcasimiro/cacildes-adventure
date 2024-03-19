@@ -7,8 +7,6 @@ namespace AF.Ladders
 {
     public class ExitLadderTrigger : MonoBehaviour
     {
-        [Header("Components")]
-        public PlayerManager playerManager;
 
         [Header("Settings")]
         public bool isBottomExit = false;
@@ -16,6 +14,17 @@ namespace AF.Ladders
         [Header("Events")]
         public UnityEvent onLadderExit;
         public float onLadderExit_Delay = 2f;
+        PlayerManager playerManager;
+
+        PlayerManager GetPlayerManager()
+        {
+            if (playerManager == null)
+            {
+                playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
+            }
+
+            return playerManager;
+        }
 
         private void Awake()
         {
@@ -29,15 +38,15 @@ namespace AF.Ladders
                 return;
             }
 
-            if (playerManager.climbController.climbState != ClimbState.NONE)
+            if (GetPlayerManager().climbController.climbState != ClimbState.NONE)
             {
                 if (isBottomExit)
                 {
-                    playerManager.climbController.ExitToBottom();
+                    GetPlayerManager().climbController.ExitToBottom();
                 }
                 else
                 {
-                    playerManager.climbController.ExitToTop();
+                    GetPlayerManager().climbController.ExitToTop();
                 }
 
                 StartCoroutine(OnLadderExit_Coroutine());

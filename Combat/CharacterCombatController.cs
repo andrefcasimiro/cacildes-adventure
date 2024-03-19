@@ -22,7 +22,11 @@ namespace AF.Combat
         [Header("Combat Options")]
         [Range(0, 100f)] public float chanceToReact = 90f;
 
-        [HideInInspector] public List<CombatAction> usedCombatActions = new();
+
+        [Header("Stamina")]
+        //public int attackLimit = 3;
+
+        public List<CombatAction> usedCombatActions = new();
 
         [Header("Animation Settings")]
         public string ANIMATION_CLIP_TO_OVERRIDE_NAME = "Cacildes - Light Attack - 1";
@@ -87,6 +91,12 @@ namespace AF.Combat
 
         public void UseCombatAction()
         {
+            /*
+            if (usedCombatActions.Count >= attackLimit)
+            {
+                return;
+            }*/
+
             CombatAction newCombatAction = GetCombatAction();
             if (newCombatAction == null)
             {

@@ -56,7 +56,7 @@ namespace AF
                 shouldSleep = gameSession.timeOfDay >= sleepFrom && gameSession.timeOfDay <= sleepUntil;
             }
 
-            if (isSleeping)
+            if (isSleeping && !shouldSleep)
             {
                 WakeUp();
             }
@@ -90,6 +90,11 @@ namespace AF
 
         public void WakeUp()
         {
+            if (!isSleeping)
+            {
+                return;
+            }
+
             isSleeping = false;
 
             onWakeUp?.Invoke();
