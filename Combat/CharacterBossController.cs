@@ -37,7 +37,7 @@ namespace AF
         private BGMManager bgmManager;
         private SceneSettings sceneSettings;
 
-        public void Awake()
+        public void Start()
         {
             HideBossHud();
         }

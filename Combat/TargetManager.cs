@@ -10,8 +10,11 @@ namespace AF.Combat
 
     public class TargetManager : MonoBehaviour
     {
-
+        [Header("Events")]
         public UnityEvent onTargetSet_Event;
+        public UnityEvent onAgressiveTowardsPlayer_Event;
+        public UnityEvent onClearTarget_Event;
+
 
         [Header("Components")]
         public CharacterBaseManager currentTarget;
@@ -19,7 +22,7 @@ namespace AF.Combat
         public CharacterManager characterManager;
 
         [Header("Faction Settings")]
-        public CharacterFaction[] characterFactions;
+        public UnityAction<bool> onAgressiveTowardsPlayer;
 
         [Header("Combat Start Settings")]
         bool hasBeenInCombat = false;
@@ -46,7 +49,7 @@ namespace AF.Combat
                 return;
             }
 
-            if (characterFactions.Length > 0 && characterFactions.Contains(target.characterFaction))
+            if (characterManager.IsFromSameFaction(target))
             {
                 return;
             }
@@ -90,6 +93,9 @@ namespace AF.Combat
             if (target is PlayerManager)
             {
                 NotifyCompanions();
+
+                onAgressiveTowardsPlayer(true);
+                onAgressiveTowardsPlayer_Event?.Invoke();
             }
         }
 
@@ -115,6 +121,8 @@ namespace AF.Combat
         public void ClearTarget()
         {
             currentTarget = null;
+            onAgressiveTowardsPlayer(false);
+            onClearTarget_Event?.Invoke();
         }
 
         public bool IsTargetBusy()

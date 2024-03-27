@@ -8,8 +8,8 @@ namespace AF
     public class Spell : Item
     {
 
-        [Header("Settings")]
-        public Projectile spellCastParticle;
+        public GameObject projectile;
+
         public float costPerCast = 20;
 
         [Header("Animations")]
@@ -17,6 +17,9 @@ namespace AF
 
         [Header("Spell Type")]
         public bool isFaithSpell = false;
+
+        [Header("Spawn Options")]
+        public bool spawnAtPlayerFeet = false;
 
     }
 }

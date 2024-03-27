@@ -136,6 +136,11 @@ namespace AF
                 });
 
                 damageReceiversHit.Add(damageReceiver);
+
+                if (character is PlayerManager)
+                {
+                    damageReceiver.health.onDamageFromPlayer?.Invoke();
+                }
             }
         }
 

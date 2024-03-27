@@ -73,6 +73,18 @@ public class GameSession : ScriptableObject
         this.timeOfDay = hour;
     }
 
+    public void IncreaseTimeOfDay()
+    {
+        if (timeOfDay > 23)
+        {
+            timeOfDay = 0;
+        }
+        else
+        {
+            timeOfDay++;
+        }
+    }
+
     public void SetGameQuality(int newValue)
     {
 

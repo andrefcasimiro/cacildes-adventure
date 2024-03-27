@@ -31,7 +31,7 @@ namespace AF
 
         public int GetMaxMana()
         {
-            return playerStatsDatabase.maxMana + Mathf.RoundToInt((
+            return playerStatsDatabase.maxMana + playerStatsBonusController.magicBonus + Mathf.RoundToInt((
                 playerStatsDatabase.intelligence + playerStatsBonusController.intelligenceBonus) * playerStatsDatabase.levelMultiplierForMana);
         }
 

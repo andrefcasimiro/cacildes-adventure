@@ -42,6 +42,8 @@ namespace AF.UI.EquipmentMenu
 
         Button accessoryButtonSlot1;
         Button accessoryButtonSlot2;
+        Button accessoryButtonSlot3;
+        Button accessoryButtonSlot4;
 
         Button consumableButtonSlot1;
         Button consumableButtonSlot2;
@@ -123,6 +125,8 @@ namespace AF.UI.EquipmentMenu
 
             accessoryButtonSlot1 = root.Q<Button>("AccessoriesButton_Slot1");
             accessoryButtonSlot2 = root.Q<Button>("AccessoriesButton_Slot2");
+            accessoryButtonSlot3 = root.Q<Button>("AccessoriesButton_Slot3");
+            accessoryButtonSlot4 = root.Q<Button>("AccessoriesButton_Slot4");
 
             consumableButtonSlot1 = root.Q<Button>("ConsumablesButton_Slot1");
             consumableButtonSlot2 = root.Q<Button>("ConsumablesButton_Slot2");
@@ -377,7 +381,9 @@ namespace AF.UI.EquipmentMenu
             Dictionary<Button, Func<Accessory>> buttonDictionary = new()
             {
                 { accessoryButtonSlot1, () => equipmentDatabase.accessories[0] },
-                { accessoryButtonSlot2, () => equipmentDatabase.accessories[1] }
+                { accessoryButtonSlot2, () => equipmentDatabase.accessories[1] },
+                { accessoryButtonSlot3, () => equipmentDatabase.accessories[2] },
+                { accessoryButtonSlot4, () => equipmentDatabase.accessories[3] },
             };
 
             int slotIndex = 0;
@@ -563,6 +569,8 @@ namespace AF.UI.EquipmentMenu
 
             SetBackgroundImage(accessoryButtonSlot1, equipmentDatabase.accessories, 0, txt_UnequippedAccessory);
             SetBackgroundImage(accessoryButtonSlot2, equipmentDatabase.accessories, 1, txt_UnequippedAccessory);
+            SetBackgroundImage(accessoryButtonSlot3, equipmentDatabase.accessories, 2, txt_UnequippedAccessory);
+            SetBackgroundImage(accessoryButtonSlot4, equipmentDatabase.accessories, 3, txt_UnequippedAccessory);
 
             SetBackgroundImage(consumableButtonSlot1, equipmentDatabase.consumables, 0, txt_UnequippedConsumable);
             SetBackgroundImage(consumableButtonSlot2, equipmentDatabase.consumables, 1, txt_UnequippedConsumable);

@@ -11,6 +11,7 @@ namespace AF
 
         [Header("Stat Bonuses")]
         public int healthBonus = 0;
+        public int magicBonus = 0;
         public int staminaBonus = 0;
         public int physicalAttackBonus = 0;
         public int jumpAttackBonus = 0;

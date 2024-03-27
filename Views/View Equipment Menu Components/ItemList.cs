@@ -140,7 +140,7 @@ namespace AF.UI.EquipmentMenu
 
         public void DrawUI(EquipmentType equipmentType, int slotIndex)
         {
-            elementToFocusIndex = 0;
+            elementToFocusIndex = 1;
 
             menuLabel.style.display = DisplayStyle.None;
             equipItemKeyHint.style.display = DisplayStyle.None;
@@ -458,7 +458,9 @@ namespace AF.UI.EquipmentMenu
                         }
                     }
 
-                    PopulateScrollView<T>(showOnlyKeyItems, slotIndex);
+                    ReturnToEquipmentSlots();
+
+                    //PopulateScrollView<T>(showOnlyKeyItems, slotIndex);
                 };
 
                 void ShowTooltipAndStats(Item item)
@@ -516,7 +518,7 @@ namespace AF.UI.EquipmentMenu
             }
 
 
-            if (itemsScrollView.childCount > 0 && itemsScrollView.ElementAt(elementToFocusIndex) != null)
+            if (itemsScrollView.childCount > 0 && elementToFocusIndex < itemsScrollView.childCount && itemsScrollView.ElementAt(elementToFocusIndex) != null)
             {
                 var btn = itemsScrollView.ElementAt(elementToFocusIndex).Q<Button>("EquipButton");
                 btn.Focus();

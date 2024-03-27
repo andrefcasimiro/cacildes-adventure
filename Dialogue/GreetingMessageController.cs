@@ -13,6 +13,7 @@ namespace AF.Dialogue
         Coroutine DisplayAgainCoroutine;
 
         [Header("Components")]
+        public CharacterManager characterManager;
         public GreetingMessageUI greetingMessageUI;
 
         [Header("Events")]
@@ -23,6 +24,26 @@ namespace AF.Dialogue
         bool hasStoppedDisplaying = false;
 
         Coroutine HideGreetingMessageCoroutine;
+
+
+        private void Awake()
+        {
+            if (characterManager != null && characterManager.targetManager != null)
+            {
+                characterManager.targetManager.onAgressiveTowardsPlayer += (isAgressive) =>
+                {
+                    if (isAgressive)
+                    {
+                        StopDisplayingGreetingMessage();
+                    }
+                    else
+                    {
+                        ResetIsDisplayed();
+                    }
+                };
+            }
+        }
+
 
         /// <summary>
         /// Unity Event
@@ -49,10 +70,6 @@ namespace AF.Dialogue
                 return;
             }
 
-            onGreetingBegin?.Invoke();
-
-            hasDisplayed = true;
-
             var greetingMessage =
                 characterGreetings.FirstOrDefault(messageGameObject => messageGameObject != null && messageGameObject.isActiveAndEnabled);
 
@@ -60,6 +77,9 @@ namespace AF.Dialogue
             {
                 return;
             }
+
+            hasDisplayed = true;
+            onGreetingBegin?.Invoke();
 
             greetingMessageUI.Display(greetingMessage.greeting);
 

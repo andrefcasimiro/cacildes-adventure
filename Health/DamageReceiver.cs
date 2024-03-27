@@ -81,7 +81,7 @@ namespace AF
         public void HandleIncomingDamage(CharacterBaseManager damageOwner, UnityAction onTakeDamage)
         {
             // Don't allow same factions to hit each other
-            if (damageOwner?.characterFaction == character?.characterFaction)
+            if (damageOwner.IsFromSameFaction(character))
             {
                 return;
             }
@@ -112,14 +112,6 @@ namespace AF
                     character.characterBlockController.HandleParryEvent();
                     damageOwner.characterBlockController.HandleParriedEvent(character.characterBlockController.postureDamageFromParry);
                     return;
-                }
-
-                if (incomingDamage.pushForce > 0 && character.characterPushController != null)
-                {
-                    character.characterPushController.ApplyForceSmoothly(
-                        damageOwner.transform.forward,
-                        Mathf.Clamp(incomingDamage.pushForce * pushForceAbsorption, 0, Mathf.Infinity) * 10,
-                        .25f);
                 }
 
                 if (character.characterBlockController.CanBlockDamage(incomingDamage))
@@ -169,6 +161,16 @@ namespace AF
         /// <param name="damage"></param>
         public void ApplyDamage(Damage damage)
         {
+            if (damage.pushForce > 0 && character.characterPushController != null)
+            {
+                var targetPos = character.transform.position - Camera.main.transform.position;
+                targetPos.y = 0;
+                character.characterPushController.ApplyForceSmoothly(
+                    targetPos.normalized,
+                    Mathf.Clamp(damage.pushForce * pushForceAbsorption, 0, Mathf.Infinity) * 10,
+                    .25f);
+            }
+
             if (damageResistances != null)
             {
                 damage = damageResistances.FilterIncomingDamage(damage);

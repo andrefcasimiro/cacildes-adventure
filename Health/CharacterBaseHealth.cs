@@ -13,6 +13,7 @@ namespace AF.Health
         public UnityEvent onTakeDamage;
         public UnityEvent onRestoreHealth;
         public UnityEvent onDeath;
+        public UnityEvent onDamageFromPlayer;
 
         [Header("Sounds")]
         public AudioClip postureHitSfx;

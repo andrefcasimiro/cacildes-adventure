@@ -9,6 +9,10 @@ namespace AF.Stats
     public class StatsBonusController : MonoBehaviour
     {
         [Header("Bonus")]
+        public int healthBonus = 0;
+        public int magicBonus = 0;
+        public int staminaBonus = 0;
+
         public int vitalityBonus = 0;
         public int enduranceBonus = 0;
         public int strengthBonus = 0;
@@ -184,7 +188,7 @@ namespace AF.Stats
 
         void ResetAttributes()
         {
-            vitalityBonus = enduranceBonus = strengthBonus = dexterityBonus = intelligenceBonus = 0;
+            healthBonus = magicBonus = staminaBonus = vitalityBonus = enduranceBonus = strengthBonus = dexterityBonus = intelligenceBonus = 0;
             fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = 0;
             reputationBonus = parryPostureDamageBonus = 0;
         }
@@ -221,6 +225,10 @@ namespace AF.Stats
                 magicDefenseBonus += accessory?.magicDefense ?? 0;
                 reputationBonus += accessory?.reputationBonus ?? 0;
                 parryPostureDamageBonus += accessory?.postureDamagePerParry ?? 0;
+
+                healthBonus += accessory?.healthBonus ?? 0;
+                magicBonus += accessory?.magicBonus ?? 0;
+                staminaBonus += accessory?.staminaBonus ?? 0;
             }
         }
 

@@ -28,7 +28,7 @@ public class EquipmentDatabase : ScriptableObject
     public Legwear legwear;
 
     [Header("Accessories")]
-    public Accessory[] accessories = new Accessory[2];
+    public Accessory[] accessories = new Accessory[4];
 
     public int currentWeaponIndex, currentShieldIndex, currentConsumableIndex, currentSpellIndex, currentArrowIndex = 0;
 

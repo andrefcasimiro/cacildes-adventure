@@ -25,7 +25,7 @@ namespace AF
 
         public override int GetMaxHealth()
         {
-            return playerStatsDatabase.maxHealth + (int)((playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus) * playerStatsDatabase.levelMultiplierForHealth);
+            return playerStatsDatabase.maxHealth + playerStatsBonusController.healthBonus + (int)((playerStatsDatabase.vitality + playerStatsBonusController.vitalityBonus) * playerStatsDatabase.levelMultiplierForHealth);
         }
 
 

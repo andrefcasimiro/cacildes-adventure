@@ -17,6 +17,8 @@ namespace AF
         // Internal
         IEventNavigatorCapturable currentTarget;
 
+        public UIDocumentKeyPrompt uIDocumentKeyPrompt;
+
         /// <summary>
         /// Unity Event
         /// </summary>
@@ -63,6 +65,11 @@ namespace AF
                 if (currentTarget != null)
                 {
                     currentTarget?.OnReleased();
+                }
+
+                if (uIDocumentKeyPrompt.isActiveAndEnabled)
+                {
+                    uIDocumentKeyPrompt.gameObject.SetActive(false);
                 }
 
                 currentTarget = null;

@@ -45,7 +45,7 @@ namespace AF
 
         public int GetMaxStamina()
         {
-            return playerStatsDatabase.maxStamina + Mathf.RoundToInt((
+            return playerStatsDatabase.maxStamina + playerStatsBonusController.staminaBonus + Mathf.RoundToInt((
                 playerStatsDatabase.endurance + playerStatsBonusController.enduranceBonus) * playerStatsDatabase.levelMultiplierForStamina);
         }
 

@@ -95,4 +95,9 @@ public class PlayerStatsDatabase : ScriptableObject
         this.positionWhereGoldWasLost = Vector3.zero;
         this.sceneWhereGoldWasLost = "";
     }
+
+    public void ResetReputation()
+    {
+        this.reputation = 0;
+    }
 }

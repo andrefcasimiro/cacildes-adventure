@@ -65,7 +65,7 @@ namespace AF
             root = GetComponent<UIDocument>().rootVisualElement;
 
             root.Q<ScrollView>().Clear();
-            root.Q<IMGUIContainer>().style.opacity = 0;
+            root.Q<IMGUIContainer>("BonfireIcon").style.opacity = 0;
 
             // The exit button
             var exitOption = travelOptionAsset.CloneTree();
@@ -78,12 +78,12 @@ namespace AF
             () =>
             {
                 {
-                    root.Q<IMGUIContainer>().style.opacity = 0;
+                    root.Q<IMGUIContainer>("BonfireIcon").style.opacity = 0;
                 }
             },
             () =>
             {
-                root.Q<IMGUIContainer>().style.opacity = 0;
+                root.Q<IMGUIContainer>("BonfireIcon").style.opacity = 0;
             },
             true,
             soundbank);
@@ -105,13 +105,13 @@ namespace AF
                     () =>
                     {
                         {
-                            root.Q<IMGUIContainer>().style.backgroundImage = new StyleBackground(location.image);
-                            root.Q<IMGUIContainer>().style.opacity = 1;
+                            root.Q<IMGUIContainer>("BonfireIcon").style.backgroundImage = new StyleBackground(location.image);
+                            root.Q<IMGUIContainer>("BonfireIcon").style.opacity = 1;
                         }
                     },
                     () =>
                     {
-                        root.Q<IMGUIContainer>().style.opacity = 0;
+                        root.Q<IMGUIContainer>("BonfireIcon").style.opacity = 0;
                     },
                     true,
                     soundbank);

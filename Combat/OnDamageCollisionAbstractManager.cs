@@ -52,6 +52,16 @@ namespace AF
             else if (damage != null)
             {
                 damageReceiver.TakeDamage(damage);
+
+                if (damageOwner != null && damageReceiver.character is CharacterManager aiCharacter && aiCharacter.targetManager != null)
+                {
+                    aiCharacter.targetManager.SetTarget(damageOwner);
+                }
+
+                if (damageOwner is PlayerManager)
+                {
+                    damageReceiver.health.onDamageFromPlayer?.Invoke();
+                }
             }
 
             onParticleDamage?.Invoke();

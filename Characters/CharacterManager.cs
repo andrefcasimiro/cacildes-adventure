@@ -161,10 +161,12 @@ namespace AF
 
             if (health is CharacterHealth characterHealth)
             {
-                transform.position = initialPosition;
-                transform.rotation = initialRotation;
                 characterHealth.Revive();
 
+                agent.Warp(initialPosition);
+                characterController.enabled = false;
+                transform.SetPositionAndRotation(initialPosition, initialRotation);
+                characterController.enabled = true;
             }
         }
 

@@ -34,6 +34,9 @@ namespace AF.Shooting
         public UIManager uIManager;
         public MenuManager menuManager;
 
+        [Header("Refs")]
+        public Transform playerFeetRef;
+
 
         [Header("Flags")]
         public bool isAiming = false;
@@ -179,7 +182,7 @@ namespace AF.Shooting
 
             GetPlayerManager().staminaStatManager.DecreaseStamina(minimumStaminaToShoot);
 
-            FireProjectile(consumableProjectile.projectile.gameObject, 1f, lockOnTarget);
+            FireProjectile(consumableProjectile.projectile.gameObject, 1f, lockOnTarget, null);
         }
 
 
@@ -204,14 +207,16 @@ namespace AF.Shooting
 
             GetPlayerManager().staminaStatManager.DecreaseStamina(minimumStaminaToShoot);
 
-            FireProjectile(spell.spellCastParticle.gameObject, 0f, lockOnTarget);
+            if (spell.projectile != null)
+            {
+                FireProjectile(spell.projectile.gameObject, 0f, lockOnTarget, spell);
+            }
         }
 
-        public void FireProjectile(GameObject projectile, float originDistanceFromCamera, Transform lockOnTarget)
+        public void FireProjectile(GameObject projectile, float originDistanceFromCamera, Transform lockOnTarget, Spell spell)
         {
             Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
             Vector3 lookPosition = ray.direction;
-
 
             if (lookPosition.y > 0)
             {
@@ -249,10 +254,10 @@ namespace AF.Shooting
                 StopCoroutine(FireDelayedProjectileCoroutine);
             }
 
-            FireDelayedProjectileCoroutine = StartCoroutine(FireDelayedProjectile_Coroutine(projectile, originDistanceFromCamera, Quaternion.LookRotation(lookPosition), ray, delay));
+            FireDelayedProjectileCoroutine = StartCoroutine(FireDelayedProjectile_Coroutine(projectile, originDistanceFromCamera, Quaternion.LookRotation(lookPosition), ray, delay, spell));
         }
 
-        IEnumerator FireDelayedProjectile_Coroutine(GameObject projectile, float originDistanceFromCamera, Quaternion lookPosition, Ray ray, float delay)
+        IEnumerator FireDelayedProjectile_Coroutine(GameObject projectile, float originDistanceFromCamera, Quaternion lookPosition, Ray ray, float delay, Spell spell)
         {
             yield return new WaitForSeconds(delay);
 
@@ -264,13 +269,27 @@ namespace AF.Shooting
                 origin = lookAtConstraint.transform.position;
                 ray.direction = characterBaseManager.transform.forward;
 
-
                 Vector3 lookDir = ray.direction;
                 lookDir.y = 0;
                 lookPosition = Quaternion.LookRotation(lookDir);
             }
 
+            if (spell != null)
+            {
+                if (spell.spawnAtPlayerFeet)
+                {
+                    origin = playerFeetRef.transform.position;
+                }
+            }
+
             GameObject projectileInstance = Instantiate(projectile.gameObject, origin, lookPosition);
+            if (spell != null)
+            {
+                if (projectileInstance.TryGetComponent<OnDamageCollisionAbstractManager>(out var spellParticleCollisionManager))
+                {
+                    spellParticleCollisionManager.damageOwner = GetPlayerManager();
+                }
+            }
 
             projectileInstance.TryGetComponent(out IProjectile componentProjectile);
             if (componentProjectile == null)

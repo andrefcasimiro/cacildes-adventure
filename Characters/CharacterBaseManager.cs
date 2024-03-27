@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using AF.Characters;
 using AF.Combat;
 using AF.Health;
@@ -20,7 +21,7 @@ namespace AF
         public AudioSource combatAudioSource;
 
         [Header("Faction")]
-        public CharacterFaction characterFaction;
+        public CharacterFaction[] characterFactions;
 
         [Header("Flags")]
         public bool isBusy = false;
@@ -94,5 +95,12 @@ namespace AF
 
         public abstract Damage GetAttackDamage();
 
+        public bool IsFromSameFaction(CharacterBaseManager target)
+        {
+            return characterFactions != null
+                && characterFactions.Length > 0
+                && characterFactions.Any(thisCharactersFaction => target.characterFactions.Contains(thisCharactersFaction));
+
+        }
     }
 }
