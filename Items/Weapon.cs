@@ -68,12 +68,12 @@ namespace AF
         public int level = 1;
         public WeaponUpgradeLevel[] weaponUpgrades;
 
-        [Tooltip("How much block hit this weapon does on an enemy shield. Heavier weapons should do at least 2 or 3 hits.")]
-        public int blockHitAmount = 1;
+        //        [Tooltip("How much block hit this weapon does on an enemy shield. Heavier weapons should do at least 2 or 3 hits.")]
+        //        public int blockHitAmount = 1;
 
-        [Header("Block Absorption")]
-        [Range(0, 100)] public int blockAbsorption = 75;
-        public float blockStaminaCost = 30f;
+        //        [Header("Block Absorption")]
+        //        [Range(0, 100)] public int blockAbsorption = 75;
+        //        public float blockStaminaCost = 30f;
 
 
         [Header("Stamina")]
@@ -89,7 +89,7 @@ namespace AF
         [Header("Animation Overrides")]
         public List<AnimationOverride> animationOverrides;
         [Tooltip("Optional")] public List<AnimationOverride> twoHandOverrides;
-        [Tooltip("Optional")] public List<AnimationOverride> blockOverrides;
+        //        [Tooltip("Optional")] public List<AnimationOverride> blockOverrides;
 
         [Header("Dual Wielding Options")]
         public bool halveDamage = false;
@@ -98,6 +98,7 @@ namespace AF
         [Header("Speed Penalty")]
         [Tooltip("Will be added as a negative speed to the animator when equipped")]
         public float speedPenalty = 0f;
+        [Range(0.1f, 1f)] public float oneHandAttackSpeedPenalty = 1f;
 
         [Header("Weapon Bonus")]
         public int amountOfGoldReceivedPerHit = 0;
@@ -108,7 +109,8 @@ namespace AF
         public float jumpAttackVelocity = -5f;
 
         [Header("Shield Piercing")]
-        public bool ignoreShields = false;
+        public bool ignoresEnemyBlocking = false;
+        public bool canBeParried = true;
 
         [Header("Is Holy?")]
         public bool isHolyWeapon = false;

@@ -49,10 +49,20 @@ namespace AF
         // Coroutines
         Coroutine ResetLightAttackComboIndexCoroutine, ResetHeavyAttackComboIndexCoroutine;
 
+
+        public readonly string SpeedMultiplierHash = "SpeedMultiplier";
+
+        private void Start()
+        {
+            animator.SetFloat(SpeedMultiplierHash, 1f);
+        }
+
         public void ResetStates()
         {
             isJumpAttacking = false;
             isHeavyAttacking = false;
+
+            animator.SetFloat(SpeedMultiplierHash, 1f);
         }
 
         public void OnLightAttack()
@@ -96,6 +106,8 @@ namespace AF
                 {
                     playerManager.PlayBusyHashedAnimationWithRootMotion(hashLightAttack2);
                 }
+
+                HandleAttackSpeed();
             }
             else
             {
@@ -116,6 +128,19 @@ namespace AF
         {
             yield return new WaitForSeconds(maxIdleCombo);
             lightAttackComboIndex = 0;
+        }
+
+        void HandleAttackSpeed()
+        {
+            Weapon currentWeapon = equipmentDatabase.GetCurrentWeapon();
+            if (equipmentDatabase.isTwoHanding == false && currentWeapon != null && currentWeapon.oneHandAttackSpeedPenalty < 1)
+            {
+                animator.SetFloat(SpeedMultiplierHash, currentWeapon.oneHandAttackSpeedPenalty);
+            }
+            else
+            {
+                animator.SetFloat(SpeedMultiplierHash, 1f);
+            }
         }
 
         void HandleJumpAttack()
@@ -145,6 +170,8 @@ namespace AF
 
             playerManager.staminaStatManager.DecreaseHeavyAttackStamina();
             heavyAttackComboIndex++;
+
+            HandleAttackSpeed();
 
             if (ResetHeavyAttackComboIndexCoroutine != null)
             {

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using AF.Combat;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
@@ -12,13 +11,17 @@ namespace AF
     {
         [Header("Waypoints")]
         public SplineContainer splineContainer;
-        [SerializeField] List<Vector3> m_waypoints = new();
-        int m_currentWaypointIndex;
+        [SerializeField] List<Vector3> waypoints = new List<Vector3>();
+        int currentWaypointIndex;
+
+        [Header("Random Points")]
+        public bool chooseRandomWaypoint = false;
+        public float maximumRadiusToChooseFromCurrentPosition = 5f;
 
         [Header("Settings")]
         public float waitOnWaypoints = 0f;
         bool isWaitingOnWaypoint = false;
-        Coroutine WaitCoroutine;
+        Coroutine waitCoroutine;
 
         [Header("Components")]
         public CharacterManager characterManager;
@@ -28,21 +31,25 @@ namespace AF
         public UnityEvent onStateUpdate;
         public UnityEvent onStateExit;
 
+        Vector3 originalPosition;
+
         private void Awake()
         {
+            originalPosition = transform.position;
+
             SetupWaypoints();
         }
 
         private void Start()
         {
-            InitializeWaypoints();
+            SetDestinationToWaypoint();
         }
 
         void SetupWaypoints()
         {
             if (splineContainer == null)
             {
-                Debug.Log("Please assign a spline container to the patrol state");
+                Debug.LogError("Please assign a spline container to the patrol state");
                 return;
             }
 
@@ -51,8 +58,7 @@ namespace AF
                 foreach (var s in spline)
                 {
                     Vector3 worldPosition = splineContainer.transform.TransformPoint(s.Position);
-
-                    m_waypoints.Add(worldPosition);
+                    waypoints.Add(worldPosition);
                 }
             }
         }
@@ -61,12 +67,25 @@ namespace AF
         {
             onStateEnter?.Invoke();
 
-            characterManager.agent.ResetPath();
+            if (!chooseRandomWaypoint && characterManager.agent.enabled)
+            {
+                characterManager.agent.ResetPath();
+            }
         }
 
         public override void OnStateExit(StateManager stateManager)
         {
             onStateExit?.Invoke();
+        }
+
+        bool ShouldDecideNextWaypoint()
+        {
+            if (!characterManager.agent.enabled)
+            {
+                return false;
+            }
+
+            return characterManager.agent.remainingDistance <= characterManager.agent.stoppingDistance && characterManager.agent.pathPending == false;
         }
 
         public override State Tick(StateManager stateManager)
@@ -79,7 +98,7 @@ namespace AF
             onStateUpdate?.Invoke();
 
             // Check if the agent has reached its current destination
-            if (characterManager.agent.enabled && !characterManager.agent.pathPending && characterManager.agent.remainingDistance <= characterManager.agent.stoppingDistance)
+            if (ShouldDecideNextWaypoint())
             {
                 if (waitOnWaypoints <= 0)
                 {
@@ -91,42 +110,41 @@ namespace AF
                     isWaitingOnWaypoint = true;
                     characterManager.agent.speed = 0f;
 
-                    if (WaitCoroutine != null)
+                    if (waitCoroutine != null)
                     {
-                        StopCoroutine(WaitCoroutine);
+                        StopCoroutine(waitCoroutine);
                     }
 
-                    WaitCoroutine = StartCoroutine(Wait());
+                    waitCoroutine = StartCoroutine(Wait());
                 }
             }
 
             return this;
         }
 
-        public void InitializeWaypoints()
-        {
-            if (m_waypoints.Count > 0 && characterManager.agent.enabled)
-            {
-                characterManager.agent.destination = m_waypoints[m_currentWaypointIndex];
-            }
-            else
-            {
-                Debug.LogWarning($"No waypoints assigned to ${this.gameObject.name}.");
-            }
-        }
-
         public void SetNextWaypoint()
         {
-            m_currentWaypointIndex = (m_currentWaypointIndex + 1) % m_waypoints.Count;
+            if (!chooseRandomWaypoint)
+            {
+                currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Count;
+            }
 
             SetDestinationToWaypoint();
         }
 
         private void SetDestinationToWaypoint()
         {
-            if (characterManager.agent.enabled)
+            if (chooseRandomWaypoint)
             {
-                characterManager.agent.destination = m_waypoints[m_currentWaypointIndex];
+                characterManager.agent.destination = GetRandomPointOnNavMesh();
+            }
+            else if (characterManager.agent.enabled && waypoints.Count > 0)
+            {
+                characterManager.agent.destination = waypoints[currentWaypointIndex];
+            }
+            else
+            {
+                Debug.LogWarning($"No waypoints assigned to {gameObject.name}.");
             }
         }
 
@@ -135,6 +153,22 @@ namespace AF
             yield return new WaitForSeconds(waitOnWaypoints);
             isWaitingOnWaypoint = false;
             SetNextWaypoint();
+        }
+
+        Vector3 GetRandomPointOnNavMesh()
+        {
+            Vector3 randomDirection = Random.insideUnitSphere * maximumRadiusToChooseFromCurrentPosition;
+            randomDirection += originalPosition;
+            Vector3 randomPoint = Vector3.zero;
+
+            // Attempt to find a random point on the NavMesh in the random direction
+            if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, maximumRadiusToChooseFromCurrentPosition, NavMesh.AllAreas))
+            {
+                // If a valid point is found, return it
+                randomPoint = hit.position;
+            }
+
+            return randomPoint;
         }
     }
 }

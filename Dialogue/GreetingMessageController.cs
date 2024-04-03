@@ -20,6 +20,9 @@ namespace AF.Dialogue
         public UnityEvent onGreetingBegin;
         public UnityEvent onGreetingEnd;
 
+        [Header("Taunt Options")]
+        public bool displayMessageWhenAgressive = false;
+
         bool hasDisplayed = false;
         bool hasStoppedDisplaying = false;
 
@@ -34,7 +37,14 @@ namespace AF.Dialogue
                 {
                     if (isAgressive)
                     {
-                        StopDisplayingGreetingMessage();
+                        if (displayMessageWhenAgressive)
+                        {
+                            DisplayGreetingMessage();
+                        }
+                        else
+                        {
+                            StopDisplayingGreetingMessage();
+                        }
                     }
                     else
                     {
@@ -50,8 +60,13 @@ namespace AF.Dialogue
         /// </summary>
         public void StopDisplayingGreetingMessage()
         {
-            HideGreetingMessage();
+            if (characterGreetings == null || characterGreetings.Length <= 0 || hasStoppedDisplaying)
+            {
+                return;
+            }
+
             hasStoppedDisplaying = true;
+            HideGreetingMessage();
         }
 
         public void HideGreetingMessage()

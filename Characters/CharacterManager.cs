@@ -81,8 +81,6 @@ namespace AF
 
         private void OnAnimatorMove()
         {
-            //agent.updatePosition = !animator.applyRootMotion;
-
             if (faceTarget && targetManager?.currentTarget != null)
             {
                 var lookPos = targetManager.currentTarget.transform.position - transform.position;
@@ -100,8 +98,9 @@ namespace AF
 
                 // Apply root motion to the NavMesh Agent
                 characterController.Move(rootMotionPosition);
+                agent.Warp(characterController.transform.position);
+
                 transform.rotation *= rootMotionRotation;
-                //agent.nextPosition = characterController.transform.position;
             }
         }
 
@@ -119,7 +118,7 @@ namespace AF
             Invoke(nameof(ResetFaceTargetFlag), faceTargetDuration);
         }
 
-        void ResetFaceTargetFlag()
+        public void ResetFaceTargetFlag()
         {
             faceTarget = false;
         }

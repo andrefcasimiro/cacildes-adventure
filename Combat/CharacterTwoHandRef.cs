@@ -54,7 +54,7 @@ namespace AF
             }
         }
 
-        void EvaluateBlockAnimationUpdate()
+        /*void EvaluateBlockAnimationUpdate()
         {
             if (equipmentDatabase.isTwoHanding && playerManager.playerWeaponsManager.currentWeaponInstance != null
                 && playerManager.playerWeaponsManager.currentWeaponInstance.weapon != null
@@ -67,7 +67,7 @@ namespace AF
             {
                 playerManager.UpdateAnimatorOverrideControllerClips();
             }
-        }
+        }*/
 
         public void EvaluateTwoHandingUpdate()
         {

@@ -30,9 +30,8 @@ namespace AF
                 enemy.damageReceiver.waitingForBackstab = true;
 
                 // If backstab sucess
-                enemy.damageReceiver.HandleIncomingDamage(playerManager, () =>
+                enemy.damageReceiver.HandleIncomingDamage(playerManager, (incomeDamage) =>
                 {
-                    playerManager.transform.position = enemy.transform.position + enemy.transform.forward * -1f;
                     playerManager.transform.rotation = enemy.transform.rotation;
                     playerManager.playerComponentManager.DisablePlayerControlAndRegainControlAfterResetStates();
                     enemy.targetManager.SetTarget(playerManager);

@@ -211,5 +211,10 @@ namespace AF.Animations
             this.animatorSpeed = speed;
             characterManager.animator.speed = animatorSpeed;
         }
+
+        public void OnShakeCamera()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

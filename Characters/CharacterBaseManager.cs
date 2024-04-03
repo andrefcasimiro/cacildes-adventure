@@ -99,7 +99,8 @@ namespace AF
         {
             return characterFactions != null
                 && characterFactions.Length > 0
-                && characterFactions.Any(thisCharactersFaction => target.characterFactions.Contains(thisCharactersFaction));
+                && characterFactions.Any(thisCharactersFaction =>
+                    target.characterFactions != null && target.characterFactions.Length > 0 && target.characterFactions.Contains(thisCharactersFaction));
 
         }
     }

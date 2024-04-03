@@ -230,8 +230,8 @@ namespace AF.UI.EquipmentMenu
                     }
                 }
 
-                tooltipBlockAbsorption.Q<Label>().text = $"Block Absorption: {weapon.blockAbsorption}%";
-                tooltipBlockAbsorption.style.display = DisplayStyle.Flex;
+                //                tooltipBlockAbsorption.Q<Label>().text = $"Block Absorption: {weapon.blockAbsorption}%";
+                //                tooltipBlockAbsorption.style.display = DisplayStyle.Flex;
             }
 
             if (item is Shield shield)

@@ -120,7 +120,7 @@ namespace AF
                 && damageReceiversHit.Contains(damageReceiver) == false)
             {
 
-                damageReceiver.HandleIncomingDamage(character, () =>
+                damageReceiver.HandleIncomingDamage(character, (incomingDamage) =>
                 {
                     onDamageInflicted?.Invoke();
 

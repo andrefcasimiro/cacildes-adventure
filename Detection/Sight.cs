@@ -32,22 +32,21 @@ namespace AF.Detection
 
         public Transform IsTargetInSight()
         {
-            Vector3 _origin = origin.transform.position;
+            Vector3 originPosition = origin.transform.position;
 
-            // Extend the direction vector by a factor to reach further in front of the enemy
-            Vector3 direction = origin.transform.forward;
-            direction *= viewDistance; // Extend the direction
+            Vector3 direction = origin.transform.forward * viewDistance + -origin.transform.up;
 
-            if (Physics.Raycast(_origin, direction, out RaycastHit hit, viewDistance, targetLayer))
+            // Perform the raycast
+            if (Physics.Raycast(originPosition, direction, out RaycastHit hit, viewDistance, targetLayer))
             {
-                if (debug) Debug.DrawLine(_origin, hit.point, Color.red); // Draw a red line for the raycast
+                if (debug) Debug.DrawLine(originPosition, hit.point, Color.red); // Draw a red line for the raycast
                 return hit.transform;
             }
 
-            if (debug) Debug.DrawRay(_origin, direction, Color.green);
+            // Draw a green debug line if no target is hit
+            if (debug) Debug.DrawRay(originPosition, direction, Color.green);
             return null;
         }
-
         public void CastSight()
         {
             if (canSight == false)

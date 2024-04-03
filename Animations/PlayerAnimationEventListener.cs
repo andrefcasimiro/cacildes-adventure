@@ -11,6 +11,7 @@ namespace AF.Animations
         [Header("Unity Events")]
         public UnityEvent onLeftFootstep;
         public UnityEvent onRightFootstep;
+        public Cinemachine.CinemachineImpulseSource cinemachineImpulseSource;
 
         [Header("Components")]
         public AudioSource combatAudioSource;
@@ -216,6 +217,11 @@ namespace AF.Animations
             this.animatorSpeed = speed;
             playerManager.animator.speed = animatorSpeed;
 
+        }
+
+        public void OnShakeCamera()
+        {
+            cinemachineImpulseSource.GenerateImpulse();
         }
     }
 }

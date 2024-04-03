@@ -9,9 +9,18 @@ namespace AF
 
         public static Vector3 GetNearestNavMeshPoint(Vector3 reference)
         {
+            return Utils.GetNearestNavMeshPoint(reference, NavMesh.AllAreas);
+        }
+
+        public static Vector3 GetNearestNavMeshPoint(Vector3 reference, int area)
+        {
             // Teleport near player
-            NavMeshHit hit;
-            NavMesh.SamplePosition(reference, out hit, Mathf.Infinity, NavMesh.AllAreas);
+            NavMesh.SamplePosition(reference, out NavMeshHit hit, Mathf.Infinity, area);
+
+            if (hit.position == null)
+            {
+                return reference;
+            }
 
             return hit.position;
         }

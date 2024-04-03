@@ -17,7 +17,6 @@ namespace AF.Bonfires
         public UnityEvent onBonfire_Exit;
 
         [Header("UI")]
-        public UIDocumentBonfireMenu uiDocumentBonfireMenu;
         public string bonfireName;
 
         [HideInInspector]
@@ -25,11 +24,13 @@ namespace AF.Bonfires
 
         [Header("Databases")]
         public BonfiresDatabase bonfiresDatabase;
-        public SaveManager saveManager;
 
         [Header("Components")]
-        public PlayerManager playerManager;
-        public CursorManager cursorManager;
+        PlayerManager _playerManager;
+        CursorManager _cursorManager;
+        SaveManager _saveManager;
+        UIDocumentBonfireMenu _uiDocumentBonfireMenu;
+
 
         [Header("References")]
         public Transform playerTransformRef;
@@ -45,17 +46,41 @@ namespace AF.Bonfires
             bonfiresDatabase.unlockedBonfires.Add(bonfireName);
         }
 
+        PlayerManager GetPlayerManager()
+        {
+            if (_playerManager == null) { _playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include); }
+            return _playerManager;
+        }
+
+        SaveManager GetSaveManager()
+        {
+            if (_saveManager == null) { _saveManager = FindAnyObjectByType<SaveManager>(FindObjectsInactive.Include); }
+            return _saveManager;
+        }
+
+        CursorManager GetCursorManager()
+        {
+            if (_cursorManager == null) { _cursorManager = FindAnyObjectByType<CursorManager>(FindObjectsInactive.Include); }
+            return _cursorManager;
+        }
+
+        UIDocumentBonfireMenu GetUIDocumentBonfireMenu()
+        {
+            if (_uiDocumentBonfireMenu == null) { _uiDocumentBonfireMenu = FindAnyObjectByType<UIDocumentBonfireMenu>(FindObjectsInactive.Include); }
+            return _uiDocumentBonfireMenu;
+        }
+
         void CurePlayer()
         {
-            playerManager.health.RestoreFullHealth();
-            playerManager.staminaStatManager.RestoreStaminaPercentage(100);
-            playerManager.statusController.RemoveAllStatuses();
-            playerManager.manaManager.RestoreManaPercentage(100);
+            GetPlayerManager().health.RestoreFullHealth();
+            GetPlayerManager().staminaStatManager.RestoreStaminaPercentage(100);
+            GetPlayerManager().statusController.RemoveAllStatuses();
+            GetPlayerManager().manaManager.RestoreManaPercentage(100);
         }
 
         bool CanUseBonfire()
         {
-            if (playerManager.IsBusy())
+            if (GetPlayerManager().IsBusy())
             {
                 return false;
             }
@@ -71,11 +96,11 @@ namespace AF.Bonfires
             }
 
             onBonfire_Enter?.Invoke();
-            playerManager.ResetStates();
-            playerManager.PlayBusyHashedAnimationWithRootMotion(sittingAtBonfireHash);
+            GetPlayerManager().ResetStates();
+            GetPlayerManager().PlayBusyHashedAnimationWithRootMotion(sittingAtBonfireHash);
             CurePlayer();
 
-            playerManager.playerInventory.ReplenishItems();
+            GetPlayerManager().playerInventory.ReplenishItems();
 
             if (canBeTravelledTo)
             {
@@ -104,49 +129,49 @@ namespace AF.Bonfires
 
             SetPlayerLockState(true);
 
-            playerManager.playerComponentManager.transform.position = playerTransformRef.transform.position;
-            var rot = transform.position - playerManager.transform.position;
+            GetPlayerManager().playerComponentManager.transform.position = playerTransformRef.transform.position;
+            var rot = transform.position - GetPlayerManager().transform.position;
             rot.y = 0;
-            playerManager.playerComponentManager.transform.rotation = Quaternion.LookRotation(rot);
+            GetPlayerManager().playerComponentManager.transform.rotation = Quaternion.LookRotation(rot);
 
-            uiDocumentBonfireMenu.SetCurrentBonfire(this);
-            uiDocumentBonfireMenu.gameObject.SetActive(true);
+            GetUIDocumentBonfireMenu().SetCurrentBonfire(this);
+            GetUIDocumentBonfireMenu().gameObject.SetActive(true);
 
             EventManager.EmitEvent(EventMessages.ON_LEAVING_BONFIRE);
         }
 
         public void ExitBonfire()
         {
-            saveManager.SaveGameData();
+            GetSaveManager().SaveGameData();
 
-            uiDocumentBonfireMenu.gameObject.SetActive(false);
+            GetUIDocumentBonfireMenu().gameObject.SetActive(false);
 
             CurePlayer();
 
             onBonfire_Exit?.Invoke();
             SetPlayerLockState(false);
-            playerManager.PlayBusyHashedAnimationWithRootMotion(exitingBonfireHash);
+            GetPlayerManager().PlayBusyHashedAnimationWithRootMotion(exitingBonfireHash);
 
-            cursorManager.HideCursor();
+            GetCursorManager().HideCursor();
         }
 
         void SetPlayerLockState(bool isLocked)
         {
             if (isLocked)
             {
-                playerManager.playerComponentManager.DisableCharacterController();
-                playerManager.playerComponentManager.DisableComponents();
+                GetPlayerManager().playerComponentManager.DisableCharacterController();
+                GetPlayerManager().playerComponentManager.DisableComponents();
             }
             else
             {
-                playerManager.playerComponentManager.EnableCharacterController();
-                playerManager.playerComponentManager.EnableComponents();
+                GetPlayerManager().playerComponentManager.EnableCharacterController();
+                GetPlayerManager().playerComponentManager.EnableComponents();
             }
 
-            playerManager.thirdPersonController.LockCameraPosition = isLocked;
-            playerManager.thirdPersonController.canRotateCharacter = !isLocked;
+            GetPlayerManager().thirdPersonController.LockCameraPosition = isLocked;
+            GetPlayerManager().thirdPersonController.canRotateCharacter = !isLocked;
 
-            playerManager.playerComponentManager.isInBonfire = isLocked;
+            GetPlayerManager().playerComponentManager.isInBonfire = isLocked;
         }
 
     }

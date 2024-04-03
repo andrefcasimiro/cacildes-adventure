@@ -14,6 +14,7 @@ namespace AF
         public bool shouldNotRemoveOnUse = false;
         public bool shouldHideEquipmentWhenConsuming = true;
         public bool isBossToken = false;
+        public bool canBeConsumedForGold = false;
 
         [Header("Consume Effects")]
         public StatusEffect[] statusEffectsWhenConsumed;

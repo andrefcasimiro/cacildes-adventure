@@ -55,5 +55,10 @@ namespace AF.Health
             this.pushForce = pushForce;
         }
 
+        public int GetTotalDamage()
+        {
+            return physical + fire + frost + magic + lightning + darkness;
+        }
+
     }
 }

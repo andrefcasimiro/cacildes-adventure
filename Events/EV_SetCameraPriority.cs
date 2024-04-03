@@ -14,15 +14,23 @@ namespace AF
 
         private void Awake()
         {
+            if (desiredCamera == null)
+            {
+                return;
+            }
+
             this.originalPosition = desiredCamera.transform.position;
             this.originalRotation = desiredCamera.transform.rotation;
         }
 
         public override IEnumerator Dispatch()
         {
-            desiredCamera.Priority = priority;
-            desiredCamera.transform.position = originalPosition;
-            desiredCamera.transform.rotation = originalRotation;
+            if (desiredCamera != null)
+            {
+                desiredCamera.Priority = priority;
+                desiredCamera.transform.position = originalPosition;
+                desiredCamera.transform.rotation = originalRotation;
+            }
 
             yield return null;
         }

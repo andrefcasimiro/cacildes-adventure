@@ -1,5 +1,6 @@
 using AF.Companions;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 
 namespace AF
@@ -45,12 +46,18 @@ namespace AF
         {
             currentIntervalBetweenChaseActions = 0f;
 
-            onStateEnter?.Invoke();
+            characterManager.agent.ResetPath();
 
+            onStateEnter?.Invoke();
         }
 
         public override void OnStateExit(StateManager stateManager)
         {
+        }
+
+        void UpdatePosition()
+        {
+            characterManager.agent.SetDestination(characterManager.targetManager.currentTarget.transform.position);
         }
 
         public override State Tick(StateManager stateManager)
@@ -71,7 +78,8 @@ namespace AF
                     return patrolOrIdleState;
                 }
 
-                characterManager.agent.SetDestination(characterManager.targetManager.currentTarget.transform.position);
+                characterManager.FaceTarget();
+                UpdatePosition();
 
                 // Calculate the distance between the agent and the target
                 float distanceToTarget = Vector3.Distance(characterManager.transform.position, characterManager.targetManager.currentTarget.transform.position);

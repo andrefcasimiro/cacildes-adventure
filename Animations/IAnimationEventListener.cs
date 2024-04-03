@@ -37,5 +37,7 @@ namespace AF.Animations
 
         public void OpenCombo();
 
+        public void OnShakeCamera();
+
     }
 }

@@ -52,6 +52,8 @@ namespace AF
 
         void Tick()
         {
+            isDodging = true;
+
             if (ShouldBackstep())
             {
                 playerManager.PlayBusyHashedAnimationWithRootMotion(hashBackStep);
@@ -63,8 +65,6 @@ namespace AF
 
         void HandleDodge()
         {
-            isDodging = true;
-
             playerManager.PlayBusyHashedAnimationWithRootMotion(hashRoll);
 
             /*

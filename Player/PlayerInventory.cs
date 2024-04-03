@@ -162,7 +162,7 @@ namespace AF
                 playerManager.playerWeaponsManager.HideEquipment();
             }
 
-            if (consumable.isBossToken)
+            if (consumable.isBossToken || consumable.canBeConsumedForGold)
             {
                 uIDocumentPlayerGold.AddGold((int)consumable.value);
             }

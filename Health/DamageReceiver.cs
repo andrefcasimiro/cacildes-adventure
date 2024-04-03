@@ -78,7 +78,7 @@ namespace AF
             return true;
         }
 
-        public void HandleIncomingDamage(CharacterBaseManager damageOwner, UnityAction onTakeDamage)
+        public void HandleIncomingDamage(CharacterBaseManager damageOwner, UnityAction<Damage> onTakeDamage)
         {
             // Don't allow same factions to hit each other
             if (damageOwner.IsFromSameFaction(character))
@@ -95,9 +95,15 @@ namespace AF
 
             if (character != null)
             {
-                if (character is CharacterManager aiCharacter && aiCharacter.targetManager != null)
+                if (character is CharacterManager aiCharacter)
                 {
-                    aiCharacter.targetManager.SetTarget(damageOwner);
+                    if (aiCharacter.targetManager != null)
+                    {
+                        aiCharacter.targetManager.SetTarget(damageOwner);
+                    }
+
+                    // On Damage Taken, Stop Rotation
+                    aiCharacter.ResetFaceTargetFlag();
                 }
 
                 if (character.characterPosture.isStunned && waitingForBackstab == false)
@@ -136,7 +142,7 @@ namespace AF
 
             ApplyDamage(incomingDamage);
 
-            onTakeDamage?.Invoke();
+            onTakeDamage?.Invoke(incomingDamage);
         }
 
         /// <summary>
