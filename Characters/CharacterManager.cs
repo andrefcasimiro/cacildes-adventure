@@ -14,6 +14,7 @@ namespace AF
     public class CharacterManager : CharacterBaseManager
     {
         public string characterID = "";
+        public bool isCompanion = false;
         public CharacterCombatController characterCombatController;
         public TargetManager targetManager;
 
@@ -162,10 +163,13 @@ namespace AF
             {
                 characterHealth.Revive();
 
-                agent.Warp(initialPosition);
-                characterController.enabled = false;
-                transform.SetPositionAndRotation(initialPosition, initialRotation);
-                characterController.enabled = true;
+                if (isCompanion == false)
+                {
+                    agent.Warp(initialPosition);
+                    characterController.enabled = false;
+                    transform.SetPositionAndRotation(initialPosition, initialRotation);
+                    characterController.enabled = true;
+                }
             }
         }
 

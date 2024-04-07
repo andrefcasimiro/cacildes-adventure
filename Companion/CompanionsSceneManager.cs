@@ -94,14 +94,14 @@ namespace AF.Companions
             characterManager.characterController.enabled = true;
         }
 
-        public void TeleportCompanionsNearPlayer(Vector3 position)
+        public void TeleportCompanionsNearPlayer()
         {
             int companionIndex = 0;
             foreach (var activeCompanion in companionsDatabase.GetActiveCompanins())
             {
                 companionIndex++;
 
-                Vector3 desiredPosition = position;
+                Vector3 desiredPosition = playerManager.transform.position + (playerManager.transform.forward * -1f * companionIndex);
                 NavMesh.SamplePosition(desiredPosition, out NavMeshHit hit, 15f, NavMesh.AllAreas);
 
                 TeleportCompanion(

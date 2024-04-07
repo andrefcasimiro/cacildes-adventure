@@ -113,7 +113,7 @@ namespace AF.Bonfires
 
             GetPlayerManager().playerInventory.ReplenishItems();
 
-            GetCompanionsSceneManager()?.TeleportCompanionsNearPlayer(this.transform.position);
+            GetCompanionsSceneManager()?.TeleportCompanionsNearPlayer();
 
             if (canBeTravelledTo)
             {

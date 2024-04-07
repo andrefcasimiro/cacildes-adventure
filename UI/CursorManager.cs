@@ -6,6 +6,8 @@ namespace AF
     {
         public GameSession gameSession;
 
+        public ErrorHandler errorHandler;
+
         private void Start()
         {
             if (gameSession.gameState == GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN)
@@ -22,8 +24,26 @@ namespace AF
 
         public void HideCursor()
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+            if (CanHideCursor())
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
+
+        public bool IsVisible()
+        {
+            return Cursor.visible == true;
+        }
+
+        public bool CanHideCursor()
+        {
+            if (errorHandler.HasErrors())
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

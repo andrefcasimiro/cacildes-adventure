@@ -79,15 +79,9 @@ namespace AF
 
             thirdPersonController.canRotateCharacter = true;
 
-            if (playerInventory.currentConsumedItem != null)
-            {
-                playerInventory.FinishItemConsumption();
-            }
-
+            playerInventory.FinishItemConsumption();
             playerCombatController.ResetStates();
             playerShootingManager.ResetStates();
-
-
 
             dodgeController.ResetStates();
             playerInventory.ResetStates();

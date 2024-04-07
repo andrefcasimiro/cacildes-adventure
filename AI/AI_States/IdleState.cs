@@ -16,7 +16,6 @@ namespace AF
         public UnityEvent onStateExit;
 
         [Header("Companion Settings")]
-        public bool isCompanion = false;
         PlayerManager playerManager;
 
         public CompanionsDatabase companionsDatabase;
@@ -24,7 +23,7 @@ namespace AF
 
         private void Awake()
         {
-            if (isCompanion)
+            if (characterManager.isCompanion)
             {
                 playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
             }
@@ -56,7 +55,7 @@ namespace AF
 
         bool ShouldFollowPlayer()
         {
-            if (isCompanion == false)
+            if (characterManager.isCompanion == false)
             {
                 return false;
             }

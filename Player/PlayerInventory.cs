@@ -11,17 +11,12 @@ namespace AF
     public class PlayerInventory : MonoBehaviour
     {
         public Consumable currentConsumedItem;
-        GameObject consumableGraphicInstance;
 
-        public Transform handItemRef;
 
         [Header("UI Components")]
         public NotificationManager notificationManager;
         public UIDocumentPlayerHUDV2 uIDocumentPlayerHUDV2;
         public UIDocumentPlayerGold uIDocumentPlayerGold;
-
-        [SerializeField] private UIManager uIManager;
-        [SerializeField] private MenuManager menuManager;
 
         [Header("Components")]
         public PlayerManager playerManager;
@@ -29,7 +24,6 @@ namespace AF
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
         public InventoryDatabase inventoryDatabase;
-        public StatusDatabase statusDatabase;
 
         [Header("Flags")]
         public bool isConsumingItem = false;
@@ -95,62 +89,74 @@ namespace AF
             uIDocumentPlayerHUDV2.UpdateEquipment();
         }
 
-        public void PrepareItemForConsuming(Consumable consumable)
+        bool CanConsumeItem(Consumable consumable)
         {
             if (isConsumingItem)
             {
-                return;
+                return false;
             }
 
             if (consumable.isRenewable && inventoryDatabase.GetItemAmount(consumable) <= 0)
             {
                 notificationManager.ShowNotification("Consumable depleted", notificationManager.notEnoughSpells);
-                return;
+
+                return false;
             }
 
             if (playerManager.playerCombatController.isCombatting)
             {
                 notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
-                return;
+
+                return false;
             }
 
             if (playerManager.characterPosture.isStunned)
             {
                 notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
-                return;
+
+                return false;
             }
 
             if (playerManager.dodgeController.isDodging)
             {
                 notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
-                return;
+                return false;
             }
 
             if (!playerManager.thirdPersonController.Grounded)
             {
                 notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
-                return;
+                return false;
             }
 
             if (playerManager.climbController.climbState != ClimbState.NONE)
             {
                 notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
-                return;
+                return false;
             }
 
             if (playerManager.isBusy)
             {
-                return;
+                return false;
             }
 
             if (playerStatsDatabase.currentHealth <= 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void PrepareItemForConsuming(Consumable consumable)
+        {
+            if (!CanConsumeItem(consumable))
             {
                 return;
             }
 
             this.currentConsumedItem = consumable;
             isConsumingItem = true;
-
 
             foreach (StatusEffect statusEffect in currentConsumedItem.statusEffectsWhenConsumed)
             {
@@ -186,7 +192,7 @@ namespace AF
                 playerManager.playerInventory.RemoveItem(currentConsumedItem, 1);
             }
 
-            if (currentConsumedItem.statusesToRemove.Length > 0)
+            if (currentConsumedItem.statusesToRemove != null && currentConsumedItem.statusesToRemove.Length > 0)
             {
                 foreach (StatusEffect statusEffectToRemove in currentConsumedItem.statusesToRemove)
                 {
@@ -209,7 +215,6 @@ namespace AF
             }
 
             currentConsumedItem = null;
-            Destroy(this.consumableGraphicInstance);
         }
     }
 }

@@ -102,7 +102,7 @@ namespace AF
         {
             if (equipmentDatabase.isTwoHanding)
             {
-                notificationManager.ShowNotification("Can't block while two handing", notificationManager.systemError);
+                // notificationManager.ShowNotification("Can't block while two handing", notificationManager.systemError);
                 return false;
             }
 
