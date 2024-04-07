@@ -167,7 +167,7 @@ namespace AF
         /// <param name="damage"></param>
         public void ApplyDamage(Damage damage)
         {
-            if (damage.pushForce > 0 && character.characterPushController != null)
+            if (damage.pushForce > 0 && character != null && character.characterPushController != null)
             {
                 var targetPos = character.transform.position - Camera.main.transform.position;
                 targetPos.y = 0;

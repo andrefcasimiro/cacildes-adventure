@@ -139,7 +139,7 @@ namespace AF
 
                 if (character is PlayerManager)
                 {
-                    damageReceiver.health.onDamageFromPlayer?.Invoke();
+                    damageReceiver?.health?.onDamageFromPlayer?.Invoke();
                 }
             }
         }

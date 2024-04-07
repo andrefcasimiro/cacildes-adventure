@@ -70,11 +70,6 @@ namespace AF
             DrawUI();
         }
 
-        private void OnDisable()
-        {
-            cursorManager.HideCursor();
-        }
-
         /// <summary>
         /// Unity Event
         /// </summary>

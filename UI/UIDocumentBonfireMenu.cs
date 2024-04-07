@@ -105,10 +105,14 @@ namespace AF
             levelUpButton.text = "Level Up" + (hasEnoughForLevellingUp ? " *" : "");
             passTimeButton.text = "Wait 1 hour";
             travelButton.text = "Travel";
+
+
             upgradeWeapons.style.display = inventoryDatabase.HasItem(blacksmithKit) ? DisplayStyle.Flex : DisplayStyle.None;
             brewPotions.style.display = inventoryDatabase.HasItem(alchemyKit) ? DisplayStyle.Flex : DisplayStyle.None;
             SetButtonTexts();
             RegisterButtonCallbacks();
+
+            travelButton.style.display = (currentBonfire != null && currentBonfire.canUseTravelToOtherMaps) ? DisplayStyle.Flex : DisplayStyle.None;
 
             exitBonfireButton.Focus();
         }

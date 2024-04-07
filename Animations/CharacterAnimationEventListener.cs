@@ -216,5 +216,13 @@ namespace AF.Animations
         {
             throw new System.NotImplementedException();
         }
+
+        public void DropIKHelper()
+        {
+        }
+
+        public void UseIKHelper()
+        {
+        }
     }
 }

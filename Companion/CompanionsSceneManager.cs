@@ -61,8 +61,11 @@ namespace AF.Companions
 
         public void HandleActiveCompanions()
         {
+            int companionIndex = 0;
             foreach (var activeCompanion in companionsDatabase.GetActiveCompanins())
             {
+                companionIndex++;
+
                 if (!companionInstancesInScene.ContainsKey(activeCompanion.Key))
                 {
                     companionInstancesInScene.Add(
@@ -71,8 +74,8 @@ namespace AF.Companions
                             companionPrefab => companionPrefab.GetComponent<CharacterManager>().GetCharacterID() == activeCompanion.Key)));
                 }
 
-                Vector3 desiredPosition = playerManager.transform.position + playerManager.transform.forward * -1f;
-                NavMesh.SamplePosition(desiredPosition, out NavMeshHit hit, 10f, NavMesh.AllAreas);
+                Vector3 desiredPosition = playerManager.transform.position + (playerManager.transform.forward * companionIndex);
+                NavMesh.SamplePosition(desiredPosition, out NavMeshHit hit, 15f, NavMesh.AllAreas);
 
                 TeleportCompanion(
                     companionInstancesInScene[activeCompanion.Key].GetComponent<CharacterManager>(),
@@ -90,6 +93,23 @@ namespace AF.Companions
             characterManager.agent.enabled = true;
             characterManager.characterController.enabled = true;
         }
+
+        public void TeleportCompanionsNearPlayer(Vector3 position)
+        {
+            int companionIndex = 0;
+            foreach (var activeCompanion in companionsDatabase.GetActiveCompanins())
+            {
+                companionIndex++;
+
+                Vector3 desiredPosition = position;
+                NavMesh.SamplePosition(desiredPosition, out NavMeshHit hit, 15f, NavMesh.AllAreas);
+
+                TeleportCompanion(
+                    companionInstancesInScene[activeCompanion.Key].GetComponent<CharacterManager>(),
+                    hit.position != null ? hit.position : desiredPosition);
+            }
+        }
+
 
         void Evaluate()
         {

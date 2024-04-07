@@ -28,8 +28,12 @@ namespace AF.Pickups
 
         public void OnEnable()
         {
-            if (pickupDatabase != null && monoBehaviourID != null &&
-                IsReplenishable() && pickupDatabase.ContainsReplenishable(monoBehaviourID.ID)
+            if (pickupDatabase == null || monoBehaviourID == null)
+            {
+                return;
+            }
+
+            if (IsReplenishable() && pickupDatabase.ContainsReplenishable(monoBehaviourID.ID)
                 || pickupDatabase.ContainsPickup(monoBehaviourID.ID))
             {
                 onAlreadyPickedUp?.Invoke();

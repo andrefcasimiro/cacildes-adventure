@@ -595,6 +595,10 @@ namespace AF
             {
                 gameSession.SetGameQuality(graphicsQuality);
             }
+            else
+            {
+                gameSession.SetGameQuality(2);
+            }
 
             if (mouseSensitivity > 0)
             {

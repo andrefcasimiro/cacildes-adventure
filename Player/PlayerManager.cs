@@ -49,6 +49,9 @@ namespace AF
         protected AnimatorOverrideController animatorOverrideController;
         RuntimeAnimatorController defaultAnimatorController;
 
+        [Header("IK Helpers")]
+        public bool canUseWeaponIK = true;
+
         private void Awake()
         {
             SetupAnimRefs();
@@ -72,6 +75,7 @@ namespace AF
             // First, reset all flags before calling the handlers
             isBusy = false;
             animator.applyRootMotion = false;
+            canUseWeaponIK = true;
 
             thirdPersonController.canRotateCharacter = true;
 
@@ -198,6 +202,16 @@ namespace AF
 
             animatorOverrideController.ApplyOverrides(clipOverrides);
             animator.runtimeAnimatorController = animatorOverrideController;
+        }
+
+        public void SetCanUseIK_False()
+        {
+            canUseWeaponIK = false;
+        }
+
+        public void SetCanUseIK_True()
+        {
+            canUseWeaponIK = true;
         }
     }
 }

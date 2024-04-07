@@ -97,7 +97,7 @@ namespace AF
 
         public bool IsFromSameFaction(CharacterBaseManager target)
         {
-            return characterFactions != null
+            return target != null && characterFactions != null
                 && characterFactions.Length > 0
                 && characterFactions.Any(thisCharactersFaction =>
                     target.characterFactions != null && target.characterFactions.Length > 0 && target.characterFactions.Contains(thisCharactersFaction));

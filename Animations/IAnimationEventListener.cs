@@ -39,5 +39,8 @@ namespace AF.Animations
 
         public void OnShakeCamera();
 
+        public void DropIKHelper();
+        public void UseIKHelper();
+
     }
 }

@@ -78,7 +78,6 @@ namespace AF
                     return patrolOrIdleState;
                 }
 
-                characterManager.FaceTarget();
                 UpdatePosition();
 
                 // Calculate the distance between the agent and the target

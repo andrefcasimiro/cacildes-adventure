@@ -1,3 +1,4 @@
+using AF.Companions;
 using AF.Events;
 using AF.Health;
 using TigerForge;
@@ -21,6 +22,7 @@ namespace AF.Bonfires
 
         [HideInInspector]
         public bool canBeTravelledTo = true;
+        public bool canUseTravelToOtherMaps = true;
 
         [Header("Databases")]
         public BonfiresDatabase bonfiresDatabase;
@@ -30,6 +32,7 @@ namespace AF.Bonfires
         CursorManager _cursorManager;
         SaveManager _saveManager;
         UIDocumentBonfireMenu _uiDocumentBonfireMenu;
+        CompanionsSceneManager _companionsSceneManager;
 
 
         [Header("References")]
@@ -70,6 +73,13 @@ namespace AF.Bonfires
             return _uiDocumentBonfireMenu;
         }
 
+        CompanionsSceneManager GetCompanionsSceneManager()
+        {
+
+            if (_companionsSceneManager == null) { _companionsSceneManager = FindAnyObjectByType<CompanionsSceneManager>(FindObjectsInactive.Include); }
+            return _companionsSceneManager;
+        }
+
         void CurePlayer()
         {
             GetPlayerManager().health.RestoreFullHealth();
@@ -95,12 +105,15 @@ namespace AF.Bonfires
                 return;
             }
 
+
             onBonfire_Enter?.Invoke();
             GetPlayerManager().ResetStates();
             GetPlayerManager().PlayBusyHashedAnimationWithRootMotion(sittingAtBonfireHash);
             CurePlayer();
 
             GetPlayerManager().playerInventory.ReplenishItems();
+
+            GetCompanionsSceneManager()?.TeleportCompanionsNearPlayer(this.transform.position);
 
             if (canBeTravelledTo)
             {
@@ -134,6 +147,7 @@ namespace AF.Bonfires
             rot.y = 0;
             GetPlayerManager().playerComponentManager.transform.rotation = Quaternion.LookRotation(rot);
 
+            GetUIDocumentBonfireMenu().SetCurrentBonfire(this);
             GetUIDocumentBonfireMenu().SetCurrentBonfire(this);
             GetUIDocumentBonfireMenu().gameObject.SetActive(true);
 

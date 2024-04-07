@@ -34,6 +34,8 @@ namespace AF.Combat
         [Header("Frequency")]
         [Range(0, 1)] public float frequency = 0.5f;
 
+        [Header("Settings")]
+        [Range(0.1f, 1f)] public float animationSpeed = 1f;
 
         [Header("Components")]
         public CharacterManager characterManager;

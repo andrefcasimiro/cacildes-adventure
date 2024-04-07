@@ -43,6 +43,11 @@ namespace AF.Shooting
         /// </summary>
         public override void FireArrow()
         {
+            if (queuedProjectile == null)
+            {
+                return;
+            }
+
             FireProjectile(queuedProjectile.gameObject, queuedTransformOrigin, GetCharacterManager().targetManager.currentTarget.transform);
         }
 

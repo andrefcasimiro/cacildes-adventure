@@ -223,5 +223,16 @@ namespace AF.Animations
         {
             cinemachineImpulseSource.GenerateImpulse();
         }
+
+
+        public void DropIKHelper()
+        {
+            playerManager.SetCanUseIK_False();
+        }
+
+        public void UseIKHelper()
+        {
+            playerManager.SetCanUseIK_True();
+        }
     }
 }

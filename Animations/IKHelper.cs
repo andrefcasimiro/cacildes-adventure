@@ -19,6 +19,11 @@ namespace AF
                 return false;
             }
 
+            if (!playerManager.canUseWeaponIK)
+            {
+                return false;
+            }
+
             if (playerManager.dodgeController.isDodging)
             {
                 return false;

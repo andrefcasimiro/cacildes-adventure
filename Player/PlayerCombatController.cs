@@ -171,7 +171,7 @@ namespace AF
             playerManager.staminaStatManager.DecreaseHeavyAttackStamina();
             heavyAttackComboIndex++;
 
-            HandleAttackSpeed();
+            //HandleAttackSpeed();
 
             if (ResetHeavyAttackComboIndexCoroutine != null)
             {

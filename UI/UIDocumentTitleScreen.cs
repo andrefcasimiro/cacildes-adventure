@@ -35,7 +35,7 @@ namespace AF
             Button controlsButton = root.Q<Button>("ControlsButton");
             Button creditsButton = root.Q<Button>("CreditsButton");
             Button exitButton = root.Q<Button>("ExitButton");
-            Button btnTwitter = root.Q<Button>("btnTwitter");
+            Button btnGithub = root.Q<Button>("btnTwitter");
             Button btnDiscord = root.Q<Button>("btnDiscord");
 
             UIUtils.SetupButton(newGameButton, () =>
@@ -75,9 +75,9 @@ namespace AF
                 Application.Quit();
             }, soundbank);
 
-            UIUtils.SetupButton(btnTwitter, () =>
+            UIUtils.SetupButton(btnGithub, () =>
             {
-                Application.OpenURL("https://twitter.com/CacildesGame");
+                Application.OpenURL("https://github.com/andrefcasimiro/cacildes-adventure");
             }, soundbank);
 
             UIUtils.SetupButton(btnDiscord, () =>

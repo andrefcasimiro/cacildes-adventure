@@ -22,10 +22,6 @@ namespace AF.Combat
         [Header("Combat Options")]
         [Range(0, 100f)] public float chanceToReact = 90f;
 
-
-        [Header("Stamina")]
-        //public int attackLimit = 3;
-
         public List<CombatAction> usedCombatActions = new();
 
         [Header("Animation Settings")]
@@ -35,12 +31,21 @@ namespace AF.Combat
         [Header("Unity Events")]
         public UnityEvent onResetState;
 
+        public const string AttackSpeedHash = "AttackSpeed";
+
+        private void Awake()
+        {
+            characterManager.animator.SetFloat(AttackSpeedHash, 1f);
+        }
 
         public void ResetStates()
         {
+            characterManager.animator.SetFloat(AttackSpeedHash, 1f);
+
             onResetState?.Invoke();
 
             OnAttackEnd();
+
         }
 
         bool CanReact()
@@ -79,7 +84,7 @@ namespace AF.Combat
 
                 foreach (CombatAction possibleCombatAction in shuffledCombatActions)
                 {
-                    if (possibleCombatAction.CanUseCombatAction())
+                    if (possibleCombatAction != null && possibleCombatAction.CanUseCombatAction())
                     {
                         return possibleCombatAction;
                     }
@@ -91,12 +96,6 @@ namespace AF.Combat
 
         public void UseCombatAction()
         {
-            /*
-            if (usedCombatActions.Count >= attackLimit)
-            {
-                return;
-            }*/
-
             CombatAction newCombatAction = GetCombatAction();
             if (newCombatAction == null)
             {
@@ -155,6 +154,11 @@ namespace AF.Combat
                 characterManager.UpdateAnimatorOverrideControllerClips(ANIMATION_CLIP_TO_OVERRIDE_NAME, currentCombatAction.attackAnimationClip);
 
                 characterManager.animator.ForceStateNormalizedTime(0f);
+
+                if (currentCombatAction.animationSpeed < 1f && currentCombatAction.animationSpeed > 0)
+                {
+                    characterManager.animator.SetFloat(AttackSpeedHash, currentCombatAction.animationSpeed);
+                }
 
                 if (crossFade > 0)
                 {

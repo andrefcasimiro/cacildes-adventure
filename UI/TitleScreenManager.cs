@@ -19,6 +19,7 @@ namespace AF
             if (gameSession.gameState == GameSession.GameState.NOT_INITIALIZED)
             {
                 saveManager.ResetGameState();
+                gameSession.SetGameQuality(2);
 
                 gameSession.gameState = GameSession.GameState.INITIALIZED;
             }

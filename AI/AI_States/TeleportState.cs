@@ -21,7 +21,7 @@ namespace AF
         public float maximumTeleportTime = 4f;
         public bool teleportNearPlayer = false;
 
-        public PlayerManager playerManager;
+        PlayerManager _playerManager;
         public State chaseState;
 
         [Header("Flags")]
@@ -74,7 +74,7 @@ namespace AF
         {
             Vector3 randomPoint = teleportNearPlayer
                 ? Camera.main.transform.position + Camera.main.transform.forward * -2f
-                : RandomNavmeshPoint(playerManager.transform.position, maximumTeleportRadiusFromTarget, -1, minimumTeleportRadiusFromTarget);
+                : RandomNavmeshPoint(GetPlayerManager().transform.position, maximumTeleportRadiusFromTarget, -1, minimumTeleportRadiusFromTarget);
 
             characterManager.agent.Warp(randomPoint);
 
@@ -93,12 +93,19 @@ namespace AF
                 NavMeshHit navHit;
                 if (NavMesh.SamplePosition(randomDirection, out navHit, radius, areaMask) && Vector3.Distance(navHit.position, center) >= minDistance)
                 {
-                    return new Vector3(navHit.position.x, playerManager.transform.position.y, navHit.position.z);
+                    return new Vector3(navHit.position.x, GetPlayerManager().transform.position.y, navHit.position.z);
                 }
             }
 
             Debug.LogWarning("Failed to find a valid teleportation position after multiple attempts.");
             return Vector3.zero; // Return zero if no valid position is found after attempts
         }
+
+        PlayerManager GetPlayerManager()
+        {
+            if (_playerManager == null) { _playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include); }
+            return _playerManager;
+        }
+
     }
 }
