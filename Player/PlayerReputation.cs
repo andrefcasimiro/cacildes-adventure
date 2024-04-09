@@ -26,7 +26,7 @@ namespace AF.Reputation
         {
             playerStatsDatabase.reputation -= value;
 
-            if (playerStatsDatabase.GetCurrentReputation() <= -25)
+            if (playerStatsDatabase.GetCurrentReputation() <= -15)
             {
                 negativeReputationAchievement.AwardAchievement();
             }

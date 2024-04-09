@@ -26,6 +26,7 @@ namespace AF.Stats
         public int parryPostureDamageBonus = 0;
         public int reputationBonus = 0;
         public float chanceToStealBonus = 0;
+        public float discountPercentage = 0f;
 
         [Header("Equipment Modifiers")]
         public float weightPenalty = 0f;
@@ -189,7 +190,7 @@ namespace AF.Stats
         void ResetAttributes()
         {
             healthBonus = magicBonus = staminaBonus = vitalityBonus = enduranceBonus = strengthBonus = dexterityBonus = intelligenceBonus = 0;
-            fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = 0;
+            fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = discountPercentage = 0;
             reputationBonus = parryPostureDamageBonus = 0;
         }
 
@@ -207,6 +208,7 @@ namespace AF.Stats
                 lightningDefenseBonus += equipment.lightningDefense;
                 magicDefenseBonus += equipment.magicDefense;
                 reputationBonus += equipment.reputationBonus;
+                discountPercentage += equipment.discountPercentage;
             }
         }
 

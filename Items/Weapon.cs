@@ -197,6 +197,29 @@ namespace AF
         {
             return CalculateValue((int)damage.magic, level);
         }
+
+
+        public string GetFormattedStatusDamages()
+        {
+            string result = "";
+
+            foreach (var statusEffect in damage.statusEffects)
+            {
+                if (statusEffect != null)
+                {
+                    result += $"+ {statusEffect.amountPerHit} {statusEffect.statusEffect.name} per HIT |";
+                }
+            }
+
+            // Remove the last "|" if it exists
+            if (result.EndsWith("|"))
+            {
+                result = result.Substring(0, result.Length - 1);
+            }
+
+            return result;
+        }
+
     }
 
 }

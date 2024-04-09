@@ -11,7 +11,6 @@ using AF.Flags;
 using AF.Bonfires;
 using TigerForge;
 using AF.Events;
-using System.Collections.Generic;
 
 namespace AF
 {
@@ -76,7 +75,7 @@ namespace AF
         {
             var recipes = QuickSaveReader.Create("Recipes");
 
-            recipes.TryRead<string[]>("craftingRecipes", out string[] craftingRecipes);
+            recipes.TryRead("craftingRecipes", out string[] craftingRecipes);
 
             if (craftingRecipes != null && craftingRecipes.Count() > 0)
             {
@@ -114,62 +113,49 @@ namespace AF
         {
             var playerStats = QuickSaveReader.Create("PlayerStats");
 
-            playerStats.Read<float>("currentHealth", (value) =>
-            {
-                playerStatsDatabase.currentHealth = value;
-            });
-            playerStats.Read<float>("currentStamina", (value) =>
-            {
-                playerStatsDatabase.currentStamina = value;
-            });
-            playerStats.Read<float>("currentMana", (value) =>
-            {
-                playerStatsDatabase.currentMana = value;
-            });
-            playerStats.Read<int>("reputation", (value) =>
-            {
-                playerStatsDatabase.reputation = value;
-            });
-            playerStats.Read<int>("vitality", (value) =>
-            {
-                playerStatsDatabase.vitality = value;
-            });
-            playerStats.Read<int>("endurance", (value) =>
-            {
-                playerStatsDatabase.endurance = value;
-            });
-            playerStats.Read<int>("intelligence", (value) =>
-            {
-                playerStatsDatabase.intelligence = value;
-            });
-            playerStats.Read<int>("strength", (value) =>
-            {
-                playerStatsDatabase.strength = value;
-            });
-            playerStats.Read<int>("dexterity", (value) =>
-            {
-                playerStatsDatabase.dexterity = value;
-            });
+            // Try to read currentHealth using TryRead
+            playerStats.TryRead("currentHealth", out float currentHealth);
+            playerStatsDatabase.currentHealth = currentHealth;
 
+            // Try to read other stats
+            playerStats.TryRead<float>("currentStamina", out float currentStamina);
+            playerStatsDatabase.currentStamina = currentStamina;
+
+            playerStats.TryRead<float>("currentMana", out float currentMana);
+            playerStatsDatabase.currentMana = currentMana;
+
+            playerStats.TryRead<int>("reputation", out int reputation);
+            playerStatsDatabase.reputation = reputation;
+
+            playerStats.TryRead<int>("vitality", out int vitality);
+            playerStatsDatabase.vitality = vitality;
+
+            playerStats.TryRead<int>("endurance", out int endurance);
+            playerStatsDatabase.endurance = endurance;
+
+            playerStats.TryRead<int>("intelligence", out int intelligence);
+            playerStatsDatabase.intelligence = intelligence;
+
+            playerStats.TryRead<int>("strength", out int strength);
+            playerStatsDatabase.strength = strength;
+
+            playerStats.TryRead<int>("dexterity", out int dexterity);
+            playerStatsDatabase.dexterity = dexterity;
+
+            // Read additional stats only if not from game over
             if (!isFromGameOver)
             {
-                playerStats.Read<int>("gold", (value) =>
-                {
-                    playerStatsDatabase.gold = value;
-                });
+                playerStats.TryRead<int>("gold", out int gold);
+                playerStatsDatabase.gold = gold;
 
-                playerStats.Read<int>("lostGold", (value) =>
-                {
-                    playerStatsDatabase.lostGold = value;
-                });
-                playerStats.Read<string>("sceneWhereGoldWasLost", (value) =>
-                {
-                    playerStatsDatabase.sceneWhereGoldWasLost = value;
-                });
-                playerStats.Read<Vector3>("positionWhereGoldWasLost", (value) =>
-                {
-                    playerStatsDatabase.positionWhereGoldWasLost = value;
-                });
+                playerStats.TryRead<int>("lostGold", out int lostGold);
+                playerStatsDatabase.lostGold = lostGold;
+
+                playerStats.TryRead<string>("sceneWhereGoldWasLost", out string sceneWhereGoldWasLost);
+                playerStatsDatabase.sceneWhereGoldWasLost = sceneWhereGoldWasLost;
+
+                playerStats.TryRead<Vector3>("positionWhereGoldWasLost", out Vector3 positionWhereGoldWasLost);
+                playerStatsDatabase.positionWhereGoldWasLost = positionWhereGoldWasLost;
             }
         }
 
@@ -200,37 +186,33 @@ namespace AF
         {
             var playerEquipment = QuickSaveReader.Create("Equipment");
 
-            playerEquipment.Read<int>("currentWeaponIndex", (value) =>
+            playerEquipment.TryRead<int>("currentWeaponIndex", out int currentWeaponIndex);
+            equipmentDatabase.currentWeaponIndex = currentWeaponIndex;
+
+            playerEquipment.TryRead<int>("currentShieldIndex", out int currentShieldIndex);
+            equipmentDatabase.currentShieldIndex = currentShieldIndex;
+
+            playerEquipment.TryRead<int>("currentArrowIndex", out int currentArrowIndex);
+            equipmentDatabase.currentArrowIndex = currentArrowIndex;
+
+            playerEquipment.TryRead<int>("currentSpellIndex", out int currentSpellIndex);
+            equipmentDatabase.currentSpellIndex = currentSpellIndex;
+
+            playerEquipment.TryRead<int>("currentConsumableIndex", out int currentConsumableIndex);
+            equipmentDatabase.currentConsumableIndex = currentConsumableIndex;
+
+            playerEquipment.TryRead<string[]>("weapons", out string[] weapons);
+            if (weapons != null && weapons.Length > 0)
             {
-                equipmentDatabase.currentWeaponIndex = value;
-            });
-            playerEquipment.Read<int>("currentShieldIndex", (value) =>
-            {
-                equipmentDatabase.currentShieldIndex = value;
-            });
-            playerEquipment.Read<int>("currentArrowIndex", (value) =>
-            {
-                equipmentDatabase.currentArrowIndex = value;
-            });
-            playerEquipment.Read<int>("currentSpellIndex", (value) =>
-            {
-                equipmentDatabase.currentSpellIndex = value;
-            });
-            playerEquipment.Read<int>("currentConsumableIndex", (value) =>
-            {
-                equipmentDatabase.currentConsumableIndex = value;
-            });
-            playerEquipment.Read<string[]>("weapons", (value) =>
-            {
-                for (int idx = 0; idx < value.Length; idx++)
+                for (int idx = 0; idx < weapons.Length; idx++)
                 {
-                    string weaponNameAndLevel = value[idx];
+                    string weaponNameAndLevel = weapons[idx];
 
                     if (!string.IsNullOrEmpty(weaponNameAndLevel))
                     {
                         Weapon weaponInstance = Resources.Load<Weapon>("Items/Weapons/" + weaponNameAndLevel.Split("|")[0]);
 
-                        if (weaponInstance != null)
+                        if (weaponInstance != null && inventoryDatabase.HasItem(weaponInstance))
                         {
                             equipmentDatabase.weapons[idx] = weaponInstance;
 
@@ -242,12 +224,15 @@ namespace AF
                         }
                     }
                 }
-            });
-            playerEquipment.Read<string[]>("shields", (value) =>
+            }
+
+            // Try to read shields
+            playerEquipment.TryRead<string[]>("shields", out string[] shields);
+            if (shields != null && shields.Length > 0)
             {
-                for (int idx = 0; idx < value.Length; idx++)
+                for (int idx = 0; idx < shields.Length; idx++)
                 {
-                    string shieldName = value[idx];
+                    string shieldName = shields[idx];
 
                     if (!string.IsNullOrEmpty(shieldName))
                     {
@@ -259,12 +244,15 @@ namespace AF
                         }
                     }
                 }
-            });
-            playerEquipment.Read<string[]>("arrows", (value) =>
+            }
+
+            // Try to read arrows
+            playerEquipment.TryRead<string[]>("arrows", out string[] arrows);
+            if (arrows != null && arrows.Length > 0)
             {
-                for (int idx = 0; idx < value.Length; idx++)
+                for (int idx = 0; idx < arrows.Length; idx++)
                 {
-                    string arrowName = value[idx];
+                    string arrowName = arrows[idx];
 
                     if (!string.IsNullOrEmpty(arrowName))
                     {
@@ -276,12 +264,15 @@ namespace AF
                         }
                     }
                 }
-            });
-            playerEquipment.Read<string[]>("spells", (value) =>
+            }
+
+            // Try to read spells
+            playerEquipment.TryRead<string[]>("spells", out string[] spells);
+            if (spells != null && spells.Length > 0)
             {
-                for (int idx = 0; idx < value.Length; idx++)
+                for (int idx = 0; idx < spells.Length; idx++)
                 {
-                    string spellName = value[idx];
+                    string spellName = spells[idx];
 
                     if (!string.IsNullOrEmpty(spellName))
                     {
@@ -293,12 +284,15 @@ namespace AF
                         }
                     }
                 }
-            });
-            playerEquipment.Read<string[]>("accessories", (value) =>
+            }
+
+            // Try to read accessories
+            playerEquipment.TryRead<string[]>("accessories", out string[] accessories);
+            if (accessories != null && accessories.Length > 0)
             {
-                for (int idx = 0; idx < value.Length; idx++)
+                for (int idx = 0; idx < accessories.Length; idx++)
                 {
-                    string accessoryName = value[idx];
+                    string accessoryName = accessories[idx];
 
                     if (!string.IsNullOrEmpty(accessoryName))
                     {
@@ -310,12 +304,15 @@ namespace AF
                         }
                     }
                 }
-            });
-            playerEquipment.Read<string[]>("consumables", (value) =>
+            }
+
+            // Try to read consumables
+            playerEquipment.TryRead<string[]>("consumables", out string[] consumables);
+            if (consumables != null && consumables.Length > 0)
             {
-                for (int idx = 0; idx < value.Length; idx++)
+                for (int idx = 0; idx < consumables.Length; idx++)
                 {
-                    string consumableName = value[idx];
+                    string consumableName = consumables[idx];
 
                     if (!string.IsNullOrEmpty(consumableName))
                     {
@@ -327,75 +324,74 @@ namespace AF
                         }
                     }
                 }
-            });
-            playerEquipment.Read<string>("helmet", (value) =>
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    Helmet helmetInstance = Resources.Load<Helmet>("Items/Helmets/" + value);
+            }
 
-                    if (helmetInstance != null)
-                    {
-                        equipmentDatabase.helmet = helmetInstance;
-                    }
-                }
-                else
-                {
-                    equipmentDatabase.UnequipHelmet();
-                }
-            });
-            playerEquipment.Read<string>("armor", (value) =>
+            // Try to read helmet
+            playerEquipment.TryRead<string>("helmet", out string helmetName);
+            if (!string.IsNullOrEmpty(helmetName))
             {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    Armor armorInstance = Resources.Load<Armor>("Items/Armors/" + value);
+                Helmet helmetInstance = Resources.Load<Helmet>("Items/Helmets/" + helmetName);
 
-                    if (armorInstance != null)
-                    {
-                        equipmentDatabase.armor = armorInstance;
-                    }
-                }
-                else
+                if (helmetInstance != null)
                 {
-                    equipmentDatabase.UnequipArmor();
+                    equipmentDatabase.helmet = helmetInstance;
                 }
-            });
-            playerEquipment.Read<string>("gauntlet", (value) =>
+            }
+            else
             {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    Gauntlet gauntletInstance = Resources.Load<Gauntlet>("Items/Gauntlets/" + value);
+                equipmentDatabase.UnequipHelmet();
+            }
 
-                    if (gauntletInstance != null)
-                    {
-                        equipmentDatabase.gauntlet = gauntletInstance;
-                    }
-                }
-                else
-                {
-                    equipmentDatabase.UnequipGauntlet();
-                }
-            });
-            playerEquipment.Read<string>("legwear", (value) =>
+            // Try to read armor
+            playerEquipment.TryRead<string>("armor", out string armorName);
+            if (!string.IsNullOrEmpty(armorName))
             {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    Legwear legwearInstance = Resources.Load<Legwear>("Items/Legwears/" + value);
+                Armor armorInstance = Resources.Load<Armor>("Items/Armors/" + armorName);
 
-                    if (legwearInstance != null)
-                    {
-                        equipmentDatabase.legwear = legwearInstance;
-                    }
-                }
-                else
+                if (armorInstance != null)
                 {
-                    equipmentDatabase.UnequipLegwear();
+                    equipmentDatabase.armor = armorInstance;
                 }
-            });
-            playerEquipment.Read<bool>("isTwoHanding", (value) =>
+            }
+            else
             {
-                equipmentDatabase.isTwoHanding = value;
-            });
+                equipmentDatabase.UnequipArmor();
+            }
+
+            // Try to read gauntlet
+            playerEquipment.TryRead<string>("gauntlet", out string gauntletName);
+            if (!string.IsNullOrEmpty(gauntletName))
+            {
+                Gauntlet gauntletInstance = Resources.Load<Gauntlet>("Items/Gauntlets/" + gauntletName);
+
+                if (gauntletInstance != null)
+                {
+                    equipmentDatabase.gauntlet = gauntletInstance;
+                }
+            }
+            else
+            {
+                equipmentDatabase.UnequipGauntlet();
+            }
+
+            // Try to read legwear
+            playerEquipment.TryRead<string>("legwear", out string legwearName);
+            if (!string.IsNullOrEmpty(legwearName))
+            {
+                Legwear legwearInstance = Resources.Load<Legwear>("Items/Legwears/" + legwearName);
+
+                if (legwearInstance != null)
+                {
+                    equipmentDatabase.legwear = legwearInstance;
+                }
+            }
+            else
+            {
+                equipmentDatabase.UnequipLegwear();
+            }
+
+            playerEquipment.TryRead<bool>("isTwoHanding", out bool isTwoHanding);
+            equipmentDatabase.isTwoHanding = isTwoHanding;
         }
 
         void SavePlayerInventory()
@@ -423,11 +419,14 @@ namespace AF
             inventoryDatabase.ownedItems.Clear();
 
             var inventory = QuickSaveReader.Create("Inventory");
-            inventory.Read<SerializedDictionary<string, ItemAmount>>("ownedItems", (value) =>
+
+            inventory.TryRead("ownedItems", out SerializedDictionary<string, ItemAmount> ownedItems);
+
+            if (ownedItems != null && ownedItems.Count > 0)
             {
-                for (int idx = 0; idx < value.Count; idx++)
+                for (int idx = 0; idx < ownedItems.Count; idx++)
                 {
-                    var itemEntry = value.ElementAt(idx);
+                    var itemEntry = ownedItems.ElementAt(idx);
 
                     if (!string.IsNullOrEmpty(itemEntry.Key))
                     {
@@ -444,7 +443,7 @@ namespace AF
                         }
                     }
                 }
-            });
+            }
         }
 
         void SavePickups()
@@ -464,10 +463,8 @@ namespace AF
             pickupDatabase.Clear();
 
             var pickups = QuickSaveReader.Create("Pickups");
-            pickups.Read<SerializedDictionary<string, string>>("pickups", (pickups) =>
-            {
-                pickupDatabase.pickups = pickups;
-            });
+            pickups.TryRead("pickups", out SerializedDictionary<string, string> savedPickups);
+            pickupDatabase.pickups = savedPickups;
         }
 
         void SaveQuests()
@@ -498,27 +495,23 @@ namespace AF
             }
 
             var questsReceived = QuickSaveReader.Create("Quests");
-            questsReceived.Read<SerializedDictionary<string, int>>("questsReceived", (payload) =>
-            {
-                foreach (var savedQuest in payload)
-                {
-                    QuestParent questParent = Resources.Load<QuestParent>(savedQuest.Key);
-                    questParent.questProgress = savedQuest.Value;
+            questsReceived.TryRead("questsReceived", out SerializedDictionary<string, int> savedQuestsReceived);
 
-                    questsDatabase.questsReceived.Add(questParent);
-                }
-            });
-
-            questsReceived.Read<int>("currentTrackedQuestIndex", (value) =>
+            foreach (var savedQuest in savedQuestsReceived)
             {
-                questsDatabase.currentTrackedQuestIndex = value;
-            });
+                QuestParent questParent = Resources.Load<QuestParent>(savedQuest.Key);
+                questParent.questProgress = savedQuest.Value;
+
+                questsDatabase.questsReceived.Add(questParent);
+            }
+
+            questsReceived.TryRead("currentTrackedQuestIndex", out int currentTrackedQuestIndex);
+            questsDatabase.currentTrackedQuestIndex = currentTrackedQuestIndex;
         }
 
         void SaveFlags()
         {
             var flags = QuickSaveWriter.Create("Flags");
-
             flags.Write("flags", flagsDatabase.flags);
             flags.TryCommit();
         }
@@ -528,13 +521,12 @@ namespace AF
             flagsDatabase.flags.Clear();
 
             var flags = QuickSaveReader.Create("Flags");
-            flags.Read<SerializedDictionary<string, string>>("flags", (payload) =>
+            flags.TryRead("flags", out SerializedDictionary<string, string> savedFlags);
+
+            foreach (var flag in savedFlags)
             {
-                foreach (var flag in payload)
-                {
-                    flagsDatabase.flags.Add(flag.Key, flag.Value);
-                }
-            });
+                flagsDatabase.flags.Add(flag.Key, flag.Value);
+            }
         }
 
         void SaveSceneSettings()
@@ -554,19 +546,15 @@ namespace AF
             }
 
             var data = QuickSaveReader.Create("Scene");
-            data.Read<int>("sceneIndex", (sceneIndex) =>
-            {
-                SceneManager.LoadScene(sceneIndex);
-            });
+            data.TryRead<int>("sceneIndex", out int sceneIndex);
+            SceneManager.LoadScene(sceneIndex);
 
-            data.Read<Vector3>("playerPosition", (value) =>
-            {
-                gameSession.savedPlayerPosition = value;
-            });
-            data.Read<Quaternion>("playerRotation", (value) =>
-            {
-                gameSession.savedPlayerRotation = value;
-            });
+            data.TryRead("playerPosition", out Vector3 playerPosition);
+            gameSession.savedPlayerPosition = playerPosition;
+
+
+            data.TryRead("playerRotation", out Quaternion playerRotation);
+            gameSession.savedPlayerRotation = playerRotation;
 
             gameSession.nextMap_SpawnGameObjectName = null;
             gameSession.loadSavedPlayerPositionAndRotation = true;
@@ -586,11 +574,9 @@ namespace AF
         {
             var data = QuickSaveReader.Create("GameSession");
             data.TryRead<float>("timeOfDay", out var timeOfDay);
-            data.TryRead<int>("graphicsQuality", out var graphicsQuality);
-            data.TryRead<float>("mouseSensitivity", out var mouseSensitivity);
-
             gameSession.timeOfDay = timeOfDay;
 
+            data.TryRead<int>("graphicsQuality", out var graphicsQuality);
             if (graphicsQuality != -1)
             {
                 gameSession.SetGameQuality(graphicsQuality);
@@ -600,6 +586,7 @@ namespace AF
                 gameSession.SetGameQuality(2);
             }
 
+            data.TryRead<float>("mouseSensitivity", out var mouseSensitivity);
             if (mouseSensitivity > 0)
             {
                 gameSession.mouseSensitivity = mouseSensitivity;
@@ -618,11 +605,13 @@ namespace AF
             companionsDatabase.companionsInParty.Clear();
             var companions = QuickSaveReader.Create("Companions");
 
-            companions.Read<SerializedDictionary<string, CompanionState>>("companionsInParty", (value) =>
+            companions.TryRead("companionsInParty", out SerializedDictionary<string, CompanionState> savedCompanionsInParty);
+
+            if (savedCompanionsInParty != null && savedCompanionsInParty.Count > 0)
             {
-                for (int idx = 0; idx < value.Count; idx++)
+                for (int idx = 0; idx < savedCompanionsInParty.Count; idx++)
                 {
-                    var itemEntry = value.ElementAt(idx);
+                    var itemEntry = savedCompanionsInParty.ElementAt(idx);
 
                     if (!string.IsNullOrEmpty(itemEntry.Key))
                     {
@@ -634,7 +623,8 @@ namespace AF
                         });
                     }
                 }
-            });
+
+            }
         }
 
         void SaveBonfires()
@@ -649,13 +639,15 @@ namespace AF
             bonfiresDatabase.unlockedBonfires.Clear();
             var bonfires = QuickSaveReader.Create("Bonfires");
 
-            bonfires.Read<string[]>("unlockedBonfires", (value) =>
+            bonfires.TryRead("unlockedBonfires", out string[] unlockedBonfires);
+
+            if (unlockedBonfires != null && unlockedBonfires.Length > 0)
             {
-                for (int idx = 0; idx < value.Length; idx++)
+                for (int idx = 0; idx < unlockedBonfires.Length; idx++)
                 {
-                    bonfiresDatabase.unlockedBonfires.Add(value[idx]);
+                    bonfiresDatabase.unlockedBonfires.Add(unlockedBonfires[idx]);
                 }
-            });
+            }
         }
 
         public bool HasSavedGame()
@@ -689,8 +681,8 @@ namespace AF
                 LoadBonfires();
                 LoadCompanions();
                 LoadPlayerStats(isFromGameOver);
-                LoadPlayerEquipment();
                 LoadPlayerInventory();
+                LoadPlayerEquipment();
                 LoadPickups();
                 LoadFlags();
                 LoadQuests();

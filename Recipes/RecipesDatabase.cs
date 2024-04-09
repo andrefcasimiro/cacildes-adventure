@@ -9,8 +9,6 @@ public class RecipesDatabase : ScriptableObject
     public List<CraftingRecipe> craftingRecipes = new();
 
 
-    [Header("Settings")]
-    public bool shouldClearOnExitPlayMode = false;
 
 #if UNITY_EDITOR 
 
@@ -22,7 +20,7 @@ public class RecipesDatabase : ScriptableObject
 
     private void OnPlayModeStateChanged(PlayModeStateChange state)
     {
-        if (state == PlayModeStateChange.ExitingPlayMode && shouldClearOnExitPlayMode)
+        if (state == PlayModeStateChange.ExitingPlayMode)
         {
             Clear();
         }

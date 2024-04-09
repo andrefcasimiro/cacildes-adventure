@@ -34,7 +34,7 @@ namespace AF.Detection
         {
             Vector3 originPosition = origin.transform.position;
 
-            Vector3 direction = origin.transform.forward * viewDistance + -origin.transform.up;
+            Vector3 direction = origin.transform.forward * viewDistance;
 
             // Perform the raycast
             if (Physics.Raycast(originPosition, direction, out RaycastHit hit, viewDistance, targetLayer))

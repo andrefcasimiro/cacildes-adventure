@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace AF
 {
@@ -54,6 +55,30 @@ namespace AF
 
         [Header("Reputation")]
         public int reputationBonus = 0;
+
+        [Header("Discounts")]
+        [Range(0, 100f)] public float discountPercentage = 0f;
+
+        public string GetFormattedStatusResistances()
+        {
+            string result = "";
+
+            foreach (var resistance in statusEffectResistances)
+            {
+                if (resistance != null)
+                {
+                    result += $"+ {resistance.resistanceBonus} {resistance.statusEffect.name} DEF |";
+                }
+            }
+
+            // Remove the last "|" if it exists
+            if (result.EndsWith("|"))
+            {
+                result = result.Substring(0, result.Length - 1);
+            }
+
+            return result;
+        }
 
     }
 

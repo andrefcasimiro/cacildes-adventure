@@ -281,7 +281,7 @@ namespace AF.Shops
                 buySellItemButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.None;
                 if (ShopUtils.ItemRequiresCoinsToBeBought(item))
                 {
-                    buySellLabel.text += " (" + item.value + " Coins)";
+                    buySellLabel.text += " (" + GetItemFinalPrice(item) + " Coins)";
                 }
                 else if (item.tradingItemRequirements != null && item.tradingItemRequirements.Count > 0)
                 {
@@ -353,6 +353,11 @@ namespace AF.Shops
             );
         }
 
+        public int GetItemFinalPrice(Item item)
+        {
+            return (int)Mathf.Clamp(item.value - playerManager.statsBonusController.discountPercentage, 0f, item.value);
+        }
+
         void BuyItem(Item item, CharacterShop characterShop)
         {
             ShopUtils.BuyItem(
@@ -362,8 +367,8 @@ namespace AF.Shops
                 (goldLost) =>
                 {
 
-                    uIDocumentPlayerGold.LoseGold((int)item.value);
-                    characterShop.shopGold += (int)item.value;
+                    uIDocumentPlayerGold.LoseGold(GetItemFinalPrice(item));
+                    characterShop.shopGold += GetItemFinalPrice(item);
                 },
                 (onItemsTraded) =>
                 {
@@ -389,8 +394,8 @@ namespace AF.Shops
 
         void SellItem(Item item, CharacterShop characterShop)
         {
-            uIDocumentPlayerGold.AddGold((int)item.value);
-            characterShop.shopGold -= (int)item.value;
+            uIDocumentPlayerGold.AddGold(GetItemFinalPrice(item));
+            characterShop.shopGold -= GetItemFinalPrice(item);
 
             // Remove item from player
             playerManager.playerInventory.RemoveItem(item, 1);

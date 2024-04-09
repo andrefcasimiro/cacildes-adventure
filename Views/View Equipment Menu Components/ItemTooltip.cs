@@ -17,7 +17,7 @@ namespace AF.UI.EquipmentMenu
         VisualElement tooltipSpeedPenalty;
         VisualElement tooltipIsHolyWeapon;
         VisualElement tooltipPoise;
-        VisualElement tooltipFire, tooltipFrost, tooltipLightning, tooltipMagic, tooltipPoison, tooltipBleed;
+        VisualElement tooltipFire, tooltipFrost, tooltipLightning, tooltipMagic, tooltipStatusEffectResistances;
         VisualElement tooltipBlockAbsorption;
         // Weapons
         VisualElement tooltipPhysicalAttack;
@@ -86,13 +86,13 @@ namespace AF.UI.EquipmentMenu
             tooltipWeaponDexterityScaling = tooltip.Q("DexterityScaling");
             tooltipWeaponIntelligenceScaling = tooltip.Q("IntelligenceScaling");
             tooltipBlockAbsorption = tooltip.Q("BlockAbsorption");
-            tooltipBleed = tooltip.Q("Bleed");
-            tooltipPoison = tooltip.Q("Poison");
             tooltipPoise = tooltip.Q("Poise");
             tooltipFire = tooltip.Q("Fire");
             tooltipFrost = tooltip.Q("Frost");
             tooltipLightning = tooltip.Q("Lightning");
             tooltipMagic = tooltip.Q("Magic");
+            tooltipStatusEffectResistances = tooltip.Q("StatusEffectResistances");
+            tooltipStatusEffectResistances.style.display = DisplayStyle.None;
 
             tooltipVitality = tooltip.Q("Vitality");
             tooltipEndurance = tooltip.Q("Endurance");
@@ -214,20 +214,9 @@ namespace AF.UI.EquipmentMenu
 
                 if (weapon.damage.statusEffects != null && weapon.damage.statusEffects.Length > 0)
                 {
-                    foreach (var statusEffect in weapon.damage.statusEffects)
-                    {
-                        if (statusEffect.statusEffect.name == "Bleed")
-                        {
-                            tooltipBleed.Q<Label>().text = $"Bleed per hit: {statusEffect.amountPerHit}";
-                            tooltipBleed.style.display = DisplayStyle.Flex;
-                        }
 
-                        if (statusEffect.statusEffect.name == "Poison")
-                        {
-                            tooltipPoison.Q<Label>().text = $"Poison per hit: {statusEffect.amountPerHit}";
-                            tooltipPoison.style.display = DisplayStyle.Flex;
-                        }
-                    }
+                    tooltipStatusEffectResistances.Q<Label>().text = weapon.GetFormattedStatusDamages();
+                    tooltipStatusEffectResistances.style.display = DisplayStyle.Flex;
                 }
 
                 //                tooltipBlockAbsorption.Q<Label>().text = $"Block Absorption: {weapon.blockAbsorption}%";
@@ -287,20 +276,8 @@ namespace AF.UI.EquipmentMenu
 
                 if (armor.statusEffectResistances != null && armor.statusEffectResistances.Length > 0)
                 {
-                    foreach (var statusEffect in armor.statusEffectResistances)
-                    {
-                        if (statusEffect.statusEffect.name == "Bleed")
-                        {
-                            tooltipBleed.Q<Label>().text = $"Bleed Resistance: {statusEffect.resistanceBonus}";
-                            tooltipBleed.style.display = DisplayStyle.Flex;
-                        }
-
-                        if (statusEffect.statusEffect.name == "Poison")
-                        {
-                            tooltipPoison.Q<Label>().text = $"Poison Resistance: {statusEffect.resistanceBonus}";
-                            tooltipPoison.style.display = DisplayStyle.Flex;
-                        }
-                    }
+                    tooltipStatusEffectResistances.Q<Label>().text = armor.GetFormattedStatusResistances();
+                    tooltipStatusEffectResistances.style.display = DisplayStyle.Flex;
                 }
 
                 if (armor.additionalCoinPercentage != 0)

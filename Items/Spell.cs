@@ -20,6 +20,7 @@ namespace AF
 
         [Header("Spawn Options")]
         public bool spawnAtPlayerFeet = false;
+        public float playerFeetOffsetY = 0f;
 
     }
 }

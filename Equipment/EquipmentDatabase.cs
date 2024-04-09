@@ -32,7 +32,6 @@ public class EquipmentDatabase : ScriptableObject
 
     public int currentWeaponIndex, currentShieldIndex, currentConsumableIndex, currentSpellIndex, currentArrowIndex = 0;
 
-    public bool shouldClearOnExitPlayMode = false;
 
     [Header("Flags")]
     public bool isTwoHanding = false;
@@ -50,7 +49,7 @@ public class EquipmentDatabase : ScriptableObject
 
     private void OnPlayModeStateChanged(PlayModeStateChange state)
     {
-        if (state == PlayModeStateChange.ExitingPlayMode && shouldClearOnExitPlayMode)
+        if (state == PlayModeStateChange.ExitingPlayMode)
         {
             // Clear the list when exiting play mode
             Clear();

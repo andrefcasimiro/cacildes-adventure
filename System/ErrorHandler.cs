@@ -20,7 +20,7 @@ namespace AF
         public SaveManager saveManager;
         public CursorManager cursorManager;
 
-        Dictionary<string, string> errors = new();
+        public Dictionary<string, string> errors = new();
 
         private List<string> errorMessagesToIgnore = new List<string>
         {
@@ -49,6 +49,11 @@ namespace AF
 
         void DisplayErrorEntry(string errorMessage, string stackTraceMessage)
         {
+            if (errorNotificationPrefab == null)
+            {
+                return;
+            }
+
             VisualElement entry = errorNotificationPrefab.CloneTree();
             Button reloadLastSave, copyError, sendEmail, closeButton;
 
@@ -100,17 +105,21 @@ namespace AF
             }
         }
 
-        void DisplayErrorPanel(string errorMessage, string stackTrace)
+        public void DisplayErrorPanel(string errorMessage, string stackTrace)
         {
             if (ShouldIgnore(errorMessage) || errors.ContainsKey(errorMessage))
             {
                 return;
             }
 
+            errors.Add(errorMessage, stackTrace);
+
             DisplayErrorEntry(errorMessage, stackTrace);
 
-            // Show the error panel
-            root.visible = true;
+            if (root != null)
+            {
+                root.visible = true;
+            }
 
             cursorManager?.ShowCursor();
         }

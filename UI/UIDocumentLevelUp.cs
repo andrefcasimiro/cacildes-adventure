@@ -28,6 +28,8 @@ namespace AF
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
 
+        public Achievement levelUpAchievement;
+
         // Internal
         int desiredVitality, desiredEndurance, desiredStrength, desiredDexterity, desiredIntelligence;
         int virtualGold;
@@ -158,6 +160,8 @@ namespace AF
 
             UIUtils.SetupButton(root.Q<Button>("ConfirmButton"), () =>
             {
+                levelUpAchievement.AwardAchievement();
+
                 var oldLevel = playerStatsDatabase.GetCurrentLevel();
                 playerStatsDatabase.vitality = desiredVitality;
                 playerStatsDatabase.endurance = desiredEndurance;

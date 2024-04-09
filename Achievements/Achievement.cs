@@ -8,8 +8,6 @@ namespace AF
 
     public class Achievement : ScriptableObject
     {
-        [TextArea] public string description;
-
         public void AwardAchievement()
         {
             try
@@ -28,9 +26,9 @@ namespace AF
                 SteamUserStats.SetAchievement(name);
                 SteamUserStats.StoreStats();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Debug.Log("Steam is not initialized");
+                Debug.Log("An error occurred while awarding achievement '" + name + "': " + ex.Message);
             }
         }
     }

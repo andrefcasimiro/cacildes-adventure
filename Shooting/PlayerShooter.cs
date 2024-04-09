@@ -278,7 +278,7 @@ namespace AF.Shooting
             {
                 if (spell.spawnAtPlayerFeet)
                 {
-                    origin = playerFeetRef.transform.position;
+                    origin = playerFeetRef.transform.position + new Vector3(0, spell.playerFeetOffsetY, 0);
                 }
             }
 

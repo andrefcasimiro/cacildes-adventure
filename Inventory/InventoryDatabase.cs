@@ -18,7 +18,6 @@ namespace AF.Inventory
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
 
-        public bool shouldClearOnExitPlayMode = false;
 
 #if UNITY_EDITOR
         private void OnEnable()
@@ -30,7 +29,7 @@ namespace AF.Inventory
 
         private void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            if (state == PlayModeStateChange.ExitingPlayMode && shouldClearOnExitPlayMode)
+            if (state == PlayModeStateChange.ExitingPlayMode)
             {
                 // Clear the list when exiting play mode
                 Clear();
