@@ -56,7 +56,8 @@ namespace AF
                     float distanceToTarget = Vector3.Distance(
                         characterManager.agent.transform.position, characterManager.targetManager.currentTarget.transform.position);
 
-                    if (distanceToTarget <= characterManager.agent.stoppingDistance)
+                    if (distanceToTarget <= characterManager.agent.stoppingDistance
+                        && characterManager.characterCombatController != null)
                     {
                         onAttack?.Invoke();
 

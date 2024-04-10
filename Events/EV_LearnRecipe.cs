@@ -9,11 +9,31 @@ namespace AF
         public bool showNotificationText = true;
 
         [Header("Components")]
-        public Soundbank soundbank;
-        public NotificationManager notificationManager;
+        Soundbank _soundbank;
+        NotificationManager _notificationManager;
 
         [Header("Databases")]
         public RecipesDatabase recipesDatabase;
+
+        Soundbank GetSoundbank()
+        {
+            if (_soundbank == null)
+            {
+                _soundbank = FindAnyObjectByType<Soundbank>(FindObjectsInactive.Include);
+            }
+
+            return _soundbank;
+        }
+
+        NotificationManager GetNotificationManager()
+        {
+            if (_notificationManager == null)
+            {
+                _notificationManager = FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include);
+            }
+
+            return _notificationManager;
+        }
 
         public override IEnumerator Dispatch()
         {
@@ -39,9 +59,9 @@ namespace AF
 
             if (showNotificationText)
             {
-                soundbank.PlaySound(soundbank.uiItemReceived);
+                GetSoundbank().PlaySound(GetSoundbank().uiItemReceived);
 
-                notificationManager.ShowNotification("Learned recipe: " + recipe.name, notificationManager.recipeIcon);
+                GetNotificationManager().ShowNotification("Learned recipe: " + recipe.name, GetNotificationManager().recipeIcon);
             }
 
             yield return null;

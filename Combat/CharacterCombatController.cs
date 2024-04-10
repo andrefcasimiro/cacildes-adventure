@@ -17,7 +17,7 @@ namespace AF.Combat
         public List<CombatAction> reactionsToTarget = new();
         public List<CombatAction> combatActions = new();
         public List<CombatAction> chaseActions = new();
-        [HideInInspector] public CombatAction currentCombatAction;
+        public CombatAction currentCombatAction = null;
 
         [Header("Combat Options")]
         [Range(0, 100f)] public float chanceToReact = 90f;
@@ -45,7 +45,6 @@ namespace AF.Combat
             onResetState?.Invoke();
 
             OnAttackEnd();
-
         }
 
         bool CanReact()

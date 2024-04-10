@@ -281,7 +281,7 @@ namespace AF.Shops
                 buySellItemButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.None;
                 if (ShopUtils.ItemRequiresCoinsToBeBought(item))
                 {
-                    buySellLabel.text += " (" + GetItemFinalPrice(item) + " Coins)";
+                    buySellLabel.text += " (" + ShopUtils.GetItemFinalPrice(item, playerIsBuying, playerManager.statsBonusController.discountPercentage) + " Coins)";
                 }
                 else if (item.tradingItemRequirements != null && item.tradingItemRequirements.Count > 0)
                 {
@@ -353,11 +353,6 @@ namespace AF.Shops
             );
         }
 
-        public int GetItemFinalPrice(Item item)
-        {
-            return (int)Mathf.Clamp(item.value - playerManager.statsBonusController.discountPercentage, 0f, item.value);
-        }
-
         void BuyItem(Item item, CharacterShop characterShop)
         {
             ShopUtils.BuyItem(
@@ -367,8 +362,8 @@ namespace AF.Shops
                 (goldLost) =>
                 {
 
-                    uIDocumentPlayerGold.LoseGold(GetItemFinalPrice(item));
-                    characterShop.shopGold += GetItemFinalPrice(item);
+                    uIDocumentPlayerGold.LoseGold(ShopUtils.GetItemFinalPrice(item, true, playerManager.statsBonusController.discountPercentage));
+                    characterShop.shopGold += ShopUtils.GetItemFinalPrice(item, true, playerManager.statsBonusController.discountPercentage);
                 },
                 (onItemsTraded) =>
                 {
@@ -394,8 +389,8 @@ namespace AF.Shops
 
         void SellItem(Item item, CharacterShop characterShop)
         {
-            uIDocumentPlayerGold.AddGold(GetItemFinalPrice(item));
-            characterShop.shopGold -= GetItemFinalPrice(item);
+            uIDocumentPlayerGold.AddGold(ShopUtils.GetItemFinalPrice(item, false, playerManager.statsBonusController.additionalCoinPercentage));
+            characterShop.shopGold -= ShopUtils.GetItemFinalPrice(item, false, playerManager.statsBonusController.discountPercentage);
 
             // Remove item from player
             playerManager.playerInventory.RemoveItem(item, 1);

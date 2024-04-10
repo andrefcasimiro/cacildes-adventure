@@ -55,6 +55,9 @@ namespace AF
                 case WeaponElementType.Magic:
                     elementalDefense = Mathf.Clamp(defenseStatManager.GetMagicDefense() / 100, 0f, 1f); // Convert to percentage and cap at 100%
                     break;
+                case WeaponElementType.Darkness:
+                    elementalDefense = Mathf.Clamp(defenseStatManager.GetDarknessDefense() / 100, 0f, 1f); // Convert to percentage and cap at 100%
+                    break;
             }
 
             // Calculate the final damage to receive, considering elemental defense

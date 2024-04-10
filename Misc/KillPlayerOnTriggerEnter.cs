@@ -52,12 +52,12 @@ namespace AF
 
                 if (respawnInstead)
                 {
-                    playerManager.thirdPersonController.trackFallDamage = false;
+                    playerManager.thirdPersonController.SetTrackFallDamage(false);
                     playerManager.thirdPersonController.isSliding = false;
                     playerManager.thirdPersonController.isSlidingOnIce = false;
                     playerManager.playerComponentManager.UpdatePosition(respawnPoint.transform.position, Quaternion.identity);
                     Instantiate(GetSceneSettings().respawnFx, respawnPoint.transform.position, Quaternion.identity);
-                    playerManager.thirdPersonController.trackFallDamage = true;
+                    playerManager.thirdPersonController.SetTrackFallDamage(true);
                     Physics.autoSyncTransforms = false;
                     return;
                 }

@@ -22,11 +22,13 @@ namespace AF.Stats
         public float frostDefenseBonus = 0;
         public float lightningDefenseBonus = 0;
         public float magicDefenseBonus = 0;
+        public float darkDefenseBonus = 0;
         public float additionalCoinPercentage = 0;
         public int parryPostureDamageBonus = 0;
         public int reputationBonus = 0;
-        public float chanceToStealBonus = 0;
         public float discountPercentage = 0f;
+        public float spellDamageBonusMultiplier = 0f;
+        public int postureBonus = 0;
 
         [Header("Equipment Modifiers")]
         public float weightPenalty = 0f;
@@ -190,10 +192,9 @@ namespace AF.Stats
         void ResetAttributes()
         {
             healthBonus = magicBonus = staminaBonus = vitalityBonus = enduranceBonus = strengthBonus = dexterityBonus = intelligenceBonus = 0;
-            fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = discountPercentage = 0;
-            reputationBonus = parryPostureDamageBonus = 0;
+            fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = discountPercentage = spellDamageBonusMultiplier = 0;
+            reputationBonus = parryPostureDamageBonus = postureBonus = 0;
         }
-
         void ApplyEquipmentAttributes(ArmorBase equipment)
         {
             if (equipment != null)
@@ -207,8 +208,10 @@ namespace AF.Stats
                 frostDefenseBonus += equipment.frostDefense;
                 lightningDefenseBonus += equipment.lightningDefense;
                 magicDefenseBonus += equipment.magicDefense;
+                darkDefenseBonus += equipment.darkDefense;
                 reputationBonus += equipment.reputationBonus;
                 discountPercentage += equipment.discountPercentage;
+                postureBonus += equipment.postureBonus;
             }
         }
 
@@ -225,12 +228,15 @@ namespace AF.Stats
                 frostDefenseBonus += accessory?.frostDefense ?? 0;
                 lightningDefenseBonus += accessory?.lightningDefense ?? 0;
                 magicDefenseBonus += accessory?.magicDefense ?? 0;
+                darkDefenseBonus += accessory?.darkDefense ?? 0;
                 reputationBonus += accessory?.reputationBonus ?? 0;
                 parryPostureDamageBonus += accessory?.postureDamagePerParry ?? 0;
 
                 healthBonus += accessory?.healthBonus ?? 0;
                 magicBonus += accessory?.magicBonus ?? 0;
                 staminaBonus += accessory?.staminaBonus ?? 0;
+                spellDamageBonusMultiplier += accessory?.spellDamageBonusMultiplier ?? 0;
+                postureBonus += accessory?.postureBonus ?? 0;
             }
         }
 

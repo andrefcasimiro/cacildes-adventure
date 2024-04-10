@@ -6,8 +6,6 @@ namespace AF
     [CreateAssetMenu(menuName = "Items / Accessory / New Accessory")]
     public class Accessory : ArmorBase
     {
-        [Header("UI")]
-        public string smallEffectDescription;
 
         [Header("Stat Bonuses")]
         public int healthBonus = 0;
@@ -15,10 +13,6 @@ namespace AF
         public int staminaBonus = 0;
         public int physicalAttackBonus = 0;
         public int jumpAttackBonus = 0;
-
-        [Header("Destroy On Equip Edge Case")]
-        public bool destroyOnUnequip = false;
-        public AudioClip onUnequipDestroySoundclip;
 
         [Header("Stats")]
         public bool increaseAttackPowerTheLowerTheReputation = false;
@@ -28,11 +22,9 @@ namespace AF
         public int postureDamagePerParry = 0;
 
         [Header("Spells")]
-        public bool increasesSpellDamage = false;
-        public float spellDamageMultiplier = 2.15f;
+        public float spellDamageBonusMultiplier = 0f;
 
         [Header("Life")]
-        public bool chanceToSurviveDeath = false;
         public bool chanceToDoubleCoinsFromFallenEnemies = false;
 
     }

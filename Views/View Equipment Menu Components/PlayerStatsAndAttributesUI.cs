@@ -22,6 +22,7 @@ namespace AF.UI.EquipmentMenu
         public const string DEFENSE_FROST = "DefenseFrost";
         public const string DEFENSE_LIGHTNING = "DefenseLightning";
         public const string DEFENSE_MAGIC = "DefenseMagic";
+        public const string DEFENSE_DARKNESS = "DefenseDarkness";
         public const string POISE = "Poise";
         public const string REPUTATION = "Reputation";
         public const string GOLD = "Gold";
@@ -62,7 +63,7 @@ namespace AF.UI.EquipmentMenu
             root = uIDocument.rootVisualElement;
 
             var labelNames = new[] { LEVEL, VITALITY, ENDURANCE, STRENGTH, DEXTERITY, INTELLIGENCE,
-                        ATTACK, DEFENSE, DEFENSE_FIRE, DEFENSE_FROST, DEFENSE_LIGHTNING, DEFENSE_MAGIC, POISE, EQUIP_LOAD, REPUTATION, GOLD
+                        ATTACK, DEFENSE, DEFENSE_FIRE, DEFENSE_FROST, DEFENSE_LIGHTNING, DEFENSE_MAGIC, DEFENSE_DARKNESS, POISE, EQUIP_LOAD, REPUTATION, GOLD
                 }.ToList();
 
             var attributesContainer = root.Q<VisualElement>("Footer");
@@ -117,10 +118,13 @@ namespace AF.UI.EquipmentMenu
             int baseFrostDefense = (int)defenseStatManager.GetFrostDefense();
             int baseLightningDefense = (int)defenseStatManager.GetLightningDefense();
             int baseMagicDefense = (int)defenseStatManager.GetMagicDefense();
+            int baseDarknessDefense = (int)defenseStatManager.GetDarknessDefense();
+
             int itemFireDefense = -1;
             int itemFrostDefense = -1;
             int itemLightningDefense = -1;
             int itemMagicDefense = -1;
+            int itemDarknessDefense = -1;
             int basePoise = playerManager.characterPoise.GetMaxPoiseHits(); // playerPoiseController.GetMaxPoise();
             int itemPoise = 0;
 
@@ -130,7 +134,7 @@ namespace AF.UI.EquipmentMenu
 
             if (item is ArmorBase armorBase)
             {
-                // EDGE CASDE: If is not accessory that is already equipped
+                // EDGE CASE: If is not accessory that is already equipped
                 if (armorBase is Accessory acc && equipmentDatabase.IsAccessoryEquiped(acc) == false)
                 {
                     itemPhysicalDefense = GetElementalDefenseFromItem(armorBase, WeaponElementType.None);
@@ -138,6 +142,7 @@ namespace AF.UI.EquipmentMenu
                     itemFrostDefense = GetElementalDefenseFromItem(armorBase, WeaponElementType.Frost);
                     itemLightningDefense = GetElementalDefenseFromItem(armorBase, WeaponElementType.Lightning);
                     itemMagicDefense = GetElementalDefenseFromItem(armorBase, WeaponElementType.Magic);
+                    itemDarknessDefense = GetElementalDefenseFromItem(armorBase, WeaponElementType.Darkness);
                 }
 
 
@@ -221,6 +226,11 @@ namespace AF.UI.EquipmentMenu
                 statsAndAttributesLabels[DEFENSE_MAGIC],
                 baseMagicDefense,
                 itemMagicDefense);
+
+            UpdateElementalStatLabel(
+                statsAndAttributesLabels[DEFENSE_DARKNESS],
+                baseDarknessDefense,
+                itemDarknessDefense);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[POISE],
@@ -383,6 +393,7 @@ namespace AF.UI.EquipmentMenu
                 { WeaponElementType.Frost, defenseStatManager.GetFrostDefense },
                 { WeaponElementType.Lightning, defenseStatManager.GetLightningDefense },
                 { WeaponElementType.Magic, defenseStatManager.GetMagicDefense },
+                { WeaponElementType.Darkness, defenseStatManager.GetDarknessDefense },
                 { WeaponElementType.None, defenseStatManager.GetDefenseAbsorption },
             };
 
@@ -397,6 +408,7 @@ namespace AF.UI.EquipmentMenu
                 { WeaponElementType.Frost, GetDefenseValueForEquipmentType(armor, WeaponElementType.Frost) },
                 { WeaponElementType.Lightning, GetDefenseValueForEquipmentType(armor, WeaponElementType.Lightning) },
                 { WeaponElementType.Magic, GetDefenseValueForEquipmentType(armor, WeaponElementType.Magic) },
+                { WeaponElementType.Darkness, GetDefenseValueForEquipmentType(armor, WeaponElementType.Darkness) },
                 { WeaponElementType.None, GetDefenseValueForEquipmentType(armor, WeaponElementType.None) }
             };
         }
@@ -409,6 +421,7 @@ namespace AF.UI.EquipmentMenu
                 { WeaponElementType.Frost, armor => armor == null ? 0 :armor.frostDefense },
                 { WeaponElementType.Lightning, armor => armor == null ? 0 :armor.lightningDefense },
                 { WeaponElementType.Magic, armor => armor == null ? 0 : armor.magicDefense },
+                { WeaponElementType.Darkness, armor => armor == null ? 0 : armor.darkDefense },
                 { WeaponElementType.None, armor => armor == null ? 0 :armor.physicalDefense }
             };
 

@@ -133,7 +133,7 @@ namespace AF
         public float sprintFieldOfViewSpeedTransition = 2f;
 
         [Header("Fall Damage")]
-        public bool trackFallDamage = true;
+        bool trackFallDamage = true;
         public float minimumFallHeightToTakeDamage = 5f;
         public float damageMultiplierPerMeter = 25f;
         float fallBeganHeight;
@@ -228,6 +228,28 @@ namespace AF
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
         }
 
+        public bool GetTrackFallDamage()
+        {
+            return trackFallDamage;
+        }
+
+        public void SetTrackFallDamage(bool value)
+        {
+            fallBeganHeight = playerManager.characterController.transform.position.y;
+            this.trackFallDamage = value;
+        }
+
+        float GetCurrentFallHeight()
+        {
+            float fallEndHeight = playerManager.characterController.transform.position.y;
+            return Mathf.Abs(fallBeganHeight - fallEndHeight);
+        }
+
+        bool ShouldTakeFallDamage()
+        {
+            return GetCurrentFallHeight() > minimumFallHeightToTakeDamage && trackFallDamage;
+        }
+
         private void GroundedCheck()
         {
             // set sphere position, with offset
@@ -242,16 +264,12 @@ namespace AF
             }
             else if (PreviousGrounded == false && Grounded == true)
             {
-                float fallEndHeight = playerManager.characterController.transform.position.y;
-
-                var currentFallHeight = Mathf.Abs(fallBeganHeight - fallEndHeight);
-
                 // Takes fall damage?
-                if (currentFallHeight > minimumFallHeightToTakeDamage && trackFallDamage)
+                if (ShouldTakeFallDamage())
                 {
                     playerManager.damageReceiver.TakeDamage(new Damage()
                     {
-                        physical = (int)(currentFallHeight * damageMultiplierPerMeter),
+                        physical = (int)(GetCurrentFallHeight() * damageMultiplierPerMeter),
                         fire = 0,
                         frost = 0,
                         magic = 0,

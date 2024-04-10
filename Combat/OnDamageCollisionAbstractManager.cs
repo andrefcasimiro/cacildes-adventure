@@ -60,7 +60,7 @@ namespace AF
 
                 if (damageOwner is PlayerManager)
                 {
-                    damageReceiver.health.onDamageFromPlayer?.Invoke();
+                    damageReceiver?.health?.onDamageFromPlayer?.Invoke();
                 }
             }
 

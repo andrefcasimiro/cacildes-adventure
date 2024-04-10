@@ -54,6 +54,7 @@ namespace AF
             playerCombatController.enabled = true;
             dodgeController.enabled = true;
             playerParryManager.enabled = true;
+            thirdPersonController.SetTrackFallDamage(true);
         }
 
         public void DisableComponents()
@@ -64,6 +65,7 @@ namespace AF
             playerCombatController.enabled = false;
             dodgeController.enabled = false;
             playerParryManager.enabled = false;
+            thirdPersonController.SetTrackFallDamage(false);
         }
 
         public void DisableCharacterController()
@@ -128,10 +130,10 @@ namespace AF
         public void UpdatePosition(Vector3 newPosition, Quaternion newRotation)
         {
             // Store the initial state of fall damage tracking
-            bool originalTrackFallDamage = thirdPersonController.trackFallDamage;
+            bool originalTrackFallDamage = thirdPersonController.GetTrackFallDamage();
 
             // Disable fall damage tracking temporarily
-            thirdPersonController.trackFallDamage = false;
+            thirdPersonController.SetTrackFallDamage(false);
 
             // Disable character controller to avoid unintended collisions during position update
             DisableCharacterController();
@@ -140,7 +142,7 @@ namespace AF
             EnableCharacterController();
 
             // Restore original fall damage tracking state
-            thirdPersonController.trackFallDamage = originalTrackFallDamage;
+            thirdPersonController.SetTrackFallDamage(originalTrackFallDamage);
         }
 
         public void EnableCollisionWithEnemies()

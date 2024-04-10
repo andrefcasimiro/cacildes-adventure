@@ -34,6 +34,7 @@ namespace AF
         Frost,
         Lightning,
         Magic,
+        Darkness,
     }
 
     public enum PushForce
@@ -207,19 +208,40 @@ namespace AF
             {
                 if (statusEffect != null)
                 {
-                    result += $"+ {statusEffect.amountPerHit} {statusEffect.statusEffect.name} per HIT |";
+                    result += $"+{statusEffect.amountPerHit} {statusEffect.statusEffect.name} per HIT\n";
                 }
             }
 
-            // Remove the last "|" if it exists
-            if (result.EndsWith("|"))
-            {
-                result = result.Substring(0, result.Length - 1);
-            }
-
-            return result;
+            return result.TrimEnd();
         }
 
+        public bool CanBeUpgradedFurther()
+        {
+            return canBeUpgraded && weaponUpgrades != null && weaponUpgrades.Length > 0 && this.level > 0 && this.level <= weaponUpgrades.Length;
+        }
+
+        public string GetMaterialCostForNextLevel()
+        {
+            if (CanBeUpgradedFurther() && weaponUpgrades[this.level - 1] != null && weaponUpgrades[this.level - 1].upgradeMaterials != null)
+            {
+                WeaponUpgradeLevel nextWeaponUpgradeLevel = weaponUpgrades[this.level - 1];
+                string text = $"Next Weapon Level: {this.level + 1} ";
+                text += $"(+{nextWeaponUpgradeLevel.bonusAttack} ATK)\n";
+                text += $"Required Gold: {nextWeaponUpgradeLevel.goldCostForUpgrade} Coins\n";
+                text += $"Required Items:\n";
+
+                foreach (var upgradeMat in weaponUpgrades[this.level - 1].upgradeMaterials)
+                {
+                    if (upgradeMat.Key != null)
+                    {
+                        text += $"- {upgradeMat.Key.name}: x{upgradeMat.Value}\n";
+                    }
+                }
+
+                return text;
+            }
+            return "";
+        }
     }
 
 }

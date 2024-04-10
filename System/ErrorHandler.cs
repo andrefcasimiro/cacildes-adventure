@@ -25,6 +25,7 @@ namespace AF
         private List<string> errorMessagesToIgnore = new List<string>
         {
             "has no receiver! Are you missing a component?",
+            "AnimationEvent has no function name specified!",
             "PhysX does not support concave Mesh Colliders with dynamic Rigidbody GameObjects.",
             "The variable fadeMaterial of",
             "can only be called on an active agent that has been placed on a NavMesh.",
@@ -88,6 +89,8 @@ namespace AF
                 CloseErrorPanel();
                 cursorManager?.HideCursor();
             });
+
+            UIUtils.PlayPopAnimation(entry, new Vector3(0.8f, 0.8f, 0.8f));
 
             errorMessagesContainer.Add(entry);
         }

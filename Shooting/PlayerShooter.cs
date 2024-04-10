@@ -274,30 +274,46 @@ namespace AF.Shooting
                 lookPosition = Quaternion.LookRotation(lookDir);
             }
 
-            if (spell != null)
+            if (spell != null && spell.spawnAtPlayerFeet)
             {
-                if (spell.spawnAtPlayerFeet)
-                {
-                    origin = playerFeetRef.transform.position + new Vector3(0, spell.playerFeetOffsetY, 0);
-                }
+                origin = playerFeetRef.transform.position + new Vector3(0, spell.playerFeetOffsetY, 0);
             }
 
             GameObject projectileInstance = Instantiate(projectile.gameObject, origin, lookPosition);
-            if (spell != null)
+            projectileInstance.TryGetComponent(out IProjectile componentProjectile);
+
+            if (componentProjectile != null)
             {
-                if (projectileInstance.TryGetComponent<OnDamageCollisionAbstractManager>(out var spellParticleCollisionManager))
+                componentProjectile.Shoot(characterBaseManager, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
+            }
+
+            HandleProjectileDamageManagers(projectileInstance);
+        }
+
+        void HandleProjectileDamageManagers(GameObject projectileInstance)
+        {
+            // Assign the damage owner to the OnDamageCollisionAbstractManager of the projectile instance, if it exists
+            if (projectileInstance.TryGetComponent(out OnDamageCollisionAbstractManager onDamageCollisionAbstractManager))
+            {
+                onDamageCollisionAbstractManager.damageOwner = GetPlayerManager();
+
+                if (GetPlayerManager().statsBonusController.spellDamageBonusMultiplier > 0)
                 {
-                    spellParticleCollisionManager.damageOwner = GetPlayerManager();
+                    onDamageCollisionAbstractManager.damage.ScaleDamage(GetPlayerManager().statsBonusController.spellDamageBonusMultiplier);
                 }
             }
 
-            projectileInstance.TryGetComponent(out IProjectile componentProjectile);
-            if (componentProjectile == null)
+            // Assign the damage owner to all child OnDamageCollisionAbstractManagers of the projectile instance
+            OnDamageCollisionAbstractManager[] onDamageCollisionAbstractManagers = projectileInstance.GetComponentsInChildren<OnDamageCollisionAbstractManager>();
+            foreach (var onChildDamageCollisionAbstractManager in onDamageCollisionAbstractManagers)
             {
-                yield break;
-            }
+                onChildDamageCollisionAbstractManager.damageOwner = GetPlayerManager();
 
-            componentProjectile.Shoot(characterBaseManager, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
+                if (GetPlayerManager().statsBonusController.spellDamageBonusMultiplier > 0)
+                {
+                    onChildDamageCollisionAbstractManager.damage.ScaleDamage(GetPlayerManager().statsBonusController.spellDamageBonusMultiplier);
+                }
+            }
         }
 
         bool CanAim()

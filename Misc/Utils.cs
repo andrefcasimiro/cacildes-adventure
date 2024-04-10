@@ -118,9 +118,13 @@ namespace AF
             {
                 subFolder = "Weapons/";
             }
+            else if (item is Gauntlet)
+            {
+                subFolder = "Gauntlets/";
+            }
             else if (item is KeyItem || item is Item)
             {
-                subFolder = "KeyItems/";
+                subFolder = "Key Items/";
             }
 
             return prefix + subFolder + item.name;

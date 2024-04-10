@@ -12,40 +12,34 @@ namespace AF.UI.EquipmentMenu
         VisualElement itemInfo;
         VisualElement tooltipItemSprite;
         Label tooltipItemDescription;
-        VisualElement[] tooltipItemInfoChildren;
-        // Common
-        VisualElement tooltipSpeedPenalty;
-        VisualElement tooltipIsHolyWeapon;
-        VisualElement tooltipPoise;
-        VisualElement tooltipFire, tooltipFrost, tooltipLightning, tooltipMagic, tooltipStatusEffectResistances;
-        VisualElement tooltipBlockAbsorption;
-        // Weapons
-        VisualElement tooltipPhysicalAttack;
-        VisualElement tooltipWeaponType;
-        VisualElement tooltipWeaponSpecial;
-        VisualElement tooltipWeaponStrengthScaling, tooltipWeaponDexterityScaling, tooltipWeaponIntelligenceScaling;
-        // Armor
-        VisualElement tooltipPhysicalDefense;
-        VisualElement tooltipAccessoryProperty;
-        VisualElement tooltipReputationBonus, tooltipVitality, tooltipEndurance, tooltipStrength, tooltipDexterity, tooltipIntelligence, tooltipGold;
-        // Consumables
-        VisualElement tooltipConsumableEffect;
+
+        VisualElement tooltipEffectsContainer;
+
+        public VisualTreeAsset itemEffectTooltipEntry;
 
         [Header("Components")]
         public AttackStatManager attackStatManager;
-
-        // FIRE COLOR: FF662A
-        // FROST COLOR: 60CAFF
-        // LIGHTNING COLOR: FFEF5F
-        // MAGIC COLOR: F160FF
-        // BLEED COLOR: FF0910
-        // POISON COLOR: AB44FF
 
         [Header("UI Documents")]
         public UIDocument uIDocument;
         public VisualElement root;
 
         [HideInInspector] public bool shouldRerender = true;
+
+        [Header("Colors")]
+        public Color fire = new Color(255, 102, 42);
+        public Color frost = new Color(96, 202, 255);
+        public Color lightning = new Color(255, 239, 95);
+        public Color magic = new Color(241, 96, 255);
+        public Color darkness = new Color(92, 76, 248);
+
+
+        public Texture2D weaponPhysicalAttackSprite, weaponScalingSprite, weightPenaltySprite, holyWeaponSprite,
+        fireSprite, frostSprite, lightningSprite, magicSprite, darknessSprite, bluntSprite, pierceSprite, slashSprite,
+        statusEffectsSprite, defenseAbsorptionSprite, poiseSprite, postureSprite, goldCoinSprite, reputationSprite, barterSprite,
+        vitalitySprite, enduranceSprite, intelligenceSprite, strengthSprite, dexteritySprite, blacksmithSprite,
+        pushForceSprite, heavyAttackSprite, staminaCostSprite, bossTokenSprite, replenishableSprite, spellCastSprite,
+        upgradeMaterialSprite, craftingMaterialSprite;
 
         private void OnEnable()
         {
@@ -72,46 +66,13 @@ namespace AF.UI.EquipmentMenu
             itemInfo = tooltip.Q<VisualElement>("ItemInfo");
             tooltipItemSprite = itemInfo.Q<VisualElement>("ItemSprite");
             tooltipItemDescription = itemInfo.Q<Label>();
-            tooltipItemInfoChildren = tooltip.Q<VisualElement>("ItemAttributes").Children().ToArray();
-            tooltipPhysicalAttack = tooltip.Q("PhysicalAttack");
-            tooltipPhysicalDefense = tooltip.Q("PhysicalDefense");
-            tooltipPhysicalDefense = tooltip.Q("PhysicalDefense");
-            tooltipSpeedPenalty = tooltip.Q("SpeedPenalty");
-            tooltipIsHolyWeapon = tooltip.Q("IsHolyWeapon");
-            tooltipAccessoryProperty = tooltip.Q("AccessoryProperty");
-            tooltipConsumableEffect = tooltip.Q("ConsumableEffect");
-            tooltipWeaponType = tooltip.Q("WeaponType");
-            tooltipWeaponSpecial = tooltip.Q("WeaponSpecial");
-            tooltipWeaponStrengthScaling = tooltip.Q("StrengthScaling");
-            tooltipWeaponDexterityScaling = tooltip.Q("DexterityScaling");
-            tooltipWeaponIntelligenceScaling = tooltip.Q("IntelligenceScaling");
-            tooltipBlockAbsorption = tooltip.Q("BlockAbsorption");
-            tooltipPoise = tooltip.Q("Poise");
-            tooltipFire = tooltip.Q("Fire");
-            tooltipFrost = tooltip.Q("Frost");
-            tooltipLightning = tooltip.Q("Lightning");
-            tooltipMagic = tooltip.Q("Magic");
-            tooltipStatusEffectResistances = tooltip.Q("StatusEffectResistances");
-            tooltipStatusEffectResistances.style.display = DisplayStyle.None;
-
-            tooltipVitality = tooltip.Q("Vitality");
-            tooltipEndurance = tooltip.Q("Endurance");
-            tooltipStrength = tooltip.Q("Strength");
-            tooltipDexterity = tooltip.Q("Dexterity");
-            tooltipIntelligence = tooltip.Q("Intelligence");
-            tooltipReputationBonus = tooltip.Q("Reputation");
-            tooltipGold = tooltip.Q("Gold");
+            tooltipEffectsContainer = tooltip.Q<VisualElement>("ItemAttributes");
         }
 
         public void PrepareTooltipForItem(Item item)
         {
             enabled = true;
-
-            foreach (var child in tooltipItemInfoChildren)
-            {
-                child.style.display = DisplayStyle.None;
-            }
-
+            tooltipEffectsContainer.Clear();
             tooltipItemSprite.style.backgroundImage = new StyleBackground(item.sprite);
 
             string itemName = item.name.ToUpper();
@@ -125,211 +86,37 @@ namespace AF.UI.EquipmentMenu
 
             if (item is Weapon weapon)
             {
-
-                var attack = attackStatManager.GetWeaponAttack(weapon);
-                var strengthAttackBonus = attackStatManager.GetStrengthBonusFromWeapon(weapon);
-                var dexterityAttackBonus = attackStatManager.GetDexterityBonusFromWeapon(weapon);
-                var intelligenceAttackBonus = attackStatManager.GetIntelligenceBonusFromWeapon(weapon);
-                attack = (int)(attack - strengthAttackBonus - dexterityAttackBonus - intelligenceAttackBonus);
-
-                if (weapon.halveDamage)
-                {
-                    attack = (int)(attack / 2);
-                }
-
-                tooltipPhysicalAttack.Q<Label>().text = $"+ {attack} (Physical Attack)";
-
-                if (weapon.halveDamage)
-                {
-                    tooltipPhysicalAttack.Q<Label>().text += " (Halved damage)";
-                }
-
-                tooltipPhysicalAttack.style.display = DisplayStyle.Flex;
-
-                if (weapon.speedPenalty > 0)
-                {
-                    tooltipSpeedPenalty.Q<Label>().text = $"+ {Math.Round(weapon.speedPenalty * 100, 2)}% Equip Load";
-                    tooltipSpeedPenalty.style.display = DisplayStyle.Flex;
-                    tooltipSpeedPenalty.style.opacity = 1;
-                }
-
-                if (weapon.isHolyWeapon)
-                {
-                    tooltipIsHolyWeapon.Q<Label>().text = $"Holy Weapon";
-                    tooltipIsHolyWeapon.style.display = DisplayStyle.Flex;
-                    tooltipIsHolyWeapon.style.opacity = 1;
-                }
-
-                if (weapon.GetWeaponFireAttack() > 0)
-                {
-                    tooltipFire.Q<Label>().text = $"+ {weapon.GetWeaponFireAttack()} Fire Attack";
-                    tooltipFire.style.display = DisplayStyle.Flex;
-                }
-
-                if (weapon.GetWeaponFrostAttack() > 0)
-                {
-                    tooltipFrost.Q<Label>().text = $"+ {weapon.GetWeaponFrostAttack()} Frost Attack";
-                    tooltipFrost.style.display = DisplayStyle.Flex;
-                }
-
-                if (weapon.GetWeaponLightningAttack() > 0)
-                {
-                    tooltipLightning.Q<Label>().text = $"+ {weapon.GetWeaponLightningAttack()} Lightning Attack";
-                    tooltipLightning.style.display = DisplayStyle.Flex;
-                }
-
-                if (weapon.GetWeaponMagicAttack() > 0)
-                {
-                    tooltipMagic.Q<Label>().text = $"+ {weapon.GetWeaponMagicAttack()} Magic Attack";
-                    tooltipMagic.style.display = DisplayStyle.Flex;
-                }
-
-                if (weapon.damage.weaponAttackType == WeaponAttackType.Blunt)
-                {
-                    tooltipWeaponType.Q<Label>().text = $"Damage Type: Blunt";
-                    tooltipWeaponType.style.display = DisplayStyle.Flex;
-                }
-                if (weapon.damage.weaponAttackType == WeaponAttackType.Pierce)
-                {
-                    tooltipWeaponType.Q<Label>().text = $"Damage Type: Pierce";
-                    tooltipWeaponType.style.display = DisplayStyle.Flex;
-                }
-                if (weapon.damage.weaponAttackType == WeaponAttackType.Slash)
-                {
-                    tooltipWeaponType.Q<Label>().text = $"Damage Type: Slash";
-                    tooltipWeaponType.style.display = DisplayStyle.Flex;
-                }
-
-                string strengthScaling = $"+{strengthAttackBonus} Attack [{weapon.strengthScaling}] (Strength Scaling)";
-                tooltipWeaponStrengthScaling.Q<Label>().text = strengthScaling;
-                tooltipWeaponStrengthScaling.style.display = DisplayStyle.Flex;
-
-                string dexterityScaling = $"+{dexterityAttackBonus} Attack [{weapon.dexterityScaling}] (Dexterity Scaling)";
-                tooltipWeaponDexterityScaling.Q<Label>().text = dexterityScaling;
-                tooltipWeaponDexterityScaling.style.display = DisplayStyle.Flex;
-
-                string intelligenceScaling = $"+{intelligenceAttackBonus} Attack [{weapon.intelligenceScaling}] (Intelligence Scaling)";
-                tooltipWeaponIntelligenceScaling.Q<Label>().text = intelligenceScaling;
-                tooltipWeaponIntelligenceScaling.style.display = DisplayStyle.Flex;
-
-                if (weapon.damage.statusEffects != null && weapon.damage.statusEffects.Length > 0)
-                {
-
-                    tooltipStatusEffectResistances.Q<Label>().text = weapon.GetFormattedStatusDamages();
-                    tooltipStatusEffectResistances.style.display = DisplayStyle.Flex;
-                }
-
-                //                tooltipBlockAbsorption.Q<Label>().text = $"Block Absorption: {weapon.blockAbsorption}%";
-                //                tooltipBlockAbsorption.style.display = DisplayStyle.Flex;
+                DrawWeaponEffects(weapon);
             }
-
-            if (item is Shield shield)
+            else if (item is Shield shield)
             {
-                tooltipBlockAbsorption.Q<Label>().text = $"% {shield.defenseAbsorption} Damage Absorption";
-                tooltipBlockAbsorption.style.display = DisplayStyle.Flex;
-
-                if (shield.speedPenalty > 0)
-                {
-                    tooltipSpeedPenalty.Q<Label>().text = $"+ {Math.Round(shield.speedPenalty * 100, 2)}% Equip Load";
-                    tooltipSpeedPenalty.style.display = DisplayStyle.Flex;
-                    tooltipSpeedPenalty.style.opacity = 1;
-                }
+                DrawShield(shield);
             }
-
-            if (item is ArmorBase armor)
+            else if (item is ArmorBase armorBase)
             {
-                tooltipPhysicalDefense.Q<Label>().text = $"+ {armor.physicalDefense} Physical Defense";
-                tooltipPhysicalDefense.style.display = armor.physicalDefense > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+                DrawArmorBase(armorBase);
 
-                if (armor.speedPenalty > 0)
+                if (item is Accessory accessory)
                 {
-                    tooltipSpeedPenalty.Q<Label>().text = $"+ {Math.Round(armor.speedPenalty * 100, 2)}% Equip Load";
-                    tooltipSpeedPenalty.style.display = DisplayStyle.Flex;
-                    tooltipSpeedPenalty.style.opacity = 1;
-                }
-                if (armor.fireDefense > 0)
-                {
-                    tooltipFire.Q<Label>().text = $"+ {armor.fireDefense} Fire Defense";
-                    tooltipFire.style.display = DisplayStyle.Flex;
-                }
-                if (armor.frostDefense > 0)
-                {
-                    tooltipFrost.Q<Label>().text = $"+ {armor.frostDefense} Frost Defense";
-                    tooltipFrost.style.display = DisplayStyle.Flex;
-                }
-                if (armor.lightningDefense > 0)
-                {
-                    tooltipLightning.Q<Label>().text = $"+ {armor.lightningDefense} Lightning Defense";
-                    tooltipLightning.style.display = DisplayStyle.Flex;
-                }
-                if (armor.magicDefense > 0)
-                {
-                    tooltipMagic.Q<Label>().text = $"+ {armor.magicDefense} Magic Defense";
-                    tooltipMagic.style.display = DisplayStyle.Flex;
-                }
-
-                if (armor.poiseBonus > 0)
-                {
-                    tooltipPoise.Q<Label>().text = $"+ {armor.poiseBonus} Poise";
-                    tooltipPoise.style.display = DisplayStyle.Flex;
-                }
-
-                if (armor.statusEffectResistances != null && armor.statusEffectResistances.Length > 0)
-                {
-                    tooltipStatusEffectResistances.Q<Label>().text = armor.GetFormattedStatusResistances();
-                    tooltipStatusEffectResistances.style.display = DisplayStyle.Flex;
-                }
-
-                if (armor.additionalCoinPercentage != 0)
-                {
-                    tooltipGold.Q<Label>().text = $"+ %{armor.additionalCoinPercentage} gold found on enemies";
-                    tooltipGold.style.display = DisplayStyle.Flex;
-                }
-
-                if (armor.vitalityBonus != 0)
-                {
-                    tooltipVitality.Q<Label>().text = $"+ {armor.vitalityBonus} Vitality";
-                    tooltipVitality.style.display = DisplayStyle.Flex;
-                }
-                if (armor.enduranceBonus != 0)
-                {
-                    tooltipEndurance.Q<Label>().text = $"+ {armor.enduranceBonus} Endurance";
-                    tooltipEndurance.style.display = DisplayStyle.Flex;
-                }
-                if (armor.strengthBonus != 0)
-                {
-                    tooltipStrength.Q<Label>().text = $"+ {armor.strengthBonus} Strength";
-                    tooltipStrength.style.display = DisplayStyle.Flex;
-                }
-                if (armor.dexterityBonus != 0)
-                {
-                    tooltipDexterity.Q<Label>().text = $"+ {armor.dexterityBonus} Dexterity";
-                    tooltipDexterity.style.display = DisplayStyle.Flex;
-                }
-                if (armor.intelligenceBonus != 0)
-                {
-                    tooltipIntelligence.Q<Label>().text = $"+ {armor.intelligenceBonus} Intelligence";
-                    tooltipIntelligence.style.display = DisplayStyle.Flex;
-                }
-                if (armor.reputationBonus != 0)
-                {
-                    tooltipReputationBonus.Q<Label>().text = (armor.reputationBonus > 0 ? "+" : "") + armor.reputationBonus + " Reputation";
-                    tooltipReputationBonus.style.display = DisplayStyle.Flex;
+                    DrawAccessory(accessory);
                 }
             }
-
-            if (item is Accessory accessory)
+            else if (item is Consumable consumable)
             {
-                tooltipAccessoryProperty.Q<Label>().text = accessory.shortDescription;
-                tooltipAccessoryProperty.style.display = DisplayStyle.Flex;
+                DrawConsumable(consumable);
             }
-
-            if (item is Consumable consumable && item is not ConsumableProjectile)
+            else if (item is Spell spell)
             {
-                tooltipConsumableEffect.Q<Label>().text = consumable.shortDescription;
-                tooltipConsumableEffect.style.display = DisplayStyle.Flex;
+                DrawSpell(spell);
             }
-
+            else if (item is UpgradeMaterial upgradeMaterial)
+            {
+                DrawUpgradeMaterial(upgradeMaterial);
+            }
+            else if (item is CraftingMaterial craftingMaterial)
+            {
+                DrawCraftingMaterial(craftingMaterial);
+            }
         }
 
         public void DisplayTooltip(Button parentButton)
@@ -356,5 +143,342 @@ namespace AF.UI.EquipmentMenu
             // Position the tooltip
             tooltip.style.display = DisplayStyle.Flex;
         }
+
+        void CreateEquipLoadTooltip(float speedPenalty)
+        {
+            if (speedPenalty <= 0)
+            {
+                return;
+            }
+
+            CreateTooltip(weightPenaltySprite, Color.white, $"+{Math.Round(speedPenalty * 100, 2)}% Equip Load");
+        }
+
+        void CreatePoiseTooltip(int poiseBonus)
+        {
+            if (poiseBonus <= 0)
+            {
+                return;
+            }
+
+            CreateTooltip(poiseSprite, Color.white, $"+{poiseBonus} Poise Points");
+        }
+        void CreatePostureTooltip(int postureBonus)
+        {
+            if (postureBonus <= 0)
+            {
+                return;
+            }
+
+            CreateTooltip(postureSprite, Color.white, $"+{postureBonus} Posture Points");
+        }
+
+        void CreateAdditionalGoldTooltip(float additionalCoinPercentage)
+        {
+            if (additionalCoinPercentage <= 0)
+            {
+                return;
+            }
+            CreateTooltip(goldCoinSprite, Color.white, $"+ {additionalCoinPercentage}% gold found on enemies");
+        }
+
+        void CreateStatTooltip(int statBonus, string statName, Texture2D statSprite)
+        {
+            if (statBonus != 0)
+            {
+                CreateTooltip(statSprite, Color.white, $"+{statBonus} {statName}");
+            }
+        }
+
+        void DrawWeaponEffects(Weapon weapon)
+        {
+            var attack = attackStatManager.GetWeaponAttack(weapon);
+            var strengthAttackBonus = attackStatManager.GetStrengthBonusFromWeapon(weapon);
+            var dexterityAttackBonus = attackStatManager.GetDexterityBonusFromWeapon(weapon);
+            var intelligenceAttackBonus = attackStatManager.GetIntelligenceBonusFromWeapon(weapon);
+            attack = (int)(attack - strengthAttackBonus - dexterityAttackBonus - intelligenceAttackBonus);
+
+            CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"+{attackStatManager.GetWeaponAttack(weapon)} Damage");
+            CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"+{attack} Raw Physical Attack");
+
+            CreateTooltip(weaponScalingSprite, Color.white, $"Strength Scaling: +{strengthAttackBonus} ATK [{weapon.strengthScaling}]");
+            CreateTooltip(weaponScalingSprite, Color.white, $"Dexterity Scaling: +{dexterityAttackBonus} ATK [{weapon.dexterityScaling}]");
+            CreateTooltip(weaponScalingSprite, Color.white, $"Intelligence Scaling: +{intelligenceAttackBonus} ATK [{weapon.intelligenceScaling}]");
+
+            CreateEquipLoadTooltip(weapon.speedPenalty);
+
+            if (weapon.isHolyWeapon)
+            {
+                CreateTooltip(holyWeaponSprite, Color.white, "Holy Weapon");
+            }
+            if (weapon.GetWeaponFireAttack() > 0)
+            {
+                CreateTooltip(fireSprite, fire, $"+{weapon.GetWeaponFireAttack()} Fire ATK");
+            }
+            if (weapon.GetWeaponFrostAttack() > 0)
+            {
+                CreateTooltip(frostSprite, frost, $"+{weapon.GetWeaponFrostAttack()} Frost ATK");
+            }
+            if (weapon.GetWeaponLightningAttack() > 0)
+            {
+                CreateTooltip(lightningSprite, lightning, $"+{weapon.GetWeaponLightningAttack()} Lightning ATK");
+            }
+            if (weapon.GetWeaponMagicAttack() > 0)
+            {
+                CreateTooltip(magicSprite, magic, $"+{weapon.GetWeaponMagicAttack()} Magic ATK");
+            }
+            if (weapon.GetWeaponDarknessAttack() > 0)
+            {
+                CreateTooltip(darknessSprite, darkness, $"+{weapon.GetWeaponDarknessAttack()} Darkness ATK");
+            }
+            if (weapon.damage.weaponAttackType == WeaponAttackType.Blunt)
+            {
+                CreateTooltip(bluntSprite, Color.white, $"Damage Type: Blunt");
+            }
+            if (weapon.damage.weaponAttackType == WeaponAttackType.Pierce)
+            {
+                CreateTooltip(pierceSprite, Color.white, $"Damage Type: Pierce");
+            }
+            if (weapon.damage.weaponAttackType == WeaponAttackType.Slash)
+            {
+                CreateTooltip(slashSprite, Color.white, $"Damage Type: Slash");
+            }
+            if (weapon.damage.statusEffects != null && weapon.damage.statusEffects.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, weapon.GetFormattedStatusDamages());
+            }
+
+            if (weapon.damage.pushForce > 0)
+            {
+                CreateTooltip(pushForceSprite, Color.white, $"+{weapon.damage.pushForce} Push Force");
+            }
+
+            if (weapon.damage.postureDamage > 0)
+            {
+                CreateTooltip(postureSprite, Color.white, $"+{weapon.damage.postureDamage} Posture DMG");
+            }
+
+            if (weapon.heavyAttackBonus > 0)
+            {
+                CreateTooltip(heavyAttackSprite, Color.white, $"+{weapon.heavyAttackBonus} Heavy ATK Bonus");
+            }
+
+            CreateTooltip(staminaCostSprite, Color.white, $"{weapon.lightAttackStaminaCost} Light ATK Stamina Cost\n{weapon.heavyAttackStaminaCost} Heavy ATK Stamina Cost");
+
+            if (weapon.canBeUpgraded && weapon.CanBeUpgradedFurther())
+            {
+                CreateTooltip(blacksmithSprite, Color.white, weapon.GetMaterialCostForNextLevel());
+            }
+
+        }
+
+        void DrawShield(Shield shield)
+        {
+            CreateTooltip(defenseAbsorptionSprite, Color.white, $"%{shield.defenseAbsorption} Damage Absorption");
+            CreateEquipLoadTooltip(shield.speedPenalty);
+        }
+
+        void DrawArmorBase(ArmorBase armor)
+        {
+            if (armor.physicalDefense > 0)
+            {
+                CreateTooltip(defenseAbsorptionSprite, Color.white, $"+{armor.physicalDefense} Physical DEF");
+            }
+
+            if (armor.speedPenalty > 0)
+            {
+                CreateEquipLoadTooltip(armor.speedPenalty);
+            }
+
+            if (armor.fireDefense > 0)
+            {
+                CreateTooltip(fireSprite, fire, $"+{armor.fireDefense} Fire DEF");
+            }
+            if (armor.frostDefense > 0)
+            {
+                CreateTooltip(frostSprite, frost, $"+{armor.frostDefense} Frost DEF");
+            }
+            if (armor.lightningDefense > 0)
+            {
+                CreateTooltip(lightningSprite, lightning, $"+{armor.lightningDefense} Lightning DEF");
+            }
+            if (armor.magicDefense > 0)
+            {
+                CreateTooltip(magicSprite, magic, $"+{armor.magicDefense} Magic DEF");
+            }
+            if (armor.darkDefense > 0)
+            {
+                CreateTooltip(darknessSprite, darkness, $"+{armor.darkDefense} Darkness DEF");
+            }
+
+            CreatePoiseTooltip(armor.poiseBonus);
+            CreatePostureTooltip(armor.postureBonus);
+
+            if (armor.statusEffectResistances != null && armor.statusEffectResistances.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, armor.GetFormattedStatusResistances());
+            }
+
+            CreateAdditionalGoldTooltip(armor.additionalCoinPercentage);
+
+            CreateStatTooltip(armor.vitalityBonus, "Vitality", vitalitySprite);
+            CreateStatTooltip(armor.enduranceBonus, "Vitality", enduranceSprite);
+            CreateStatTooltip(armor.intelligenceBonus, "Vitality", intelligenceSprite);
+            CreateStatTooltip(armor.strengthBonus, "Vitality", strengthSprite);
+            CreateStatTooltip(armor.dexterityBonus, "Vitality", dexteritySprite);
+
+            if (armor.reputationBonus > 0)
+            {
+                CreateTooltip(reputationSprite, Color.white, $"+{armor.reputationBonus} Reputation");
+
+            }
+            else if (armor.reputationBonus < 0)
+            {
+                CreateTooltip(reputationSprite, Color.white, $"-{armor.reputationBonus} Reputation");
+
+            }
+
+            if (armor.discountPercentage > 0)
+            {
+                CreateTooltip(barterSprite, Color.white, $"+{Math.Round(armor.discountPercentage * 100, 2)}% Better Prices");
+            }
+
+        }
+
+        void DrawAccessory(Accessory accessory)
+        {
+            if (accessory.shortDescription != null && accessory.shortDescription.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, accessory.shortDescription);
+            }
+
+            if (accessory.healthBonus > 0)
+            {
+                CreateTooltip(vitalitySprite, Color.white, $"+{accessory.healthBonus} Health Points");
+            }
+            if (accessory.magicBonus > 0)
+            {
+                CreateTooltip(magicSprite, Color.white, $"+{accessory.magicBonus} Mana Points");
+            }
+            if (accessory.staminaBonus > 0)
+            {
+                CreateTooltip(enduranceSprite, Color.white, $"+{accessory.staminaBonus} Stamina Points");
+            }
+            if (accessory.physicalAttackBonus > 0)
+            {
+                CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"+{accessory.physicalAttackBonus} Physical ATK");
+            }
+            if (accessory.jumpAttackBonus > 0)
+            {
+                CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"+{accessory.jumpAttackBonus} Jump ATK Bonus");
+            }
+            if (accessory.increaseAttackPowerWithLowerHealth)
+            {
+                CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"ATK increases with lower health");
+            }
+            if (accessory.increaseAttackPowerTheLowerTheReputation)
+            {
+                CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"ATK increases with lower reputation");
+            }
+            if (accessory.postureDamagePerParry > 0)
+            {
+                CreateTooltip(postureSprite, Color.white, $"+{accessory.postureDamagePerParry} Posture Damage per Parry");
+            }
+            if (accessory.spellDamageBonusMultiplier > 0)
+            {
+                CreateTooltip(magicSprite, Color.white, $"+{Math.Round(accessory.spellDamageBonusMultiplier * 100, 2)}% Spell Damage");
+            }
+            if (accessory.chanceToDoubleCoinsFromFallenEnemies)
+            {
+                CreateTooltip(goldCoinSprite, Color.white, $"Chance to receive double coins from fallen enemies");
+            }
+        }
+
+        void DrawSpell(Spell spell)
+        {
+            if (spell.shortDescription != null && spell.shortDescription.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, spell.shortDescription);
+            }
+            if (spell.costPerCast > 0)
+            {
+                CreateTooltip(spellCastSprite, Color.white, $"{spell.costPerCast} Mana Points required per cast");
+            }
+
+            /*            if (spell.isFaithSpell)
+                        {
+                            CreateTooltip(holyWeaponSprite, Color.white, $"Faith Spell (improves with reputation)");
+                        }*/
+
+        }
+
+        void DrawCraftingMaterial(CraftingMaterial craftingMaterial)
+        {
+            if (craftingMaterial.shortDescription != null && craftingMaterial.shortDescription.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, craftingMaterial.shortDescription);
+            }
+
+            CreateTooltip(craftingMaterialSprite, Color.white, "Crafting material (Use in a alchemy table)");
+        }
+
+        void DrawUpgradeMaterial(UpgradeMaterial upgradeMaterial)
+        {
+            if (upgradeMaterial.shortDescription != null && upgradeMaterial.shortDescription.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, upgradeMaterial.shortDescription);
+            }
+
+            CreateTooltip(upgradeMaterialSprite, Color.white, "Weapon upgrade material (Give to a blacksmith)");
+        }
+
+        void DrawConsumable(Consumable consumable)
+        {
+            if (consumable.shortDescription != null && consumable.shortDescription.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, consumable.shortDescription);
+            }
+            if (consumable.statusesToRemove != null && consumable.statusesToRemove.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, consumable.GetFormattedRemovedStatusEffects());
+            }
+            if (consumable.statusesToRemove != null && consumable.statusEffectsWhenConsumed.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, consumable.GetFormattedAppliedStatusEffects());
+            }
+            if (consumable.isBossToken)
+            {
+                CreateTooltip(bossTokenSprite, Color.white, $"Boss token. Someone might be interested in this item.");
+            }
+            if (consumable.canBeConsumedForGold)
+            {
+                CreateTooltip(goldCoinSprite, Color.white, $"Consume to receive ${consumable.value}");
+            }
+            if (consumable.shouldNotRemoveOnUse)
+            {
+                CreateTooltip(replenishableSprite, Color.white, "Item usage replenishes when resting at a bonfire");
+            }
+
+        }
+        public void CreateTooltip(Texture2D sprite, Color color, string description)
+        {
+            VisualElement clone = itemEffectTooltipEntry.CloneTree();
+
+            VisualElement icon = clone.Q<VisualElement>("Icon");
+            icon.style.backgroundImage = new StyleBackground(sprite);
+            icon.style.unityBackgroundImageTintColor = color;
+            icon.style.borderTopColor = color;
+            icon.style.borderLeftColor = color;
+            icon.style.borderRightColor = color;
+            icon.style.borderBottomColor = color;
+
+            Label text = clone.Q<Label>();
+            text.text = description;
+            text.style.color = color;
+
+            tooltipEffectsContainer.Add(clone);
+        }
+
+
     }
 }

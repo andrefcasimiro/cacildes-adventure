@@ -60,5 +60,15 @@ namespace AF.Health
             return physical + fire + frost + magic + lightning + darkness;
         }
 
+        public void ScaleDamage(float multiplier)
+        {
+            this.physical = (int)(this.physical * multiplier);
+            this.fire = (int)(this.fire * multiplier);
+            this.frost = (int)(this.frost * multiplier);
+            this.magic = (int)(this.magic * multiplier);
+            this.lightning = (int)(this.lightning * multiplier);
+            this.darkness = (int)(this.darkness * multiplier);
+        }
+
     }
 }

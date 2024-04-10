@@ -28,6 +28,7 @@ namespace AF
         public float frostDefense;
         public float lightningDefense;
         public float magicDefense = 0;
+        public float darkDefense = 0;
 
         [Header("Negative Status Resistances")]
         public StatusEffectResistance[] statusEffectResistances;
@@ -46,6 +47,9 @@ namespace AF
         [Header("Poise")]
         public int poiseBonus = 0;
 
+        [Header("Posture")]
+        public int postureBonus = 0;
+
         [Header("Speed Penalties")]
         public float speedPenalty = 0;
 
@@ -57,7 +61,7 @@ namespace AF
         public int reputationBonus = 0;
 
         [Header("Discounts")]
-        [Range(0, 100f)] public float discountPercentage = 0f;
+        [Range(0, 1f)] public float discountPercentage = 0f;
 
         public string GetFormattedStatusResistances()
         {
@@ -67,17 +71,11 @@ namespace AF
             {
                 if (resistance != null)
                 {
-                    result += $"+ {resistance.resistanceBonus} {resistance.statusEffect.name} DEF |";
+                    result += $"+ {resistance.resistanceBonus} {resistance.statusEffect.name} DEF\n";
                 }
             }
 
-            // Remove the last "|" if it exists
-            if (result.EndsWith("|"))
-            {
-                result = result.Substring(0, result.Length - 1);
-            }
-
-            return result;
+            return result.TrimEnd();
         }
 
     }
