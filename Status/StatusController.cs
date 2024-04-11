@@ -132,7 +132,8 @@ namespace AF.StatusEffects
             };
 
             appliedStatusEffects.Add(appliedStatus);
-            statusEffectUI.Value.AddEntry(appliedStatus, GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect));
+
+            statusEffectUI?.Value.AddEntry(appliedStatus, GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect));
 
             StatusEffectInstance statusEffectInstance = GetStatusEffectInstance(statusEffect);
             if (statusEffectInstance != null && appliedStatus.hasReachedTotalAmount)

@@ -1,11 +1,13 @@
 using AF.Animations;
 using AF.Equipment;
+using AF.Events;
 using AF.Footsteps;
 using AF.Health;
 using AF.Inventory;
 using AF.Ladders;
 using AF.Shooting;
 using AF.Stats;
+using TigerForge;
 using UnityEngine;
 
 namespace AF
@@ -50,7 +52,7 @@ namespace AF
         RuntimeAnimatorController defaultAnimatorController;
 
         [Header("IK Helpers")]
-        public bool canUseWeaponIK = true;
+        bool _canUseWeaponIK = true;
 
         private void Awake()
         {
@@ -75,7 +77,7 @@ namespace AF
             // First, reset all flags before calling the handlers
             isBusy = false;
             animator.applyRootMotion = false;
-            canUseWeaponIK = true;
+            SetCanUseIK_True();
 
             thirdPersonController.canRotateCharacter = true;
 
@@ -200,12 +202,19 @@ namespace AF
 
         public void SetCanUseIK_False()
         {
-            canUseWeaponIK = false;
+            _canUseWeaponIK = false;
         }
 
         public void SetCanUseIK_True()
         {
-            canUseWeaponIK = true;
+            _canUseWeaponIK = true;
+
+            EventManager.EmitEvent(EventMessages.ON_CAN_USE_IK_IS_TRUE);
+        }
+
+        public bool CanUseIK()
+        {
+            return _canUseWeaponIK;
         }
     }
 }

@@ -99,7 +99,7 @@ namespace AF
         [Header("Speed Penalty")]
         [Tooltip("Will be added as a negative speed to the animator when equipped")]
         public float speedPenalty = 0f;
-        [Range(0.1f, 1f)] public float oneHandAttackSpeedPenalty = 1f;
+        [Range(0.1f, 2f)] public float oneHandAttackSpeedPenalty = 1f;
 
         [Header("Weapon Bonus")]
         public int amountOfGoldReceivedPerHit = 0;

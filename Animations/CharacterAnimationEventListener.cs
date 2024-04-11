@@ -224,5 +224,14 @@ namespace AF.Animations
         public void UseIKHelper()
         {
         }
+
+        public void SetCanTakeDamage_False()
+        {
+            if (characterManager == null || characterManager.damageReceiver == null)
+            {
+                return;
+            }
+            characterManager.damageReceiver.SetCanTakeDamage(false);
+        }
     }
 }

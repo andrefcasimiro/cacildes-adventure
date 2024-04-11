@@ -234,5 +234,10 @@ namespace AF.Animations
         {
             playerManager.SetCanUseIK_True();
         }
+
+        public void SetCanTakeDamage_False()
+        {
+            playerManager.damageReceiver.SetCanTakeDamage(false);
+        }
     }
 }

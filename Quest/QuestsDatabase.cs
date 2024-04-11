@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AF.Events;
 using TigerForge;
 using UnityEditor;
@@ -17,8 +16,6 @@ namespace AF
 
         public int currentTrackedQuestIndex = -1;
 
-        [Header("Settings")]
-        public bool shouldClear = false;
 
 #if UNITY_EDITOR 
 
@@ -30,7 +27,7 @@ namespace AF
 
         private void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            if (state == PlayModeStateChange.ExitingPlayMode && shouldClear)
+            if (state == PlayModeStateChange.ExitingPlayMode)
             {
                 // Clear the list when exiting play mode
                 Clear();

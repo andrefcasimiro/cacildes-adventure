@@ -1,3 +1,6 @@
+using System.Collections;
+using AF.Events;
+using TigerForge;
 using UnityEngine;
 
 namespace AF
@@ -11,6 +14,61 @@ namespace AF
 
         [Range(0f, 1f)]
         public float weight = 1f; // Weight parameter controlling the influence of the IK effect
+        float initialWeight;
+
+        public float resetDuration = 0.1f;
+
+        [Header("Options")]
+        public bool dontAllowIKWhenRunning = false;
+        public bool dontAllowIKWhenJumpAttacking = false;
+
+        private void Awake()
+        {
+            initialWeight = weight;
+
+            EventManager.StartListening(EventMessages.ON_CAN_USE_IK_IS_TRUE, OnResetCanUseIK);
+        }
+
+        void OnResetCanUseIK()
+        {
+            if (!this.isActiveAndEnabled)
+            {
+                return;
+            }
+
+            if (weight < initialWeight)
+            {
+                return;
+            }
+
+            if (!CanUseIK())
+            {
+                return;
+            }
+
+            weight = 0f;
+
+            StartCoroutine(ResetWeightGradually());
+        }
+
+        IEnumerator ResetWeightGradually()
+        {
+            float elapsedTime = 0f;
+            while (weight < initialWeight)
+            {
+                // Calculate the progress based on time elapsed
+                elapsedTime += Time.deltaTime;
+                float progress = elapsedTime / resetDuration;
+
+                // Update the weight based on the progress
+                weight = Mathf.Lerp(0f, initialWeight, progress);
+
+                yield return null;
+            }
+
+            // Ensure weight reaches exactly initialWeight
+            weight = initialWeight;
+        }
 
         bool CanUseIK()
         {
@@ -19,7 +77,7 @@ namespace AF
                 return false;
             }
 
-            if (!playerManager.canUseWeaponIK)
+            if (!playerManager.CanUseIK())
             {
                 return false;
             }
@@ -37,6 +95,16 @@ namespace AF
             if (playerManager.lockOnManager.isLockedOn)
             {
                 return false;
+            }
+
+            if (dontAllowIKWhenJumpAttacking && playerManager.playerCombatController.isJumpAttacking)
+            {
+                return false;
+            }
+
+            if (dontAllowIKWhenRunning)
+            {
+                return playerManager.animator.GetFloat("Speed") <= 1 || playerManager.isBusy;
             }
 
             return true;

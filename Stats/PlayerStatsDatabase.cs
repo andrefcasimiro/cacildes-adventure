@@ -65,6 +65,10 @@ public class PlayerStatsDatabase : ScriptableObject
         currentMana = maxMana;
         reputation = 1;
         gold = 0;
+
+        lostGold = -1;
+        sceneWhereGoldWasLost = "";
+        positionWhereGoldWasLost = Vector3.zero;
     }
 
     public int GetCurrentLevel()

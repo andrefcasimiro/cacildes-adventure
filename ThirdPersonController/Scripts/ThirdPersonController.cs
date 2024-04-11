@@ -252,11 +252,12 @@ namespace AF
 
         private void GroundedCheck()
         {
-            // set sphere position, with offset
-            Vector3 spherePosition = new Vector3(transform.position.x, playerManager.characterController.transform.position.y - GroundedOffset,
-               playerManager.characterController.transform.position.z);
-            Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
-                QueryTriggerInteraction.Ignore);
+            Grounded = Physics.CheckSphere(
+                new(
+                    playerManager.transform.position.x,
+                    playerManager.characterController.transform.position.y - GroundedOffset,
+                    playerManager.characterController.transform.position.z),
+                GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
 
             if (PreviousGrounded == true && Grounded == false)
             {

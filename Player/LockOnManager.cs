@@ -150,7 +150,7 @@ namespace AF
             }
             else
             {
-                HandleLockOnClick();
+                HandleLockOnClick(false);
             }
         }
 
@@ -223,7 +223,7 @@ namespace AF
             return true;
         }
 
-        public void HandleLockOnClick()
+        public void HandleLockOnClick(bool shouldLookForActiveEnemies)
         {
             if (!CanLockOn())
             {
@@ -482,7 +482,7 @@ namespace AF
         IEnumerator EvaluateLockOnAfterKillingEnemy_Coroutine()
         {
             yield return new WaitForSeconds(2f);
-            HandleLockOnClick();
+            HandleLockOnClick(true);
         }
     }
 }

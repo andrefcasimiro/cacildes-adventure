@@ -89,8 +89,7 @@ namespace AF
 
         public void UseOneHandTransform()
         {
-            transform.localPosition = originalPosition;
-            transform.localRotation = originalRotation;
+            transform.SetLocalPositionAndRotation(originalPosition, originalRotation);
 
             if (leftWeapon != null)
             {
@@ -105,8 +104,9 @@ namespace AF
                 return;
             }
 
-            this.transform.localPosition = twoHandingPosition;
-            this.transform.localEulerAngles = twoHandingRotation;
+            transform.localPosition = twoHandingPosition;
+            transform.localEulerAngles = twoHandingRotation;
+
         }
 
         public void UseBlockTransform()

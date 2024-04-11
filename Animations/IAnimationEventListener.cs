@@ -41,6 +41,7 @@ namespace AF.Animations
 
         public void DropIKHelper();
         public void UseIKHelper();
+        public void SetCanTakeDamage_False();
 
     }
 }

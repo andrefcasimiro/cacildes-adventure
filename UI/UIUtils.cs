@@ -96,7 +96,7 @@ namespace AF
             {
                 while (lastScrollElementIndex >= 0 && lastElement == null)
                 {
-                    lastElement = scrollView.ElementAt(lastScrollElementIndex + 1);
+                    lastElement = scrollView?.ElementAt(lastScrollElementIndex + 1);
 
                     if (lastElement != null)
                     {

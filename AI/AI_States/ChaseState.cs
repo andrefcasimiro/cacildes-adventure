@@ -43,10 +43,11 @@ namespace AF
 
         public override void OnStateEnter(StateManager stateManager)
         {
+
             currentIntervalBetweenChaseActions = 0f;
 
+            characterManager.agent.speed = characterManager.chaseSpeed;
             characterManager.agent.ResetPath();
-
             onStateEnter?.Invoke();
         }
 

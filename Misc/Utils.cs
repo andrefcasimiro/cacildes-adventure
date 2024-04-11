@@ -78,9 +78,9 @@ namespace AF
             {
                 subFolder = "Alchemy/";
             }
-            else if (item is Armor)
+            else if (item is UpgradeMaterial)
             {
-                subFolder = "Armors/";
+                subFolder = "Upgrade Materials/";
             }
             else if (item is Arrow)
             {
@@ -102,6 +102,14 @@ namespace AF
             {
                 subFolder = "Helmets/";
             }
+            else if (item is Armor)
+            {
+                subFolder = "Armors/";
+            }
+            else if (item is Gauntlet)
+            {
+                subFolder = "Gauntlets/";
+            }
             else if (item is Legwear)
             {
                 subFolder = "Legwears/";
@@ -117,10 +125,6 @@ namespace AF
             else if (item is Weapon)
             {
                 subFolder = "Weapons/";
-            }
-            else if (item is Gauntlet)
-            {
-                subFolder = "Gauntlets/";
             }
             else if (item is KeyItem || item is Item)
             {

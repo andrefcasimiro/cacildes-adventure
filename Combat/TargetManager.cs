@@ -81,11 +81,14 @@ namespace AF.Combat
 
             onTargetSet_Event?.Invoke();
 
-            if (characterManager.partners.Length > 0)
+            if (characterManager != null && characterManager.partners != null && characterManager.partners.Length > 0)
             {
                 foreach (var combatPartner in characterManager.partners)
                 {
-                    combatPartner.targetManager.SetTarget(target);
+                    if (combatPartner != null && combatPartner.targetManager != null)
+                    {
+                        combatPartner.targetManager.SetTarget(target);
+                    }
                 }
             }
 

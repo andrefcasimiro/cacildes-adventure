@@ -133,7 +133,7 @@ namespace AF
         void HandleAttackSpeed()
         {
             Weapon currentWeapon = equipmentDatabase.GetCurrentWeapon();
-            if (equipmentDatabase.isTwoHanding == false && currentWeapon != null && currentWeapon.oneHandAttackSpeedPenalty < 1)
+            if (equipmentDatabase.isTwoHanding == false && currentWeapon != null && currentWeapon.oneHandAttackSpeedPenalty != 1)
             {
                 animator.SetFloat(SpeedMultiplierHash, currentWeapon.oneHandAttackSpeedPenalty);
             }
