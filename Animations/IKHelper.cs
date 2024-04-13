@@ -21,6 +21,7 @@ namespace AF
         [Header("Options")]
         public bool dontAllowIKWhenRunning = false;
         public bool dontAllowIKWhenJumpAttacking = false;
+        public bool onlyAllowOnAttacks = false;
 
         private void Awake()
         {
@@ -95,6 +96,11 @@ namespace AF
             if (playerManager.lockOnManager.isLockedOn)
             {
                 return false;
+            }
+
+            if (onlyAllowOnAttacks)
+            {
+                return playerManager.playerCombatController.IsAttacking();
             }
 
             if (dontAllowIKWhenJumpAttacking && playerManager.playerCombatController.isJumpAttacking)

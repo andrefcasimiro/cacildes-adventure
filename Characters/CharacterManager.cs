@@ -32,6 +32,7 @@ namespace AF
         public float patrolSpeed = 2f;
         public float chaseSpeed = 4.5f;
         public float rotationSpeed = 6f;
+        public bool shouldReturnToInitialPositionOnRevive = true;
 
         [Header("Face Target Settings")]
         public bool faceTarget = false;
@@ -165,10 +166,14 @@ namespace AF
 
                 if (isCompanion == false)
                 {
-                    agent.Warp(initialPosition);
-                    characterController.enabled = false;
-                    transform.SetPositionAndRotation(initialPosition, initialRotation);
-                    characterController.enabled = true;
+                    if (shouldReturnToInitialPositionOnRevive)
+                    {
+                        agent.Warp(initialPosition);
+                        characterController.enabled = false;
+                        transform.SetPositionAndRotation(initialPosition, initialRotation);
+                        characterController.enabled = true;
+
+                    }
                 }
             }
         }

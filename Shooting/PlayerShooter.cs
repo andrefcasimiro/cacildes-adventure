@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using AF.Inventory;
 using Cinemachine;
 using UnityEngine;
@@ -274,9 +275,27 @@ namespace AF.Shooting
                 lookPosition = Quaternion.LookRotation(lookDir);
             }
 
-            if (spell != null && spell.spawnAtPlayerFeet)
+            if (spell != null)
             {
-                origin = playerFeetRef.transform.position + new Vector3(0, spell.playerFeetOffsetY, 0);
+                if (spell.spawnAtPlayerFeet)
+                {
+                    origin = playerFeetRef.transform.position + new Vector3(0, spell.playerFeetOffsetY, 0);
+                }
+
+                if (spell.statusEffects != null && spell.statusEffects.Length > 0)
+                {
+
+                    foreach (StatusEffect statusEffect in spell.statusEffects)
+                    {
+                        GetPlayerManager().statusController.statusEffectInstances.FirstOrDefault(x => x.Key == statusEffect).Value?.onConsumeStart?.Invoke();
+
+                        // For positive effects, we override the status effect resistance to be the duration of the consumable effect
+                        GetPlayerManager().statusController.statusEffectResistances[statusEffect] = spell.effectsDurationInSeconds;
+
+                        GetPlayerManager().statusController.InflictStatusEffect(statusEffect, spell.effectsDurationInSeconds, true);
+                    }
+
+                }
             }
 
             GameObject projectileInstance = Instantiate(projectile.gameObject, origin, lookPosition);

@@ -109,10 +109,6 @@ namespace AF
         [Header("Jump Attack")]
         public float jumpAttackVelocity = -5f;
 
-        [Header("Shield Piercing")]
-        public bool ignoresEnemyBlocking = false;
-        public bool canBeParried = true;
-
         [Header("Is Holy?")]
         public bool isHolyWeapon = false;
 

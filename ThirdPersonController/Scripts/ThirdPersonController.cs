@@ -35,10 +35,12 @@ namespace AF
 
         [Tooltip("The height the player can jump")]
         public float JumpHeight = 1.2f;
+        float DefaultJumpHeight;
         public float JumpHeightBonus = 0f;
 
         [Tooltip("The character uses its own gravity value. The engine default is -9.81f")]
         public float Gravity = -15.0f;
+        float DefaultGravity;
 
         [Space(10)]
         [Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
@@ -162,6 +164,8 @@ namespace AF
         private void Awake()
         {
             defaultFieldOfView = virtualCamera.m_Lens.FieldOfView;
+            DefaultGravity = Gravity;
+            DefaultJumpHeight = JumpHeight;
         }
 
         private void Start()
@@ -740,6 +744,30 @@ namespace AF
         public void SetCanRotateCharacter(bool value)
         {
             this.canRotateCharacter = value;
+        }
+
+        /// <summary>
+        ///  Unity Event
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetGravity(float value)
+        {
+            this.Gravity = value;
+        }
+
+        public void ResetGravityToDefaultValue()
+        {
+            this.Gravity = DefaultGravity;
+        }
+
+        public void SetJumpHeight(float value)
+        {
+            this.JumpHeight = value;
+        }
+
+        public void ResetJumpHeight()
+        {
+            this.JumpHeight = DefaultJumpHeight;
         }
 
     }

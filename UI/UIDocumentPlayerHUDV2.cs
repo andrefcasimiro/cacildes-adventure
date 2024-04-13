@@ -63,7 +63,7 @@ namespace AF
 
         VisualElement KeyboardActions, GamepadActions;
 
-        Label currentObjectiveLabel, currentObjectiveValue;
+        Label currentObjectiveLabel, currentObjectiveValue, combatStanceIndicatorLabel;
 
         private void Awake()
         {
@@ -125,12 +125,28 @@ namespace AF
             KeyboardActions = root.Q<VisualElement>("KeyboardActions");
             GamepadActions = root.Q<VisualElement>("GamepadActions");
 
+            combatStanceIndicatorLabel = root.Q<Label>("CombatStanceIndicator");
+            UpdateCombatStanceIndicator();
+            EventManager.StartListening(EventMessages.ON_TWO_HANDING_CHANGED, UpdateCombatStanceIndicator);
+
             UpdateEquipment();
 
             HandleDeviceChange();
             InputSystem.onDeviceChange += HandleDeviceChangeCallback;
 
             UpdateQuestTracking();
+        }
+
+        void UpdateCombatStanceIndicator()
+        {
+            if (equipmentDatabase.isTwoHanding)
+            {
+                combatStanceIndicatorLabel.text = "Combat Stance: Two-Handing Weapon";
+            }
+            else
+            {
+                combatStanceIndicatorLabel.text = "Combat Stance: One-Handing Weapon";
+            }
         }
 
         private void OnDisable()

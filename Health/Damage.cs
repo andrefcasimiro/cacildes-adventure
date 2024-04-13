@@ -25,6 +25,9 @@ namespace AF.Health
 
         public StatusEffectEntry[] statusEffects;
 
+        public bool ignoreBlocking = false;
+        public bool canNotBeParried = false;
+
         public Damage()
         {
         }

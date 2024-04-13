@@ -111,7 +111,7 @@ namespace AF
                     character.characterPosture.RecoverFromStunned();
                 }
 
-                if (character.characterBlockController.IsWithinParryingWindow())
+                if (character.characterBlockController.CanParry(incomingDamage))
                 {
                     (character as CharacterManager)?.FaceTarget();
 

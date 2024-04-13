@@ -21,6 +21,7 @@ namespace AF.Animations
         // Locomotion
         public void EnableRootMotion();
         public void DisableRootMotion();
+        public void EnableRotation();
         public void DisableRotation();
         public void FaceTarget();
 

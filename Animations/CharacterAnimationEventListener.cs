@@ -137,6 +137,10 @@ namespace AF.Animations
 
         }
 
+        public void EnableRotation()
+        {
+        }
+
         public void DisableRotation()
         {
         }

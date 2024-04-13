@@ -24,6 +24,7 @@ namespace AF
 
         [Header("Flags")]
         public bool isCombatting = false;
+        public bool isLightAttacking = false;
 
         [Header("Components")]
         public PlayerManager playerManager;
@@ -61,7 +62,7 @@ namespace AF
         {
             isJumpAttacking = false;
             isHeavyAttacking = false;
-
+            isLightAttacking = false;
             animator.SetFloat(SpeedMultiplierHash, 1f);
         }
 
@@ -81,9 +82,15 @@ namespace AF
             }
         }
 
+        public bool IsAttacking()
+        {
+            return isLightAttacking || isHeavyAttacking || isJumpAttacking;
+        }
+
         public void HandleLightAttack()
         {
             isHeavyAttacking = false;
+            isLightAttacking = true;
 
             if (playerManager.thirdPersonController.Grounded)
             {
@@ -145,6 +152,8 @@ namespace AF
 
         void HandleJumpAttack()
         {
+            isHeavyAttacking = false;
+            isLightAttacking = false;
             isJumpAttacking = true;
 
             playerManager.playerWeaponsManager.HideShield();
@@ -162,6 +171,7 @@ namespace AF
                 return;
             }
 
+            isLightAttacking = false;
             isHeavyAttacking = true;
 
             playerManager.playerWeaponsManager.HideShield();

@@ -192,18 +192,19 @@ namespace AF.UI.EquipmentMenu
 
         void DrawWeaponEffects(Weapon weapon)
         {
-            var attack = attackStatManager.GetWeaponAttack(weapon);
             var strengthAttackBonus = attackStatManager.GetStrengthBonusFromWeapon(weapon);
             var dexterityAttackBonus = attackStatManager.GetDexterityBonusFromWeapon(weapon);
             var intelligenceAttackBonus = attackStatManager.GetIntelligenceBonusFromWeapon(weapon);
-            attack = (int)(attack - strengthAttackBonus - dexterityAttackBonus - intelligenceAttackBonus);
+            var unscaledAttackDamage = (int)(attackStatManager.GetWeaponAttack(weapon) - strengthAttackBonus - dexterityAttackBonus - intelligenceAttackBonus) - weapon.damage.physical;
 
-            CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"+{attackStatManager.GetWeaponAttack(weapon)} Damage");
-            CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"+{attack} Raw Physical Attack");
-
-            CreateTooltip(weaponScalingSprite, Color.white, $"Strength Scaling: +{strengthAttackBonus} ATK [{weapon.strengthScaling}]");
-            CreateTooltip(weaponScalingSprite, Color.white, $"Dexterity Scaling: +{dexterityAttackBonus} ATK [{weapon.dexterityScaling}]");
-            CreateTooltip(weaponScalingSprite, Color.white, $"Intelligence Scaling: +{intelligenceAttackBonus} ATK [{weapon.intelligenceScaling}]");
+            string damageExplanation = $"+{attackStatManager.GetWeaponAttack(weapon)} Final Damage\n";
+            damageExplanation += $"Explanation: \n\n";
+            damageExplanation += $"+{weapon.damage.physical} Weapon Base Damage\n";
+            damageExplanation += $"+{strengthAttackBonus} ATK [STR Scaling: {weapon.strengthScaling}]\n";
+            damageExplanation += $"+{dexterityAttackBonus} ATK [DEX Scaling: {weapon.dexterityScaling}]\n";
+            damageExplanation += $"+{intelligenceAttackBonus} ATK [INT Scaling: {weapon.intelligenceScaling}]\n";
+            damageExplanation += $"+{unscaledAttackDamage} Unscaled Physical Damage";
+            CreateTooltip(weaponPhysicalAttackSprite, Color.white, damageExplanation);
 
             CreateEquipLoadTooltip(weapon.speedPenalty);
 
@@ -270,6 +271,15 @@ namespace AF.UI.EquipmentMenu
                 CreateTooltip(blacksmithSprite, Color.white, weapon.GetMaterialCostForNextLevel());
             }
 
+            if (weapon.damage.ignoreBlocking)
+            {
+                CreateTooltip(defenseAbsorptionSprite, Color.white, "Ignores enemy shields");
+            }
+
+            if (weapon.damage.canNotBeParried)
+            {
+                CreateTooltip(defenseAbsorptionSprite, Color.white, "Can not be parried");
+            }
         }
 
         void DrawShield(Shield shield)
@@ -403,6 +413,11 @@ namespace AF.UI.EquipmentMenu
             if (spell.costPerCast > 0)
             {
                 CreateTooltip(spellCastSprite, Color.white, $"{spell.costPerCast} Mana Points required per cast");
+            }
+
+            if (spell.statusEffects != null && spell.statusEffects.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, spell.GetFormattedAppliedStatusEffects());
             }
 
             /*            if (spell.isFaithSpell)

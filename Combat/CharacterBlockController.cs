@@ -69,6 +69,11 @@ namespace AF
 
         public bool CanBlockDamage(Damage damage)
         {
+            if (damage.ignoreBlocking)
+            {
+                return false;
+            }
+
             if (!isBlocking)
             {
                 return false;
@@ -103,6 +108,11 @@ namespace AF
         public bool IsWithinParryingWindow()
         {
             return parryTimer < unarmedParryWindow;
+        }
+
+        public bool CanParry(Damage damage)
+        {
+            return damage.canNotBeParried == false && IsWithinParryingWindow();
         }
 
         public void HandleParryEvent()

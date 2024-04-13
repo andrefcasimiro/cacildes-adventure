@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
@@ -18,9 +16,28 @@ namespace AF
         [Header("Spell Type")]
         public bool isFaithSpell = false;
 
+        [Header("Status Effects")]
+        public StatusEffect[] statusEffects;
+        public float effectsDurationInSeconds = 15f;
+
         [Header("Spawn Options")]
         public bool spawnAtPlayerFeet = false;
         public float playerFeetOffsetY = 0f;
+
+        public string GetFormattedAppliedStatusEffects()
+        {
+            string result = "";
+
+            foreach (var statusEffect in statusEffects)
+            {
+                if (statusEffect != null)
+                {
+                    result += $"{statusEffect.name}\n";
+                }
+            }
+
+            return result.TrimEnd();
+        }
 
     }
 }
