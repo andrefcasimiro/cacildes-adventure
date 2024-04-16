@@ -4,6 +4,9 @@ namespace AF.Events
     {
         public static readonly string ON_EQUIPMENT_CHANGED = "ON_EQUIPMENT_CHANGED";
 
+        // Useful to calculate which active shield bonuses there are
+        public static readonly string ON_SHIELD_EQUIPMENT_CHANGED = "ON_SHIELD_EQUIPMENT_CHANGED";
+
         public static readonly string ON_TWO_HANDING_CHANGED = "ON_TWO_HANDING_CHANGED";
         // Events
         public static readonly string ON_MOMENT_START = "ON_MOMENT_START";
@@ -34,6 +37,8 @@ namespace AF.Events
         public static readonly string ON_GRAPHICS_QUALITY_CHANGED = "ON_GRAPHICS_QUALITY_CHANGED";
 
         public static readonly string ON_CAN_USE_IK_IS_TRUE = "ON_CAN_USE_IK_IS_TRUE";
+
+        public static readonly string ON_ARENA_LOST = "ON_ARENA_LOST";
 
     }
 }

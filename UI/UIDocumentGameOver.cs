@@ -25,6 +25,9 @@ namespace AF
             this.gameObject.SetActive(false);
         }
 
+        /// <summary>
+        /// Unity Event
+        /// </summary>
         public void DisplayGameOver()
         {
             this.gameObject.SetActive(true);

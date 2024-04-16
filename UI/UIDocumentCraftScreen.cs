@@ -131,6 +131,7 @@ namespace AF
             root.Q<Label>("FrostAttack").style.display = DisplayStyle.None;
             root.Q<Label>("LightningAttack").style.display = DisplayStyle.None;
             root.Q<Label>("MagicAttack").style.display = DisplayStyle.None;
+            root.Q<Label>("DarknessAttack").style.display = DisplayStyle.None;
         }
 
         void SetupActivity()
@@ -467,36 +468,43 @@ namespace AF
             root.Q<Label>("FrostAttack").style.display = DisplayStyle.None;
             root.Q<Label>("LightningAttack").style.display = DisplayStyle.None;
             root.Q<Label>("MagicAttack").style.display = DisplayStyle.None;
+            root.Q<Label>("DarknessAttack").style.display = DisplayStyle.None;
 
-            if (weapon.damage.physical > 0)
+            if (weapon.GetWeaponAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("PhysicalAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("PhysicalAttack").text = "Next Physical Damage: "
                     + weapon.GetWeaponAttackForLevel(weapon.level) + " > " + weapon.GetWeaponAttackForLevel(nextLevel);
             }
-            if (weapon.damage.fire > 0)
+            if (weapon.GetWeaponFireAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("FireAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("FireAttack").text = "Next Fire Bonus: "
                     + weapon.GetWeaponFireAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFireAttackForLevel(nextLevel);
             }
-            if (weapon.damage.frost > 0)
+            if (weapon.GetWeaponFrostAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("FrostAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("FrostAttack").text = "Next Frost Bonus: "
                     + weapon.GetWeaponFrostAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFrostAttackForLevel(nextLevel);
             }
-            if (weapon.damage.lightning > 0)
+            if (weapon.GetWeaponLightningAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("LightningAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("LightningAttack").text = "Next Lightning Bonus: "
                     + weapon.GetWeaponLightningAttackForLevel(weapon.level) + " > " + weapon.GetWeaponLightningAttackForLevel(nextLevel);
             }
-            if (weapon.damage.magic > 0)
+            if (weapon.GetWeaponMagicAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("MagicAttack").style.display = DisplayStyle.Flex;
                 root.Q<Label>("MagicAttack").text = "Next Magic Bonus: "
                     + weapon.GetWeaponMagicAttackForLevel(weapon.level) + " > " + weapon.GetWeaponMagicAttackForLevel(nextLevel);
+            }
+            if (weapon.GetWeaponDarknessAttackForLevel(nextLevel) > 0)
+            {
+                root.Q<Label>("DarknessAttack").style.display = DisplayStyle.Flex;
+                root.Q<Label>("DarknessAttack").text = "Next Dark Bonus: "
+                    + weapon.GetWeaponDarknessAttackForLevel(weapon.level) + " > " + weapon.GetWeaponDarknessAttackForLevel(nextLevel);
             }
 
             // Requirements

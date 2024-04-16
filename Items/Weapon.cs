@@ -51,7 +51,7 @@ namespace AF
     public class WeaponUpgradeLevel
     {
         public int goldCostForUpgrade;
-        public int bonusAttack;
+        public Damage newDamage;
 
         public SerializedDictionary<UpgradeMaterial, int> upgradeMaterials;
     }
@@ -129,70 +129,70 @@ namespace AF
         }
 #endif
 
-        public int CalculateValue(int baseValue, int currentLevel)
+        public Damage CalculateValue(int currentLevel)
         {
 
             WeaponUpgradeLevel weaponUpgradeLevel = weaponUpgrades.ElementAtOrDefault(currentLevel - 2);
 
             if (weaponUpgradeLevel != null)
             {
-                return baseValue + weaponUpgradeLevel.bonusAttack;
+                return weaponUpgradeLevel.newDamage;
             }
 
-            return baseValue;
+            return this.damage;
         }
 
         public int GetWeaponAttack()
         {
-            return CalculateValue((int)damage.physical, this.level);
+            return CalculateValue(this.level).physical;
         }
         public int GetWeaponAttackForLevel(int level)
         {
-            return CalculateValue((int)damage.physical, level);
+            return CalculateValue(level).physical;
         }
         public int GetWeaponFireAttack()
         {
-            return CalculateValue((int)damage.fire, this.level);
+            return CalculateValue(this.level).fire;
         }
         public int GetWeaponFireAttackForLevel(int level)
         {
-            return CalculateValue((int)damage.fire, level);
+            return CalculateValue(level).fire;
         }
         public int GetWeaponFrostAttack()
         {
-            return CalculateValue((int)damage.frost, this.level);
+            return CalculateValue(this.level).frost;
         }
         public int GetWeaponFrostAttackForLevel(int level)
         {
-            return CalculateValue((int)damage.frost, level);
+            return CalculateValue(level).frost;
         }
         public int GetWeaponLightningAttack()
         {
-            return CalculateValue((int)damage.lightning, this.level);
+            return CalculateValue(this.level).lightning;
         }
         public int GetWeaponLightningAttackForLevel(int level)
         {
-            return CalculateValue((int)damage.lightning, level);
+            return CalculateValue(level).lightning;
         }
 
         public int GetWeaponDarknessAttack()
         {
-            return CalculateValue((int)damage.darkness, this.level);
+            return CalculateValue(this.level).darkness;
         }
 
         public int GetWeaponDarknessAttackForLevel(int level)
         {
-            return CalculateValue((int)damage.darkness, level);
+            return CalculateValue(level).darkness;
         }
 
         public int GetWeaponMagicAttack()
         {
-            return CalculateValue((int)damage.magic, this.level);
+            return CalculateValue(this.level).magic;
         }
 
         public int GetWeaponMagicAttackForLevel(int level)
         {
-            return CalculateValue((int)damage.magic, level);
+            return CalculateValue(level).magic;
         }
 
 
@@ -221,8 +221,33 @@ namespace AF
             if (CanBeUpgradedFurther() && weaponUpgrades[this.level - 1] != null && weaponUpgrades[this.level - 1].upgradeMaterials != null)
             {
                 WeaponUpgradeLevel nextWeaponUpgradeLevel = weaponUpgrades[this.level - 1];
-                string text = $"Next Weapon Level: {this.level + 1} ";
-                text += $"(+{nextWeaponUpgradeLevel.bonusAttack} ATK)\n";
+                string text = $"Next Weapon Level: {this.level + 1}\n";
+
+                if (nextWeaponUpgradeLevel.newDamage.physical > 0)
+                {
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.physical} Physical ATK\n";
+                }
+                if (nextWeaponUpgradeLevel.newDamage.fire > 0)
+                {
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.fire} Fire ATK\n";
+                }
+                if (nextWeaponUpgradeLevel.newDamage.frost > 0)
+                {
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.frost} Frost ATK\n";
+                }
+                if (nextWeaponUpgradeLevel.newDamage.lightning > 0)
+                {
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.lightning} Lightning ATK\n";
+                }
+                if (nextWeaponUpgradeLevel.newDamage.magic > 0)
+                {
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.magic} Magic ATK\n";
+                }
+                if (nextWeaponUpgradeLevel.newDamage.darkness > 0)
+                {
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.darkness} Darkness ATK\n";
+                }
+
                 text += $"Required Gold: {nextWeaponUpgradeLevel.goldCostForUpgrade} Coins\n";
                 text += $"Required Items:\n";
 

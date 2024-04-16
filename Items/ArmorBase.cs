@@ -50,6 +50,9 @@ namespace AF
         [Header("Posture")]
         public int postureBonus = 0;
 
+        [Header("Stamina")]
+        public float staminaRegenBonus = 0f;
+
         [Header("Speed Penalties")]
         public float speedPenalty = 0;
 

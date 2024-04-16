@@ -30,7 +30,8 @@ namespace AF
             "The variable fadeMaterial of",
             "can only be called on an active agent that has been placed on a NavMesh.",
             "The variable transformRef of FootstepReceiver has not been assigned",
-            "Coroutine couldn't be started because the the game object"
+            "Coroutine couldn't be started because the the game object",
+            "cannot be converted to type 'AF.State'."
         };
 
         void Start()

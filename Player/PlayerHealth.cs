@@ -1,6 +1,9 @@
+using AF.Events;
 using AF.Health;
 using AF.Stats;
+using TigerForge;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -12,6 +15,10 @@ namespace AF
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
+        public GameSession gameSession;
+
+        [Header("Events")]
+        public UnityEvent onDyingInArena;
 
         private void Awake()
         {
@@ -91,6 +98,13 @@ namespace AF
 
         void HandleDeath()
         {
+            if (gameSession.isParticipatingInArenaEvent)
+            {
+                EventManager.EmitEvent(EventMessages.ON_ARENA_LOST);
+                gameSession.SetIsParticipatingInArenaEvent(false);
+                onDyingInArena?.Invoke();
+                return;
+            }
             onDeath?.Invoke();
         }
 
@@ -161,5 +175,4 @@ namespace AF
         {
         }
     }
-
 }

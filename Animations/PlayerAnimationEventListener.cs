@@ -160,6 +160,12 @@ namespace AF.Animations
 
         public void OnFireArrow()
         {
+            playerManager.playerShootingManager.OnShoot();
+        }
+
+        public void OnFireMultipleArrows()
+        {
+            playerManager.playerShootingManager.ShootWithoutClearingProjectilesAndSpells();
         }
 
         public void OnLeftFootstep()

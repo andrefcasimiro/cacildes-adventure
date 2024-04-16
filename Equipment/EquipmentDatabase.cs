@@ -134,17 +134,20 @@ public class EquipmentDatabase : ScriptableObject
         }
 
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+        EventManager.EmitEvent(EventMessages.ON_SHIELD_EQUIPMENT_CHANGED);
     }
 
     public void EquipShield(Shield shield, int slotIndex)
     {
         shields[slotIndex] = shield;
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+        EventManager.EmitEvent(EventMessages.ON_SHIELD_EQUIPMENT_CHANGED);
     }
     public void UnequipShield(int slotIndex)
     {
         shields[slotIndex] = null;
         EventManager.EmitEvent(EventMessages.ON_EQUIPMENT_CHANGED);
+        EventManager.EmitEvent(EventMessages.ON_SHIELD_EQUIPMENT_CHANGED);
     }
 
     public void SwitchToNextArrow()

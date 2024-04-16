@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using AF.Inventory;
 using Cinemachine;
@@ -57,9 +58,15 @@ namespace AF.Shooting
 
         Coroutine FireDelayedProjectileCoroutine;
 
+        public GameObject queuedProjectile;
+        public Spell queuedSpell;
+
         public void ResetStates()
         {
             isShooting = false;
+
+            queuedProjectile = null;
+            queuedSpell = null;
         }
 
         void SetupCinemachine3rdPersonFollowReference()
@@ -183,7 +190,7 @@ namespace AF.Shooting
 
             GetPlayerManager().staminaStatManager.DecreaseStamina(minimumStaminaToShoot);
 
-            FireProjectile(consumableProjectile.projectile.gameObject, 1f, lockOnTarget, null);
+            FireProjectile(consumableProjectile.projectile.gameObject, lockOnTarget, null);
         }
 
 
@@ -192,14 +199,16 @@ namespace AF.Shooting
         /// </summary>
         public override void CastSpell()
         {
-            ShootSpell(equipmentDatabase.GetCurrentSpell(), transform, lockOnManager.nearestLockOnTarget?.transform);
+            ShootSpell(equipmentDatabase.GetCurrentSpell(), lockOnManager.nearestLockOnTarget?.transform);
+
+            OnShoot();
         }
 
         public override void FireArrow()
         {
         }
 
-        public void ShootSpell(Spell spell, Transform origin, Transform lockOnTarget)
+        public void ShootSpell(Spell spell, Transform lockOnTarget)
         {
             if (spell == null)
             {
@@ -210,22 +219,12 @@ namespace AF.Shooting
 
             if (spell.projectile != null)
             {
-                FireProjectile(spell.projectile.gameObject, 0f, lockOnTarget, spell);
+                FireProjectile(spell.projectile.gameObject, lockOnTarget, spell);
             }
         }
 
-        public void FireProjectile(GameObject projectile, float originDistanceFromCamera, Transform lockOnTarget, Spell spell)
+        public void FireProjectile(GameObject projectile, Transform lockOnTarget, Spell spell)
         {
-            Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
-            Vector3 lookPosition = ray.direction;
-
-            if (lookPosition.y > 0)
-            {
-                lookPosition.y *= -1f;
-            }
-
-            float delay = 0f;
-
             if (lockOnTarget != null && lockOnManager.isLockedOn)
             {
                 var rotation = lockOnTarget.transform.position - characterBaseManager.transform.position;
@@ -241,10 +240,22 @@ namespace AF.Shooting
                 }
                 else
                 {
-
                     characterBaseManager.PlayBusyHashedAnimation(hashFireBowLockedOn);
-                    delay = 0.5f;
                 }
+            }
+
+            queuedProjectile = projectile;
+            queuedSpell = spell;
+        }
+
+        public void ShootWithoutClearingProjectilesAndSpells()
+        {
+            Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
+            Vector3 lookPosition = ray.direction;
+
+            if (lookPosition.y > 0)
+            {
+                lookPosition.y *= -1f;
             }
 
             cinemachineImpulseSource.GenerateImpulse();
@@ -255,13 +266,33 @@ namespace AF.Shooting
                 StopCoroutine(FireDelayedProjectileCoroutine);
             }
 
-            FireDelayedProjectileCoroutine = StartCoroutine(FireDelayedProjectile_Coroutine(projectile, originDistanceFromCamera, Quaternion.LookRotation(lookPosition), ray, delay, spell));
+            float distanceFromCamera = 0f;
+            if (queuedProjectile != null)
+            {
+                distanceFromCamera = 1f;
+            }
+
+            HandleProjectile(
+                queuedProjectile,
+                distanceFromCamera,
+                Quaternion.LookRotation(lookPosition),
+                ray,
+                0f,
+                queuedSpell);
         }
 
-        IEnumerator FireDelayedProjectile_Coroutine(GameObject projectile, float originDistanceFromCamera, Quaternion lookPosition, Ray ray, float delay, Spell spell)
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void OnShoot()
         {
-            yield return new WaitForSeconds(delay);
+            ShootWithoutClearingProjectilesAndSpells();
+            queuedProjectile = null;
+            queuedSpell = null;
+        }
 
+        void HandleProjectile(GameObject projectile, float originDistanceFromCamera, Quaternion lookPosition, Ray ray, float delay, Spell spell)
+        {
             Vector3 origin = ray.GetPoint(originDistanceFromCamera);
 
             // If shooting spell but not locked on, use player transform forward to direct the spell
@@ -294,27 +325,52 @@ namespace AF.Shooting
 
                         GetPlayerManager().statusController.InflictStatusEffect(statusEffect, spell.effectsDurationInSeconds, true);
                     }
-
                 }
             }
 
             GameObject projectileInstance = Instantiate(projectile.gameObject, origin, lookPosition);
-            projectileInstance.TryGetComponent(out IProjectile componentProjectile);
+            IProjectile[] projectileComponents = GetProjectileComponentsInChildren(projectileInstance);
 
-            if (componentProjectile != null)
+
+            foreach (IProjectile componentProjectile in projectileComponents)
             {
                 componentProjectile.Shoot(characterBaseManager, ray.direction * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
             }
 
-            HandleProjectileDamageManagers(projectileInstance);
+            HandleProjectileDamageManagers(projectileInstance, spell);
         }
 
-        void HandleProjectileDamageManagers(GameObject projectileInstance)
+        IProjectile[] GetProjectileComponentsInChildren(GameObject obj)
+        {
+            List<IProjectile> projectileComponents = new List<IProjectile>();
+
+            IProjectile projectile;
+            if (obj.TryGetComponent(out projectile))
+            {
+                projectileComponents.Add(projectile);
+            }
+
+            foreach (Transform child in obj.transform)
+            {
+                projectileComponents.AddRange(GetProjectileComponentsInChildren(child.gameObject));
+            }
+
+            return projectileComponents.ToArray();
+        }
+
+        void HandleProjectileDamageManagers(GameObject projectileInstance, Spell currentSpell)
         {
             // Assign the damage owner to the OnDamageCollisionAbstractManager of the projectile instance, if it exists
             if (projectileInstance.TryGetComponent(out OnDamageCollisionAbstractManager onDamageCollisionAbstractManager))
             {
                 onDamageCollisionAbstractManager.damageOwner = GetPlayerManager();
+
+                if (currentSpell != null)
+                {
+                    onDamageCollisionAbstractManager.damage.ScaleSpell(
+                        GetPlayerManager().attackStatManager,
+                        GetPlayerManager().attackStatManager.equipmentDatabase.GetCurrentWeapon(), playerStatsDatabase.GetCurrentReputation(), currentSpell.isFaithSpell);
+                }
 
                 if (GetPlayerManager().statsBonusController.spellDamageBonusMultiplier > 0)
                 {
@@ -323,10 +379,17 @@ namespace AF.Shooting
             }
 
             // Assign the damage owner to all child OnDamageCollisionAbstractManagers of the projectile instance
-            OnDamageCollisionAbstractManager[] onDamageCollisionAbstractManagers = projectileInstance.GetComponentsInChildren<OnDamageCollisionAbstractManager>();
+            OnDamageCollisionAbstractManager[] onDamageCollisionAbstractManagers = GetAllChildOnDamageCollisionManagers(projectileInstance);
             foreach (var onChildDamageCollisionAbstractManager in onDamageCollisionAbstractManagers)
             {
                 onChildDamageCollisionAbstractManager.damageOwner = GetPlayerManager();
+
+                if (currentSpell != null)
+                {
+                    onChildDamageCollisionAbstractManager.damage.ScaleSpell(
+                        GetPlayerManager().attackStatManager,
+                        GetPlayerManager().attackStatManager.equipmentDatabase.GetCurrentWeapon(), playerStatsDatabase.GetCurrentReputation(), currentSpell.isFaithSpell);
+                }
 
                 if (GetPlayerManager().statsBonusController.spellDamageBonusMultiplier > 0)
                 {
@@ -334,6 +397,25 @@ namespace AF.Shooting
                 }
             }
         }
+
+        public OnDamageCollisionAbstractManager[] GetAllChildOnDamageCollisionManagers(GameObject obj)
+        {
+            List<OnDamageCollisionAbstractManager> managers = new List<OnDamageCollisionAbstractManager>();
+
+            foreach (Transform child in obj.transform)
+            {
+                managers.AddRange(GetAllChildOnDamageCollisionManagers(child.gameObject));
+            }
+
+            OnDamageCollisionAbstractManager[] childManagers = obj.GetComponents<OnDamageCollisionAbstractManager>();
+            if (childManagers.Length > 0)
+            {
+                managers.AddRange(childManagers);
+            }
+
+            return managers.ToArray();
+        }
+
 
         bool CanAim()
         {

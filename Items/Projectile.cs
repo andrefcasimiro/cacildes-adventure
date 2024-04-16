@@ -14,14 +14,11 @@ namespace AF
         [Header("Velocity")]
         public ForceMode forceMode;
         public float forwardVelocity = 10f;
+        public bool useOwnDirection = false;
 
         [Header("Stats")]
         public Damage damage;
         public bool scaleWithIntelligence = false;
-
-        [Header("Status Effects")]
-        public StatusEffect statusEffectToApply;
-        public int amountOfStatusEffectToApply;
 
         public Rigidbody rigidBody;
 
@@ -54,7 +51,12 @@ namespace AF
         {
             this.shooter = shooter;
 
-            rigidBody.AddForce(aimForce, forceMode);
+            if (useOwnDirection)
+            {
+                transform.rotation = Quaternion.LookRotation(aimForce - transform.position);
+            }
+
+            rigidBody.AddForce(useOwnDirection ? (transform.forward * GetForwardVelocity()) : aimForce, forceMode);
         }
 
         void OnTriggerEnter(Collider other)
@@ -82,12 +84,11 @@ namespace AF
             {
                 if (scaleWithIntelligence)
                 {
-                    damage = playerManager.attackStatManager.GetScaledSpellDamage(damage);
+                    damage.ScaleSpell(playerManager.attackStatManager, playerManager.attackStatManager.equipmentDatabase.GetCurrentWeapon(), 0, false);
                 }
                 else if (playerManager.attackStatManager.HasBowEquipped())
                 {
-                    // Merge projectile damage with player weapon
-                    damage = playerManager.attackStatManager.GetArrowDamage(damage);
+                    damage.ScaleProjectile(playerManager.attackStatManager, playerManager.attackStatManager.equipmentDatabase.GetCurrentWeapon());
                 }
             }
 
@@ -98,11 +99,6 @@ namespace AF
                 && characterManager.targetManager != null)
             {
                 characterManager.targetManager.SetTarget(shooter);
-            }
-
-            if (statusEffectToApply != null && damageReceiver?.character?.statusController != null)
-            {
-                damageReceiver.character.statusController.InflictStatusEffect(statusEffectToApply, amountOfStatusEffectToApply, false);
             }
 
             onCollision?.Invoke();

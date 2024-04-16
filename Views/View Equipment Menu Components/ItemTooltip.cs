@@ -197,8 +197,8 @@ namespace AF.UI.EquipmentMenu
             var intelligenceAttackBonus = attackStatManager.GetIntelligenceBonusFromWeapon(weapon);
             var unscaledAttackDamage = (int)(attackStatManager.GetWeaponAttack(weapon) - strengthAttackBonus - dexterityAttackBonus - intelligenceAttackBonus) - weapon.damage.physical;
 
-            string damageExplanation = $"+{attackStatManager.GetWeaponAttack(weapon)} Final Damage\n";
-            damageExplanation += $"Explanation: \n\n";
+            string damageExplanation = $"+{attackStatManager.GetWeaponAttack(weapon)} Final Damage\n\n";
+            damageExplanation += $"Explanation: \n";
             damageExplanation += $"+{weapon.damage.physical} Weapon Base Damage\n";
             damageExplanation += $"+{strengthAttackBonus} ATK [STR Scaling: {weapon.strengthScaling}]\n";
             damageExplanation += $"+{dexterityAttackBonus} ATK [DEX Scaling: {weapon.dexterityScaling}]\n";
@@ -214,23 +214,23 @@ namespace AF.UI.EquipmentMenu
             }
             if (weapon.GetWeaponFireAttack() > 0)
             {
-                CreateTooltip(fireSprite, fire, $"+{weapon.GetWeaponFireAttack()} Fire ATK");
+                CreateTooltip(fireSprite, fire, $"+{weapon.GetWeaponFireAttack() * attackStatManager.GetIntelligenceBonusFromWeapon(weapon)} Fire ATK");
             }
             if (weapon.GetWeaponFrostAttack() > 0)
             {
-                CreateTooltip(frostSprite, frost, $"+{weapon.GetWeaponFrostAttack()} Frost ATK");
+                CreateTooltip(frostSprite, frost, $"+{weapon.GetWeaponFrostAttack() * attackStatManager.GetIntelligenceBonusFromWeapon(weapon)} Frost ATK");
             }
             if (weapon.GetWeaponLightningAttack() > 0)
             {
-                CreateTooltip(lightningSprite, lightning, $"+{weapon.GetWeaponLightningAttack()} Lightning ATK");
+                CreateTooltip(lightningSprite, lightning, $"+{weapon.GetWeaponLightningAttack() * attackStatManager.GetIntelligenceBonusFromWeapon(weapon)} Lightning ATK");
             }
             if (weapon.GetWeaponMagicAttack() > 0)
             {
-                CreateTooltip(magicSprite, magic, $"+{weapon.GetWeaponMagicAttack()} Magic ATK");
+                CreateTooltip(magicSprite, magic, $"+{weapon.GetWeaponMagicAttack() * attackStatManager.GetIntelligenceBonusFromWeapon(weapon)} Magic ATK");
             }
             if (weapon.GetWeaponDarknessAttack() > 0)
             {
-                CreateTooltip(darknessSprite, darkness, $"+{weapon.GetWeaponDarknessAttack()} Darkness ATK");
+                CreateTooltip(darknessSprite, darkness, $"+{weapon.GetWeaponDarknessAttack() * attackStatManager.GetIntelligenceBonusFromWeapon(weapon)} Darkness ATK");
             }
             if (weapon.damage.weaponAttackType == WeaponAttackType.Blunt)
             {
@@ -284,7 +284,120 @@ namespace AF.UI.EquipmentMenu
 
         void DrawShield(Shield shield)
         {
-            CreateTooltip(defenseAbsorptionSprite, Color.white, $"%{shield.defenseAbsorption} Damage Absorption");
+            if (shield.blockStaminaCost != 1)
+            {
+                CreateTooltip(staminaCostSprite, Color.white, $"-{shield.blockStaminaCost} Stamina Cost Per Block");
+            }
+            if (shield.physicalAbsorption != 1)
+            {
+                CreateTooltip(defenseAbsorptionSprite, Color.white, $"%{100 - (shield.physicalAbsorption * 100)} Physical DMG Absorption");
+            }
+            if (shield.fireAbsorption != 1)
+            {
+                CreateTooltip(fireSprite, fire, $"%{100 - (shield.fireAbsorption * 100)} Fire DMG Absorption");
+            }
+            if (shield.frostAbsorption != 1)
+            {
+                CreateTooltip(frostSprite, frost, $"%{100 - (shield.frostAbsorption * 100)} Frost DMG Absorption");
+            }
+            if (shield.lightiningAbsorption != 1)
+            {
+                CreateTooltip(lightningSprite, lightning, $"%{100 - (shield.lightiningAbsorption * 100)} Lightning DMG Absorption");
+            }
+            if (shield.magicAbsorption != 1)
+            {
+                CreateTooltip(magicSprite, magic, $"%{100 - (shield.magicAbsorption * 100)} Magic DMG Absorption");
+            }
+            if (shield.darknessAbsorption != 1)
+            {
+                CreateTooltip(darknessSprite, darkness, $"%{100 - (shield.darknessAbsorption * 100)} Darkness DMG Absorption");
+            }
+
+            if (shield.statusEffectBlockResistances != null && shield.statusEffectBlockResistances.Length > 0)
+            {
+                CreateTooltip(statusEffectsSprite, Color.white, shield.GetFormattedStatusResistances());
+            }
+
+            if (shield.poiseBonus != 0)
+            {
+                CreatePoiseTooltip(shield.poiseBonus);
+            }
+
+            if (shield.postureBonus != 0)
+            {
+                CreatePostureTooltip(shield.postureBonus);
+            }
+
+            if (shield.canDamageEnemiesOnShieldAttack)
+            {
+
+                if (shield.damageDealtToEnemiesUponBlocking.physical != 0)
+                {
+                    CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"{shield.damageDealtToEnemiesUponBlocking.physical} Physical DMG dealt to enemies per block");
+                }
+
+                if (shield.damageDealtToEnemiesUponBlocking.fire != 0)
+                {
+                    CreateTooltip(fireSprite, fire, $"{shield.damageDealtToEnemiesUponBlocking.fire} Fire DMG dealt to enemies per block");
+                }
+
+                if (shield.damageDealtToEnemiesUponBlocking.frost != 0)
+                {
+                    CreateTooltip(frostSprite, frost, $"{shield.damageDealtToEnemiesUponBlocking.frost} Frost DMG dealt to enemies per block");
+                }
+
+                if (shield.damageDealtToEnemiesUponBlocking.lightning != 0)
+                {
+                    CreateTooltip(lightningSprite, lightning, $"{shield.damageDealtToEnemiesUponBlocking.lightning} Lightning DMG dealt to enemies per block");
+                }
+
+                if (shield.damageDealtToEnemiesUponBlocking.magic != 0)
+                {
+                    CreateTooltip(magicSprite, magic, $"{shield.damageDealtToEnemiesUponBlocking.magic} Magic DMG dealt to enemies per block");
+                }
+
+                if (shield.damageDealtToEnemiesUponBlocking.darkness != 0)
+                {
+                    CreateTooltip(darknessSprite, darkness, $"{shield.damageDealtToEnemiesUponBlocking.darkness} Darkness DMG dealt to enemies per block");
+                }
+
+                if (shield.damageDealtToEnemiesUponBlocking.statusEffects != null && shield.damageDealtToEnemiesUponBlocking.statusEffects.Length > 0)
+                {
+                    CreateTooltip(statusEffectsSprite, Color.white, shield.GetFormattedStatusAttacks());
+                }
+
+            }
+
+            if (shield.parryWindowBonus != 0)
+            {
+                CreateTooltip(defenseAbsorptionSprite, Color.white, $"+{shield.parryWindowBonus} Parry Window Duration Bonus");
+            }
+
+            if (shield.parryPostureDamageBonus != 0)
+            {
+                CreateTooltip(defenseAbsorptionSprite, Color.white, $"+{shield.parryPostureDamageBonus} Posture DMG per Parry");
+            }
+
+            if (shield.vitalityBonus != 0)
+            {
+                CreateTooltip(vitalitySprite, Color.white, $"+{shield.vitalityBonus} Vitality");
+            }
+
+            if (shield.enduranceBonus != 0)
+            {
+                CreateTooltip(enduranceSprite, Color.white, $"+{shield.enduranceBonus} Endurance");
+            }
+
+            if (shield.intelligenceBonus != 0)
+            {
+                CreateTooltip(intelligenceSprite, Color.white, $"+{shield.intelligenceBonus} Intelligence");
+            }
+
+            if (shield.staminaRegenBonus != 1)
+            {
+                CreateTooltip(staminaCostSprite, Color.white, $"%{shield.staminaRegenBonus} Stamina Regen. Speed Bonus");
+            }
+
             CreateEquipLoadTooltip(shield.speedPenalty);
         }
 
@@ -321,8 +434,15 @@ namespace AF.UI.EquipmentMenu
                 CreateTooltip(darknessSprite, darkness, $"+{armor.darkDefense} Darkness DEF");
             }
 
-            CreatePoiseTooltip(armor.poiseBonus);
-            CreatePostureTooltip(armor.postureBonus);
+            if (armor.poiseBonus != 0)
+            {
+                CreatePoiseTooltip(armor.poiseBonus);
+            }
+
+            if (armor.postureBonus != 0)
+            {
+                CreatePostureTooltip(armor.postureBonus);
+            }
 
             if (armor.statusEffectResistances != null && armor.statusEffectResistances.Length > 0)
             {

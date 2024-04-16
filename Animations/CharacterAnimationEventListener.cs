@@ -237,5 +237,11 @@ namespace AF.Animations
             }
             characterManager.damageReceiver.SetCanTakeDamage(false);
         }
+
+        public void OnFireMultipleArrows()
+        {
+            characterManager.characterBaseShooter.FireArrow();
+
+        }
     }
 }

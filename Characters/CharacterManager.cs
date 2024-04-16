@@ -44,6 +44,7 @@ namespace AF
 
         [Header("Events")]
         public UnityEvent onResetStates;
+        public UnityEvent onForceAgressionTowardsPlayer;
 
         // Scene Reference
         PlayerManager playerManager;

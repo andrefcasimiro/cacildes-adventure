@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using AF.Events;
 using AF.StatusEffects;
+using TigerForge;
 using UnityEngine;
 using static AF.ArmorBase;
 
@@ -25,10 +27,13 @@ namespace AF.Stats
         public float darkDefenseBonus = 0;
         public float additionalCoinPercentage = 0;
         public int parryPostureDamageBonus = 0;
+        public float parryPostureWindowBonus = 0;
         public int reputationBonus = 0;
         public float discountPercentage = 0f;
         public float spellDamageBonusMultiplier = 0f;
         public int postureBonus = 0;
+
+        public float staminaRegenerationBonus = 0f;
 
         [Header("Equipment Modifiers")]
         public float weightPenalty = 0f;
@@ -40,6 +45,14 @@ namespace AF.Stats
 
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
+
+        private void Awake()
+        {
+            EventManager.StartListening(EventMessages.ON_SHIELD_EQUIPMENT_CHANGED, () =>
+            {
+                RecalculateEquipmentBonus();
+            });
+        }
 
         public void RecalculateEquipmentBonus()
         {
@@ -187,6 +200,8 @@ namespace AF.Stats
             ApplyEquipmentAttributes(equipmentDatabase.legwear);
 
             ApplyAccessoryAttributes();
+
+            ApplyShieldAttributes();
         }
 
         void ResetAttributes()
@@ -194,6 +209,8 @@ namespace AF.Stats
             healthBonus = magicBonus = staminaBonus = vitalityBonus = enduranceBonus = strengthBonus = dexterityBonus = intelligenceBonus = 0;
             fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = discountPercentage = spellDamageBonusMultiplier = 0;
             reputationBonus = parryPostureDamageBonus = postureBonus = 0;
+
+            parryPostureWindowBonus = staminaRegenerationBonus = 0f;
         }
         void ApplyEquipmentAttributes(ArmorBase equipment)
         {
@@ -212,6 +229,7 @@ namespace AF.Stats
                 reputationBonus += equipment.reputationBonus;
                 discountPercentage += equipment.discountPercentage;
                 postureBonus += equipment.postureBonus;
+                staminaRegenerationBonus += equipment.staminaRegenBonus;
             }
         }
 
@@ -237,6 +255,19 @@ namespace AF.Stats
                 staminaBonus += accessory?.staminaBonus ?? 0;
                 spellDamageBonusMultiplier += accessory?.spellDamageBonusMultiplier ?? 0;
                 postureBonus += accessory?.postureBonus ?? 0;
+                staminaRegenerationBonus += accessory?.staminaRegenBonus ?? 0;
+            }
+        }
+
+        void ApplyShieldAttributes()
+        {
+            Shield currentShield = equipmentDatabase.GetCurrentShield();
+            if (currentShield != null)
+            {
+
+                parryPostureWindowBonus += currentShield.parryWindowBonus;
+                parryPostureDamageBonus += currentShield.parryPostureDamageBonus;
+                staminaRegenerationBonus += currentShield.staminaRegenBonus;
             }
         }
 

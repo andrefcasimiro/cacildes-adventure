@@ -73,5 +73,54 @@ namespace AF.Health
             this.darkness = (int)(this.darkness * multiplier);
         }
 
+        public void ScaleSpell(AttackStatManager attackStatManager, Weapon currentWeapon, int playerReputation, bool isFaithSpell)
+        {
+            if (this.fire > 0)
+            {
+                this.fire += (int)(currentWeapon.GetWeaponFireAttack() + attackStatManager.GetIntelligenceBonusFromWeapon(currentWeapon));
+            }
+
+            if (this.frost > 0)
+            {
+                this.frost += (int)(currentWeapon.GetWeaponFrostAttack() + attackStatManager.GetIntelligenceBonusFromWeapon(currentWeapon));
+            }
+
+            if (this.magic > 0)
+            {
+                this.magic += (int)(currentWeapon.GetWeaponMagicAttack() + attackStatManager.GetIntelligenceBonusFromWeapon(currentWeapon));
+            }
+
+            if (this.lightning > 0)
+            {
+                this.lightning += (int)(currentWeapon.GetWeaponLightningAttack() + attackStatManager.GetIntelligenceBonusFromWeapon(currentWeapon));
+            }
+
+            if (this.darkness > 0)
+            {
+                this.darkness += (int)(currentWeapon.GetWeaponDarknessAttack() + attackStatManager.GetIntelligenceBonusFromWeapon(currentWeapon));
+            }
+
+            if (this.pushForce > 0 && isFaithSpell)
+            {
+                this.pushForce += playerReputation > 0 ? (int)(playerReputation * 1.25f) : 0;
+            }
+        }
+
+        public void ScaleProjectile(AttackStatManager attackStatManager, Weapon currentWeapon)
+        {
+            // Steel arrow might inherit magic from a magical bow, hence don't check if base values are greater than zero
+            this.physical += (int)(currentWeapon.GetWeaponAttack() + attackStatManager.GetDexterityBonusFromWeapon(currentWeapon));
+            this.fire += (int)currentWeapon.GetWeaponFireAttack();
+            this.frost += (int)currentWeapon.GetWeaponFrostAttack();
+            this.magic += (int)(currentWeapon.GetWeaponMagicAttack() + attackStatManager.GetIntelligenceBonusFromWeapon(currentWeapon));
+            this.lightning += (int)currentWeapon.GetWeaponLightningAttack();
+            this.darkness += (int)currentWeapon.GetWeaponDarknessAttack();
+        }
+
+
+        public Damage Clone()
+        {
+            return (Damage)this.MemberwiseClone();
+        }
     }
 }

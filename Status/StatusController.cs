@@ -63,18 +63,14 @@ namespace AF.StatusEffects
 
             if (existingStatusEffectIndex == -1)
             {
-                AddStatusEffect(statusEffect, amount, hasReachedFullAmount);
-                return;
+                AddStatusEffect(statusEffect, amount, hasReachedFullAmount, maximumResistanceToStatusEffect);
             }
-
             // Don't inflict status effect on an already fully-inflicted status effect
-            if (appliedStatusEffects[existingStatusEffectIndex].hasReachedTotalAmount)
+            else if (!appliedStatusEffects[existingStatusEffectIndex].hasReachedTotalAmount)
             {
-                return;
+                appliedStatusEffects[existingStatusEffectIndex].currentAmount += amount;
+                HandleReachedAmountCalculation(statusEffect, existingStatusEffectIndex);
             }
-
-            appliedStatusEffects[existingStatusEffectIndex].currentAmount += amount;
-            HandleReachedAmountCalculation(statusEffect, existingStatusEffectIndex);
         }
 
         void HandleReachedAmountCalculation(StatusEffect statusEffect, int appliedStatusEffectIndex)
@@ -105,7 +101,7 @@ namespace AF.StatusEffects
             return null;
         }
 
-        float GetMaximumStatusResistanceBeforeSufferingStatusEffect(StatusEffect statusEffect)
+        public float GetMaximumStatusResistanceBeforeSufferingStatusEffect(StatusEffect statusEffect)
         {
             float resistance = 0;
             if (statusEffectResistances.ContainsKey(statusEffect))
@@ -122,8 +118,13 @@ namespace AF.StatusEffects
         }
 
 
-        void AddStatusEffect(StatusEffect statusEffect, float amount, bool hasReachedFullAmount)
+        void AddStatusEffect(StatusEffect statusEffect, float amount, bool hasReachedFullAmount, float maximumResistanceToStatusEffect)
         {
+            if (appliedStatusEffects.Exists(x => x.statusEffect == statusEffect))
+            {
+                return;
+            }
+
             AppliedStatusEffect appliedStatus = new()
             {
                 statusEffect = statusEffect,
@@ -133,7 +134,7 @@ namespace AF.StatusEffects
 
             appliedStatusEffects.Add(appliedStatus);
 
-            statusEffectUI?.Value.AddEntry(appliedStatus, GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect));
+            statusEffectUI?.Value.AddEntry(appliedStatus, maximumResistanceToStatusEffect);
 
             StatusEffectInstance statusEffectInstance = GetStatusEffectInstance(statusEffect);
             if (statusEffectInstance != null && appliedStatus.hasReachedTotalAmount)
@@ -153,7 +154,10 @@ namespace AF.StatusEffects
                     ? entry.statusEffect.decreaseRateWithDamage
                     : entry.statusEffect.decreaseRateWithoutDamage) * Time.deltaTime;
 
-                statusEffectUI.Value.UpdateEntry(entry, GetMaximumStatusResistanceBeforeSufferingStatusEffect(entry.statusEffect));
+                if (statusEffectUI != null && statusEffectUI.Value != null)
+                {
+                    statusEffectUI.Value.UpdateEntry(entry, GetMaximumStatusResistanceBeforeSufferingStatusEffect(entry.statusEffect));
+                }
 
                 if (ShouldRemove(entry))
                 {

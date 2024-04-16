@@ -21,7 +21,7 @@ namespace AF
 
             WeaponUpgradeLevel weaponUpgradeLevel1 = new()
             {
-                bonusAttack = 20,
+                newDamage = new() { physical = 20 },
                 goldCostForUpgrade = 200,
                 upgradeMaterials = new()
             };
@@ -29,7 +29,7 @@ namespace AF
 
             WeaponUpgradeLevel weaponUpgradeLevel2 = new()
             {
-                bonusAttack = 50,
+                newDamage = new() { physical = 50 },
                 goldCostForUpgrade = 500,
                 upgradeMaterials = new()
             };
@@ -42,7 +42,8 @@ namespace AF
         public void GetMaterialCostForNextLevel_CanBeUpgraded_ReturnsMaterialCost()
         {
             // Arrange
-            string expectedOutput = "Next Weapon Level: 2 (+20 ATK)\n" +
+            string expectedOutput = "Next Weapon Level: 2\n" +
+                                    "+20 Physical ATK\n" +
                                     "Required Gold: 200 Coins\n" +
                                     "Required Items:\n" +
                                     "- Iron: x1\n";
@@ -59,7 +60,8 @@ namespace AF
         {
             weapon.level = 2;
             // Arrange
-            string expectedOutput = "Next Weapon Level: 3 (+50 ATK)\n" +
+            string expectedOutput = "Next Weapon Level: 3\n" +
+                                    "+50 Physical ATK\n" +
                                     "Required Gold: 500 Coins\n" +
                                     "Required Items:\n" +
                                     "- Iron: x3\n";

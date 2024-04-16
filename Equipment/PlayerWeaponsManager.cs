@@ -43,6 +43,8 @@ namespace AF.Equipment
             EventManager.StartListening(
                 EventMessages.ON_EQUIPMENT_CHANGED,
                 UpdateEquipment);
+
+            EventManager.StartListening(EventMessages.ON_TWO_HANDING_CHANGED, UpdateCurrentShield);
         }
 
         private void Start()
@@ -443,14 +445,30 @@ namespace AF.Equipment
             return (int)playerManager.playerWeaponsManager.currentShieldInstance.shield.blockStaminaCost;
         }
 
-        public float GetCurrentShieldDefenseAbsorption()
+        public Damage GetCurrentShieldDefenseAbsorption(Damage incomingDamage)
         {
             if (currentShieldInstance == null)
             {
-                return playerManager.characterBlockController.unarmedDefenseAbsorption;
+                incomingDamage.physical = (int)(incomingDamage.physical * playerManager.characterBlockController.unarmedDefenseAbsorption);
+
+                return incomingDamage;
             }
 
-            return currentShieldInstance.shield.defenseAbsorption;
+            return currentShieldInstance.shield.FilterDamage(incomingDamage);
+        }
+        public Damage GetCurrentShieldPassiveDamageFilter(Damage incomingDamage)
+        {
+            if (currentShieldInstance == null)
+            {
+                return incomingDamage;
+            }
+
+            return currentShieldInstance.shield.FilterPassiveDamage(incomingDamage);
+        }
+
+        public void ApplyShieldDamageToAttacker(CharacterManager attacker)
+        {
+            currentShieldInstance.shield.AttackShieldAttacker(attacker);
         }
 
     }

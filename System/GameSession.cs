@@ -17,6 +17,8 @@ public class GameSession : ScriptableObject
 
     [Header("Teleport")]
     public string nextMap_SpawnGameObjectName;
+    [Header("Arena Settings")]
+    public bool isParticipatingInArenaEvent = false;
 
     [Header("Save Settings")]
     public bool loadSavedPlayerPositionAndRotation = false;
@@ -66,6 +68,7 @@ public class GameSession : ScriptableObject
     {
         gameState = GameState.NOT_INITIALIZED;
         initialTimeOfDay = 11;
+        isParticipatingInArenaEvent = false;
     }
 
     public void SetTimeOfDay(int hour)
@@ -110,6 +113,11 @@ public class GameSession : ScriptableObject
         }
 
         EventManager.EmitEvent(EventMessages.ON_GRAPHICS_QUALITY_CHANGED);
+    }
+
+    public void SetIsParticipatingInArenaEvent(bool value)
+    {
+        isParticipatingInArenaEvent = value;
     }
 
 }

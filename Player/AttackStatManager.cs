@@ -254,80 +254,22 @@ namespace AF
         public int GetStrengthBonusFromWeapon(Weapon weapon)
         {
             return (int)Mathf.Ceil((playerStatsDatabase.strength + playerManager.statsBonusController.strengthBonus)
-            * levelMultiplier * scalingDictionary[weapon.strengthScaling.ToString()]);
+            * levelMultiplier * scalingDictionary[weapon.strengthScaling.ToString()] / 2);
         }
 
         public float GetDexterityBonusFromWeapon(Weapon weapon)
         {
             return (int)Mathf.Ceil((playerStatsDatabase.dexterity + playerManager.statsBonusController.dexterityBonus)
-                * levelMultiplier * scalingDictionary[weapon.dexterityScaling.ToString()]);
+                * levelMultiplier * scalingDictionary[weapon.dexterityScaling.ToString()] / 2);
         }
 
         public float GetIntelligenceBonusFromWeapon(Weapon weapon)
         {
             return (int)Mathf.Ceil((playerStatsDatabase.intelligence + playerManager.statsBonusController.intelligenceBonus)
-                * levelMultiplier * scalingDictionary[weapon.intelligenceScaling.ToString()]);
+                * levelMultiplier * scalingDictionary[weapon.intelligenceScaling.ToString()] / 2);
         }
 
         #endregion
-
-        public Damage GetArrowDamage(Damage projectileDamage)
-        {
-            Damage bowDamage = GetAttackDamage();
-
-            projectileDamage.physical += bowDamage.physical;
-            projectileDamage.fire += bowDamage.fire;
-            projectileDamage.frost += bowDamage.frost;
-            projectileDamage.darkness += bowDamage.darkness;
-            projectileDamage.magic += bowDamage.magic;
-            projectileDamage.lightning += bowDamage.lightning;
-            projectileDamage.postureDamage += bowDamage.postureDamage;
-            projectileDamage.poiseDamage += bowDamage.poiseDamage;
-
-            return projectileDamage;
-        }
-
-        public Damage GetScaledSpellDamage(Damage spellDamage)
-        {
-            Weapon weapon = equipmentDatabase.GetCurrentWeapon();
-
-            if (weapon == null || weapon.damage.weaponAttackType != WeaponAttackType.Staff)
-            {
-                return spellDamage;
-            }
-
-            if (spellDamage.physical > 0)
-            {
-                spellDamage.physical += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.physical / 2;
-            }
-
-            if (spellDamage.fire > 0)
-            {
-                spellDamage.fire += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.fire / 2;
-            }
-
-            if (spellDamage.frost > 0)
-            {
-                spellDamage.frost += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.frost / 2;
-            }
-
-            if (spellDamage.lightning > 0)
-            {
-                spellDamage.lightning += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.lightning / 2;
-            }
-
-            if (spellDamage.magic > 0)
-            {
-                spellDamage.magic += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.magic / 2;
-            }
-
-            if (spellDamage.darkness > 0)
-            {
-                spellDamage.darkness += (int)scalingDictionary[weapon.intelligenceScaling.ToString()] + spellDamage.darkness / 2;
-            }
-
-            return spellDamage;
-        }
 
         public void SetBonusPhysicalAttack(int value)
         {

@@ -116,7 +116,7 @@ namespace AF
                     (character as CharacterManager)?.FaceTarget();
 
                     character.characterBlockController.HandleParryEvent();
-                    damageOwner.characterBlockController.HandleParriedEvent(character.characterBlockController.postureDamageFromParry);
+                    damageOwner.characterBlockController.HandleParriedEvent(character.characterBlockController.GetPostureDamageFromParry());
                     return;
                 }
 
@@ -126,8 +126,13 @@ namespace AF
                     {
                         if (playerManager.staminaStatManager.CanPerformAction(playerManager.playerWeaponsManager.GetCurrentBlockStaminaCost()))
                         {
-                            incomingDamage.physical = Mathf.Clamp(
-                                incomingDamage.physical - (int)(incomingDamage.physical * playerManager.playerWeaponsManager.GetCurrentShieldDefenseAbsorption() / 100), 0, incomingDamage.physical);
+                            incomingDamage = playerManager.playerWeaponsManager.GetCurrentShieldDefenseAbsorption(incomingDamage);
+
+                            if (damageOwner != null && damageOwner is CharacterManager enemy)
+                            {
+                                playerManager.playerWeaponsManager.ApplyShieldDamageToAttacker(enemy);
+                            }
+
                             playerManager.staminaStatManager.DecreaseStamina((int)playerManager.playerWeaponsManager.GetCurrentBlockStaminaCost());
                             character.characterBlockController.BlockAttack(incomingDamage);
                         }
@@ -180,6 +185,11 @@ namespace AF
             if (damageResistances != null)
             {
                 damage = damageResistances.FilterIncomingDamage(damage);
+            }
+
+            if (character != null && character is PlayerManager player)
+            {
+                damage = player.playerWeaponsManager.GetCurrentShieldPassiveDamageFilter(damage);
             }
 
             if (character != null)

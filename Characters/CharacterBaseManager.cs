@@ -31,7 +31,7 @@ namespace AF
         public CharacterBaseHealth health;
         public CharacterAbstractPosture characterPosture;
         public CharacterAbstractPoise characterPoise;
-        public CharacterBlockController characterBlockController;
+        public CharacterAbstractBlockController characterBlockController;
         public DamageReceiver damageReceiver;
         public CharacterPushController characterPushController;
         public abstract void ResetStates();

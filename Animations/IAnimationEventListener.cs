@@ -27,6 +27,7 @@ namespace AF.Animations
 
         public void OnSpellCast();
         public void OnFireArrow();
+        public void OnFireMultipleArrows();
         public void OnThrow();
 
         // SFX
@@ -43,6 +44,8 @@ namespace AF.Animations
         public void DropIKHelper();
         public void UseIKHelper();
         public void SetCanTakeDamage_False();
+
+
 
     }
 }

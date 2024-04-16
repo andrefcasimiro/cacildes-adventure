@@ -12,6 +12,9 @@ namespace AF.Triggers
         [Header("Tags")]
         public string[] tagsToDetect;
 
+        [Header("Events")]
+        public UnityAction<GameObject> onCharacterEnter;
+
         [Header("Settings")]
         public float intervalBetweenInvokations = 1f;
 
