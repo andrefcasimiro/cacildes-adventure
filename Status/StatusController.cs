@@ -134,7 +134,11 @@ namespace AF.StatusEffects
 
             appliedStatusEffects.Add(appliedStatus);
 
-            statusEffectUI?.Value.AddEntry(appliedStatus, maximumResistanceToStatusEffect);
+
+            if (statusEffectUI != null && statusEffectUI.Value != null)
+            {
+                statusEffectUI?.Value?.AddEntry(appliedStatus, maximumResistanceToStatusEffect);
+            }
 
             StatusEffectInstance statusEffectInstance = GetStatusEffectInstance(statusEffect);
             if (statusEffectInstance != null && appliedStatus.hasReachedTotalAmount)
@@ -210,7 +214,11 @@ namespace AF.StatusEffects
                 statusEffectInstance.onApplied_End?.Invoke();
             }
 
-            statusEffectUI.Value.RemoveEntry(appliedStatus);
+            if (statusEffectUI != null && statusEffectUI.Value != null)
+            {
+                statusEffectUI.Value.RemoveEntry(appliedStatus);
+            }
+
             appliedStatusEffects.Remove(appliedStatus);
         }
 

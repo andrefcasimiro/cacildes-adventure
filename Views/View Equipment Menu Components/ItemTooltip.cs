@@ -365,7 +365,6 @@ namespace AF.UI.EquipmentMenu
                 {
                     CreateTooltip(statusEffectsSprite, Color.white, shield.GetFormattedStatusAttacks());
                 }
-
             }
 
             if (shield.parryWindowBonus != 0)
@@ -521,6 +520,10 @@ namespace AF.UI.EquipmentMenu
             if (accessory.chanceToDoubleCoinsFromFallenEnemies)
             {
                 CreateTooltip(goldCoinSprite, Color.white, $"Chance to receive double coins from fallen enemies");
+            }
+            if (accessory.postureDecreaseRateBonus > 0)
+            {
+                CreateTooltip(postureSprite, Color.white, $"+ {accessory.postureDecreaseRateBonus} Posture Decrease Rate Bonus");
             }
         }
 

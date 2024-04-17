@@ -4,6 +4,7 @@ using AF.Health;
 using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace AF.Bonfires
 {
@@ -105,6 +106,7 @@ namespace AF.Bonfires
                 return;
             }
 
+            bonfiresDatabase.lastBonfireSceneId = SceneManager.GetActiveScene().name;
 
             onBonfire_Enter?.Invoke();
             GetPlayerManager().ResetStates();

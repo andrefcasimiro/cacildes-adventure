@@ -1,3 +1,4 @@
+using AF.Bonfires;
 using AF.Companions;
 using AF.Music;
 using UnityEngine;
@@ -12,8 +13,7 @@ namespace AF
         public GameSession gameSession;
 
         [Header("Databases")]
-        public CompanionsDatabase companionsDatabase;
-
+        public BonfiresDatabase bonfiresDatabase;
         public UnityAction onChangingScene;
 
         [Header("Components")]
@@ -21,14 +21,24 @@ namespace AF
         public FadeManager fadeManager;
         public BGMManager bGMManager;
         public CompanionsSceneManager companionsSceneManager;
-
-        public float teleportFadeOutDuration = 1f;
+        public NotificationManager notificationManager;
 
         void Start()
         {
             SpawnPlayer();
 
             companionsSceneManager.SpawnCompanions();
+        }
+
+        public void TeleportToLastRestedBonfire()
+        {
+            if (string.IsNullOrEmpty(bonfiresDatabase.lastBonfireSceneId))
+            {
+                notificationManager.ShowNotification("No bonfire to travel to. Rest at one first.", null);
+                return;
+            }
+
+            Teleport(bonfiresDatabase.lastBonfireSceneId, "Bonfire Spawnref");
         }
 
         public void Teleport(string sceneName)

@@ -167,7 +167,7 @@ namespace AF.Arena
 
             isTiming = false;
 
-            ClearEnemiesFromRound();
+            Invoke(nameof(ClearEnemiesFromRound), .75f);
 
             if (Random.Range(0, 1f) >= 0.5f)
             {

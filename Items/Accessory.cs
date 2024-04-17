@@ -20,6 +20,7 @@ namespace AF
 
         [Header("Posture")]
         public int postureDamagePerParry = 0;
+        public float postureDecreaseRateBonus = 0f;
 
         [Header("Spells")]
         public float spellDamageBonusMultiplier = 0f;

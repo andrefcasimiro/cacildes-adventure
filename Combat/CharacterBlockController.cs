@@ -21,7 +21,7 @@ namespace AF
 
         public override int GetPostureDamageFromParry()
         {
-            throw new System.NotImplementedException();
+            return basePostureDamageFromParry;
         }
 
         public override float GetUnarmedParryWindow()

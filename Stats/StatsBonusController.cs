@@ -33,6 +33,8 @@ namespace AF.Stats
         public float spellDamageBonusMultiplier = 0f;
         public int postureBonus = 0;
 
+        public float postureDecreaseRateBonus = 0f;
+
         public float staminaRegenerationBonus = 0f;
 
         [Header("Equipment Modifiers")]
@@ -210,7 +212,7 @@ namespace AF.Stats
             fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = discountPercentage = spellDamageBonusMultiplier = 0;
             reputationBonus = parryPostureDamageBonus = postureBonus = 0;
 
-            parryPostureWindowBonus = staminaRegenerationBonus = 0f;
+            parryPostureWindowBonus = staminaRegenerationBonus = postureDecreaseRateBonus = 0f;
         }
         void ApplyEquipmentAttributes(ArmorBase equipment)
         {
@@ -256,6 +258,8 @@ namespace AF.Stats
                 spellDamageBonusMultiplier += accessory?.spellDamageBonusMultiplier ?? 0;
                 postureBonus += accessory?.postureBonus ?? 0;
                 staminaRegenerationBonus += accessory?.staminaRegenBonus ?? 0;
+
+                postureDecreaseRateBonus += accessory?.postureDecreaseRateBonus ?? 0;
             }
         }
 

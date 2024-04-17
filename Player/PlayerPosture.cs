@@ -22,5 +22,11 @@ namespace AF
         {
             currentPostureDamage = 0;
         }
+
+        public override float GetPostureDecreateRate()
+        {
+            return 1f + statsBonusController.postureDecreaseRateBonus;
+        }
+
     }
 }

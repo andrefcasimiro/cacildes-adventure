@@ -1,8 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
-using AF.Events;
 using AF.Health;
-using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -75,7 +72,7 @@ namespace AF
             {
                 if (currentPostureDamage > 0)
                 {
-                    currentPostureDamage -= Time.deltaTime * 1;
+                    currentPostureDamage -= Time.deltaTime * GetPostureDecreateRate();
                 }
                 else
                 {
@@ -124,6 +121,8 @@ namespace AF
             isStunned = false;
             onDamageWhileStunned?.Invoke();
         }
+
+        public abstract float GetPostureDecreateRate();
     }
 
 }

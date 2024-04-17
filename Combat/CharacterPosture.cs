@@ -8,6 +8,11 @@ namespace AF
         {
             return maxPostureDamage;
         }
+
+        public override float GetPostureDecreateRate()
+        {
+            return 1f;
+        }
     }
 
 }

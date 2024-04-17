@@ -8,6 +8,7 @@ namespace AF.Bonfires
     [CreateAssetMenu(fileName = "Bonfires Database", menuName = "System/New Bonfires Database", order = 0)]
     public class BonfiresDatabase : ScriptableObject
     {
+        public string lastBonfireSceneId = "";
         public List<string> unlockedBonfires = new();
 
 #if UNITY_EDITOR
