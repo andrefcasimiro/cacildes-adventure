@@ -44,9 +44,7 @@ namespace AF
 
                 fadeManager.FadeIn(1f, () =>
                 {
-                    saveManager.ResetGameState();
-                    gameSession.gameState = GameSession.GameState.INITIALIZED;
-                    SceneManager.LoadScene(0);
+                    saveManager.ResetGameStateAndReturnToTitleScreen();
                 });
 
             }, soundbank);

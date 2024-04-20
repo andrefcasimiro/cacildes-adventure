@@ -455,11 +455,6 @@ namespace AF
 
         void LoadPickups()
         {
-            if (!HasSavedGame())
-            {
-                return;
-            }
-
             pickupDatabase.Clear();
 
             var pickups = QuickSaveReader.Create("Pickups");
@@ -488,11 +483,6 @@ namespace AF
         void LoadQuests()
         {
             questsDatabase.questsReceived.Clear();
-
-            if (!HasSavedGame())
-            {
-                return;
-            }
 
             var questsReceived = QuickSaveReader.Create("Quests");
             questsReceived.TryRead("questsReceived", out SerializedDictionary<string, int> savedQuestsReceived);
@@ -540,11 +530,6 @@ namespace AF
 
         void LoadSceneSettings()
         {
-            if (!HasSavedGame())
-            {
-                return;
-            }
-
             var data = QuickSaveReader.Create("Scene");
             data.TryRead<int>("sceneIndex", out int sceneIndex);
             SceneManager.LoadScene(sceneIndex);
@@ -652,7 +637,7 @@ namespace AF
 
         public bool HasSavedGame()
         {
-            return QuickSaveReader.Create("Scene").Exists("sceneIndex");
+            return QuickSaveReader.RootExists("Scene");
         }
 
         public void SaveGameData()
@@ -674,22 +659,40 @@ namespace AF
 
         public void LoadLastSavedGame(bool isFromGameOver)
         {
-            gameSession.gameState = GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN;
-
-            fadeManager.FadeIn(1f, () =>
+            if (HasSavedGame())
             {
-                LoadBonfires();
-                LoadCompanions();
-                LoadPlayerStats(isFromGameOver);
-                LoadPlayerInventory();
-                LoadPlayerEquipment();
-                LoadPickups();
-                LoadFlags();
-                LoadQuests();
-                LoadRecipes();
-                LoadSceneSettings();
-                LoadGameSettings();
-            });
+                gameSession.gameState = GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN;
+
+                fadeManager.FadeIn(1f, () =>
+                {
+                    LoadBonfires();
+                    LoadCompanions();
+                    LoadPlayerStats(isFromGameOver);
+                    LoadPlayerInventory();
+                    LoadPlayerEquipment();
+                    LoadPickups();
+                    LoadFlags();
+                    LoadQuests();
+                    LoadRecipes();
+                    LoadSceneSettings();
+                    LoadGameSettings();
+                });
+            }
+            else
+            {
+                // Return to title screen if no save game is available
+                fadeManager.FadeIn(1f, () =>
+                {
+                    ResetGameStateAndReturnToTitleScreen();
+                });
+            }
+        }
+
+        public void ResetGameStateAndReturnToTitleScreen()
+        {
+            ResetGameState();
+            gameSession.gameState = GameSession.GameState.INITIALIZED;
+            SceneManager.LoadScene(0);
         }
 
         private void Update()

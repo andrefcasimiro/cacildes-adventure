@@ -54,21 +54,6 @@ namespace AF
             }
         }
 
-        /*void EvaluateBlockAnimationUpdate()
-        {
-            if (equipmentDatabase.isTwoHanding && playerManager.playerWeaponsManager.currentWeaponInstance != null
-                && playerManager.playerWeaponsManager.currentWeaponInstance.weapon != null
-                && playerManager.playerWeaponsManager.currentWeaponInstance.weapon.blockOverrides != null
-                && playerManager.playerWeaponsManager.currentWeaponInstance.weapon.blockOverrides.Count > 0)
-            {
-                playerManager.UpdateAnimatorOverrideControllerClips(playerManager.playerWeaponsManager.currentWeaponInstance.weapon.blockOverrides);
-            }
-            else
-            {
-                playerManager.UpdateAnimatorOverrideControllerClips();
-            }
-        }*/
-
         public void EvaluateTwoHandingUpdate()
         {
             if (equipmentDatabase.isTwoHanding == false)

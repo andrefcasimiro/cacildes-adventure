@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AF.Animations;
 using AF.Equipment;
 using AF.Events;
@@ -71,7 +72,6 @@ namespace AF
             }
         }
 
-
         public override void ResetStates()
         {
             // First, reset all flags before calling the handlers
@@ -128,10 +128,11 @@ namespace AF
             }
         }
 
-
         public void UpdateAnimatorOverrideControllerClips()
         {
             SetupAnimRefs();
+
+            animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
 
             var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
             animatorOverrideController.GetOverrides(clipOverrides);
@@ -155,17 +156,6 @@ namespace AF
             }
         }
 
-        public void UpdateAnimatorOverrideControllerClips(System.Collections.Generic.List<AnimationOverride> animationOverrides)
-        {
-            SetupAnimRefs();
-
-            var clipOverrides = new AnimationClipOverrides(animatorOverrideController.overridesCount);
-            animatorOverrideController.GetOverrides(clipOverrides);
-
-            animator.runtimeAnimatorController = defaultAnimatorController;
-            UpdateAnimationOverrides(animator, clipOverrides, animationOverrides);
-        }
-
         void UpdateAnimationOverrides(Animator animator, AnimationClipOverrides clipOverrides, System.Collections.Generic.List<AnimationOverride> clips)
         {
             foreach (var animationOverride in clips)
@@ -185,7 +175,6 @@ namespace AF
                 lockOnManager.EnableLockOn();
             }
         }
-
 
         public void UpdateAnimatorOverrideControllerClip(string animationName, AnimationClip animationClip)
         {

@@ -39,10 +39,15 @@ namespace AF
         {
             if (state == PlayModeStateChange.ExitingPlayMode)
             {
-                questProgress = useDefaultQuestProgress ? defaultQuestProgress : -1;
+                Clear();
             }
         }
 #endif
+
+        public void Clear()
+        {
+            questProgress = useDefaultQuestProgress ? defaultQuestProgress : -1;
+        }
 
         public bool IsCompleted()
         {

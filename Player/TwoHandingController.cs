@@ -21,7 +21,6 @@ namespace AF
             UpdateTwoHandingMode();
 
             EventManager.StartListening(EventMessages.ON_TWO_HANDING_CHANGED, UpdateTwoHandingMode);
-            EventManager.StartListening(EventMessages.ON_EQUIPMENT_CHANGED, UpdateTwoHandingMode);
         }
 
         /// <summary>

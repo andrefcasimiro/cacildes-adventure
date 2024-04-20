@@ -49,6 +49,16 @@ namespace AF.StatusEffects
             HandleStatusEffects();
         }
 
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="statusEffect"></param>
+        public void InflictStatusEffect(StatusEffect statusEffect)
+        {
+            InflictStatusEffect(statusEffect, GetMaximumStatusResistanceBeforeSufferingStatusEffect(statusEffect), true);
+        }
+
         public void InflictStatusEffect(StatusEffect statusEffect, float amount, bool hasReachedFullAmount)
         {
             var existingStatusEffectIndex = appliedStatusEffects.FindIndex(x => x.statusEffect == statusEffect);

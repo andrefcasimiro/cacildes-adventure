@@ -328,7 +328,7 @@ namespace AF.Shooting
                 }
             }
 
-            GameObject projectileInstance = Instantiate(projectile.gameObject, origin, lookPosition);
+            GameObject projectileInstance = Instantiate(projectile?.gameObject, origin, lookPosition);
             IProjectile[] projectileComponents = GetProjectileComponentsInChildren(projectileInstance);
 
 

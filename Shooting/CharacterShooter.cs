@@ -75,7 +75,6 @@ namespace AF.Shooting
                 characterBaseManager.transform.rotation = Quaternion.LookRotation(rotation);
             }
         }
-
         public override bool CanShoot()
         {
             return true;
