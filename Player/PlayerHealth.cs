@@ -12,10 +12,12 @@ namespace AF
 
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;
+        public NotificationManager notificationManager;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
         public GameSession gameSession;
+
 
         [Header("Events")]
         public UnityEvent onDyingInArena;
@@ -77,6 +79,13 @@ namespace AF
 
             if (GetCurrentHealth() <= 0)
             {
+                if (playerStatsBonusController.chanceToRestoreHealthUponDeath && Random.Range(0, 1f) >= 0.5f)
+                {
+                    RestoreHealthPercentage(50);
+                    notificationManager.ShowNotification("You were saved from death.");
+                    return;
+                }
+
                 HandleDeath();
             }
         }

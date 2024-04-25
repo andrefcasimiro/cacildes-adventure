@@ -23,6 +23,8 @@ namespace AF
         int nothingLayer;
         int enemyLayer;
 
+        public bool isParalysed = false;
+
         private void Start()
         {
             nothingLayer = LayerMask.GetMask("Nothing");
@@ -48,6 +50,11 @@ namespace AF
 
         public void EnableComponents()
         {
+            if (isParalysed)
+            {
+                return;
+            }
+
             thirdPersonController.enabled = true;
             thirdPersonController.canRotateCharacter = true;
             thirdPersonController.canMove = true;
@@ -162,6 +169,20 @@ namespace AF
         {
             UpdatePosition(target.TransformPoint(Vector3.zero), target.rotation);
         }
-    }
 
+        public void SetIsParalysed(bool value)
+        {
+            isParalysed = value;
+
+            if (!value)
+            {
+                EnablePlayerControl();
+            }
+            else
+            {
+                DisableComponents();
+                thirdPersonController.enabled = false;
+            }
+        }
+    }
 }

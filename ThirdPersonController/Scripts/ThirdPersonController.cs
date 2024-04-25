@@ -151,6 +151,8 @@ namespace AF
 
         public bool canRotateCharacter = true;
 
+        public bool isConfused = false;
+
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -447,10 +449,15 @@ namespace AF
             }
         }
 
+        public bool IsSprinting()
+        {
+            return _input.sprint && playerStatsDatabase.currentStamina > 1f && _input.move != Vector2.zero;
+        }
+
         private void Move()
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            bool isSprinting = _input.sprint && playerStatsDatabase.currentStamina > 1f && _input.move != Vector2.zero;
+            bool isSprinting = IsSprinting();
             float targetSpeed = isSprinting ? SprintSpeed : (_input.toggleWalk ? WalkSpeed : RunSpeed);
 
 
@@ -543,6 +550,11 @@ namespace AF
             if (playerManager.dodgeController.isDodging || playerManager.IsBusy())
             {
                 targetDirection = Vector3.zero;
+            }
+
+            if (isConfused)
+            {
+                targetDirection *= -1f;
             }
 
             if ((
@@ -768,6 +780,11 @@ namespace AF
         public void ResetJumpHeight()
         {
             this.JumpHeight = DefaultJumpHeight;
+        }
+
+        public void SetIsConfused(bool value)
+        {
+            isConfused = value;
         }
 
     }

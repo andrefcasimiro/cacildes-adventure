@@ -92,9 +92,9 @@ namespace AF
 
             int lastScrollElementIndex = currentIndex;
 
-            if (lastScrollElementIndex != -1)
+            if (lastScrollElementIndex != -1 && scrollView?.childCount > 0)
             {
-                while (lastScrollElementIndex >= 0 && lastElement == null)
+                while (lastScrollElementIndex >= 0 && lastScrollElementIndex + 1 < scrollView.childCount && lastElement == null)
                 {
                     lastElement = scrollView?.ElementAt(lastScrollElementIndex + 1);
 

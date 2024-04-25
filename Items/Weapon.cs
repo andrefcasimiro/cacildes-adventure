@@ -100,6 +100,7 @@ namespace AF
         [Tooltip("Will be added as a negative speed to the animator when equipped")]
         public float speedPenalty = 0f;
         [Range(0.1f, 2f)] public float oneHandAttackSpeedPenalty = 1f;
+        [Range(0.1f, 2f)] public float twoHandAttackSpeedPenalty = 1f;
 
         [Header("Weapon Bonus")]
         public int amountOfGoldReceivedPerHit = 0;
@@ -246,6 +247,11 @@ namespace AF
                 if (nextWeaponUpgradeLevel.newDamage.darkness > 0)
                 {
                     text += $"+{nextWeaponUpgradeLevel.newDamage.darkness} Darkness ATK\n";
+                }
+
+                foreach (var statusEffect in nextWeaponUpgradeLevel.newDamage.statusEffects)
+                {
+                    text += $"+{statusEffect.amountPerHit} ${statusEffect.statusEffect.appliedName} Inflicted per HIT\n";
                 }
 
                 text += $"Required Gold: {nextWeaponUpgradeLevel.goldCostForUpgrade} Coins\n";

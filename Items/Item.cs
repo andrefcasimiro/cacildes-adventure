@@ -21,6 +21,7 @@ namespace AF
 
         [Header("Debug")]
         [TextAreaAttribute(minLines: 5, maxLines: 10)] public string notes;
+        [TextAreaAttribute(minLines: 1, maxLines: 2)] public string location;
 
     }
 }

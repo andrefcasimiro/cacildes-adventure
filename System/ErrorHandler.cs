@@ -22,7 +22,7 @@ namespace AF
 
         public Dictionary<string, string> errors = new();
 
-        private List<string> errorMessagesToIgnore = new List<string>
+        private List<string> errorMessagesToIgnore = new()
         {
             "has no receiver! Are you missing a component?",
             "AnimationEvent has no function name specified!",
@@ -31,7 +31,8 @@ namespace AF
             "can only be called on an active agent that has been placed on a NavMesh.",
             "The variable transformRef of FootstepReceiver has not been assigned",
             "Coroutine couldn't be started because the the game object",
-            "cannot be converted to type 'AF.State'."
+            "cannot be converted to type 'AF.State'.",
+            "[Steamworks.NET] SteamAPI_Init() failed."
         };
 
         void Start()

@@ -257,6 +257,8 @@ namespace AF.Shops
         {
             root.Q<ScrollView>().Clear();
 
+            HideItemPreview();
+
             Button exitButton = SetupExitButton(root.Q<ScrollView>());
 
             int i = 0;

@@ -27,6 +27,7 @@ namespace AF
 
         [Header("Life")]
         public bool chanceToDoubleCoinsFromFallenEnemies = false;
+        public bool chanceToRestoreHealthUponDeath = false;
 
     }
 }

@@ -91,7 +91,7 @@ namespace AF
                     : weapon.damage.postureDamage,
                     poiseDamage: weapon.damage.poiseDamage,
                     weaponAttackType: weapon.damage.weaponAttackType,
-                    statusEffects: null,
+                    statusEffects: weapon.damage.statusEffects,
                     pushForce: weapon.damage.pushForce
                 );
 

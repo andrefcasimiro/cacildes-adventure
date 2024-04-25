@@ -18,6 +18,9 @@ namespace AF
         // Scene Refs
         Soundbank soundbank;
 
+        [Header("Options")]
+        public bool ignorePlayerDodging = false;
+
         private void Start()
         {
             this.material = Instantiate(fadeMaterial);
@@ -70,7 +73,7 @@ namespace AF
 
         private void OnTriggerStay(Collider other)
         {
-            if (hasBeenHit)
+            if (hasBeenHit || ignorePlayerDodging)
             {
                 return;
             }

@@ -36,6 +36,7 @@ namespace AF.Stats
         public float postureDecreaseRateBonus = 0f;
 
         public float staminaRegenerationBonus = 0f;
+        public bool chanceToRestoreHealthUponDeath = false;
 
         [Header("Equipment Modifiers")]
         public float weightPenalty = 0f;
@@ -213,6 +214,8 @@ namespace AF.Stats
             reputationBonus = parryPostureDamageBonus = postureBonus = 0;
 
             parryPostureWindowBonus = staminaRegenerationBonus = postureDecreaseRateBonus = 0f;
+
+            chanceToRestoreHealthUponDeath = false;
         }
         void ApplyEquipmentAttributes(ArmorBase equipment)
         {
@@ -260,6 +263,11 @@ namespace AF.Stats
                 staminaRegenerationBonus += accessory?.staminaRegenBonus ?? 0;
 
                 postureDecreaseRateBonus += accessory?.postureDecreaseRateBonus ?? 0;
+
+                if (accessory != null && accessory.chanceToRestoreHealthUponDeath)
+                {
+                    chanceToRestoreHealthUponDeath = true;
+                }
             }
         }
 

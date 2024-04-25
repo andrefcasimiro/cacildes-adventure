@@ -88,7 +88,12 @@ namespace AF
                 return false;
             }
 
-            if (!playerManager.thirdPersonController.Grounded)
+            if (playerManager.thirdPersonController.IsSprinting())
+            {
+                return false;
+            }
+
+            if (playerManager.thirdPersonController)
             {
                 return false;
             }

@@ -15,6 +15,13 @@ namespace AF.Health
         public UnityEvent onDeath;
         public UnityEvent onDamageFromPlayer;
 
+        [Header("Quests")]
+        public Weapon weaponRequiredToKill;
+        public bool hasBeenHitWithRequiredWeapon = false;
+        public UnityEvent onKilledWithRightWeapon;
+        public UnityEvent onKilledWithWrongWeapon;
+
+
         [Header("Sounds")]
         public AudioClip postureHitSfx;
         public AudioClip postureBrokeSfx;
@@ -70,6 +77,23 @@ namespace AF.Health
             if (audioSource != null && deathSfx != null)
             {
                 audioSource.PlayOneShot(deathSfx);
+            }
+        }
+
+        public void CheckIfHasBeenKilledWithRightWeapon()
+        {
+            if (weaponRequiredToKill == null)
+            {
+                return;
+            }
+
+            if (hasBeenHitWithRequiredWeapon)
+            {
+                onKilledWithRightWeapon?.Invoke();
+            }
+            else
+            {
+                onKilledWithWrongWeapon?.Invoke();
             }
         }
     }

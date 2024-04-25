@@ -64,6 +64,11 @@ namespace AF
             timePassed += Time.deltaTime;
         }
 
+        public void ShowNotification(string message)
+        {
+            ShowNotification(message, null);
+        }
+
         public void ShowNotification(string message, Sprite sprite)
         {
             // Delete last entry

@@ -32,6 +32,7 @@ namespace AF
         public UnityEvent onOpenHitbox;
         public UnityEvent onCloseHitbox;
         public UnityEvent onDamageInflicted;
+        public UnityEvent onWeaponSpecial;
 
         [Header("Character Weapon Addons")]
         public CharacterTwoHandRef characterTwoHandRef;
@@ -140,6 +141,11 @@ namespace AF
                 if (character is PlayerManager)
                 {
                     damageReceiver?.health?.onDamageFromPlayer?.Invoke();
+
+                    if (this.weapon != null && damageReceiver?.health?.weaponRequiredToKill != null && damageReceiver.health.weaponRequiredToKill == this.weapon)
+                    {
+                        damageReceiver.health.hasBeenHitWithRequiredWeapon = true;
+                    }
                 }
             }
         }

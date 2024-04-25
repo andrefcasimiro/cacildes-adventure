@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using AF.Stats;
 using UnityEngine;
 
@@ -23,8 +22,6 @@ namespace AF
         public bool lessOrEqualThan = false;
 
         public int value = 0;
-
-        EquipmentGraphicsHandler equipmentGraphicsHandler;
 
         [Header("Components")]
         public StatsBonusController playerStatsBonusController;

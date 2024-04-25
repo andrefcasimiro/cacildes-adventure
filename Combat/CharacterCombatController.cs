@@ -26,7 +26,10 @@ namespace AF.Combat
 
         [Header("Animation Settings")]
         public string ANIMATION_CLIP_TO_OVERRIDE_NAME = "Cacildes - Light Attack - 1";
+        public string COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK = "Cacildes - Combo Attack";
+        public string COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_FOLLOWUP_ATTACK = "Cacildes - Combo Attack - Follow Up";
         public string hashLightAttack1 = "Light Attack 1";
+        public string hashComboAttack = "Combo Attack Initiator";
 
         [Header("Unity Events")]
         public UnityEvent onResetState;
@@ -150,7 +153,16 @@ namespace AF.Combat
 
             if (currentCombatAction.attackAnimationClip != null)
             {
-                characterManager.UpdateAnimatorOverrideControllerClips(ANIMATION_CLIP_TO_OVERRIDE_NAME, currentCombatAction.attackAnimationClip);
+
+                if (currentCombatAction.comboClip != null)
+                {
+                    characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK, currentCombatAction.attackAnimationClip);
+                    characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_FOLLOWUP_ATTACK, currentCombatAction.comboClip);
+                }
+                else
+                {
+                    characterManager.UpdateAnimatorOverrideControllerClips(ANIMATION_CLIP_TO_OVERRIDE_NAME, currentCombatAction.attackAnimationClip);
+                }
 
                 characterManager.animator.ForceStateNormalizedTime(0f);
 
@@ -159,7 +171,11 @@ namespace AF.Combat
                     characterManager.animator.SetFloat(AttackSpeedHash, currentCombatAction.animationSpeed);
                 }
 
-                if (crossFade > 0)
+                if (currentCombatAction.comboClip != null)
+                {
+                    characterManager.PlayBusyAnimationWithRootMotion(hashComboAttack);
+                }
+                else if (crossFade > 0)
                 {
                     characterManager.PlayAnimationWithCrossFade(hashLightAttack1, true, true, crossFade);
                 }

@@ -250,5 +250,13 @@ namespace AF.Animations
         {
             playerManager.damageReceiver.SetCanTakeDamage(false);
         }
+
+        public void OnWeaponSpecial()
+        {
+            if (playerManager.playerWeaponsManager.currentWeaponInstance != null && playerManager.playerWeaponsManager.currentWeaponInstance.onWeaponSpecial != null)
+            {
+                playerManager.playerWeaponsManager.currentWeaponInstance.onWeaponSpecial?.Invoke();
+            }
+        }
     }
 }

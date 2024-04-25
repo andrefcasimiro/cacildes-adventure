@@ -18,5 +18,7 @@ namespace AF
         public Item resultingItem;
 
         public List<CraftingIngredientEntry> ingredients = new();
+
+        [TextAreaAttribute(minLines: 1, maxLines: 2)] public string location;
     }
 }

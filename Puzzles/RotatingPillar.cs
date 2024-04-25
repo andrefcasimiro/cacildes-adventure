@@ -121,7 +121,10 @@ namespace AF.Puzzles
 
         void OnLosingLight()
         {
-            this.activeLightShaft.gameObject.SetActive(false);
+            if (this.activeLightShaft != null)
+            {
+                this.activeLightShaft.gameObject.SetActive(false);
+            }
 
             this.onDeactivate?.Invoke();
         }

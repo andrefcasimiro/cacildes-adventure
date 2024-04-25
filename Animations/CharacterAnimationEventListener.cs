@@ -218,7 +218,6 @@ namespace AF.Animations
 
         public void OnShakeCamera()
         {
-            throw new System.NotImplementedException();
         }
 
         public void DropIKHelper()
@@ -242,6 +241,10 @@ namespace AF.Animations
         {
             characterManager.characterBaseShooter.FireArrow();
 
+        }
+
+        public void OnWeaponSpecial()
+        {
         }
     }
 }

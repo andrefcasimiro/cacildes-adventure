@@ -13,6 +13,9 @@ namespace AF.Combat
         [Tooltip("If you prefer to use an animation name instead of a clip for this combat action")]
         public string attackAnimationName;
 
+        [Header("Combo Options")]
+        public AnimationClip comboClip;
+
         [Header("Conditions")]
         [Range(1, 100)]
         public int minimumHealthToUse = 100;

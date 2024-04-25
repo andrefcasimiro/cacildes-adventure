@@ -144,6 +144,10 @@ namespace AF
             {
                 animator.SetFloat(SpeedMultiplierHash, currentWeapon.oneHandAttackSpeedPenalty);
             }
+            else if (equipmentDatabase.isTwoHanding && currentWeapon != null && currentWeapon.twoHandAttackSpeedPenalty != 1)
+            {
+                animator.SetFloat(SpeedMultiplierHash, currentWeapon.twoHandAttackSpeedPenalty);
+            }
             else
             {
                 animator.SetFloat(SpeedMultiplierHash, 1f);
@@ -181,7 +185,7 @@ namespace AF
             playerManager.staminaStatManager.DecreaseHeavyAttackStamina();
             heavyAttackComboIndex++;
 
-            //HandleAttackSpeed();
+            HandleAttackSpeed();
 
             if (ResetHeavyAttackComboIndexCoroutine != null)
             {

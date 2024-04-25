@@ -45,7 +45,7 @@ namespace AF.Animations
         public void UseIKHelper();
         public void SetCanTakeDamage_False();
 
-
+        public void OnWeaponSpecial();
 
     }
 }

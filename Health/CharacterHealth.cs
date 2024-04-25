@@ -31,6 +31,9 @@ namespace AF.Health
         bool hasRunHalthHealthEvent = false;
         public UnityEvent onRevive;
 
+        [Header("Options")]
+        public int bonusHealth = 0;
+
         public void Awake()
         {
             CurrentHealth = GetMaxHealth();
@@ -63,6 +66,9 @@ namespace AF.Health
             if (CurrentHealth <= 0)
             {
                 PlayDeath();
+
+                CheckIfHasBeenKilledWithRightWeapon();
+
                 EventManager.EmitEvent(EventMessages.ON_CHARACTER_KILLED);
                 onDeath?.Invoke();
             }
@@ -70,7 +76,7 @@ namespace AF.Health
 
         public override int GetMaxHealth()
         {
-            return maxHealth;
+            return maxHealth + bonusHealth;
         }
 
         public override float GetCurrentHealth()
@@ -98,6 +104,11 @@ namespace AF.Health
         public override void SetMaxHealth(int value)
         {
             this.maxHealth = value;
+        }
+
+        public void IncreaseBonusHealth(int value)
+        {
+            this.bonusHealth += value;
         }
     }
 

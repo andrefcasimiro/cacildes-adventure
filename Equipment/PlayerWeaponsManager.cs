@@ -447,7 +447,7 @@ namespace AF.Equipment
 
         public Damage GetCurrentShieldDefenseAbsorption(Damage incomingDamage)
         {
-            if (currentShieldInstance == null)
+            if (currentShieldInstance == null || currentShieldInstance.shield == null)
             {
                 incomingDamage.physical = (int)(incomingDamage.physical * playerManager.characterBlockController.unarmedDefenseAbsorption);
 
@@ -458,7 +458,7 @@ namespace AF.Equipment
         }
         public Damage GetCurrentShieldPassiveDamageFilter(Damage incomingDamage)
         {
-            if (currentShieldInstance == null)
+            if (currentShieldInstance == null || currentShieldInstance.shield == null)
             {
                 return incomingDamage;
             }
@@ -468,6 +468,11 @@ namespace AF.Equipment
 
         public void ApplyShieldDamageToAttacker(CharacterManager attacker)
         {
+            if (currentShieldInstance == null || currentShieldInstance.shield == null)
+            {
+                return;
+            }
+
             currentShieldInstance.shield.AttackShieldAttacker(attacker);
         }
 
