@@ -98,6 +98,11 @@ namespace AF.Companions
 
         public bool IsCompanionAndIsActivelyInParty(string companionId)
         {
+            if (companionId == "Minion")
+            {
+                return true;
+            }
+
             return IsInParty(companionId) && !IsCompanionWaiting(companionId);
         }
 

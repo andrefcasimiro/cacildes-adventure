@@ -9,8 +9,7 @@ namespace AF.StatusEffects
         public TeleportManager teleportManager;
         public StatusDatabase statusDatabase;
 
-        // On loading scene, retrieve which statuses were applied
-        private void Awake()
+        private void Start()
         {
             foreach (var appliedStatus in statusDatabase.appliedStatus)
             {

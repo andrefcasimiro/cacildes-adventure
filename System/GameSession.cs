@@ -120,4 +120,8 @@ public class GameSession : ScriptableObject
         isParticipatingInArenaEvent = value;
     }
 
+    public bool IsNightTime()
+    {
+        return timeOfDay >= 20 && timeOfDay <= 24 || timeOfDay >= 0 && timeOfDay < 6;
+    }
 }

@@ -18,6 +18,11 @@ namespace AF
         // Start is called before the first frame update
         void Awake()
         {
+            SetupRoot();
+        }
+
+        void SetupRoot()
+        {
             root = uiDocument.rootVisualElement;
 
             positiveContainer = root.Q<VisualElement>("Positive");

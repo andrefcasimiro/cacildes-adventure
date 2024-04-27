@@ -51,6 +51,7 @@ namespace AF.Arena
         [Header("Databases")]
         public GameSession gameSession;
         public PlayerStatsDatabase playerStatsDatabase;
+        public Achievement arenaAchievement;
 
         [Header("FX")]
         public DestroyableParticle puffFx;
@@ -124,6 +125,7 @@ namespace AF.Arena
 
             if (hasWon)
             {
+                arenaAchievement?.AwardAchievement();
                 arenaWonMoment?.Trigger();
             }
             else

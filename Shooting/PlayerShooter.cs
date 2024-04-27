@@ -296,7 +296,7 @@ namespace AF.Shooting
             Vector3 origin = ray.GetPoint(originDistanceFromCamera);
 
             // If shooting spell but not locked on, use player transform forward to direct the spell
-            if (lockOnManager.isLockedOn == false && isAiming == false)
+            if (lockOnManager.isLockedOn == false && isAiming == false || spell != null && spell.ignoreSpawnFromCamera)
             {
                 origin = lookAtConstraint.transform.position;
                 ray.direction = characterBaseManager.transform.forward;
@@ -308,14 +308,17 @@ namespace AF.Shooting
 
             if (spell != null)
             {
-                if (spell.spawnAtPlayerFeet)
+                if (lockOnManager.nearestLockOnTarget != null && spell.spawnOnLockedOnEnemies)
+                {
+                    origin = lockOnManager.nearestLockOnTarget.transform.position + lockOnManager.nearestLockOnTarget.transform.up;
+                }
+                else if (spell.spawnAtPlayerFeet)
                 {
                     origin = playerFeetRef.transform.position + new Vector3(0, spell.playerFeetOffsetY, 0);
                 }
 
                 if (spell.statusEffects != null && spell.statusEffects.Length > 0)
                 {
-
                     foreach (StatusEffect statusEffect in spell.statusEffects)
                     {
                         GetPlayerManager().statusController.statusEffectInstances.FirstOrDefault(x => x.Key == statusEffect).Value?.onConsumeStart?.Invoke();
@@ -329,6 +332,11 @@ namespace AF.Shooting
             }
 
             GameObject projectileInstance = Instantiate(projectile?.gameObject, origin, lookPosition);
+            if (spell != null && spell.parentToPlayer)
+            {
+                projectileInstance.transform.parent = GetPlayerManager().transform;
+            }
+
             IProjectile[] projectileComponents = GetProjectileComponentsInChildren(projectileInstance);
 
 

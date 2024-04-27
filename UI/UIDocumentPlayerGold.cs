@@ -54,6 +54,8 @@ namespace AF
 
             this.gameObject.SetActive(true);
 
+            UIUtils.PlayPopAnimation(goldReceived);
+
             goldReceived.text = "+ " + currentReceivedAmount;
             actualGold.text = "" + playerGold + " Gold";
             playerStatsDatabase.gold += amount;
@@ -73,6 +75,8 @@ namespace AF
             this.playerGold = playerStatsDatabase.gold;
 
             this.gameObject.SetActive(true);
+
+            UIUtils.PlayPopAnimation(goldReceived);
 
             goldReceived.text = "- " + currentDeductedAmount;
             actualGold.text = "" + playerGold + " Gold";

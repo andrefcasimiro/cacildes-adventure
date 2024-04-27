@@ -232,6 +232,18 @@ namespace AF.StatusEffects
             appliedStatusEffects.Remove(appliedStatus);
         }
 
+        public void RemoveStatusEffect(StatusEffect statusEffect)
+        {
+            if (appliedStatusEffects != null && appliedStatusEffects.Count > 0)
+            {
+                var existingStatusEffectIndex = appliedStatusEffects.FindIndex(x => x.statusEffect == statusEffect);
+                if (existingStatusEffectIndex != -1)
+                {
+                    RemoveAppliedStatus(appliedStatusEffects[existingStatusEffectIndex]);
+                }
+            }
+        }
+
         public void RemoveAllStatuses()
         {
             AppliedStatusEffect[] appliedStatusEffectsClone = appliedStatusEffects.ToArray();

@@ -31,6 +31,7 @@ namespace AF.Bonfires
         public void Clear()
         {
             unlockedBonfires.Clear();
+            lastBonfireSceneId = "";
         }
 
     }

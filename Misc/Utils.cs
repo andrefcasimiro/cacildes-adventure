@@ -74,23 +74,19 @@ namespace AF
             {
                 subFolder = "Accessories/";
             }
-            else if (item is CraftingMaterial)
-            {
-                subFolder = "Alchemy/";
-            }
             else if (item is UpgradeMaterial)
             {
                 subFolder = "Upgrade Materials/";
+            }
+            else if (item is CraftingMaterial)
+            {
+                subFolder = "Alchemy/";
             }
             else if (item is Arrow)
             {
                 subFolder = "Arrows/";
             }
             else if (item is Consumable)
-            {
-                subFolder = "Consumables/";
-            }
-            else if (item is ConsumableProjectile)
             {
                 subFolder = "Consumables/";
             }

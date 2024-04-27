@@ -40,6 +40,8 @@ public class EquipmentDatabase : ScriptableObject
     [Header("Databases")]
     public InventoryDatabase inventoryDatabase;
 
+    public bool shouldClearOnExit = false;
+
 #if UNITY_EDITOR
     private void OnEnable()
     {
@@ -49,7 +51,7 @@ public class EquipmentDatabase : ScriptableObject
 
     private void OnPlayModeStateChanged(PlayModeStateChange state)
     {
-        if (state == PlayModeStateChange.ExitingPlayMode)
+        if (state == PlayModeStateChange.ExitingPlayMode && shouldClearOnExit)
         {
             // Clear the list when exiting play mode
             Clear();

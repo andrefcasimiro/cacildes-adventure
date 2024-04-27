@@ -62,19 +62,18 @@ namespace AF.Shooting
                 return;
             }
 
-            var rot = lockOnTarget.position - origin.position;
-            rot.y = 0;
-            projectileInstance.transform.rotation = Quaternion.LookRotation(rot);
-
-            componentProjectile.Shoot(characterBaseManager, projectileInstance.transform.forward * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
-
             if (lockOnTarget != null)
             {
-                var rotation = lockOnTarget.transform.position - characterBaseManager.transform.position;
-                rotation.y = 0;
-                characterBaseManager.transform.rotation = Quaternion.LookRotation(rotation);
+                var rot = lockOnTarget.position + lockOnTarget.up - origin.position;
+                projectileInstance.transform.rotation = Quaternion.LookRotation(rot);
+
+                rot.y = 0;
+                characterBaseManager.transform.rotation = Quaternion.LookRotation(rot);
             }
+
+            componentProjectile.Shoot(characterBaseManager, projectileInstance.transform.forward * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
         }
+
         public override bool CanShoot()
         {
             return true;

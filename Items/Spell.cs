@@ -23,6 +23,9 @@ namespace AF
         [Header("Spawn Options")]
         public bool spawnAtPlayerFeet = false;
         public float playerFeetOffsetY = 0f;
+        public bool spawnOnLockedOnEnemies = false;
+        public bool ignoreSpawnFromCamera = false;
+        public bool parentToPlayer = false;
 
         public string GetFormattedAppliedStatusEffects()
         {

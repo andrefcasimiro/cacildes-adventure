@@ -7,6 +7,8 @@ namespace AF
     {
         public GameObject subEvents;
 
+        public bool filterInactiveSubEvents = false;
+
         public override IEnumerator Dispatch()
         {
             var evs = subEvents.GetComponents<EventBase>();
@@ -20,6 +22,11 @@ namespace AF
             {
                 foreach (EventBase subEvent in evs)
                 {
+                    if (filterInactiveSubEvents && !subEvent.gameObject.activeSelf)
+                    {
+                        continue;
+                    }
+
                     yield return subEvent.Dispatch();
                 }
             }

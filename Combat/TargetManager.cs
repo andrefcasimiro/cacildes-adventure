@@ -104,11 +104,21 @@ namespace AF.Combat
 
         void NotifyCompanions()
         {
-
             foreach (var companionInstance in GetCompanionsSceneManager().companionInstancesInScene)
             {
                 companionInstance.Value.GetComponent<CharacterManager>().targetManager.SetTarget(this.characterManager);
             }
+
+            Minion[] minionsInScene = FindObjectsByType<Minion>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var minion in minionsInScene)
+            {
+                if (minion.TryGetComponent<CharacterManager>(out var charManager))
+                {
+                    charManager.targetManager.SetTarget(this.characterManager);
+                }
+            }
+
+
         }
 
         bool CanSetTarget()

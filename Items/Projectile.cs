@@ -59,6 +59,11 @@ namespace AF
             rigidBody.AddForce(useOwnDirection ? (transform.forward * GetForwardVelocity()) : aimForce, forceMode);
         }
 
+        public void ShootForward()
+        {
+            rigidBody.AddForce(transform.forward * GetForwardVelocity(), forceMode);
+        }
+
         void OnTriggerEnter(Collider other)
         {
             if (hasCollided)

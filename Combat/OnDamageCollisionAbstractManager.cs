@@ -21,6 +21,10 @@ namespace AF
         [Header("Events")]
         public UnityEvent onParticleDamage;
 
+        [Header("Nighttime Options")]
+        public bool doubleDamageOnNightTime = false;
+        public GameSession gameSession;
+
         private void OnEnable()
         {
             damageReceivers.Clear();
@@ -51,6 +55,16 @@ namespace AF
             }
             else if (damage != null)
             {
+                if (doubleDamageOnNightTime && gameSession != null && gameSession.IsNightTime())
+                {
+                    damage.physical *= 2;
+                    damage.fire *= 2;
+                    damage.frost *= 2;
+                    damage.magic *= 2;
+                    damage.darkness *= 2;
+                    damage.lightning *= 2;
+                }
+
                 damageReceiver.TakeDamage(damage);
 
                 if (damageOwner != null && damageReceiver.character is CharacterManager aiCharacter && aiCharacter.targetManager != null)

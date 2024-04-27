@@ -206,7 +206,7 @@ namespace AF
 
         bool IsNightTime()
         {
-            return gameSession.timeOfDay >= 20 && gameSession.timeOfDay <= 24 || gameSession.timeOfDay >= 0 && gameSession.timeOfDay < 6;
+            return gameSession.IsNightTime();
         }
 
         bool CanPlayNightSfx(AudioClip clip)

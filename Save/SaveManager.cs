@@ -11,6 +11,7 @@ using AF.Flags;
 using AF.Bonfires;
 using TigerForge;
 using AF.Events;
+using AF.Pickups;
 
 namespace AF
 {
@@ -450,6 +451,7 @@ namespace AF
         {
             var pickups = QuickSaveWriter.Create("Pickups");
             pickups.Write("pickups", pickupDatabase.pickups);
+            pickups.Write("replenishables", pickupDatabase.replenishables);
             pickups.TryCommit();
         }
 
@@ -459,7 +461,9 @@ namespace AF
 
             var pickups = QuickSaveReader.Create("Pickups");
             pickups.TryRead("pickups", out SerializedDictionary<string, string> savedPickups);
+            pickups.TryRead("replenishables", out SerializedDictionary<string, ReplenishableTime> savedReplenishables);
             pickupDatabase.pickups = savedPickups;
+            pickupDatabase.replenishables = savedReplenishables;
         }
 
         void SaveQuests()

@@ -184,12 +184,14 @@ namespace AF
             float dexterityBonus = GetDexterityBonusFromWeapon(weapon);
             float intelligenceBonus = GetIntelligenceBonusFromWeapon(weapon);
 
+            var baseValue = HasBowEquipped() || weapon.damage.physical <= 0 ? 0 : GetCurrentPhysicalAttack();
+
             var value = (int)(
-                (HasBowEquipped() ? 0 : GetCurrentPhysicalAttack())
-                + weapon.GetWeaponAttack()
+                baseValue + weapon.damage.physical <= 0 ? 0 : (
+                +weapon.GetWeaponAttack()
                 + GetStrengthBonusFromWeapon(weapon)
                 + GetDexterityBonusFromWeapon(weapon)
-                + GetIntelligenceBonusFromWeapon(weapon)
+                + GetIntelligenceBonusFromWeapon(weapon))
             );
 
             if (equipmentDatabase.isTwoHanding)
@@ -253,12 +255,22 @@ namespace AF
 
         public int GetStrengthBonusFromWeapon(Weapon weapon)
         {
+            if (weapon.damage.physical <= 0)
+            {
+                return 0;
+            }
+
             return (int)Mathf.Ceil((playerStatsDatabase.strength + playerManager.statsBonusController.strengthBonus)
             * levelMultiplier * scalingDictionary[weapon.strengthScaling.ToString()] / 2);
         }
 
         public float GetDexterityBonusFromWeapon(Weapon weapon)
         {
+            if (weapon.damage.physical <= 0)
+            {
+                return 0;
+            }
+
             return (int)Mathf.Ceil((playerStatsDatabase.dexterity + playerManager.statsBonusController.dexterityBonus)
                 * levelMultiplier * scalingDictionary[weapon.dexterityScaling.ToString()] / 2);
         }
