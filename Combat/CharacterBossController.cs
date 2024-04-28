@@ -13,6 +13,8 @@ namespace AF
 {
     public class CharacterBossController : MonoBehaviour
     {
+        public bool isBoss = false;
+
         [Header("Settings")]
         public string bossName;
         public AudioClip bossMusic;
@@ -49,6 +51,11 @@ namespace AF
         {
             if (IsBossHUDEnabled())
             {
+                if (!isBoss)
+                {
+                    return;
+                }
+
                 if (characterManager.health.GetCurrentHealth() <= 0)
                 {
                     HideBossHud();
@@ -156,7 +163,7 @@ namespace AF
 
         public bool IsBoss()
         {
-            return !string.IsNullOrEmpty(bossName);
+            return isBoss;
         }
 
         BGMManager GetBGMManager()

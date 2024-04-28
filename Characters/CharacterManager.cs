@@ -49,6 +49,9 @@ namespace AF
         // Scene Reference
         PlayerManager playerManager;
 
+        int defaultAnimationHash;
+
+
         private void Awake()
         {
             animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
@@ -59,7 +62,11 @@ namespace AF
             initialRotation = transform.rotation;
 
             EventManager.StartListening(EventMessages.ON_LEAVING_BONFIRE, Revive);
+        }
 
+        private void Start()
+        {
+            defaultAnimationHash = animator.GetCurrentAnimatorStateInfo(0).fullPathHash;
         }
 
         public override void ResetStates()
@@ -161,6 +168,8 @@ namespace AF
                 return;
             }
 
+            agent.speed = 0f;
+
             if (health is CharacterHealth characterHealth)
             {
                 characterHealth.Revive();
@@ -173,9 +182,16 @@ namespace AF
                         characterController.enabled = false;
                         transform.SetPositionAndRotation(initialPosition, initialRotation);
                         characterController.enabled = true;
-
                     }
                 }
+
+                ResetStates();
+
+                if (defaultAnimationHash != -1)
+                {
+                    animator.Play(defaultAnimationHash);
+                }
+
             }
         }
 

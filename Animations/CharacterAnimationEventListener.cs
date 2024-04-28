@@ -83,7 +83,6 @@ namespace AF.Animations
             {
                 characterManager.animator.SetFloat(speedParameter, Mathf.Clamp01(characterManager.agent.speed / characterManager.chaseSpeed));
             }
-
         }
 
         public void OnLeftFootstep()

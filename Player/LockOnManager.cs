@@ -242,6 +242,16 @@ namespace AF
 
                 if (enemy != null)
                 {
+                    if (shouldLookForActiveEnemies)
+                    {
+                        CharacterManager characterManager = enemy.GetComponentInParent<CharacterManager>();
+
+                        if (characterManager != null && characterManager?.targetManager?.currentTarget == null)
+                        {
+                            continue;
+                        }
+                    }
+
                     float distanceFromTarget = Vector3.Distance(enemy.transform.position, playerManager.transform.position);
 
                     if (enemy.transform.root != playerManager.transform.root
@@ -251,7 +261,6 @@ namespace AF
                         availableTargets.Add(enemy);
                     }
                 }
-
             }
 
             for (int i = 0; i < availableTargets.Count; i++)

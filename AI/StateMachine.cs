@@ -56,7 +56,8 @@ namespace AF
 
         public void ResetDefaultState()
         {
-            this.currentState = defaultState;
+            currentState = null;
+            scheduledState = null;
             ScheduleState(defaultState);
         }
 

@@ -122,26 +122,6 @@ namespace AF.Bonfires
                 UnlockBonfire(bonfireName);
             }
 
-            // Find all active enemies in scene
-            var allEnemiesInScene = FindObjectsByType<CharacterManager>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-
-            foreach (var enemy in allEnemiesInScene)
-            {
-                if (enemy.GetComponent<CharacterBossController>() != null)
-                {
-                    continue;
-                }
-
-                enemy.enabled = true;
-                enemy.ResetStates();
-
-                CharacterHealth characterHealth = enemy.health as CharacterHealth;
-                if (characterHealth != null)
-                {
-                    characterHealth.Revive();
-                }
-            }
-
             SetPlayerLockState(true);
 
             GetPlayerManager().playerComponentManager.transform.position = playerTransformRef.transform.position;
