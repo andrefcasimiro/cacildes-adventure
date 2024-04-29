@@ -12,6 +12,7 @@ namespace AF
         public CursorManager cursorManager;
         public UIDocumentTitleScreenCredits uIDocumentTitleScreenCredits;
         public UIDocumentTitleScreenOptions uIDocumentTitleScreenOptions;
+        public UIDocumentTitleScreenSaveFiles uIDocumentTitleScreenSaveFiles;
         public Soundbank soundbank;
         public SaveManager saveManager;
 
@@ -30,6 +31,7 @@ namespace AF
             Button newGameButton = root.Q<Button>("NewGameButton");
 
             Button continueButton = root.Q<Button>("ContinueButton");
+            Button loadGameButton = root.Q<Button>("LoadGameButton");
             Button playTutorialButton = root.Q<Button>("PlayTutorialButton");
             Button optionsButton = root.Q<Button>("OptionsButton");
             Button controlsButton = root.Q<Button>("ControlsButton");
@@ -50,6 +52,12 @@ namespace AF
             UIUtils.SetupButton(continueButton, () =>
             {
                 saveManager.LoadLastSavedGame(false);
+                gameObject.SetActive(false);
+            }, soundbank);
+
+            UIUtils.SetupButton(loadGameButton, () =>
+            {
+                uIDocumentTitleScreenSaveFiles.gameObject.SetActive(true);
                 gameObject.SetActive(false);
             }, soundbank);
 

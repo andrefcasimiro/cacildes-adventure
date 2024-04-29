@@ -12,6 +12,8 @@ using AF.Bonfires;
 using TigerForge;
 using AF.Events;
 using AF.Pickups;
+using System;
+using System.IO;
 
 namespace AF
 {
@@ -39,17 +41,36 @@ namespace AF
         bool hasMomentOnGoing = false;
         bool hasBossFightOnGoing = false;
 
+        public string SAVE_FILES_FOLDER = "QuickSave";
+
         private void Awake()
         {
             EventManager.StartListening(EventMessages.ON_MOMENT_START, () => { hasMomentOnGoing = true; });
             EventManager.StartListening(EventMessages.ON_MOMENT_END, () => { hasMomentOnGoing = false; });
             EventManager.StartListening(EventMessages.ON_BOSS_BATTLE_BEGINS, () => { hasBossFightOnGoing = true; });
             EventManager.StartListening(EventMessages.ON_BOSS_BATTLE_ENDS, () => { hasBossFightOnGoing = false; });
+
+            SaveUtils.CheckAndMigrateOldSaveFiles(SAVE_FILES_FOLDER);
         }
 
         public bool CanSave()
         {
-            return hasMomentOnGoing == false && hasBossFightOnGoing == false;
+            if (hasMomentOnGoing)
+            {
+                return false;
+            }
+
+            if (hasBossFightOnGoing)
+            {
+                return false;
+            }
+
+            if (playerManager.thirdPersonController.Grounded == false)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public void ResetGameState()
@@ -65,18 +86,115 @@ namespace AF
             recipesDatabase.Clear();
         }
 
-        void SaveRecipes()
+        void SaveRecipes(QuickSaveWriter quickSaveWriter)
         {
-            var recipes = QuickSaveWriter.Create("Recipes");
-            recipes.Write("craftingRecipes", recipesDatabase.craftingRecipes.Select(craftingRecipe => craftingRecipe.name));
-            recipes.TryCommit();
+            quickSaveWriter.Write("craftingRecipes", recipesDatabase.craftingRecipes.Select(craftingRecipe => craftingRecipe.name));
+        }
+        void SavePlayerStats(QuickSaveWriter quickSaveWriter)
+        {
+            quickSaveWriter.Write("currentHealth", playerStatsDatabase.currentHealth);
+            quickSaveWriter.Write("currentStamina", playerStatsDatabase.currentStamina);
+            quickSaveWriter.Write("currentMana", playerStatsDatabase.currentMana);
+            quickSaveWriter.Write("reputation", playerStatsDatabase.reputation);
+            quickSaveWriter.Write("vitality", playerStatsDatabase.vitality);
+            quickSaveWriter.Write("endurance", playerStatsDatabase.endurance);
+            quickSaveWriter.Write("intelligence", playerStatsDatabase.intelligence);
+            quickSaveWriter.Write("strength", playerStatsDatabase.strength);
+            quickSaveWriter.Write("dexterity", playerStatsDatabase.dexterity);
+            quickSaveWriter.Write("gold", playerStatsDatabase.gold);
+            quickSaveWriter.Write("lostGold", playerStatsDatabase.lostGold);
+            quickSaveWriter.Write("sceneWhereGoldWasLost", playerStatsDatabase.sceneWhereGoldWasLost);
+            quickSaveWriter.Write("positionWhereGoldWasLost", playerStatsDatabase.positionWhereGoldWasLost);
         }
 
-        void LoadRecipes()
+        void SavePlayerEquipment(QuickSaveWriter quickSaveWriter)
         {
-            var recipes = QuickSaveReader.Create("Recipes");
+            quickSaveWriter.Write("currentWeaponIndex", equipmentDatabase.currentWeaponIndex);
+            quickSaveWriter.Write("currentShieldIndex", equipmentDatabase.currentShieldIndex);
+            quickSaveWriter.Write("currentArrowIndex", equipmentDatabase.currentArrowIndex);
+            quickSaveWriter.Write("currentSpellIndex", equipmentDatabase.currentSpellIndex);
+            quickSaveWriter.Write("currentConsumableIndex", equipmentDatabase.currentConsumableIndex);
+            quickSaveWriter.Write("weapons", equipmentDatabase.weapons.Select(weapon => weapon != null ? weapon.name + "|" + weapon.level : ""));
+            quickSaveWriter.Write("shields", equipmentDatabase.shields.Select(shield => shield != null ? shield.name : ""));
+            quickSaveWriter.Write("arrows", equipmentDatabase.arrows.Select(arrow => arrow != null ? arrow.name : ""));
+            quickSaveWriter.Write("spells", equipmentDatabase.spells.Select(spell => spell != null ? spell.name : ""));
+            quickSaveWriter.Write("accessories", equipmentDatabase.accessories.Select(accessory => accessory != null ? accessory.name : ""));
+            quickSaveWriter.Write("consumables", equipmentDatabase.consumables.Select(consumable => consumable != null ? consumable.name : ""));
+            quickSaveWriter.Write("helmet", equipmentDatabase.helmet != null ? equipmentDatabase.helmet.name : "");
+            quickSaveWriter.Write("armor", equipmentDatabase.armor != null ? equipmentDatabase.armor.name : "");
+            quickSaveWriter.Write("gauntlet", equipmentDatabase.gauntlet != null ? equipmentDatabase.gauntlet.name : "");
+            quickSaveWriter.Write("legwear", equipmentDatabase.legwear != null ? equipmentDatabase.legwear.name : "");
+            quickSaveWriter.Write("isTwoHanding", equipmentDatabase.isTwoHanding);
+        }
 
-            recipes.TryRead("craftingRecipes", out string[] craftingRecipes);
+
+        void SavePlayerInventory(QuickSaveWriter quickSaveWriter)
+        {
+            SerializedDictionary<string, ItemAmount> keyValuePairs = new();
+
+            foreach (var ownedItem in inventoryDatabase.ownedItems)
+            {
+                string path = Utils.GetItemPath(ownedItem.Key);
+
+                if (!keyValuePairs.ContainsKey(path))
+                {
+                    keyValuePairs.Add(path, ownedItem.Value);
+                }
+            }
+
+            quickSaveWriter.Write("ownedItems", keyValuePairs);
+        }
+        void SavePickups(QuickSaveWriter quickSaveWriter)
+        {
+            quickSaveWriter.Write("pickups", pickupDatabase.pickups);
+            quickSaveWriter.Write("replenishables", pickupDatabase.replenishables);
+        }
+
+        void SaveQuests(QuickSaveWriter quickSaveWriter)
+        {
+            SerializedDictionary<string, int> payload = new();
+
+            questsDatabase.questsReceived.ForEach(questReceived =>
+            {
+                payload.Add("Quests/" + questReceived.name,
+                    questReceived.questProgress);
+            });
+
+            quickSaveWriter.Write("questsReceived", payload);
+            quickSaveWriter.Write("currentTrackedQuestIndex", questsDatabase.currentTrackedQuestIndex);
+        }
+
+        void SaveFlags(QuickSaveWriter quickSaveWriter)
+        {
+            quickSaveWriter.Write("flags", flagsDatabase.flags);
+        }
+
+        void SaveSceneSettings(QuickSaveWriter quickSaveWriter)
+        {
+            quickSaveWriter.Write("sceneIndex", SceneManager.GetActiveScene().buildIndex);
+            quickSaveWriter.Write("playerPosition", playerManager.transform.position);
+            quickSaveWriter.Write("playerRotation", playerManager.transform.rotation);
+        }
+        void SaveGameSettings(QuickSaveWriter quickSaveWriter)
+        {
+            quickSaveWriter.Write("timeOfDay", gameSession.timeOfDay);
+            quickSaveWriter.Write("graphicsQuality", gameSession.graphicsQuality);
+            quickSaveWriter.Write("mouseSensitivity", gameSession.mouseSensitivity);
+            quickSaveWriter.Write("musicVolume", gameSession.musicVolume);
+        }
+        void SaveCompanions(QuickSaveWriter quickSaveWriter)
+        {
+            quickSaveWriter.Write("companionsInParty", companionsDatabase.companionsInParty);
+        }
+
+        void SaveBonfires(QuickSaveWriter quickSaveWriter)
+        {
+            quickSaveWriter.Write("unlockedBonfires", bonfiresDatabase.unlockedBonfires);
+        }
+
+        void LoadRecipes(QuickSaveReader quickSaveReader)
+        {
+            quickSaveReader.TryRead("craftingRecipes", out string[] craftingRecipes);
 
             if (craftingRecipes != null && craftingRecipes.Count() > 0)
             {
@@ -91,118 +209,72 @@ namespace AF
             }
         }
 
-        void SavePlayerStats()
+        void LoadPlayerStats(QuickSaveReader quickSaveReader, bool isFromGameOver)
         {
-            var playerStats = QuickSaveWriter.Create("PlayerStats");
-            playerStats.Write("currentHealth", playerStatsDatabase.currentHealth);
-            playerStats.Write("currentStamina", playerStatsDatabase.currentStamina);
-            playerStats.Write("currentMana", playerStatsDatabase.currentMana);
-            playerStats.Write("reputation", playerStatsDatabase.reputation);
-            playerStats.Write("vitality", playerStatsDatabase.vitality);
-            playerStats.Write("endurance", playerStatsDatabase.endurance);
-            playerStats.Write("intelligence", playerStatsDatabase.intelligence);
-            playerStats.Write("strength", playerStatsDatabase.strength);
-            playerStats.Write("dexterity", playerStatsDatabase.dexterity);
-            playerStats.Write("gold", playerStatsDatabase.gold);
-            playerStats.Write("lostGold", playerStatsDatabase.lostGold);
-            playerStats.Write("sceneWhereGoldWasLost", playerStatsDatabase.sceneWhereGoldWasLost);
-            playerStats.Write("positionWhereGoldWasLost", playerStatsDatabase.positionWhereGoldWasLost);
-            playerStats.TryCommit();
-        }
-
-        void LoadPlayerStats(bool isFromGameOver)
-        {
-            var playerStats = QuickSaveReader.Create("PlayerStats");
-
             // Try to read currentHealth using TryRead
-            playerStats.TryRead("currentHealth", out float currentHealth);
+            quickSaveReader.TryRead("currentHealth", out float currentHealth);
             playerStatsDatabase.currentHealth = currentHealth;
 
             // Try to read other stats
-            playerStats.TryRead<float>("currentStamina", out float currentStamina);
+            quickSaveReader.TryRead<float>("currentStamina", out float currentStamina);
             playerStatsDatabase.currentStamina = currentStamina;
 
-            playerStats.TryRead<float>("currentMana", out float currentMana);
+            quickSaveReader.TryRead<float>("currentMana", out float currentMana);
             playerStatsDatabase.currentMana = currentMana;
 
-            playerStats.TryRead<int>("reputation", out int reputation);
+            quickSaveReader.TryRead<int>("reputation", out int reputation);
             playerStatsDatabase.reputation = reputation;
 
-            playerStats.TryRead<int>("vitality", out int vitality);
+            quickSaveReader.TryRead<int>("vitality", out int vitality);
             playerStatsDatabase.vitality = vitality;
 
-            playerStats.TryRead<int>("endurance", out int endurance);
+            quickSaveReader.TryRead<int>("endurance", out int endurance);
             playerStatsDatabase.endurance = endurance;
 
-            playerStats.TryRead<int>("intelligence", out int intelligence);
+            quickSaveReader.TryRead<int>("intelligence", out int intelligence);
             playerStatsDatabase.intelligence = intelligence;
 
-            playerStats.TryRead<int>("strength", out int strength);
+            quickSaveReader.TryRead<int>("strength", out int strength);
             playerStatsDatabase.strength = strength;
 
-            playerStats.TryRead<int>("dexterity", out int dexterity);
+            quickSaveReader.TryRead<int>("dexterity", out int dexterity);
             playerStatsDatabase.dexterity = dexterity;
 
             // Read additional stats only if not from game over
             if (!isFromGameOver)
             {
-                playerStats.TryRead<int>("gold", out int gold);
+                quickSaveReader.TryRead<int>("gold", out int gold);
                 playerStatsDatabase.gold = gold;
 
-                playerStats.TryRead<int>("lostGold", out int lostGold);
+                quickSaveReader.TryRead<int>("lostGold", out int lostGold);
                 playerStatsDatabase.lostGold = lostGold;
 
-                playerStats.TryRead<string>("sceneWhereGoldWasLost", out string sceneWhereGoldWasLost);
+                quickSaveReader.TryRead<string>("sceneWhereGoldWasLost", out string sceneWhereGoldWasLost);
                 playerStatsDatabase.sceneWhereGoldWasLost = sceneWhereGoldWasLost;
 
-                playerStats.TryRead<Vector3>("positionWhereGoldWasLost", out Vector3 positionWhereGoldWasLost);
+                quickSaveReader.TryRead<Vector3>("positionWhereGoldWasLost", out Vector3 positionWhereGoldWasLost);
                 playerStatsDatabase.positionWhereGoldWasLost = positionWhereGoldWasLost;
             }
         }
 
-        void SavePlayerEquipment()
+        void LoadPlayerEquipment(QuickSaveReader quickSaveReader)
         {
-            var equipment = QuickSaveWriter.Create("Equipment");
-            equipment.Write("currentWeaponIndex", equipmentDatabase.currentWeaponIndex);
-            equipment.Write("currentShieldIndex", equipmentDatabase.currentShieldIndex);
-            equipment.Write("currentArrowIndex", equipmentDatabase.currentArrowIndex);
-            equipment.Write("currentSpellIndex", equipmentDatabase.currentSpellIndex);
-            equipment.Write("currentConsumableIndex", equipmentDatabase.currentConsumableIndex);
-            equipment.Write("weapons", equipmentDatabase.weapons.Select(weapon => weapon != null ? weapon.name + "|" + weapon.level : ""));
-            equipment.Write("shields", equipmentDatabase.shields.Select(shield => shield != null ? shield.name : ""));
-            equipment.Write("arrows", equipmentDatabase.arrows.Select(arrow => arrow != null ? arrow.name : ""));
-            equipment.Write("spells", equipmentDatabase.spells.Select(spell => spell != null ? spell.name : ""));
-            equipment.Write("accessories", equipmentDatabase.accessories.Select(accessory => accessory != null ? accessory.name : ""));
-            equipment.Write("consumables", equipmentDatabase.consumables.Select(consumable => consumable != null ? consumable.name : ""));
-            equipment.Write("helmet", equipmentDatabase.helmet != null ? equipmentDatabase.helmet.name : "");
-            equipment.Write("armor", equipmentDatabase.armor != null ? equipmentDatabase.armor.name : "");
-            equipment.Write("gauntlet", equipmentDatabase.gauntlet != null ? equipmentDatabase.gauntlet.name : "");
-            equipment.Write("legwear", equipmentDatabase.legwear != null ? equipmentDatabase.legwear.name : "");
-            equipment.Write("isTwoHanding", equipmentDatabase.isTwoHanding);
-
-            equipment.TryCommit();
-        }
-
-        void LoadPlayerEquipment()
-        {
-            var playerEquipment = QuickSaveReader.Create("Equipment");
-
-            playerEquipment.TryRead<int>("currentWeaponIndex", out int currentWeaponIndex);
+            quickSaveReader.TryRead<int>("currentWeaponIndex", out int currentWeaponIndex);
             equipmentDatabase.currentWeaponIndex = currentWeaponIndex;
 
-            playerEquipment.TryRead<int>("currentShieldIndex", out int currentShieldIndex);
+            quickSaveReader.TryRead<int>("currentShieldIndex", out int currentShieldIndex);
             equipmentDatabase.currentShieldIndex = currentShieldIndex;
 
-            playerEquipment.TryRead<int>("currentArrowIndex", out int currentArrowIndex);
+            quickSaveReader.TryRead<int>("currentArrowIndex", out int currentArrowIndex);
             equipmentDatabase.currentArrowIndex = currentArrowIndex;
 
-            playerEquipment.TryRead<int>("currentSpellIndex", out int currentSpellIndex);
+            quickSaveReader.TryRead<int>("currentSpellIndex", out int currentSpellIndex);
             equipmentDatabase.currentSpellIndex = currentSpellIndex;
 
-            playerEquipment.TryRead<int>("currentConsumableIndex", out int currentConsumableIndex);
+            quickSaveReader.TryRead<int>("currentConsumableIndex", out int currentConsumableIndex);
             equipmentDatabase.currentConsumableIndex = currentConsumableIndex;
 
-            playerEquipment.TryRead<string[]>("weapons", out string[] weapons);
+            quickSaveReader.TryRead<string[]>("weapons", out string[] weapons);
             if (weapons != null && weapons.Length > 0)
             {
                 for (int idx = 0; idx < weapons.Length; idx++)
@@ -228,7 +300,7 @@ namespace AF
             }
 
             // Try to read shields
-            playerEquipment.TryRead<string[]>("shields", out string[] shields);
+            quickSaveReader.TryRead<string[]>("shields", out string[] shields);
             if (shields != null && shields.Length > 0)
             {
                 for (int idx = 0; idx < shields.Length; idx++)
@@ -248,7 +320,7 @@ namespace AF
             }
 
             // Try to read arrows
-            playerEquipment.TryRead<string[]>("arrows", out string[] arrows);
+            quickSaveReader.TryRead<string[]>("arrows", out string[] arrows);
             if (arrows != null && arrows.Length > 0)
             {
                 for (int idx = 0; idx < arrows.Length; idx++)
@@ -268,7 +340,7 @@ namespace AF
             }
 
             // Try to read spells
-            playerEquipment.TryRead<string[]>("spells", out string[] spells);
+            quickSaveReader.TryRead<string[]>("spells", out string[] spells);
             if (spells != null && spells.Length > 0)
             {
                 for (int idx = 0; idx < spells.Length; idx++)
@@ -288,7 +360,7 @@ namespace AF
             }
 
             // Try to read accessories
-            playerEquipment.TryRead<string[]>("accessories", out string[] accessories);
+            quickSaveReader.TryRead<string[]>("accessories", out string[] accessories);
             if (accessories != null && accessories.Length > 0)
             {
                 for (int idx = 0; idx < accessories.Length; idx++)
@@ -308,7 +380,7 @@ namespace AF
             }
 
             // Try to read consumables
-            playerEquipment.TryRead<string[]>("consumables", out string[] consumables);
+            quickSaveReader.TryRead<string[]>("consumables", out string[] consumables);
             if (consumables != null && consumables.Length > 0)
             {
                 for (int idx = 0; idx < consumables.Length; idx++)
@@ -328,7 +400,7 @@ namespace AF
             }
 
             // Try to read helmet
-            playerEquipment.TryRead<string>("helmet", out string helmetName);
+            quickSaveReader.TryRead<string>("helmet", out string helmetName);
             if (!string.IsNullOrEmpty(helmetName))
             {
                 Helmet helmetInstance = Resources.Load<Helmet>("Items/Helmets/" + helmetName);
@@ -344,7 +416,7 @@ namespace AF
             }
 
             // Try to read armor
-            playerEquipment.TryRead<string>("armor", out string armorName);
+            quickSaveReader.TryRead<string>("armor", out string armorName);
             if (!string.IsNullOrEmpty(armorName))
             {
                 Armor armorInstance = Resources.Load<Armor>("Items/Armors/" + armorName);
@@ -360,7 +432,7 @@ namespace AF
             }
 
             // Try to read gauntlet
-            playerEquipment.TryRead<string>("gauntlet", out string gauntletName);
+            quickSaveReader.TryRead<string>("gauntlet", out string gauntletName);
             if (!string.IsNullOrEmpty(gauntletName))
             {
                 Gauntlet gauntletInstance = Resources.Load<Gauntlet>("Items/Gauntlets/" + gauntletName);
@@ -376,7 +448,7 @@ namespace AF
             }
 
             // Try to read legwear
-            playerEquipment.TryRead<string>("legwear", out string legwearName);
+            quickSaveReader.TryRead<string>("legwear", out string legwearName);
             if (!string.IsNullOrEmpty(legwearName))
             {
                 Legwear legwearInstance = Resources.Load<Legwear>("Items/Legwears/" + legwearName);
@@ -391,37 +463,16 @@ namespace AF
                 equipmentDatabase.UnequipLegwear();
             }
 
-            playerEquipment.TryRead<bool>("isTwoHanding", out bool isTwoHanding);
+            quickSaveReader.TryRead<bool>("isTwoHanding", out bool isTwoHanding);
             equipmentDatabase.isTwoHanding = isTwoHanding;
         }
 
-        void SavePlayerInventory()
-        {
-            var inventory = QuickSaveWriter.Create("Inventory");
 
-            SerializedDictionary<string, ItemAmount> keyValuePairs = new();
-
-            foreach (var ownedItem in inventoryDatabase.ownedItems)
-            {
-                string path = Utils.GetItemPath(ownedItem.Key);
-
-                if (!keyValuePairs.ContainsKey(path))
-                {
-                    keyValuePairs.Add(path, ownedItem.Value);
-                }
-            }
-
-            inventory.Write("ownedItems", keyValuePairs);
-            inventory.TryCommit();
-        }
-
-        void LoadPlayerInventory()
+        void LoadPlayerInventory(QuickSaveReader quickSaveReader)
         {
             inventoryDatabase.ownedItems.Clear();
 
-            var inventory = QuickSaveReader.Create("Inventory");
-
-            inventory.TryRead("ownedItems", out SerializedDictionary<string, ItemAmount> ownedItems);
+            quickSaveReader.TryRead("ownedItems", out SerializedDictionary<string, ItemAmount> ownedItems);
 
             if (ownedItems != null && ownedItems.Count > 0)
             {
@@ -447,49 +498,21 @@ namespace AF
             }
         }
 
-        void SavePickups()
-        {
-            var pickups = QuickSaveWriter.Create("Pickups");
-            pickups.Write("pickups", pickupDatabase.pickups);
-            pickups.Write("replenishables", pickupDatabase.replenishables);
-            pickups.TryCommit();
-        }
-
-        void LoadPickups()
+        void LoadPickups(QuickSaveReader quickSaveReader)
         {
             pickupDatabase.Clear();
 
-            var pickups = QuickSaveReader.Create("Pickups");
-            pickups.TryRead("pickups", out SerializedDictionary<string, string> savedPickups);
-            pickups.TryRead("replenishables", out SerializedDictionary<string, ReplenishableTime> savedReplenishables);
+            quickSaveReader.TryRead("pickups", out SerializedDictionary<string, string> savedPickups);
             pickupDatabase.pickups = savedPickups;
+            quickSaveReader.TryRead("replenishables", out SerializedDictionary<string, ReplenishableTime> savedReplenishables);
             pickupDatabase.replenishables = savedReplenishables;
         }
 
-        void SaveQuests()
-        {
-            var quests = QuickSaveWriter.Create("Quests");
-
-            SerializedDictionary<string, int> payload = new();
-
-            questsDatabase.questsReceived.ForEach(questReceived =>
-            {
-                payload.Add("Quests/" + questReceived.name,
-                    questReceived.questProgress);
-            });
-
-            quests.Write("questsReceived", payload);
-            quests.Write("currentTrackedQuestIndex", questsDatabase.currentTrackedQuestIndex);
-
-            quests.TryCommit();
-        }
-
-        void LoadQuests()
+        void LoadQuests(QuickSaveReader quickSaveReader)
         {
             questsDatabase.questsReceived.Clear();
 
-            var questsReceived = QuickSaveReader.Create("Quests");
-            questsReceived.TryRead("questsReceived", out SerializedDictionary<string, int> savedQuestsReceived);
+            quickSaveReader.TryRead("questsReceived", out SerializedDictionary<string, int> savedQuestsReceived);
 
             foreach (var savedQuest in savedQuestsReceived)
             {
@@ -499,23 +522,14 @@ namespace AF
                 questsDatabase.questsReceived.Add(questParent);
             }
 
-            questsReceived.TryRead("currentTrackedQuestIndex", out int currentTrackedQuestIndex);
+            quickSaveReader.TryRead("currentTrackedQuestIndex", out int currentTrackedQuestIndex);
             questsDatabase.currentTrackedQuestIndex = currentTrackedQuestIndex;
         }
 
-        void SaveFlags()
-        {
-            var flags = QuickSaveWriter.Create("Flags");
-            flags.Write("flags", flagsDatabase.flags);
-            flags.TryCommit();
-        }
-
-        void LoadFlags()
+        void LoadFlags(QuickSaveReader quickSaveReader)
         {
             flagsDatabase.flags.Clear();
-
-            var flags = QuickSaveReader.Create("Flags");
-            flags.TryRead("flags", out SerializedDictionary<string, string> savedFlags);
+            quickSaveReader.TryRead("flags", out SerializedDictionary<string, string> savedFlags);
 
             foreach (var flag in savedFlags)
             {
@@ -523,49 +537,27 @@ namespace AF
             }
         }
 
-        void SaveSceneSettings()
+        void LoadSceneSettings(QuickSaveReader quickSaveReader)
         {
-            var data = QuickSaveWriter.Create("Scene");
-            data.Write("sceneIndex", SceneManager.GetActiveScene().buildIndex);
-            data.Write("playerPosition", playerManager.transform.position);
-            data.Write("playerRotation", playerManager.transform.rotation);
-            data.TryCommit();
-        }
-
-        void LoadSceneSettings()
-        {
-            var data = QuickSaveReader.Create("Scene");
-            data.TryRead<int>("sceneIndex", out int sceneIndex);
-            SceneManager.LoadScene(sceneIndex);
-
-            data.TryRead("playerPosition", out Vector3 playerPosition);
-            gameSession.savedPlayerPosition = playerPosition;
-
-
-            data.TryRead("playerRotation", out Quaternion playerRotation);
-            gameSession.savedPlayerRotation = playerRotation;
-
             gameSession.nextMap_SpawnGameObjectName = null;
             gameSession.loadSavedPlayerPositionAndRotation = true;
+
+            quickSaveReader.TryRead("playerPosition", out Vector3 playerPosition);
+            gameSession.savedPlayerPosition = playerPosition;
+
+            quickSaveReader.TryRead("playerRotation", out Quaternion playerRotation);
+            gameSession.savedPlayerRotation = playerRotation;
+
+            quickSaveReader.TryRead<int>("sceneIndex", out int sceneIndex);
+            SceneManager.LoadScene(sceneIndex);
         }
 
-        void SaveGameSettings()
+        void LoadGameSettings(QuickSaveReader quickSaveReader)
         {
-            var data = QuickSaveWriter.Create("GameSession");
-            data.Write("timeOfDay", gameSession.timeOfDay);
-            data.Write("graphicsQuality", gameSession.graphicsQuality);
-            data.Write("mouseSensitivity", gameSession.mouseSensitivity);
-            data.TryCommit();
-        }
-
-
-        void LoadGameSettings()
-        {
-            var data = QuickSaveReader.Create("GameSession");
-            data.TryRead<float>("timeOfDay", out var timeOfDay);
+            quickSaveReader.TryRead<float>("timeOfDay", out var timeOfDay);
             gameSession.timeOfDay = timeOfDay;
 
-            data.TryRead<int>("graphicsQuality", out var graphicsQuality);
+            quickSaveReader.TryRead<int>("graphicsQuality", out var graphicsQuality);
             if (graphicsQuality != -1)
             {
                 gameSession.SetGameQuality(graphicsQuality);
@@ -575,26 +567,24 @@ namespace AF
                 gameSession.SetGameQuality(2);
             }
 
-            data.TryRead<float>("mouseSensitivity", out var mouseSensitivity);
+            quickSaveReader.TryRead<float>("mouseSensitivity", out var mouseSensitivity);
             if (mouseSensitivity > 0)
             {
-                gameSession.mouseSensitivity = mouseSensitivity;
+                gameSession.SetCameraSensitivity(mouseSensitivity);
+            }
+
+            quickSaveReader.TryRead<float>("musicVolume", out var musicVolume);
+            if (musicVolume != -1)
+            {
+                gameSession.SetMusicVolume(musicVolume);
             }
         }
 
-        void SaveCompanions()
-        {
-            var companions = QuickSaveWriter.Create("Companions");
-            companions.Write("companionsInParty", companionsDatabase.companionsInParty);
-            companions.TryCommit();
-        }
-
-        void LoadCompanions()
+        void LoadCompanions(QuickSaveReader quickSaveReader)
         {
             companionsDatabase.companionsInParty.Clear();
-            var companions = QuickSaveReader.Create("Companions");
 
-            companions.TryRead("companionsInParty", out SerializedDictionary<string, CompanionState> savedCompanionsInParty);
+            quickSaveReader.TryRead("companionsInParty", out SerializedDictionary<string, CompanionState> savedCompanionsInParty);
 
             if (savedCompanionsInParty != null && savedCompanionsInParty.Count > 0)
             {
@@ -616,19 +606,11 @@ namespace AF
             }
         }
 
-        void SaveBonfires()
-        {
-            var bonfires = QuickSaveWriter.Create("Bonfires");
-            bonfires.Write("unlockedBonfires", bonfiresDatabase.unlockedBonfires);
-            bonfires.TryCommit();
-        }
-
-        void LoadBonfires()
+        void LoadBonfires(QuickSaveReader quickSaveReader)
         {
             bonfiresDatabase.unlockedBonfires.Clear();
-            var bonfires = QuickSaveReader.Create("Bonfires");
 
-            bonfires.TryRead("unlockedBonfires", out string[] unlockedBonfires);
+            quickSaveReader.TryRead("unlockedBonfires", out string[] unlockedBonfires);
 
             if (unlockedBonfires != null && unlockedBonfires.Length > 0)
             {
@@ -641,55 +623,83 @@ namespace AF
 
         public bool HasSavedGame()
         {
-            return QuickSaveReader.RootExists("Scene");
+            return SaveUtils.HasSaveFiles(SAVE_FILES_FOLDER);
         }
 
         public void SaveGameData()
         {
-            SaveBonfires();
-            SaveCompanions();
-            SavePlayerStats();
-            SavePlayerEquipment();
-            SavePlayerInventory();
-            SavePickups();
-            SaveFlags();
-            SaveQuests();
-            SaveRecipes();
-            SaveSceneSettings();
-            SaveGameSettings();
+            if (!CanSave())
+            {
+                notificationManager.ShowNotification("Can not save at this time", null);
+                return;
+            }
+
+            string saveFileName = $"Save_{DateTime.Now:yyyyMMdd_HHmmss}";
+
+            QuickSaveWriter quickSaveWriter = QuickSaveWriter.Create(saveFileName);
+            SaveBonfires(quickSaveWriter);
+            SaveCompanions(quickSaveWriter);
+            SavePlayerStats(quickSaveWriter);
+            SavePlayerEquipment(quickSaveWriter);
+            SavePlayerInventory(quickSaveWriter);
+            SavePickups(quickSaveWriter);
+            SaveFlags(quickSaveWriter);
+            SaveQuests(quickSaveWriter);
+            SaveRecipes(quickSaveWriter);
+            SaveSceneSettings(quickSaveWriter);
+            SaveGameSettings(quickSaveWriter);
+            quickSaveWriter.TryCommit();
+
+            Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
+            if (screenshot != null)
+            {
+                File.WriteAllBytes(Path.Combine(Application.persistentDataPath + "/" + SAVE_FILES_FOLDER, saveFileName + ".jpg"), screenshot.EncodeToJPG());
+            }
 
             notificationManager.ShowNotification("Game saved", notificationManager.systemSuccess);
         }
 
         public void LoadLastSavedGame(bool isFromGameOver)
         {
-            if (HasSavedGame())
-            {
-                gameSession.gameState = GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN;
+            string lastSave = SaveUtils.GetLastSaveFile(SAVE_FILES_FOLDER);
 
-                fadeManager.FadeIn(1f, () =>
-                {
-                    LoadBonfires();
-                    LoadCompanions();
-                    LoadPlayerStats(isFromGameOver);
-                    LoadPlayerInventory();
-                    LoadPlayerEquipment();
-                    LoadPickups();
-                    LoadFlags();
-                    LoadQuests();
-                    LoadRecipes();
-                    LoadSceneSettings();
-                    LoadGameSettings();
-                });
-            }
-            else
+            LoadSaveFile(lastSave, isFromGameOver);
+        }
+
+        public void LoadSaveFile(string saveFileName)
+        {
+            LoadSaveFile(saveFileName, false);
+        }
+
+        void LoadSaveFile(string saveFileName, bool isFromGameOver)
+        {
+            if (string.IsNullOrEmpty(saveFileName) || !QuickSaveBase.RootExists(saveFileName))
             {
                 // Return to title screen if no save game is available
                 fadeManager.FadeIn(1f, () =>
                 {
                     ResetGameStateAndReturnToTitleScreen();
                 });
+                return;
             }
+
+            QuickSaveReader quickSaveReader = QuickSaveReader.Create(saveFileName);
+
+            gameSession.gameState = GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN;
+            fadeManager.FadeIn(1f, () =>
+            {
+                LoadBonfires(quickSaveReader);
+                LoadCompanions(quickSaveReader);
+                LoadPlayerStats(quickSaveReader, isFromGameOver);
+                LoadPlayerInventory(quickSaveReader);
+                LoadPlayerEquipment(quickSaveReader);
+                LoadPickups(quickSaveReader);
+                LoadFlags(quickSaveReader);
+                LoadQuests(quickSaveReader);
+                LoadRecipes(quickSaveReader);
+                LoadGameSettings(quickSaveReader);
+                LoadSceneSettings(quickSaveReader);
+            });
         }
 
         public void ResetGameStateAndReturnToTitleScreen()

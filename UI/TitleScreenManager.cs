@@ -21,6 +21,7 @@ namespace AF
                 saveManager.ResetGameState();
                 gameSession.SetGameQuality(2);
 
+
                 gameSession.gameState = GameSession.GameState.INITIALIZED;
             }
         }

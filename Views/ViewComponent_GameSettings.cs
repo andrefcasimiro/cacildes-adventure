@@ -18,6 +18,7 @@ namespace AF
         UIDocumentPlayerHUDV2 uiDocumentPlayerHUDV2;
         public readonly string graphicsQualityLabel = "GraphicsQuality";
         public readonly string cameraSensitivityLabel = "CameraSensitivity";
+        public readonly string musicVolumeLabel = "MusicVolume";
 
         [Header("Databases")]
         public GameSession gameSession;
@@ -32,6 +33,7 @@ namespace AF
 
             RadioButtonGroup graphicsOptions = root.Q<RadioButtonGroup>(graphicsQualityLabel);
             Slider cameraSensitivity = root.Q<Slider>(cameraSensitivityLabel);
+            Slider musicVolumeSlider = root.Q<Slider>(musicVolumeLabel);
 
             int graphicsValue = 0;
             if (gameSession.graphicsQuality == GameSession.GraphicsQuality.MEDIUM) graphicsValue = 1;
@@ -47,14 +49,21 @@ namespace AF
 
             cameraSensitivity.RegisterValueChangedCallback(ev =>
             {
-                gameSession.mouseSensitivity = ev.newValue;
+                gameSession.SetCameraSensitivity(ev.newValue);
             });
-
             cameraSensitivity.lowValue = gameSession.minimumMouseSensitivity;
             cameraSensitivity.highValue = gameSession.maximumMouseSensitivity;
             cameraSensitivity.value = gameSession.mouseSensitivity;
             cameraSensitivity.label = $"Camera Sensitivity ({gameSession.mouseSensitivity})";
-        }
 
+            musicVolumeSlider.RegisterValueChangedCallback(ev =>
+            {
+                gameSession.SetMusicVolume(ev.newValue);
+            });
+            musicVolumeSlider.lowValue = 0f;
+            musicVolumeSlider.highValue = 1f;
+            musicVolumeSlider.value = gameSession.musicVolume;
+            musicVolumeSlider.label = $"Music Volume ({gameSession.musicVolume})";
+        }
     }
 }

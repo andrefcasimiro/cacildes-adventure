@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Linq;
+using TigerForge;
+using AF.Events;
 
 namespace AF.Music
 {
@@ -12,6 +14,7 @@ namespace AF.Music
         public AudioSource sfxAudioSource;
 
         [Header("Settings")]
+        public GameSession gameSession;
         public float fadeMusicSpeed = .1f;
 
         [Header("Components")]
@@ -24,6 +27,22 @@ namespace AF.Music
 
         // Flags
         public bool isPlayingBossMusic = false;
+
+        private void Awake()
+        {
+            EventManager.StartListening(EventMessages.ON_MUSIC_VOLUME_CHANGED, HandleVolume);
+        }
+
+        private void Start()
+        {
+            HandleVolume();
+        }
+
+        void HandleVolume()
+        {
+            bgmAudioSource.volume = gameSession.musicVolume;
+            ambienceAudioSource.volume = gameSession.musicVolume;
+        }
 
         public void PlayMusic(AudioClip musicToPlay)
         {

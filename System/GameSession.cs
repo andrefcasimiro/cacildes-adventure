@@ -42,6 +42,7 @@ public class GameSession : ScriptableObject
     public float mouseSensitivity = 1f;
     public float minimumMouseSensitivity = 0f;
     public float maximumMouseSensitivity = 10f;
+    public float musicVolume = 1f;
 
     public enum GraphicsQuality { LOW, MEDIUM, GOOD, ULTRA };
     public GraphicsQuality graphicsQuality = GraphicsQuality.GOOD;
@@ -113,6 +114,16 @@ public class GameSession : ScriptableObject
         }
 
         EventManager.EmitEvent(EventMessages.ON_GRAPHICS_QUALITY_CHANGED);
+    }
+
+    public void SetCameraSensitivity(float newValue)
+    {
+        mouseSensitivity = newValue;
+    }
+    public void SetMusicVolume(float newValue)
+    {
+        musicVolume = newValue;
+        EventManager.EmitEvent(EventMessages.ON_MUSIC_VOLUME_CHANGED);
     }
 
     public void SetIsParticipatingInArenaEvent(bool value)

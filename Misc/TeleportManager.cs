@@ -65,6 +65,7 @@ namespace AF
             if (gameSession.loadSavedPlayerPositionAndRotation)
             {
                 gameSession.loadSavedPlayerPositionAndRotation = false;
+
                 playerManager.playerComponentManager.UpdatePosition(gameSession.savedPlayerPosition, gameSession.savedPlayerRotation);
             }
             else if (!string.IsNullOrEmpty(gameSession.nextMap_SpawnGameObjectName))
