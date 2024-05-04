@@ -9,6 +9,7 @@ namespace AF
 
         [Header("Regeneration Settings")]
         public float STAMINA_REGENERATION_RATE = 20f;
+        public float STAMINA_REGENERATION_RATE_BONUS = 0f;
         public float negativeStaminaRegenerationBonus = 0f;
         public const float EMPTY_STAMINA_REGENERATION_DELAY = 0.5f;
         public bool shouldRegenerateStamina = false;
@@ -89,7 +90,7 @@ namespace AF
 
         void HandleStaminaRegen()
         {
-            var finalRegenerationRate = STAMINA_REGENERATION_RATE + playerStatsBonusController.staminaRegenerationBonus - negativeStaminaRegenerationBonus;
+            var finalRegenerationRate = STAMINA_REGENERATION_RATE + playerStatsBonusController.staminaRegenerationBonus - negativeStaminaRegenerationBonus + STAMINA_REGENERATION_RATE_BONUS;
 
             if (playerManager.characterBlockController.isBlocking)
             {
@@ -177,6 +178,11 @@ namespace AF
         public void ResetNegativeStaminaRegenerationBonus()
         {
             negativeStaminaRegenerationBonus = 0f;
+        }
+
+        public void SetStaminaRegenerationBonus(float value)
+        {
+            this.STAMINA_REGENERATION_RATE_BONUS = value;
         }
     }
 }

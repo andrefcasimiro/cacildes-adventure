@@ -1,4 +1,5 @@
 
+using AF.Companions;
 using AF.Events;
 using TigerForge;
 using UnityEngine;
@@ -8,6 +9,10 @@ namespace AF.Health
 {
     public class CharacterHealth : CharacterBaseHealth
     {
+        public CharacterManager characterManager;
+        public CompanionsDatabase companionsDatabase;
+
+        [HideInInspector] public UnityEvent onHealthSettingsChanged;
 
         [SerializeField]
         protected int maxHealth = 100;
@@ -33,10 +38,34 @@ namespace AF.Health
 
         [Header("Options")]
         public int bonusHealth = 0;
+        public int bonusHealthFromCompanions = 0;
+
 
         public void Awake()
         {
             CurrentHealth = GetMaxHealth();
+
+            EventManager.StartListening(EventMessages.ON_PARTY_CHANGED, UpdateHealthSettings);
+        }
+
+        void UpdateHealthSettings()
+        {
+            if (CurrentHealth <= 0)
+            {
+                return;
+            }
+
+            bool wasFullHealthBeforeUpdate = CurrentHealth >= GetMaxHealth();
+
+            this.bonusHealthFromCompanions = (
+                !characterManager.IsCompanion() && companionsDatabase.TryGetCompanionCount(out int count) && count > 0) ? HealthUtils.GetExtraHealthBasedOnCompanionsInParty(count) : 0;
+
+            if (wasFullHealthBeforeUpdate)
+            {
+                CurrentHealth = GetMaxHealth();
+            }
+
+            onHealthSettingsChanged?.Invoke();
         }
 
         public override void RestoreHealth(float value)
@@ -76,7 +105,7 @@ namespace AF.Health
 
         public override int GetMaxHealth()
         {
-            return maxHealth + bonusHealth;
+            return maxHealth + bonusHealth + bonusHealthFromCompanions;
         }
 
         public override float GetCurrentHealth()

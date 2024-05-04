@@ -40,6 +40,7 @@ namespace AF
         public InventoryDatabase inventoryDatabase;
         public PlayerStatsDatabase playerStatsDatabase;
         public QuestsDatabase questsDatabase;
+        public GameSettings gameSettings;
 
         [Header("Unequipped Textures")]
         public Texture2D unequippedSpellSlot;
@@ -65,6 +66,8 @@ namespace AF
 
         Label currentObjectiveLabel, currentObjectiveValue, combatStanceIndicatorLabel;
 
+        public StarterAssetsInputs starterAssetsInputs;
+
         private void Awake()
         {
             EventManager.StartListening(
@@ -78,6 +81,8 @@ namespace AF
             EventManager.StartListening(
                 EventMessages.ON_QUESTS_PROGRESS_CHANGED,
                 UpdateQuestTracking);
+
+            EventManager.StartListening(EventMessages.ON_USE_CUSTOM_INPUT_CHANGED, UpdateInputsHUD);
         }
 
         private void OnEnable()
@@ -131,7 +136,7 @@ namespace AF
 
             UpdateEquipment();
 
-            HandleDeviceChange();
+            UpdateInputsHUD();
             InputSystem.onDeviceChange += HandleDeviceChangeCallback;
 
             UpdateQuestTracking();
@@ -141,11 +146,11 @@ namespace AF
         {
             if (equipmentDatabase.isTwoHanding)
             {
-                combatStanceIndicatorLabel.text = "Combat Stance: Two-Handing Weapon";
+                combatStanceIndicatorLabel.text = "Stance: Two-Handing Weapon (Block Disabled)";
             }
             else
             {
-                combatStanceIndicatorLabel.text = "Combat Stance: One-Handing Weapon";
+                combatStanceIndicatorLabel.text = "Stance: One-Handing Weapon";
             }
         }
 
@@ -166,6 +171,67 @@ namespace AF
             UpdateEquipment();
         }
 
+        void UpdateInputsHUD()
+        {
+            if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetDodgeOverrideBindingPayload()))
+            {
+                root.Q<Label>("DodgeKeyLabel").text = "Dodge: " + starterAssetsInputs.GetCurrentKeyBindingForAction("Dodge");
+                root.Q<VisualElement>("DodgeKeyIcon").style.display = DisplayStyle.None;
+            }
+            else
+            {
+                root.Q<Label>("DodgeKeyLabel").text = "Dodge";
+                root.Q<VisualElement>("DodgeKeyIcon").style.display = DisplayStyle.Flex;
+            }
+
+            if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetJumpOverrideBindingPayload()))
+            {
+                root.Q<Label>("JumpKeyLabel").text = "Jump: " + starterAssetsInputs.GetCurrentKeyBindingForAction("Jump");
+                root.Q<VisualElement>("JumpKeyIcon").style.display = DisplayStyle.None;
+            }
+            else
+            {
+                root.Q<Label>("JumpKeyLabel").text = "Jump";
+                root.Q<VisualElement>("JumpKeyIcon").style.display = DisplayStyle.Flex;
+            }
+
+            if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetTwoHandModeOverrideBindingPayload()))
+            {
+                root.Q<Label>("ToggleHandsKeyLabel").text = "Toggle 1/2 Handing: " + starterAssetsInputs.GetCurrentKeyBindingForAction("Tab");
+                root.Q<VisualElement>("ToggleHandsKeyIcon").style.display = DisplayStyle.None;
+            }
+            else
+            {
+                root.Q<Label>("ToggleHandsKeyLabel").text = "Toggle 1/2 Handing";
+                root.Q<VisualElement>("ToggleHandsKeyIcon").style.display = DisplayStyle.Flex;
+            }
+
+            if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetHeavyAttackOverrideBindingPayload()))
+            {
+                root.Q<Label>("HeavyAttackKeyLabel").text = "Heavy Attack: " + starterAssetsInputs.GetCurrentKeyBindingForAction("HeavyAttack");
+                root.Q<VisualElement>("HeavyAttackKeyIcon").style.display = DisplayStyle.None;
+            }
+            else
+            {
+                root.Q<Label>("HeavyAttackKeyLabel").text = "Heavy Attack";
+                root.Q<VisualElement>("HeavyAttackKeyIcon").style.display = DisplayStyle.Flex;
+            }
+
+            if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetSprintOverrideBindingPayload()))
+            {
+                root.Q<Label>("SprintKeyLabel").text = "Sprint: " + starterAssetsInputs.GetCurrentKeyBindingForAction("Sprint");
+                root.Q<VisualElement>("SprintKeyIcon").style.display = DisplayStyle.None;
+            }
+            else
+            {
+                root.Q<Label>("SprintKeyLabel").text = "Sprint";
+                root.Q<VisualElement>("SprintKeyIcon").style.display = DisplayStyle.Flex;
+            }
+
+
+            HandleDeviceChange();
+        }
+
         public void HideHUD()
         {
             root.visible = false;
@@ -173,6 +239,7 @@ namespace AF
         public void ShowHUD()
         {
             root.visible = true;
+            UpdateInputsHUD();
         }
 
         private void Update()

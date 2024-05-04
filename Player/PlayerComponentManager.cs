@@ -13,7 +13,6 @@ namespace AF
         public PlayerBlockInput playerParryManager;
         public CharacterController characterController;
 
-
         public bool isInTutorial = false;
         public bool isInBonfire = false;
 

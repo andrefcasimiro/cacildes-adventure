@@ -17,10 +17,14 @@ namespace AF.Shops
         [Header("Discount Settings")]
         public Item requiredItemForDiscounts;
         [Range(0.1f, 1f)] public float discountGivenByItemInInventory = 0.3f;
+        [Range(0.1f, 1f)] public float discountGivenByShopItself = 1f;
 
         [Header("Events")]
         public UnityEvent onShopOpen;
         public UnityEvent onShopExit;
+
+        [Header("Selling Options")]
+        public Item[] itemsThatCanBeSold;
 
         // Scene References
         UIDocumentShopMenu uIDocumentShopMenu;

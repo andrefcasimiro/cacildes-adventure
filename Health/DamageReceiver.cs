@@ -78,10 +78,11 @@ namespace AF
             return true;
         }
 
-        public void HandleIncomingDamage(CharacterBaseManager damageOwner, UnityAction<Damage> onTakeDamage)
+
+        public void HandleIncomingDamage(CharacterBaseManager damageOwner, UnityAction<Damage> onTakeDamage, bool ignoreSameFaction)
         {
             // Don't allow same factions to hit each other
-            if (damageOwner.IsFromSameFaction(character))
+            if (!ignoreSameFaction && damageOwner.IsFromSameFaction(character))
             {
                 return;
             }

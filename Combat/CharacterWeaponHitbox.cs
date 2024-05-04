@@ -102,24 +102,35 @@ namespace AF
             onCloseHitbox?.Invoke();
         }
 
+        bool IsCharacterConfused()
+        {
+            return character != null && character.isConfused;
+        }
+
         public void OnTriggerEnter(Collider other)
         {
-
-            if (tagsToIgnore.Contains(other.tag))
+            if (tagsToIgnore.Contains(other.tag) && !IsCharacterConfused())
             {
                 return;
             }
 
-            if (character.GetAttackDamage() == null)
+            if (character.GetAttackDamage() == null && !IsCharacterConfused())
             {
                 return;
             }
 
-            if (
-                other.TryGetComponent(out DamageReceiver damageReceiver)
+            other.TryGetComponent(out DamageReceiver damageReceiver);
+
+            if (IsCharacterConfused() ||
+                damageReceiver != null
                 && damageReceiver?.character != character
                 && damageReceiversHit.Contains(damageReceiver) == false)
             {
+
+                if (IsCharacterConfused() && character.damageReceiver != null)
+                {
+                    damageReceiver = character.damageReceiver;
+                }
 
                 damageReceiver.HandleIncomingDamage(character, (incomingDamage) =>
                 {
@@ -134,7 +145,7 @@ namespace AF
                             soundbank.PlaySound(hitSfx, combatAudioSource);
                         }
                     }
-                });
+                }, IsCharacterConfused());
 
                 damageReceiversHit.Add(damageReceiver);
 

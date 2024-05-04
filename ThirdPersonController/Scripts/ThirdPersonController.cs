@@ -151,7 +151,6 @@ namespace AF
 
         public bool canRotateCharacter = true;
 
-        public bool isConfused = false;
 
 
         [Header("Databases")]
@@ -551,12 +550,6 @@ namespace AF
             {
                 targetDirection = Vector3.zero;
             }
-
-            if (isConfused)
-            {
-                targetDirection *= -1f;
-            }
-
             if ((
                 // If is locked on
                 lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn
@@ -782,10 +775,6 @@ namespace AF
             this.JumpHeight = DefaultJumpHeight;
         }
 
-        public void SetIsConfused(bool value)
-        {
-            isConfused = value;
-        }
 
     }
 }

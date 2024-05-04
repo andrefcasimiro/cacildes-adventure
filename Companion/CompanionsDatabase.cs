@@ -151,6 +151,13 @@ namespace AF.Companions
             return companionsInParty.Where(x => x.Value.isWaitingForPlayer)
                                     .ToDictionary(x => x.Key, x => x.Value);
         }
+
+        public bool TryGetCompanionCount(out int count)
+        {
+            count = companionsInParty.Where(x => !x.Value.isWaitingForPlayer).Count();
+            return count > 0;
+        }
+
     }
 
 }

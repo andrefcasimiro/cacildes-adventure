@@ -36,6 +36,7 @@ namespace AF
         public FadeManager fadeManager;
         public PlayerManager playerManager;
         public NotificationManager notificationManager;
+        public GameSettings gameSettings;
 
         // Flags that allow us to save the game
         bool hasMomentOnGoing = false;
@@ -175,12 +176,9 @@ namespace AF
             quickSaveWriter.Write("playerPosition", playerManager.transform.position);
             quickSaveWriter.Write("playerRotation", playerManager.transform.rotation);
         }
-        void SaveGameSettings(QuickSaveWriter quickSaveWriter)
+        void SaveGameSessionSettings(QuickSaveWriter quickSaveWriter)
         {
             quickSaveWriter.Write("timeOfDay", gameSession.timeOfDay);
-            quickSaveWriter.Write("graphicsQuality", gameSession.graphicsQuality);
-            quickSaveWriter.Write("mouseSensitivity", gameSession.mouseSensitivity);
-            quickSaveWriter.Write("musicVolume", gameSession.musicVolume);
         }
         void SaveCompanions(QuickSaveWriter quickSaveWriter)
         {
@@ -552,32 +550,10 @@ namespace AF
             SceneManager.LoadScene(sceneIndex);
         }
 
-        void LoadGameSettings(QuickSaveReader quickSaveReader)
+        void LoadGameSessionSettings(QuickSaveReader quickSaveReader)
         {
             quickSaveReader.TryRead<float>("timeOfDay", out var timeOfDay);
             gameSession.timeOfDay = timeOfDay;
-
-            quickSaveReader.TryRead<int>("graphicsQuality", out var graphicsQuality);
-            if (graphicsQuality != -1)
-            {
-                gameSession.SetGameQuality(graphicsQuality);
-            }
-            else
-            {
-                gameSession.SetGameQuality(2);
-            }
-
-            quickSaveReader.TryRead<float>("mouseSensitivity", out var mouseSensitivity);
-            if (mouseSensitivity > 0)
-            {
-                gameSession.SetCameraSensitivity(mouseSensitivity);
-            }
-
-            quickSaveReader.TryRead<float>("musicVolume", out var musicVolume);
-            if (musicVolume != -1)
-            {
-                gameSession.SetMusicVolume(musicVolume);
-            }
         }
 
         void LoadCompanions(QuickSaveReader quickSaveReader)
@@ -647,7 +623,7 @@ namespace AF
             SaveQuests(quickSaveWriter);
             SaveRecipes(quickSaveWriter);
             SaveSceneSettings(quickSaveWriter);
-            SaveGameSettings(quickSaveWriter);
+            SaveGameSessionSettings(quickSaveWriter);
             quickSaveWriter.TryCommit();
 
             Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
@@ -697,7 +673,7 @@ namespace AF
                 LoadFlags(quickSaveReader);
                 LoadQuests(quickSaveReader);
                 LoadRecipes(quickSaveReader);
-                LoadGameSettings(quickSaveReader);
+                LoadGameSessionSettings(quickSaveReader);
                 LoadSceneSettings(quickSaveReader);
             });
         }

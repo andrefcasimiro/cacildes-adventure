@@ -249,9 +249,12 @@ namespace AF
                     text += $"+{nextWeaponUpgradeLevel.newDamage.darkness} Darkness ATK\n";
                 }
 
-                foreach (var statusEffect in nextWeaponUpgradeLevel.newDamage.statusEffects)
+                if (nextWeaponUpgradeLevel.newDamage.statusEffects != null)
                 {
-                    text += $"+{statusEffect.amountPerHit} ${statusEffect.statusEffect.appliedName} Inflicted per HIT\n";
+                    foreach (var statusEffect in nextWeaponUpgradeLevel.newDamage.statusEffects)
+                    {
+                        text += $"+{statusEffect.amountPerHit} ${statusEffect.statusEffect.appliedName} Inflicted per HIT\n";
+                    }
                 }
 
                 text += $"Required Gold: {nextWeaponUpgradeLevel.goldCostForUpgrade} Coins\n";

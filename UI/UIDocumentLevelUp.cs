@@ -83,13 +83,13 @@ namespace AF
                 () =>
                 {
                     desiredVitality--;
-                    virtualGold += playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
+                    virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
                     desiredVitality++;
-                    virtualGold -= playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount() - 1);
+                    virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
                 }
             );
@@ -99,13 +99,13 @@ namespace AF
                 () =>
                 {
                     desiredEndurance--;
-                    virtualGold += playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
+                    virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
                     desiredEndurance++;
-                    virtualGold -= playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount() - 1);
+                    virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
                 }
             );
@@ -115,13 +115,13 @@ namespace AF
                 () =>
                 {
                     desiredIntelligence--;
-                    virtualGold += playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
+                    virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
                     desiredIntelligence++;
-                    virtualGold -= playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount() - 1);
+                    virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
                 }
             );
@@ -131,13 +131,13 @@ namespace AF
                 () =>
                 {
                     desiredStrength--;
-                    virtualGold += playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
+                    virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
                     desiredStrength++;
-                    virtualGold -= playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount() - 1);
+                    virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
                 }
             );
@@ -147,13 +147,13 @@ namespace AF
                 () =>
                 {
                     desiredDexterity--;
-                    virtualGold += playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
+                    virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
                     desiredDexterity++;
-                    virtualGold -= playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount() - 1);
+                    virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
                 }
             );
@@ -205,11 +205,12 @@ namespace AF
             }
 
             root.Q<VisualElement>("Level").Q<Label>("Value").text = GetDesiredLevelsAmount() + "";
-            root.Q<VisualElement>("Gold").Q<Label>("Value").text = virtualGold + "/" + playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(GetDesiredLevelsAmount());
+            root.Q<VisualElement>("Gold").Q<Label>("Value").text = virtualGold + "/" + LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
 
             if (HasEnoughExperienceForLevelling(virtualGold, GetDesiredLevelsAmount() + 1))
             {
                 root.Q<VisualElement>("Gold").Q<Label>("Value").style.color = Color.green;
+
             }
             else
             {
@@ -250,12 +251,12 @@ namespace AF
 
         public bool HasEnoughExperienceForLevelling(float experience, int levelDesired)
         {
-            if (experience >= playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(levelDesired - 1))
+            if (experience >= LevelUtils.GetRequiredExperienceForLevel(levelDesired - 1))
             {
                 return true;
             }
 
-            return (experience - playerManager.playerLevelManager.GetRequiredExperienceForGivenLevel(levelDesired)) >= 0;
+            return (experience - LevelUtils.GetRequiredExperienceForLevel(levelDesired)) >= 0;
         }
 
         int GetDesiredLevelsAmount()

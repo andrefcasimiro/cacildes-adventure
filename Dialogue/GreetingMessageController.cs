@@ -20,12 +20,17 @@ namespace AF.Dialogue
         public UnityEvent onGreetingBegin;
         public UnityEvent onGreetingEnd;
 
+        [Header("Delay Before Showing Greeting")]
+        public float minimumDelayBeforeShowingGreeting = 0f;
+        public float maximumDelayBeforeShowingGreeting = 0f;
+
         [Header("Taunt Options")]
         public bool displayMessageWhenAgressive = false;
 
         bool hasDisplayed = false;
         bool hasStoppedDisplaying = false;
 
+        Coroutine ShowGreetingMessageCoroutine;
         Coroutine HideGreetingMessageCoroutine;
 
 
@@ -94,16 +99,29 @@ namespace AF.Dialogue
             }
 
             hasDisplayed = true;
+
+            if (ShowGreetingMessageCoroutine != null)
+            {
+                StopCoroutine(ShowGreetingMessageCoroutine);
+            }
+
+            ShowGreetingMessageCoroutine = StartCoroutine(DisplayGreeting_Coroutine(greetingMessage));
+        }
+
+        IEnumerator DisplayGreeting_Coroutine(CharacterGreeting characterGreeting)
+        {
+            yield return new WaitForSeconds(Random.Range(minimumDelayBeforeShowingGreeting, maximumDelayBeforeShowingGreeting));
+
             onGreetingBegin?.Invoke();
 
-            greetingMessageUI.Display(greetingMessage.greeting);
+            greetingMessageUI.Display(characterGreeting.greeting);
 
             if (HideGreetingMessageCoroutine != null)
             {
                 StopCoroutine(HideGreetingMessageCoroutine);
             }
 
-            HideGreetingMessageCoroutine = StartCoroutine(HideGreetingMessage_Coroutine(greetingMessage.duration));
+            HideGreetingMessageCoroutine = StartCoroutine(HideGreetingMessage_Coroutine(characterGreeting.duration));
         }
 
         IEnumerator HideGreetingMessage_Coroutine(float duration)

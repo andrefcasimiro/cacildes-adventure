@@ -89,5 +89,53 @@ namespace AF
 
             weapon.level++;
         }
+
+        public static bool IsItemAnIngredientOfCurrentLearnedRecipes(RecipesDatabase recipesDatabase, Item item)
+        {
+            if (recipesDatabase.craftingRecipes.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var recipe in recipesDatabase.craftingRecipes)
+            {
+                if (recipe.ingredients.Exists(ingredient => ingredient.ingredient == item))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static List<CraftingRecipe> GetRecipesUsingItem(RecipesDatabase recipesDatabase, Item item)
+        {
+            List<CraftingRecipe> recipesUsingItem = new List<CraftingRecipe>();
+
+            foreach (var recipe in recipesDatabase.craftingRecipes)
+            {
+                if (recipe.ingredients.Exists(ingredient => ingredient.ingredient == item))
+                {
+                    recipesUsingItem.Add(recipe);
+                }
+            }
+
+            return recipesUsingItem;
+        }
+
+        public static string GetFormattedTextForRecipesUsingItem(CraftingRecipe[] resultingRecipes)
+        {
+            string text = "Used in:\n";
+            for (int i = 0; i < resultingRecipes.Length; i++)
+            {
+                text += "- " + resultingRecipes[i].name;
+                if (i < resultingRecipes.Length - 1)
+                {
+                    text += "\n";
+                }
+            }
+
+            return text;
+        }
     }
 }

@@ -13,15 +13,13 @@ namespace AF
         [Header("Game Session")]
         public GameSession gameSession;
         public SaveManager saveManager;
+        public StarterAssetsInputs starterAssetsInputs;
 
         private void Awake()
         {
             if (gameSession.gameState == GameSession.GameState.NOT_INITIALIZED)
             {
                 saveManager.ResetGameState();
-                gameSession.SetGameQuality(2);
-
-
                 gameSession.gameState = GameSession.GameState.INITIALIZED;
             }
         }

@@ -35,7 +35,7 @@ namespace AF
 
         private void Awake()
         {
-            if (characterManager.isCompanion)
+            if (characterManager.IsCompanion())
             {
                 playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
             }
@@ -110,7 +110,7 @@ namespace AF
                 }
             }
             // Is Active Companion And Is Not Targetting Any Enemy
-            else if (characterManager.isCompanion && characterManager?.health?.GetCurrentHealth() > 0 && companionsDatabase.IsCompanionAndIsActivelyInParty(characterManager.GetCharacterID()))
+            else if (characterManager.IsCompanion() && characterManager?.health?.GetCurrentHealth() > 0 && companionsDatabase.IsCompanionAndIsActivelyInParty(characterManager.GetCharacterID()))
             {
                 return FollowPlayer();
             }

@@ -320,15 +320,6 @@ namespace AF
 
             data.TryRead<float>("timeOfDay", out var timeOfDay);
             quickSaveWriter.Write("timeOfDay", timeOfDay);
-
-            data.TryRead<int>("graphicsQuality", out var graphicsQuality);
-            quickSaveWriter.Write("graphicsQuality", graphicsQuality);
-
-            data.TryRead<float>("mouseSensitivity", out var mouseSensitivity);
-            quickSaveWriter.Write("mouseSensitivity", mouseSensitivity);
-
-            data.TryRead<float>("musicVolume", out var musicVolume);
-            quickSaveWriter.Write("musicVolume", musicVolume);
         }
 
         static void MigrateCompanions(QuickSaveWriter quickSaveWriter)

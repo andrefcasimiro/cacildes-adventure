@@ -12,12 +12,20 @@ namespace AF
         [Header("Components")]
         public Soundbank soundbank;
 
+        [Header("Alchemy Info")]
+        public RecipesDatabase recipesDatabase;
+
         private void Awake()
         {
             gameObject.SetActive(false);
         }
 
         public void DisplayPrompt(string key, string action)
+        {
+            DisplayPrompt(key, action, null);
+        }
+
+        public void DisplayPrompt(string key, string action, Item item)
         {
             this.gameObject.SetActive(true);
 
@@ -45,6 +53,30 @@ namespace AF
             }
 
             root.Q<Label>("InputText").text = action;
+            root.Q<Label>("IngredientDescription").style.display = DisplayStyle.None;
+
+            if (item != null)
+            {
+                HandleAlchemyInfoTooltip(root, item);
+            }
+        }
+
+        void HandleAlchemyInfoTooltip(VisualElement root, Item item)
+        {
+            if (item == null || recipesDatabase == null)
+            {
+                return;
+            }
+
+            if (CraftingUtils.IsItemAnIngredientOfCurrentLearnedRecipes(recipesDatabase, item))
+            {
+                CraftingRecipe[] resultingRecipes = CraftingUtils.GetRecipesUsingItem(recipesDatabase, item).ToArray();
+                if (resultingRecipes != null && resultingRecipes.Length > 0)
+                {
+                    root.Q<Label>("IngredientDescription").text = CraftingUtils.GetFormattedTextForRecipesUsingItem(resultingRecipes);
+                    root.Q<Label>("IngredientDescription").style.display = DisplayStyle.Flex;
+                }
+            }
         }
     }
 }

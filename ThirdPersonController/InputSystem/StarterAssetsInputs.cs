@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Events;
+using static UnityEngine.InputSystem.InputActionRebindingExtensions;
+using System.Collections;
 
 namespace AF
 {
@@ -56,13 +58,17 @@ namespace AF
 		public UnityEvent onAdvanceOneHour;
 		public UnityEvent onGoBackOneHour;
 
-		public GameSession gameSession;
+		[Header("System")]
+		public GameSettings gameSettings;
 
 		Vector2 scaleVector = new(1, 1);
 
+		[Header("Rebindings")]
+		public PlayerInput playerInput;
+
 		private void Awake()
 		{
-			scaleVector = new(gameSession.mouseSensitivity, gameSession.mouseSensitivity);
+			scaleVector = new(gameSettings.GetMouseSensitivity(), gameSettings.GetMouseSensitivity());
 		}
 
 		public void OnMove(InputValue value)
@@ -79,9 +85,9 @@ namespace AF
 				look = value.Get<Vector2>();
 			}
 
-			if (scaleVector.x != gameSession.mouseSensitivity)
+			if (scaleVector.x != gameSettings.GetMouseSensitivity())
 			{
-				scaleVector = new(gameSession.mouseSensitivity, gameSession.mouseSensitivity);
+				scaleVector = new(gameSettings.GetMouseSensitivity(), gameSettings.GetMouseSensitivity());
 			}
 
 			look.Scale(scaleVector);
@@ -235,5 +241,74 @@ namespace AF
 			onGoBackOneHour?.Invoke();
 		}
 
+		public RebindingOperation ChangeInput(InputAction inputAction)
+		{
+			return inputAction
+				.PerformInteractiveRebinding()
+				.WithControlsExcluding("<Mouse>/leftButton")
+				.WithControlsExcluding("<Mouse>/rightButton")
+				.WithControlsExcluding("<Keyboard>/f5")
+				.WithControlsExcluding("<Keyboard>/f9")
+				.WithControlsExcluding("<Keyboard>/escape")
+				.WithCancelingThrough("<Keyboard>/escape")
+				.Start();
+		}
+
+		public IEnumerator Rebind(string actionName, UnityAction<string> onRebindSuccessfull)
+		{
+			InputAction inputAction = playerInput
+				.actions
+				.FindAction(actionName);
+
+			if (inputAction == null)
+			{
+				yield break;
+			}
+
+			inputAction.Disable();
+
+			RebindingOperation rebindingOperation = ChangeInput(inputAction);
+
+			yield return new WaitUntil(() =>
+			{
+				return rebindingOperation.completed;
+			});
+
+			onRebindSuccessfull.Invoke(rebindingOperation.action.SaveBindingOverridesAsJson());
+
+			rebindingOperation.Dispose();
+			inputAction.Enable();
+		}
+
+		public string GetCurrentKeyBindingForAction(string actionName)
+		{
+			InputAction inputAction = playerInput
+				.actions
+				.FindAction(actionName);
+
+			if (inputAction == null)
+			{
+				return "";
+			}
+
+			return inputAction.GetBindingDisplayString();
+		}
+
+		public void RestoreDefaultKeyBindings()
+		{
+			playerInput.actions.RemoveAllBindingOverrides();
+		}
+
+		public void ApplyBindingOverride(string actionName, string overridePayload)
+		{
+			InputAction inputAction = playerInput
+				.actions
+				.FindAction(actionName);
+
+			if (inputAction != null)
+			{
+				inputAction.LoadBindingOverridesFromJson(overridePayload);
+			}
+		}
 	}
 }

@@ -202,6 +202,11 @@ namespace AF
 
         public bool CanLightAttack()
         {
+            if (!this.isActiveAndEnabled)
+            {
+                return false;
+            }
+
             if (CanAttack() == false)
             {
                 return false;

@@ -33,7 +33,6 @@ namespace AF
             "Coroutine couldn't be started because the the game object",
             "cannot be converted to type 'AF.State'.",
             "[Steamworks.NET] SteamAPI_Init() failed.",
-            "AF.Combat.TargetManager.ClearTarget ()"
         };
 
         void Start()

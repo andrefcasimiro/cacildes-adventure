@@ -16,9 +16,12 @@ namespace AF
         // Scene Refs
         UIDocumentKeyPrompt uIDocumentKeyPrompt;
 
+        [Header("Alchemy Pickable Info")]
+        public Item item;
+
         public void OnCaptured()
         {
-            GetUIDocumentKeyPrompt().DisplayPrompt(key, action);
+            GetUIDocumentKeyPrompt().DisplayPrompt(key, action, item);
         }
 
         public void OnInvoked()

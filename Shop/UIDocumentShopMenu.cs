@@ -220,6 +220,7 @@ namespace AF.Shops
                 if (characterShop.requiredItemForDiscounts != null && inventoryDatabase.HasItem(characterShop.requiredItemForDiscounts))
                 {
                     clonedItem.value *= characterShop.discountGivenByItemInInventory;
+                    clonedItem.value *= characterShop.discountGivenByShopItself;
                 }
 
                 shopItemsToDisplay.Add(clonedItem);
@@ -243,6 +244,11 @@ namespace AF.Shops
 
                 // Don't sell unique items like spells and so on
                 if (item.Key.isRenewable)
+                {
+                    continue;
+                }
+
+                if (characterShop.itemsThatCanBeSold != null && characterShop.itemsThatCanBeSold.Length > 0 && !characterShop.itemsThatCanBeSold.Contains(item.Key))
                 {
                     continue;
                 }

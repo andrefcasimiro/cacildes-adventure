@@ -1,5 +1,3 @@
-using AF.Events;
-using TigerForge;
 using UnityEditor;
 using UnityEngine;
 
@@ -38,15 +36,6 @@ public class GameSession : ScriptableObject
     public int daysPassed = 0;
     public float daySpeed = 0.005f;
 
-    [Header("Game Settings")]
-    public float mouseSensitivity = 1f;
-    public float minimumMouseSensitivity = 0f;
-    public float maximumMouseSensitivity = 10f;
-    public float musicVolume = 1f;
-
-    public enum GraphicsQuality { LOW, MEDIUM, GOOD, ULTRA };
-    public GraphicsQuality graphicsQuality = GraphicsQuality.GOOD;
-
 
 #if UNITY_EDITOR
     private void OnEnable()
@@ -72,11 +61,18 @@ public class GameSession : ScriptableObject
         isParticipatingInArenaEvent = false;
     }
 
+    /// <summary>
+    /// Unity Event
+    /// </summary>
+    /// <param name="hour"></param>
     public void SetTimeOfDay(int hour)
     {
         this.timeOfDay = hour;
     }
 
+    /// <summary>
+    /// Unity Event
+    /// </summary>
     public void IncreaseTimeOfDay()
     {
         if (timeOfDay > 23)
@@ -87,43 +83,6 @@ public class GameSession : ScriptableObject
         {
             timeOfDay++;
         }
-    }
-
-    public void SetGameQuality(int newValue)
-    {
-
-        if (newValue == 0)
-        {
-            graphicsQuality = GraphicsQuality.LOW;
-            QualitySettings.SetQualityLevel(0);
-        }
-        else if (newValue == 1)
-        {
-            graphicsQuality = GraphicsQuality.MEDIUM;
-            QualitySettings.SetQualityLevel(2);
-        }
-        else if (newValue == 2)
-        {
-            graphicsQuality = GraphicsQuality.GOOD;
-            QualitySettings.SetQualityLevel(4);
-        }
-        else if (newValue == 3)
-        {
-            graphicsQuality = GraphicsQuality.ULTRA;
-            QualitySettings.SetQualityLevel(5);
-        }
-
-        EventManager.EmitEvent(EventMessages.ON_GRAPHICS_QUALITY_CHANGED);
-    }
-
-    public void SetCameraSensitivity(float newValue)
-    {
-        mouseSensitivity = newValue;
-    }
-    public void SetMusicVolume(float newValue)
-    {
-        musicVolume = newValue;
-        EventManager.EmitEvent(EventMessages.ON_MUSIC_VOLUME_CHANGED);
     }
 
     public void SetIsParticipatingInArenaEvent(bool value)

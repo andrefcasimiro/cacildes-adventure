@@ -46,29 +46,5 @@ namespace AF.Tests
             Assert.That(_bossController.IsBossHUDEnabled(), Is.False);
         }
 
-        [Test]
-        public void Test_IsBoss_ReturnsTrueIfNameIsSet()
-        {
-            // Arrange
-            _bossController.bossName = "Test Boss";
-
-            // Act
-            bool isBoss = _bossController.IsBoss();
-
-            // Assert
-            Assert.That(isBoss, Is.True);
-        }
-
-        [Test]
-        public void Test_IsBoss_ReturnsFalseIfNameIsNotSet()
-        {
-            // Arrange
-
-            // Act
-            bool isBoss = _bossController.IsBoss();
-
-            // Assert
-            Assert.That(isBoss, Is.False);
-        }
     }
 }

@@ -1,3 +1,4 @@
+using AF.Health;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -24,23 +25,26 @@ namespace AF
         {
             CharacterManager enemy = GetPossibleTarget();
 
-            if (enemy != null && CanBackstab(enemy))
+            if (enemy != null && CanBackstab(enemy, playerManager.GetAttackDamage()))
             {
                 enemy.characterPosture.isStunned = true;
                 enemy.damageReceiver.waitingForBackstab = true;
 
+                bool isBackstabbing = false;
                 // If backstab sucess
                 enemy.damageReceiver.HandleIncomingDamage(playerManager, (incomeDamage) =>
                 {
+                    isBackstabbing = true;
+                    enemy.transform.position = playerManager.transform.position;
                     playerManager.transform.rotation = enemy.transform.rotation;
                     playerManager.playerComponentManager.DisablePlayerControlAndRegainControlAfterResetStates();
                     enemy.targetManager.SetTarget(playerManager);
 
                     playerManager.PlayBusyHashedAnimationWithRootMotion(hashBackstabExecution);
                     Invoke(nameof(PlayDelayedBackstab), 0.8f);
-                });
+                }, false);
 
-                return true;
+                return isBackstabbing;
             }
 
             return false;
@@ -71,7 +75,7 @@ namespace AF
             return null;
         }
 
-        public bool CanBackstab(CharacterManager target)
+        public bool CanBackstab(CharacterManager target, Damage incomingDamage)
         {
             if (!target.damageReceiver.canBeBackstabbed)
             {
@@ -79,6 +83,11 @@ namespace AF
             }
 
             if (target.characterPosture.isStunned)
+            {
+                return false;
+            }
+
+            if (target != null && target.health != null && target.health.GetCurrentHealth() - incomingDamage.GetTotalDamage() <= 0)
             {
                 return false;
             }

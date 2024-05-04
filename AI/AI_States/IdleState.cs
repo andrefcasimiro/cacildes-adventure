@@ -23,7 +23,7 @@ namespace AF
 
         private void Awake()
         {
-            if (characterManager.isCompanion)
+            if (characterManager.IsCompanion())
             {
                 playerManager = FindAnyObjectByType<PlayerManager>(FindObjectsInactive.Include);
             }
@@ -55,7 +55,7 @@ namespace AF
 
         bool ShouldFollowPlayer()
         {
-            if (characterManager.isCompanion == false)
+            if (characterManager.IsCompanion() == false)
             {
                 return false;
             }

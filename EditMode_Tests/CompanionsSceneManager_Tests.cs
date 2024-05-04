@@ -32,12 +32,18 @@ namespace AF.Tests
             companionWarriorCharacterManager = new GameObject().AddComponent<CharacterManager>();
             companionWarriorCharacterManager.characterController = companionWarriorCharacterManager.gameObject.AddComponent<CharacterController>();
             companionWarriorCharacterManager.agent = companionWarriorCharacterManager.gameObject.AddComponent<NavMeshAgent>();
-            companionWarriorCharacterManager.characterID = companionWarriorID;
+
+            CompanionID companionWarrior = ScriptableObject.CreateInstance<CompanionID>();
+            companionWarrior.name = companionWarriorID;
+            companionWarriorCharacterManager.companionID = companionWarrior;
 
             companionSorcererCharacterManager = new GameObject().AddComponent<CharacterManager>();
             companionSorcererCharacterManager.characterController = companionSorcererCharacterManager.gameObject.AddComponent<CharacterController>();
             companionSorcererCharacterManager.agent = companionSorcererCharacterManager.gameObject.AddComponent<NavMeshAgent>();
-            companionSorcererCharacterManager.characterID = companionSorcererID;
+
+            CompanionID companionSorcerer = ScriptableObject.CreateInstance<CompanionID>();
+            companionSorcerer.name = companionSorcererID;
+            companionSorcererCharacterManager.companionID = companionSorcerer;
 
             companionsSceneManager.companionPrefabs = new GameObject[] { companionWarriorCharacterManager.gameObject, companionSorcererCharacterManager.gameObject };
         }

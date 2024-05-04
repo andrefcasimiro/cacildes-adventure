@@ -14,7 +14,7 @@ namespace AF.Music
         public AudioSource sfxAudioSource;
 
         [Header("Settings")]
-        public GameSession gameSession;
+        public GameSettings gameSettings;
         public float fadeMusicSpeed = .1f;
 
         [Header("Components")]
@@ -40,8 +40,8 @@ namespace AF.Music
 
         void HandleVolume()
         {
-            bgmAudioSource.volume = gameSession.musicVolume;
-            ambienceAudioSource.volume = gameSession.musicVolume;
+            bgmAudioSource.volume = gameSettings.GetMusicVolume();
+            ambienceAudioSource.volume = gameSettings.GetMusicVolume();
         }
 
         public void PlayMusic(AudioClip musicToPlay)
@@ -85,7 +85,7 @@ namespace AF.Music
 
         private IEnumerator FadeInCore_Coroutine()
         {
-            var volumeInGamePreferences = 1f;
+            var volumeInGamePreferences = gameSettings.GetMusicVolume();
 
             while (this.bgmAudioSource.volume < volumeInGamePreferences)
             {

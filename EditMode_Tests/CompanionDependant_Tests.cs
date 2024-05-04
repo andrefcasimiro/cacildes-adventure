@@ -13,6 +13,7 @@ namespace AF.Tests
         CompanionsDatabase companionsDatabase;
 
         string companionId = "companion1";
+        CompanionID companionID = ScriptableObject.CreateInstance<CompanionID>();
 
         [SetUp]
         public void SetUp()
@@ -20,7 +21,8 @@ namespace AF.Tests
             GameObject go = new();
 
             companionDependant = go.AddComponent<CompanionDependant>();
-            companionDependant.companionID = companionId;
+            companionID.name = companionId;
+            companionDependant.companionID = companionID;
 
             companionsDatabase = ScriptableObject.CreateInstance<CompanionsDatabase>();
             companionDependant.companionsDatabase = companionsDatabase;

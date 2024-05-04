@@ -19,6 +19,7 @@ namespace AF.UI.EquipmentMenu
 
         [Header("Components")]
         public AttackStatManager attackStatManager;
+        public RecipesDatabase recipesDatabase;
 
         [Header("UI Documents")]
         public UIDocument uIDocument;
@@ -451,10 +452,10 @@ namespace AF.UI.EquipmentMenu
             CreateAdditionalGoldTooltip(armor.additionalCoinPercentage);
 
             CreateStatTooltip(armor.vitalityBonus, "Vitality", vitalitySprite);
-            CreateStatTooltip(armor.enduranceBonus, "Vitality", enduranceSprite);
-            CreateStatTooltip(armor.intelligenceBonus, "Vitality", intelligenceSprite);
-            CreateStatTooltip(armor.strengthBonus, "Vitality", strengthSprite);
-            CreateStatTooltip(armor.dexterityBonus, "Vitality", dexteritySprite);
+            CreateStatTooltip(armor.enduranceBonus, "Endurance", enduranceSprite);
+            CreateStatTooltip(armor.intelligenceBonus, "Intelligence", intelligenceSprite);
+            CreateStatTooltip(armor.strengthBonus, "Strength", strengthSprite);
+            CreateStatTooltip(armor.dexterityBonus, "Dexterity", dexteritySprite);
 
             if (armor.reputationBonus > 0)
             {
@@ -558,6 +559,15 @@ namespace AF.UI.EquipmentMenu
             }
 
             CreateTooltip(craftingMaterialSprite, Color.white, "Crafting material (Use in a alchemy table)");
+
+            if (CraftingUtils.IsItemAnIngredientOfCurrentLearnedRecipes(recipesDatabase, craftingMaterial))
+            {
+                CraftingRecipe[] craftingRecipes = CraftingUtils.GetRecipesUsingItem(recipesDatabase, craftingMaterial).ToArray();
+                if (craftingRecipes != null && craftingRecipes.Length > 0)
+                {
+                    CreateTooltip(craftingMaterialSprite, Color.white, CraftingUtils.GetFormattedTextForRecipesUsingItem(craftingRecipes));
+                }
+            }
         }
 
         void DrawUpgradeMaterial(UpgradeMaterial upgradeMaterial)

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AF
@@ -12,17 +10,9 @@ namespace AF
         {
             return playerStatsDatabase.GetCurrentLevel();
         }
-
-        public int GetRequiredExperienceForGivenLevel(int level)
-        {
-            return Mathf.RoundToInt(Mathf.Ceil((level + level - 1) * 1.25f * 100));
-        }
-
         public float GetRequiredExperienceForNextLevel()
         {
-            return Mathf.RoundToInt(Mathf.Ceil((this.GetCurrentLevel() + this.GetCurrentLevel() - 1) * 1.25f * 100));
+            return LevelUtils.GetRequiredExperienceForLevel(this.GetCurrentLevel() + 1);
         }
-
     }
-
 }

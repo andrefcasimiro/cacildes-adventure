@@ -8,13 +8,13 @@ using AF.Shooting;
 using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
+using AF.Companions;
 
 namespace AF
 {
     public class CharacterManager : CharacterBaseManager
     {
-        public string characterID = "";
-        public bool isCompanion = false;
+        public CompanionID companionID;
         public CharacterCombatController characterCombatController;
         public TargetManager targetManager;
 
@@ -174,7 +174,7 @@ namespace AF
             {
                 characterHealth.Revive();
 
-                if (isCompanion == false)
+                if (IsCompanion() == false)
                 {
                     if (shouldReturnToInitialPositionOnRevive)
                     {
@@ -197,7 +197,12 @@ namespace AF
 
         public string GetCharacterID()
         {
-            return characterID;
+            return companionID.GetCompanionID();
+        }
+
+        public bool IsCompanion()
+        {
+            return companionID != null;
         }
     }
 }

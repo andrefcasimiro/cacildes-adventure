@@ -11,6 +11,11 @@ namespace AF.Health
         private void Start()
         {
             InitializeHUD();
+
+            if (characterHealth != null)
+            {
+                characterHealth.onHealthSettingsChanged.AddListener(UpdateUIDueToSettings);
+            }
         }
 
         public void InitializeHUD()
@@ -27,6 +32,12 @@ namespace AF.Health
         {
             gameObject.SetActive(characterHealth.GetCurrentHealth() > 0);
 
+            healthSlider.value = characterHealth.GetCurrentHealth() * 0.01f;
+            healthSlider.maxValue = characterHealth.GetMaxHealth() * 0.01f;
+        }
+
+        void UpdateUIDueToSettings()
+        {
             healthSlider.value = characterHealth.GetCurrentHealth() * 0.01f;
             healthSlider.maxValue = characterHealth.GetMaxHealth() * 0.01f;
         }

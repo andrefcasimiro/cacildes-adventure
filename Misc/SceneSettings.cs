@@ -40,7 +40,9 @@ namespace AF
 
         [Header("Systems")]
         public GameSession gameSession;
+        public GameSettings gameSettings;
         public PickupDatabase pickupDatabase;
+        public StarterAssetsInputs starterAssetsInputs;
 
         [Header("Events")]
         public UnityEvent onSceneStart;
@@ -55,6 +57,8 @@ namespace AF
             {
                 sceneName = SceneManager.GetActiveScene().name;
             }
+
+            gameSettings.LoadSettings(starterAssetsInputs);
         }
 
         private void Start()

@@ -26,6 +26,8 @@ namespace AF
         [Header("Flags")]
         public bool isBusy = false;
 
+        public bool isConfused = false;
+
         [Header("Components")]
         public StatusController statusController;
         public CharacterBaseHealth health;
@@ -102,6 +104,17 @@ namespace AF
                 && characterFactions.Any(thisCharactersFaction =>
                     target.characterFactions != null && target.characterFactions.Length > 0 && target.characterFactions.Contains(thisCharactersFaction));
 
+        }
+
+
+        public void SetIsConfused(bool value)
+        {
+            this.isConfused = value;
+        }
+
+        public void ResetIsConfused()
+        {
+            this.isConfused = false;
         }
     }
 }
