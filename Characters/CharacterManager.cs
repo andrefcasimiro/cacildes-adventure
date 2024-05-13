@@ -32,6 +32,9 @@ namespace AF
         public float patrolSpeed = 2f;
         public float chaseSpeed = 4.5f;
         public float rotationSpeed = 6f;
+
+        [Header("Settings")]
+        public bool canRevive = true;
         public bool shouldReturnToInitialPositionOnRevive = true;
 
         [Header("Face Target Settings")]
@@ -107,7 +110,11 @@ namespace AF
                 Quaternion rootMotionRotation = animator.deltaRotation;
 
                 // Apply root motion to the NavMesh Agent
-                characterController.Move(rootMotionPosition);
+                if (characterController.enabled)
+                {
+                    characterController.Move(rootMotionPosition);
+                }
+
                 agent.Warp(characterController.transform.position);
 
                 transform.rotation *= rootMotionRotation;
@@ -163,7 +170,7 @@ namespace AF
 
         void Revive()
         {
-            if (characterBossController.IsBoss())
+            if (characterBossController.IsBoss() || !canRevive)
             {
                 return;
             }

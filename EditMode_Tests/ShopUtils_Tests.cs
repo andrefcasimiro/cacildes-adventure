@@ -52,7 +52,7 @@ namespace AF.Tests
             item.value = itemOriginalValue;
 
             bool playerIsBuying = true;
-            float discountPercentage = 0.1f; // 10% discount
+            float discountPercentage = 0.9f; // 10% discount
 
             // Act
             int finalPrice = ShopUtils.GetItemFinalPrice(item, playerIsBuying, discountPercentage);
@@ -70,7 +70,7 @@ namespace AF.Tests
             item.value = itemOriginalValue;
 
             bool playerIsBuying = false;
-            float discountPercentage = 0.1f; // 10% discount
+            float discountPercentage = 0.9f; // 10% discount
 
             // Act
             int finalPrice = ShopUtils.GetItemFinalPrice(item, playerIsBuying, discountPercentage);

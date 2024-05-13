@@ -13,6 +13,11 @@ namespace AF
                 return;
             }
 
+            if (characterManager.characterController.enabled == false)
+            {
+                return;
+            }
+
             characterManager.characterController.Move(new Vector3(0.0f, -9f, 0.0f) * Time.deltaTime);
         }
 

@@ -77,7 +77,7 @@ namespace AF.Health
 
         public override void TakeDamage(float value)
         {
-            if (value <= 0)
+            if (value <= 0 || CurrentHealth <= 0)
             {
                 return;
             }

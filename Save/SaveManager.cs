@@ -602,7 +602,7 @@ namespace AF
             return SaveUtils.HasSaveFiles(SAVE_FILES_FOLDER);
         }
 
-        public void SaveGameData()
+        public void SaveGameData(Texture2D screenshot)
         {
             if (!CanSave())
             {
@@ -626,10 +626,10 @@ namespace AF
             SaveGameSessionSettings(quickSaveWriter);
             quickSaveWriter.TryCommit();
 
-            Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
-            if (screenshot != null)
+            Texture2D finalScreenshot = screenshot == null ? ScreenCapture.CaptureScreenshotAsTexture() : screenshot;
+            if (finalScreenshot != null)
             {
-                File.WriteAllBytes(Path.Combine(Application.persistentDataPath + "/" + SAVE_FILES_FOLDER, saveFileName + ".jpg"), screenshot.EncodeToJPG());
+                File.WriteAllBytes(Path.Combine(Application.persistentDataPath + "/" + SAVE_FILES_FOLDER, saveFileName + ".jpg"), finalScreenshot.EncodeToJPG());
             }
 
             notificationManager.ShowNotification("Game saved", notificationManager.systemSuccess);
@@ -689,7 +689,7 @@ namespace AF
         {
             if (Input.GetKeyDown(KeyCode.F5))
             {
-                SaveGameData();
+                SaveGameData(null);
             }
 
             if (Input.GetKeyDown(KeyCode.F9))

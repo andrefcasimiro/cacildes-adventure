@@ -121,34 +121,41 @@ namespace AF
                     return;
                 }
 
-                if (character.characterBlockController.CanBlockDamage(incomingDamage))
+                if (character.characterBlockController.CanBlockDamage(incomingDamage) && HandleBlocking(incomingDamage, damageOwner))
                 {
-                    if (character is PlayerManager playerManager)
-                    {
-                        if (playerManager.staminaStatManager.CanPerformAction(playerManager.playerWeaponsManager.GetCurrentBlockStaminaCost()))
-                        {
-                            incomingDamage = playerManager.playerWeaponsManager.GetCurrentShieldDefenseAbsorption(incomingDamage);
-
-                            if (damageOwner != null && damageOwner is CharacterManager enemy)
-                            {
-                                playerManager.playerWeaponsManager.ApplyShieldDamageToAttacker(enemy);
-                            }
-
-                            playerManager.staminaStatManager.DecreaseStamina((int)playerManager.playerWeaponsManager.GetCurrentBlockStaminaCost());
-                            character.characterBlockController.BlockAttack(incomingDamage);
-                        }
-                    }
-                    else
-                    {
-                        character.characterBlockController.BlockAttack(incomingDamage);
-                        return;
-                    }
+                    return;
                 }
             }
 
             ApplyDamage(incomingDamage);
 
             onTakeDamage?.Invoke(incomingDamage);
+        }
+
+        bool HandleBlocking(Damage incomingDamage, CharacterBaseManager damageOwner)
+        {
+            if (character is PlayerManager playerManager)
+            {
+                if (playerManager.staminaStatManager.CanPerformAction(playerManager.playerWeaponsManager.GetCurrentBlockStaminaCost()))
+                {
+                    incomingDamage = playerManager.playerWeaponsManager.GetCurrentShieldDefenseAbsorption(incomingDamage);
+
+                    if (damageOwner != null && damageOwner is CharacterManager enemy)
+                    {
+                        playerManager.playerWeaponsManager.ApplyShieldDamageToAttacker(enemy);
+                    }
+
+                    playerManager.staminaStatManager.DecreaseStamina((int)playerManager.playerWeaponsManager.GetCurrentBlockStaminaCost());
+                    character.characterBlockController.BlockAttack(incomingDamage);
+                }
+            }
+            else
+            {
+                character.characterBlockController.BlockAttack(incomingDamage);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

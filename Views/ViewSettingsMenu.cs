@@ -34,7 +34,7 @@ namespace AF
             {
                 soundbank.PlaySound(soundbank.uiHover);
 
-                saveManager.SaveGameData();
+                saveManager.SaveGameData(menuManager.screenshotBeforeOpeningMenu);
 
             }, soundbank);
 

@@ -60,10 +60,8 @@ namespace AF.UI.EquipmentMenu
 
         VisualElement itemListKeyHints, itemListGamepadHints, equipItemKeyHint, equipItemButtonHint, useItemKeyHint, useItemButtonHint;
 
-        // Scroll Index
-        int elementToFocusIndex = 0;
+        int lastScrollElementIndex = -1;
 
-        Item focusedItem;
 
         private void OnEnable()
         {
@@ -82,7 +80,6 @@ namespace AF.UI.EquipmentMenu
 
         private void OnDisable()
         {
-            focusedItem = null;
             root.Q<VisualElement>("ItemList").style.display = DisplayStyle.None;
         }
 
@@ -91,10 +88,11 @@ namespace AF.UI.EquipmentMenu
         /// </summary>
         public void OnUseItem()
         {
+            /*
             if (isActiveAndEnabled && focusedItem != null && focusedItem is Consumable c)
             {
                 playerManager.playerInventory.PrepareItemForConsuming(c);
-            }
+            }*/
         }
 
         public void SetupRefs()
@@ -140,8 +138,6 @@ namespace AF.UI.EquipmentMenu
 
         public void DrawUI(EquipmentType equipmentType, int slotIndex)
         {
-            elementToFocusIndex = 1;
-
             menuLabel.style.display = DisplayStyle.None;
             equipItemKeyHint.style.display = DisplayStyle.None;
             equipItemButtonHint.style.display = DisplayStyle.None;
@@ -227,11 +223,6 @@ namespace AF.UI.EquipmentMenu
 
             // Delay the focus until the next frame, required as a hack for now
             Invoke(nameof(GiveFocus), 0f);
-        }
-
-        void GiveFocus()
-        {
-            returnButton.Focus();
         }
 
         bool IsItemEquipped(Item item, int slotIndex)
@@ -343,7 +334,7 @@ namespace AF.UI.EquipmentMenu
                 int index = i;
                 btn.clicked += () =>
                 {
-                    elementToFocusIndex = index;
+                    lastScrollElementIndex = index;
 
                     soundbank.PlaySound(soundbank.uiEquip);
 
@@ -480,11 +471,12 @@ namespace AF.UI.EquipmentMenu
 
                 instance.RegisterCallback<MouseEnterEvent>(ev =>
                 {
+                    itemsScrollView.ScrollTo(instance);
                     ShowTooltipAndStats(item.Key);
                 });
                 instance.RegisterCallback<FocusInEvent>(ev =>
                 {
-                    focusedItem = item.Key;
+                    itemsScrollView.ScrollTo(instance);
 
                     ShowTooltipAndStats(item.Key);
                 });
@@ -494,7 +486,6 @@ namespace AF.UI.EquipmentMenu
                 });
                 instance.RegisterCallback<FocusOutEvent>(ev =>
                 {
-                    focusedItem = null;
                     HideTooltipAndClearStats();
                 });
 
@@ -518,11 +509,26 @@ namespace AF.UI.EquipmentMenu
             }
 
 
-            if (itemsScrollView.childCount > 0 && elementToFocusIndex < itemsScrollView.childCount && itemsScrollView.ElementAt(elementToFocusIndex) != null)
+
+            Invoke(nameof(GiveFocus), 0f);
+        }
+
+        void GiveFocus()
+        {
+            if (lastScrollElementIndex == -1)
             {
-                var btn = itemsScrollView.ElementAt(elementToFocusIndex).Q<Button>("EquipButton");
-                btn.Focus();
-                itemsScrollView.ScrollTo(btn);
+                returnButton.Focus();
+            }
+            else
+            {
+                UIUtils.ScrollToLastPosition(
+                    lastScrollElementIndex,
+                    itemsScrollView,
+                    () =>
+                    {
+                        lastScrollElementIndex = -1;
+                    }
+                );
             }
 
         }

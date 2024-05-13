@@ -83,6 +83,21 @@ namespace AF.Dialogue
         /// <summary>
         /// Unity Event
         /// </summary>
+        public void DisplayGreetingMessage(CharacterGreeting greetingMessage)
+        {
+            hasDisplayed = true;
+
+            if (ShowGreetingMessageCoroutine != null)
+            {
+                StopCoroutine(ShowGreetingMessageCoroutine);
+            }
+
+            ShowGreetingMessageCoroutine = StartCoroutine(DisplayGreeting_Coroutine(greetingMessage));
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
         public void DisplayGreetingMessage()
         {
             if (hasStoppedDisplaying || hasDisplayed || characterGreetings == null || characterGreetings.Length <= 0)
@@ -98,14 +113,7 @@ namespace AF.Dialogue
                 return;
             }
 
-            hasDisplayed = true;
-
-            if (ShowGreetingMessageCoroutine != null)
-            {
-                StopCoroutine(ShowGreetingMessageCoroutine);
-            }
-
-            ShowGreetingMessageCoroutine = StartCoroutine(DisplayGreeting_Coroutine(greetingMessage));
+            DisplayGreetingMessage(greetingMessage);
         }
 
         IEnumerator DisplayGreeting_Coroutine(CharacterGreeting characterGreeting)

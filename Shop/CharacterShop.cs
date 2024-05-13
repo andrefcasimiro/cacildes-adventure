@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
+using AF.Inventory;
+using AF.Stats;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,6 +10,7 @@ namespace AF.Shops
 {
     public class CharacterShop : MonoBehaviour
     {
+
         [Header("Character")]
         public Character character;
         public int shopGold = 1500;
@@ -28,6 +32,11 @@ namespace AF.Shops
 
         // Scene References
         UIDocumentShopMenu uIDocumentShopMenu;
+
+        [Header("Quest Dependant Discounts")]
+        public QuestParent questParent;
+        public int[] questProgressesRequiredForDiscount;
+        [Range(0.1f, 1f)] public float discountGivenByQuestCompleted = 1f;
 
         public void BuyFromCharacter()
         {
@@ -75,5 +84,76 @@ namespace AF.Shops
 
             itemsToSell[item].quantity += amount;
         }
+
+        public int GetItemEvaluation(Item item, InventoryDatabase inventoryDatabase, StatsBonusController statsBonusController, bool isBuying)
+        {
+            float discountPercentage = 0f;
+
+            if (requiredItemForDiscounts != null && discountGivenByItemInInventory != 1 && inventoryDatabase.HasItem(requiredItemForDiscounts))
+            {
+                discountPercentage += 1 - discountGivenByItemInInventory;
+            }
+
+            if (discountGivenByShopItself != 1)
+            {
+                discountPercentage += 1 - discountGivenByShopItself;
+            }
+
+            if (discountGivenByQuestCompleted != 1
+                && questParent != null
+                && questProgressesRequiredForDiscount.Length > 0
+                && questProgressesRequiredForDiscount.Contains(questParent.questProgress))
+            {
+                discountPercentage += 1 - discountGivenByQuestCompleted;
+            }
+
+            if (statsBonusController.discountPercentage > 0)
+            {
+                discountPercentage += 1 - statsBonusController.discountPercentage;
+            }
+
+            return ShopUtils.GetItemFinalPrice(item, isBuying, Mathf.Min(1f, discountPercentage));
+        }
+
+        List<string> GetDiscountDescriptions(InventoryDatabase inventoryDatabase, StatsBonusController statsBonusController, bool isBuying)
+        {
+            List<string> discountDescriptions = new();
+
+            if (requiredItemForDiscounts != null && discountGivenByItemInInventory != 1 && inventoryDatabase.HasItem(requiredItemForDiscounts))
+            {
+                discountDescriptions.Add((isBuying ? "-" : "+") + (100 - discountGivenByItemInInventory * 100) + $"% prices for having {requiredItemForDiscounts.name} item in inventory");
+            }
+            if (discountGivenByShopItself != 1)
+            {
+                discountDescriptions.Add((isBuying ? "-" : "+") + (100 - discountGivenByShopItself * 100) + $"% prices from shop affinitiy towards Cacildes");
+            }
+            if (statsBonusController.discountPercentage > 0)
+            {
+                discountDescriptions.Add((isBuying ? "-" : "+") + (100 - statsBonusController.discountPercentage * 100) + $"% prices from player bonus stats");
+            }
+            if (discountGivenByQuestCompleted != 1
+                && questParent != null
+                && questProgressesRequiredForDiscount.Length > 0
+                && questProgressesRequiredForDiscount.Contains(questParent.questProgress))
+            {
+                discountDescriptions.Add((isBuying ? "-" : "+") + (100 - discountGivenByQuestCompleted * 100) + $"% prices for completing quest: {questParent.name}");
+            }
+
+            return discountDescriptions;
+        }
+
+        public string GetShopDiscountsDescription(InventoryDatabase inventoryDatabase, StatsBonusController statsBonusController, bool isBuying)
+        {
+            List<string> discounts = GetDiscountDescriptions(inventoryDatabase, statsBonusController, isBuying);
+
+            if (discounts.Count <= 0)
+            {
+                return "";
+            }
+
+
+            return "Applied discounts: \n" + string.Join("\n", discounts);
+        }
+
     }
 }

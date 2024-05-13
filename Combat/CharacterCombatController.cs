@@ -17,6 +17,9 @@ namespace AF.Combat
         public List<CombatAction> reactionsToTarget = new();
         public List<CombatAction> combatActions = new();
         public List<CombatAction> chaseActions = new();
+
+        [Header("Directional")]
+        public CombatAction reactionToTargetBehindBack;
         public CombatAction currentCombatAction = null;
 
         [Header("Combat Options")]
@@ -65,6 +68,22 @@ namespace AF.Combat
             return characterManager.targetManager.IsTargetBusy() || characterManager.targetManager.IsTargetShooting();
         }
 
+        bool IsTargetBehind()
+        {
+            if (characterManager.targetManager == null || characterManager.targetManager.currentTarget == null)
+            {
+                return false;
+            }
+
+            // Calculate vector from enemy to player
+            Vector3 toPlayer = characterManager.targetManager.currentTarget.transform.position - characterManager.transform.position;
+
+            // Calculate angle between enemy's forward direction and vector to player
+            float angle = Vector3.Angle(characterManager.transform.forward, toPlayer);
+
+            return angle > 90f;
+        }
+
         CombatAction GetCombatAction()
         {
             if (CanReact())
@@ -78,6 +97,11 @@ namespace AF.Combat
                         return possibleReaction;
                     }
                 }
+            }
+
+            if (reactionToTargetBehindBack != null && IsTargetBehind())
+            {
+                return reactionToTargetBehindBack;
             }
 
             if (combatActions.Count > 0)
@@ -149,7 +173,10 @@ namespace AF.Combat
 
         public void ExecuteCurrentCombatAction(float crossFade)
         {
-            characterManager.FaceTarget();
+            if (currentCombatAction != reactionToTargetBehindBack)
+            {
+                characterManager.FaceTarget();
+            }
 
             if (currentCombatAction.attackAnimationClip != null)
             {
@@ -166,7 +193,7 @@ namespace AF.Combat
 
                 characterManager.animator.ForceStateNormalizedTime(0f);
 
-                if (currentCombatAction.animationSpeed < 1f && currentCombatAction.animationSpeed > 0)
+                if (currentCombatAction.animationSpeed != 1f)
                 {
                     characterManager.animator.SetFloat(AttackSpeedHash, currentCombatAction.animationSpeed);
                 }

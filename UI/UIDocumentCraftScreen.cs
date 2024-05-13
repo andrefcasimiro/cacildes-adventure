@@ -163,6 +163,8 @@ namespace AF
 
         void PopulateScrollView(CraftingRecipe[] ownedCraftingRecipes)
         {
+            root.Q<VisualElement>("WeaponNextUpgradeDescription").style.display = DisplayStyle.None;
+
             var scrollView = this.root.Q<ScrollView>();
             scrollView.Clear();
 
@@ -176,8 +178,8 @@ namespace AF
                 Close();
             }, soundbank);
 
-            scrollView.nestedInteractionKind = ScrollView.NestedInteractionKind.ForwardScrolling;
             scrollView.Add(exitButton);
+
 
             if (craftActivity == CraftActivity.BLACKSMITH)
             {
@@ -188,13 +190,15 @@ namespace AF
                 PopulateCraftingScroll(scrollView, ownedCraftingRecipes);
             }
 
-
             if (lastScrollElementIndex == -1)
             {
-                exitButton.Focus();
+                scrollView.ScrollTo(exitButton);
+            }
+            else
+            {
+                Invoke(nameof(GiveFocus), 0f);
             }
 
-            Invoke(nameof(GiveFocus), 0f);
         }
 
         void GiveFocus()
@@ -460,6 +464,7 @@ namespace AF
             }
 
             var nextLevel = weapon.level + 1;
+            root.Q<VisualElement>("WeaponNextUpgradeDescription").style.display = DisplayStyle.Flex;
 
             // Weapon preview
             root.Q<Label>("WeaponLevelPreview").text = weapon.name + " +" + nextLevel;

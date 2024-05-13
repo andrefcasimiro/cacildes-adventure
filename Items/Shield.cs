@@ -25,6 +25,15 @@ namespace AF
         [Range(0, 1f)] public float lightiningAbsorption = 1f;
         [Range(0, 1f)] public float magicAbsorption = 1f;
         [Range(0, 1f)] public float darknessAbsorption = 1f;
+        [Range(0, 1f)] public float postureDamageAbsorption = 1f;
+
+
+        [Header("Damage Types")]
+        [Range(0, 1f)] public float pierceDamageAbsorption = 1f;
+
+        [Range(0, 1f)] public float bluntDamageAbsorption = 1f;
+
+        [Range(0, 1f)] public float slashDamageAbsorption = 1f;
 
 
         [Header("Status Effect Resistances")]
@@ -58,21 +67,43 @@ namespace AF
             {
                 incomingDamage.physical = (int)(incomingDamage.physical * physicalAbsorption);
             }
+
             if (fireAbsorption != 1)
             {
                 incomingDamage.fire = (int)(incomingDamage.fire * fireAbsorption);
             }
+
             if (frostAbsorption != 1)
             {
                 incomingDamage.frost = (int)(incomingDamage.frost * frostAbsorption);
             }
+
             if (lightiningAbsorption != 1)
             {
                 incomingDamage.lightning = (int)(incomingDamage.lightning * lightiningAbsorption);
             }
+
             if (magicAbsorption != 1)
             {
                 incomingDamage.magic = (int)(incomingDamage.magic * magicAbsorption);
+            }
+
+            if (postureDamageAbsorption != 1)
+            {
+                incomingDamage.postureDamage = (int)(incomingDamage.postureDamage * postureDamageAbsorption);
+            }
+
+            if (slashDamageAbsorption != 1 && incomingDamage.weaponAttackType == WeaponAttackType.Slash)
+            {
+                incomingDamage.physical = (int)(incomingDamage.physical * slashDamageAbsorption);
+            }
+            else if (bluntDamageAbsorption != 1 && incomingDamage.weaponAttackType == WeaponAttackType.Blunt)
+            {
+                incomingDamage.physical = (int)(incomingDamage.physical * bluntDamageAbsorption);
+            }
+            else if (pierceDamageAbsorption != 1 && incomingDamage.weaponAttackType == WeaponAttackType.Pierce)
+            {
+                incomingDamage.physical = (int)(incomingDamage.physical * pierceDamageAbsorption);
             }
 
             return incomingDamage;

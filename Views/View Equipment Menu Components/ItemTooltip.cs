@@ -204,7 +204,7 @@ namespace AF.UI.EquipmentMenu
             damageExplanation += $"+{strengthAttackBonus} ATK [STR Scaling: {weapon.strengthScaling}]\n";
             damageExplanation += $"+{dexterityAttackBonus} ATK [DEX Scaling: {weapon.dexterityScaling}]\n";
             damageExplanation += $"+{intelligenceAttackBonus} ATK [INT Scaling: {weapon.intelligenceScaling}]\n";
-            damageExplanation += $"+{unscaledAttackDamage} Unscaled Physical Damage";
+            //damageExplanation += $"+{unscaledAttackDamage} Unscaled Physical Damage";
             CreateTooltip(weaponPhysicalAttackSprite, Color.white, damageExplanation);
 
             CreateEquipLoadTooltip(weapon.speedPenalty);
@@ -327,6 +327,23 @@ namespace AF.UI.EquipmentMenu
             if (shield.postureBonus != 0)
             {
                 CreatePostureTooltip(shield.postureBonus);
+            }
+
+            if (shield.postureDamageAbsorption != 1)
+            {
+                CreateTooltip(postureSprite, Color.white, $"{100 - shield.postureDamageAbsorption * 100}% Posture DMG Absorption");
+            }
+            if (shield.slashDamageAbsorption != 1)
+            {
+                CreateTooltip(slashSprite, Color.white, $"{100 - shield.slashDamageAbsorption * 100}% Slash DMG Absorption");
+            }
+            if (shield.pierceDamageAbsorption != 1)
+            {
+                CreateTooltip(pierceSprite, Color.white, $"{100 - shield.pierceDamageAbsorption * 100}% Pierce DMG Absorption");
+            }
+            if (shield.bluntDamageAbsorption != 1)
+            {
+                CreateTooltip(bluntSprite, Color.white, $"{100 - shield.bluntDamageAbsorption * 100}% Blunt DMG Absorption");
             }
 
             if (shield.canDamageEnemiesOnShieldAttack)

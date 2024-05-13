@@ -27,6 +27,7 @@ namespace AF
 
         public VisualTreeAsset overrideButtonInputPrefab;
 
+        public Soundbank soundbank;
 
         [Header("Databases")]
         public GameSettings gameSettings;
@@ -38,11 +39,11 @@ namespace AF
                 uiDocumentPlayerHUDV2 = FindAnyObjectByType<UIDocumentPlayerHUDV2>(FindObjectsInactive.Include);
             }
 
-            root.Q<Button>("ResetSettings").RegisterCallback<ClickEvent>(ev =>
+            UIUtils.SetupButton(root.Q<Button>("ResetSettings"), () =>
             {
                 gameSettings.ResetSettings();
                 UpdateUI(root);
-            });
+            }, soundbank);
 
             keyBindingScroll = root.Q<ScrollView>("KeyBindingScrolls");
 
@@ -201,10 +202,10 @@ namespace AF
 
             Button customizeBtn = root.Q<Button>("CustomizeButton");
 
-            customizeBtn.RegisterCallback<ClickEvent>((ev) =>
+            UIUtils.SetupButton(customizeBtn, () =>
             {
-                onClickAction.Invoke();
-            });
+                onClickAction?.Invoke();
+            }, soundbank);
 
             customizeBtn.SetEnabled(gameSettings.UseCustomInputs());
         }

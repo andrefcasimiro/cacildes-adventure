@@ -16,57 +16,16 @@ namespace AF.Shops
                 return (int)item.value;
             }
 
-            float discountAmount = item.value * discountPercentage;
+            int discountAmount = (int)(item.value * discountPercentage);
 
-            // Adjust discount amount based on whether player is buying or selling
             if (playerIsBuying)
             {
-                discountAmount = -discountAmount; // Negate discount for buying
+                return (int)(item.value - discountAmount);
             }
-
-            float finalPrice = item.value + discountAmount;
-
-            // Ensure final price is not lower than 0
-            finalPrice = Mathf.Max(finalPrice, 0f);
-
-            return (int)finalPrice;
-        }
-
-
-        public static bool CanBuy(Item itemToBuy, int characterGold)
-        {
-            return CanBuy(itemToBuy, characterGold, null);
-        }
-
-        public static bool CanBuy(
-            Item itemToBuy,
-            int characterGold,
-            SerializedDictionary<Item, ItemAmount> characterInventory)
-        {
-            if (itemToBuy.tradingItemRequirements != null && itemToBuy.tradingItemRequirements.Count > 0)
+            else
             {
-                if (characterInventory == null)
-                {
-                    return false;
-                }
-
-                bool canBuy = true;
-
-                foreach (var requiredTradingItem in itemToBuy.tradingItemRequirements)
-                {
-                    if (
-                        !characterInventory.ContainsKey(requiredTradingItem.Key)
-                        || characterInventory[requiredTradingItem.Key].amount < requiredTradingItem.Value)
-                    {
-                        canBuy = false;
-                        break;
-                    }
-                }
-
-                return canBuy;
+                return (int)(item.value + discountAmount);
             }
-
-            return characterGold >= itemToBuy.value;
         }
 
         public static bool ItemRequiresCoinsToBeBought(Item item)
@@ -76,18 +35,11 @@ namespace AF.Shops
 
         public static void BuyItem(
             Item itemToBuy,
-            int buyerGold,
-            SerializedDictionary<Item, ItemAmount> buyerInventory,
             UnityAction<int> onGoldLost,
             UnityAction<Dictionary<Item, int>> onItemsTraded,
             UnityAction<Item> onTransactionCompleted
         )
         {
-            if (!CanBuy(itemToBuy, buyerGold, buyerInventory))
-            {
-                return;
-            }
-
             if (ItemRequiresCoinsToBeBought(itemToBuy))
             {
                 onGoldLost((int)itemToBuy.value);

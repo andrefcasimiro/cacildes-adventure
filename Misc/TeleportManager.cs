@@ -1,5 +1,7 @@
+using System.Collections;
 using AF.Bonfires;
 using AF.Companions;
+using AF.Loading;
 using AF.Music;
 using UnityEngine;
 using UnityEngine.Events;
@@ -22,6 +24,8 @@ namespace AF
         public BGMManager bGMManager;
         public CompanionsSceneManager companionsSceneManager;
         public NotificationManager notificationManager;
+
+        public LoadingManager loadingManager;
 
         void Start()
         {
@@ -57,7 +61,29 @@ namespace AF
             fadeManager.FadeIn(1f, () =>
             {
                 SceneManager.LoadScene(sceneName);
+                //StartCoroutine(LoadSceneAsync(sceneName));
             });
+        }
+
+        public IEnumerator LoadSceneAsync(string sceneName)
+        {
+            //loadingManager.BeginLoading(sceneName);
+
+            var loadingOperation = SceneManager.LoadSceneAsync(sceneName);
+            loadingOperation.allowSceneActivation = false;
+
+            while (!loadingOperation.isDone)
+            {
+                //loadingManager.UpdateLoading(loadingOperation.progress * 100);
+
+                if (loadingOperation.progress >= 0.9f)
+                {
+                    loadingOperation.allowSceneActivation = true;
+                }
+
+                yield return null;
+            }
+
         }
 
         void SpawnPlayer()

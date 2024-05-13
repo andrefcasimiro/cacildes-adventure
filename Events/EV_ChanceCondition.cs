@@ -13,19 +13,22 @@ namespace AF
         public bool runOnlyOnce = false;
         public bool hasRun = false;
 
+        bool finalValue;
+
         public override IEnumerator Dispatch()
         {
             if (hasRun && runOnlyOnce)
             {
-                yield return null;
+                yield return DispatchConditionResults(finalValue);
             }
             else
             {
-                bool finalValue = Random.Range(0, 100) <= chance;
+                finalValue = Random.Range(0, 100) <= chance;
 
                 if (runOnlyOnce)
                 {
                     hasRun = true;
+
                 }
 
                 yield return DispatchConditionResults(finalValue);

@@ -138,7 +138,7 @@ namespace AF.Bonfires
 
         public void ExitBonfire()
         {
-            GetSaveManager().SaveGameData();
+            GetSaveManager().SaveGameData(null);
 
             GetUIDocumentBonfireMenu().gameObject.SetActive(false);
 

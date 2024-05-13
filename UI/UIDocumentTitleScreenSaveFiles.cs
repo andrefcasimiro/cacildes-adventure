@@ -56,18 +56,6 @@ namespace AF
             exitButton.AddToClassList("primary-button");
             scrollPanel.Add(exitButton);
 
-            Button openSavesFolder = new()
-            {
-                text = "Open Saves Folder"
-            };
-            openSavesFolder.AddToClassList("primary-button");
-            openSavesFolder.RegisterCallback<ClickEvent>(ev =>
-            {
-                // Open the folder using the default file explorer
-                Process.Start(Application.persistentDataPath + "/" + saveManager.SAVE_FILES_FOLDER);
-            });
-            scrollPanel.Add(openSavesFolder);
-
             UIUtils.SetupButton(exitButton, () =>
             {
                 Close();
@@ -80,6 +68,23 @@ namespace AF
 
             exitButton.Focus();
 
+
+
+            Button openSavesFolder = new()
+            {
+                text = "Open Saves Folder"
+            };
+            openSavesFolder.AddToClassList("primary-button");
+
+            UIUtils.SetupButton(openSavesFolder, () =>
+            {
+                // Open the folder using the default file explorer
+                Process.Start(Application.persistentDataPath + "/" + saveManager.SAVE_FILES_FOLDER);
+            }, soundbank);
+
+            scrollPanel.Add(openSavesFolder);
+
+
             foreach (var saveFileName in SaveUtils.GetSaveFileNames(saveManager.SAVE_FILES_FOLDER))
             {
                 var saveFileInstance = saveFileButtonPrefab.CloneTree();
@@ -91,11 +96,10 @@ namespace AF
                 saveFileInstance.Q<VisualElement>("SaveScreenshot").Q<Label>("SaveFileNotFoundLabel").style.display =
                     screenshotThumbnail == null ? DisplayStyle.Flex : DisplayStyle.None;
 
-                saveFileInstance.RegisterCallback<ClickEvent>(ev =>
+                UIUtils.SetupButton(saveFileInstance.Q<Button>("Button"), () =>
                 {
                     saveManager.LoadSaveFile(saveFileName);
-                });
-
+                }, soundbank);
 
                 scrollPanel.Add(saveFileInstance);
             }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using AF.Ladders;
 using AF.Shops;
 using AF.UI;
@@ -43,6 +44,9 @@ namespace AF
         public ItemList itemList;
 
 
+        public Texture2D screenshotBeforeOpeningMenu;
+
+
         /// <summary>
         /// Unity Event
         /// </summary>
@@ -61,11 +65,26 @@ namespace AF
             }
             else if (!isMenuOpen)
             {
+                StartCoroutine(CaptureScreenshot());
+
                 OpenMenu();
             }
             else
             {
                 CloseMenu();
+            }
+        }
+
+        IEnumerator CaptureScreenshot()
+        {
+            // Wait until the end of the frame
+            yield return new WaitForEndOfFrame();
+
+            // Capture the screenshot as a texture
+            Texture2D screenshotTexture = ScreenCapture.CaptureScreenshotAsTexture();
+            if (screenshotTexture != null)
+            {
+                this.screenshotBeforeOpeningMenu = screenshotTexture;
             }
         }
 

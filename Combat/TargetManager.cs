@@ -2,6 +2,8 @@ using System.Collections;
 using System.Linq;
 using AF.Characters;
 using AF.Companions;
+using AF.Events;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -31,6 +33,14 @@ namespace AF.Combat
         // Scene Reference
         PlayerManager playerManager;
         CompanionsSceneManager companionsSceneManager;
+
+        private void Awake()
+        {
+            EventManager.StartListening(EventMessages.ON_LEAVING_BONFIRE, () =>
+            {
+                hasBeenInCombat = false;
+            });
+        }
 
         public void SetTarget(CharacterBaseManager target)
         {

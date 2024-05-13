@@ -123,6 +123,7 @@ namespace AF.Shops
         private void OnEnable()
         {
             SetupRefs();
+            DisplayCursor();
         }
 
         Button SetupExitButton(ScrollView scrollView)
@@ -182,6 +183,8 @@ namespace AF.Shops
                 sellerGold.text = playerStatsDatabase.gold.ToString();
                 sellerIcon.style.backgroundImage = new StyleBackground(playerCharacter.avatar);
             }
+
+            root.Q<Label>("AppliedDiscountsLabel").text = characterShop.GetShopDiscountsDescription(inventoryDatabase, playerManager.statsBonusController, playerIsBuying);
         }
 
         void DrawBuyMenu(CharacterShop characterShop)
@@ -215,12 +218,6 @@ namespace AF.Shops
                     {
                         continue;
                     }
-                }
-
-                if (characterShop.requiredItemForDiscounts != null && inventoryDatabase.HasItem(characterShop.requiredItemForDiscounts))
-                {
-                    clonedItem.value *= characterShop.discountGivenByItemInInventory;
-                    clonedItem.value *= characterShop.discountGivenByShopItself;
                 }
 
                 shopItemsToDisplay.Add(clonedItem);
@@ -259,6 +256,71 @@ namespace AF.Shops
             DrawItemsList(shopItemsToDisplay, false, characterShop);
         }
 
+        void DrawBuySellLabel(Button buySellButton, Item item, bool isPlayerBuying, CharacterShop characterShop)
+        {
+            buySellButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.None;
+
+            Label buySellLabel = buySellButton.Q<Label>("BuySellLabel");
+            Label currentValueLabel = buySellButton.Q<Label>("CurrentValue");
+
+            if (ShopUtils.ItemRequiresCoinsToBeBought(item))
+            {
+                int finalValue = characterShop.GetItemEvaluation(item, inventoryDatabase, playerManager.statsBonusController, isPlayerBuying);
+
+                if (item.value != finalValue)
+                {
+                    buySellButton.Q<Label>("OriginalValue").text = item.value.ToString();
+                    buySellButton.Q<VisualElement>("OriginalValueContainer").style.display = DisplayStyle.Flex;
+                }
+                else
+                {
+                    buySellButton.Q<VisualElement>("OriginalValueContainer").style.display = DisplayStyle.None;
+                }
+
+                buySellLabel.text = isPlayerBuying ? "Buy for " : "Sell for ";
+                currentValueLabel.text = finalValue + " Coins";
+            }
+            else if (item.tradingItemRequirements != null && item.tradingItemRequirements.Count > 0)
+            {
+                buySellButton.Q<VisualElement>("RequiredItemSprite").style.backgroundImage = new StyleBackground(item.tradingItemRequirements.ElementAt(0).Key.sprite);
+                buySellButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.Flex;
+                buySellLabel.text += " Offer ";
+                currentValueLabel.text = item.tradingItemRequirements.ElementAt(0).Key.name + "";
+            }
+        }
+
+        bool PlayerCanBuy(CharacterShop characterShop, Item item)
+        {
+            if (item.tradingItemRequirements != null && item.tradingItemRequirements.Count > 0)
+            {
+                bool canBuy = true;
+
+                foreach (var requiredTradingItem in item.tradingItemRequirements)
+                {
+                    if (
+                        !inventoryDatabase.HasItem(item)
+                        || inventoryDatabase.ownedItems[item].amount < requiredTradingItem.Value)
+                    {
+                        canBuy = false;
+                        break;
+                    }
+                }
+
+                return canBuy;
+            }
+
+            int finalValue = characterShop.GetItemEvaluation(item, inventoryDatabase, playerManager.statsBonusController, true);
+
+            return playerStatsDatabase.gold >= finalValue;
+        }
+
+        bool ShopCanBuy(CharacterShop characterShop, Item item)
+        {
+            int finalValue = characterShop.GetItemEvaluation(item, inventoryDatabase, playerManager.statsBonusController, false);
+
+            return characterShop.shopGold >= finalValue;
+        }
+
         void DrawItemsList(List<Item> itemsToSell, bool playerIsBuying, CharacterShop characterShop)
         {
             root.Q<ScrollView>().Clear();
@@ -278,26 +340,12 @@ namespace AF.Shops
                 cloneButton.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(item.sprite);
                 cloneButton.Q<Label>("ItemName").text = ShopUtils.GetItemDisplayName(item, playerIsBuying, inventoryDatabase, characterShop.itemsToSell);
 
-                bool playerCanBuy = playerIsBuying && ShopUtils.CanBuy(item, playerStatsDatabase.gold, inventoryDatabase.ownedItems);
-                bool playerCanSell = !playerIsBuying && ShopUtils.CanBuy(item, characterShop.shopGold);
+                bool playerCanBuy = playerIsBuying && PlayerCanBuy(characterShop, item);
+                bool playerCanSell = !playerIsBuying && ShopCanBuy(characterShop, item);
 
                 buySellItemButton.style.opacity = (playerIsBuying && playerCanBuy || !playerIsBuying && playerCanSell) ? 1 : 0.5f;
 
-                Label buySellLabel = buySellItemButton.Q<Label>("BuySellItemLabel");
-                buySellLabel.text = playerIsBuying ? "Buy " : "Sell ";
-
-                buySellItemButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.None;
-                if (ShopUtils.ItemRequiresCoinsToBeBought(item))
-                {
-                    buySellLabel.text += " (" + ShopUtils.GetItemFinalPrice(item, playerIsBuying, playerManager.statsBonusController.discountPercentage) + " Coins)";
-                }
-                else if (item.tradingItemRequirements != null && item.tradingItemRequirements.Count > 0)
-                {
-                    buySellItemButton.Q<VisualElement>("RequiredItemSprite").style.backgroundImage = new StyleBackground(item.tradingItemRequirements.ElementAt(0).Key.sprite);
-                    buySellItemButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.Flex;
-                    buySellLabel.text += " (Offer " + item.tradingItemRequirements.ElementAt(0).Key.name + ")";
-                }
-
+                DrawBuySellLabel(buySellItemButton, item, playerIsBuying, characterShop);
 
                 buySellItemButton.RegisterCallback<PointerEnterEvent>((ev) =>
                 {
@@ -363,15 +411,24 @@ namespace AF.Shops
 
         void BuyItem(Item item, CharacterShop characterShop)
         {
+            int price = characterShop.GetItemEvaluation(
+                item,
+                inventoryDatabase,
+                playerManager.statsBonusController,
+                true);
+
+            if (!PlayerCanBuy(characterShop, item))
+            {
+                return;
+            }
+
             ShopUtils.BuyItem(
                 item,
-                playerStatsDatabase.gold,
-                inventoryDatabase.ownedItems,
                 (goldLost) =>
                 {
 
-                    uIDocumentPlayerGold.LoseGold(ShopUtils.GetItemFinalPrice(item, true, playerManager.statsBonusController.discountPercentage));
-                    characterShop.shopGold += ShopUtils.GetItemFinalPrice(item, true, playerManager.statsBonusController.discountPercentage);
+                    uIDocumentPlayerGold.LoseGold(price);
+                    characterShop.shopGold += price;
                 },
                 (onItemsTraded) =>
                 {

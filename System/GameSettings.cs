@@ -7,6 +7,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GameSettings", menuName = "System/New Game Settings", order = 0)]
 public class GameSettings : ScriptableObject
 {
+    public bool developerModeActive = false;
+
     public bool hasInitializedSettings = false;
 
     public float minimumMouseSensitivity = 0f;

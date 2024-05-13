@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using AF.Shops;
+using UnityEngine;
 
 namespace AF
 {

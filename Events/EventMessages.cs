@@ -42,5 +42,6 @@ namespace AF.Events
 
         public static readonly string ON_ARENA_LOST = "ON_ARENA_LOST";
 
+
     }
 }

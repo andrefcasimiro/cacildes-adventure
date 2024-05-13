@@ -137,14 +137,15 @@ namespace AF
             bool allPartnersAreDead = isDead && characterManager.partners?.Length > 0
                 && characterManager.partners.All(partner => partner.health.GetCurrentHealth() <= 0);
 
-            if (GetBGMManager() != null)
-            {
-                GetBGMManager().isPlayingBossMusic = false;
-            }
-            GetSceneSettings().HandleSceneSound(true);
-
             if (characterManager.partners?.Length > 0 ? allPartnersAreDead : isDead)
             {
+                if (GetBGMManager() != null)
+                {
+                    GetBGMManager().isPlayingBossMusic = false;
+                }
+
+                GetSceneSettings().HandleSceneSound(true);
+
                 EventManager.EmitEvent(EventMessages.ON_BOSS_BATTLE_ENDS);
                 onBossDefeated?.Invoke();
                 UpdateBossFlag();

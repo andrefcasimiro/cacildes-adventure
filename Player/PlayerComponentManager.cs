@@ -179,9 +179,14 @@ namespace AF
             }
             else
             {
-                DisableComponents();
-                thirdPersonController.enabled = false;
+                LockPlayerControl();
             }
+        }
+
+        public void LockPlayerControl()
+        {
+            DisableComponents();
+            thirdPersonController.enabled = false;
         }
     }
 }
