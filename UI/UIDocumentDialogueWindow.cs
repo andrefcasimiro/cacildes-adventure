@@ -6,6 +6,7 @@ using System.Linq;
 using DG.Tweening;
 using UnityEngine.Events;
 using AF.Dialogue;
+using AF.Flags;
 
 namespace AF
 {
@@ -29,6 +30,7 @@ namespace AF
         public Soundbank soundbank;
         public CursorManager cursorManager;
         public PlayerManager playerManager;
+        public FlagsDatabase flagsDatabase;
 
         [Header("Unity Events")]
         public UnityEvent onEnableEvent;
@@ -231,6 +233,8 @@ namespace AF
             yield return new WaitUntil(() => selectedResponse != null);
 
             playerManager.thirdPersonController.LockCameraPosition = false;
+
+            selectedResponse.AwardReputation(flagsDatabase, playerManager.playerReputation);
 
             // Use Sub Events Option
             if (selectedResponse.subEventPage != null)

@@ -93,7 +93,7 @@ namespace AF
                 return false;
             }
 
-            if (playerManager.thirdPersonController)
+            if (!playerManager.thirdPersonController.Grounded)
             {
                 return false;
             }

@@ -104,7 +104,12 @@ namespace AF
 
         public bool CanParry(Damage damage)
         {
-            return damage.canNotBeParried == false && IsWithinParryingWindow();
+            if (damage.canNotBeParried)
+            {
+                return false;
+            }
+
+            return IsWithinParryingWindow();
         }
 
         public void HandleParryEvent()

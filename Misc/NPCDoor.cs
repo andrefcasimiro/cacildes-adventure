@@ -73,7 +73,15 @@ namespace AF
             {
                 GetSoundbank().PlaySound(GetSoundbank().uiCancel);
 
-                GetNotificationManager().ShowNotification("Your bad reputation prevents you from entering this house.", GetNotificationManager().personBusy);
+                if (requireBadReputation)
+                {
+                    GetNotificationManager().ShowNotification("Your good reputation prevents you from entering this house.", GetNotificationManager().personBusy);
+                }
+                else
+                {
+                    GetNotificationManager().ShowNotification("Your bad reputation prevents you from entering this house.", GetNotificationManager().personBusy);
+
+                }
             }
 
             if (shouldOpen)

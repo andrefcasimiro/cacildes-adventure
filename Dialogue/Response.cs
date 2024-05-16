@@ -1,3 +1,5 @@
+using AF.Flags;
+using AF.Reputation;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -23,7 +25,38 @@ namespace AF.Dialogue
         [Header("Reputation")]
         public int reputationAmountToIncrease = 0;
         public int reputationAmountToDecrease = 0;
-        //public SwitchEntry reputationSwitchEntry;
+        public MonoBehaviourID reputationToAwardMonobehaviourID;
+
+        public void AwardReputation(FlagsDatabase flagsDatabase, PlayerReputation playerReputation)
+        {
+            if (flagsDatabase == null)
+            {
+                return;
+            }
+
+            if (reputationToAwardMonobehaviourID == null)
+            {
+                Debug.Log("Assign a reputationToAwardMonobehaviourID to this response");
+                return;
+            }
+
+            if (reputationAmountToIncrease == 0 && reputationAmountToDecrease == 0)
+            {
+                return;
+            }
+
+            if (reputationAmountToIncrease > 0)
+            {
+                playerReputation.IncreaseReputation(reputationAmountToIncrease);
+            }
+            else if (reputationAmountToDecrease > 0)
+            {
+                playerReputation.DecreaseReputation(reputationAmountToDecrease);
+            }
+
+            flagsDatabase.AddFlag(reputationToAwardMonobehaviourID);
+        }
+
     }
 
 }

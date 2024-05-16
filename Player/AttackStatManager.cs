@@ -33,14 +33,14 @@ namespace AF
 
         [Header("Unarmed Attack Options")]
         public int unarmedLightAttackPostureDamage = 18;
-        public int unarmedHeavyAttackPostureDamage = 35;
+        public int unarmedPostureDamageBonus = 10;
 
         [Header("Physical Attack")]
         public int basePhysicalAttack = 100;
         public float levelMultiplier = 3.25f;
 
-        public float jumpAttackMultiplier = 2.25f;
-        public int twoHandAttackBonus = 15;
+        public float jumpAttackMultiplier = 3.25f;
+        float twoHandAttackBonusMultiplier = 1.35f;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -87,12 +87,14 @@ namespace AF
                     lightning: (int)weapon.damage.lightning,
                     darkness: (int)weapon.damage.darkness,
                     postureDamage: (IsHeavyAttacking() || IsJumpAttacking())
-                    ? weapon.heavyAttackPostureDamage
+                    ? weapon.damage.postureDamage + weapon.heavyAttackPostureDamageBonus
                     : weapon.damage.postureDamage,
                     poiseDamage: weapon.damage.poiseDamage,
                     weaponAttackType: weapon.damage.weaponAttackType,
                     statusEffects: weapon.damage.statusEffects,
-                    pushForce: weapon.damage.pushForce
+                    pushForce: weapon.damage.pushForce,
+                    canNotBeParried: weapon.damage.canNotBeParried,
+                    ignoreBlocking: weapon.damage.ignoreBlocking
                 );
 
                 return playerManager.playerWeaponsManager.GetBuffedDamage(weaponDamage);
@@ -106,12 +108,14 @@ namespace AF
                 lightning: 0,
                 darkness: 0,
                 postureDamage: (IsHeavyAttacking() || IsJumpAttacking())
-                    ? unarmedLightAttackPostureDamage
-                    : unarmedHeavyAttackPostureDamage,
+                    ? unarmedLightAttackPostureDamage + unarmedPostureDamageBonus
+                    : unarmedLightAttackPostureDamage,
                 poiseDamage: 1,
                 weaponAttackType: WeaponAttackType.Blunt,
                 statusEffects: null,
-                pushForce: 0
+                pushForce: 0,
+                canNotBeParried: false,
+                ignoreBlocking: false
             );
         }
 
@@ -196,7 +200,7 @@ namespace AF
 
             if (equipmentDatabase.isTwoHanding)
             {
-                value += twoHandAttackBonus + (int)strengthBonusFromWeapon;
+                value = (int)(value * twoHandAttackBonusMultiplier) + (int)strengthBonusFromWeapon;
             }
 
             if (playerManager.playerCombatController.isHeavyAttacking)
@@ -222,7 +226,7 @@ namespace AF
             {
                 if (playerStatsDatabase.GetCurrentReputation() < 0)
                 {
-                    int extraAttackPower = (int)(Mathf.Abs(playerStatsDatabase.GetCurrentReputation()) * 3.25f);
+                    int extraAttackPower = Mathf.Min(150, (int)(Mathf.Abs(playerStatsDatabase.GetCurrentReputation()) * 2.25f));
 
                     value += extraAttackPower;
                 }

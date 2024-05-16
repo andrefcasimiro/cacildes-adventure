@@ -62,7 +62,7 @@ namespace AF
         [Header("Attack")]
         public Damage damage;
         public int heavyAttackBonus;
-        public int heavyAttackPostureDamage;
+        public int heavyAttackPostureDamageBonus;
 
         [Header("Level & Upgrades")]
         public bool canBeUpgraded = true;

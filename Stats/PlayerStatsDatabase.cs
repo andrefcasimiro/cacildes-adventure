@@ -1,3 +1,5 @@
+using AF.Events;
+using TigerForge;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -47,12 +49,12 @@ public class PlayerStatsDatabase : ScriptableObject
         if (state == PlayModeStateChange.ExitingPlayMode)
         {
             // Clear the list when exiting play mode
-            Clear();
+            Clear(false);
         }
     }
 #endif
 
-    public void Clear()
+    public void Clear(bool isFromGameOver)
     {
         vitality = 1;
         endurance = 1;
@@ -66,9 +68,12 @@ public class PlayerStatsDatabase : ScriptableObject
         reputation = 1;
         gold = 0;
 
-        lostGold = -1;
-        sceneWhereGoldWasLost = "";
-        positionWhereGoldWasLost = Vector3.zero;
+        if (!isFromGameOver)
+        {
+            lostGold = -1;
+            sceneWhereGoldWasLost = "";
+            positionWhereGoldWasLost = Vector3.zero;
+        }
     }
 
     public int GetCurrentLevel()
@@ -100,8 +105,24 @@ public class PlayerStatsDatabase : ScriptableObject
         this.sceneWhereGoldWasLost = "";
     }
 
+    /// <summary>
+    /// Unity Event
+    /// </summary>
     public void ResetReputation()
     {
         this.reputation = 0;
+        EventManager.EmitEvent(EventMessages.ON_REPUTATION_CHANGED);
+    }
+
+    public void IncreaseReputation(int value)
+    {
+        this.reputation += value;
+        EventManager.EmitEvent(EventMessages.ON_REPUTATION_CHANGED);
+    }
+
+    public void DecreaseReputation(int value)
+    {
+        this.reputation -= value;
+        EventManager.EmitEvent(EventMessages.ON_REPUTATION_CHANGED);
     }
 }

@@ -74,9 +74,9 @@ namespace AF
             return true;
         }
 
-        public void ResetGameState()
+        public void ResetGameState(bool isFromGameOver)
         {
-            playerStatsDatabase.Clear();
+            playerStatsDatabase.Clear(isFromGameOver);
             equipmentDatabase.Clear();
             inventoryDatabase.SetDefaultItems();
             pickupDatabase.Clear();
@@ -654,7 +654,7 @@ namespace AF
                 // Return to title screen if no save game is available
                 fadeManager.FadeIn(1f, () =>
                 {
-                    ResetGameStateAndReturnToTitleScreen();
+                    ResetGameStateAndReturnToTitleScreen(isFromGameOver);
                 });
                 return;
             }
@@ -678,9 +678,9 @@ namespace AF
             });
         }
 
-        public void ResetGameStateAndReturnToTitleScreen()
+        public void ResetGameStateAndReturnToTitleScreen(bool isFromGameOver)
         {
-            ResetGameState();
+            ResetGameState(isFromGameOver);
             gameSession.gameState = GameSession.GameState.INITIALIZED;
             SceneManager.LoadScene(0);
         }

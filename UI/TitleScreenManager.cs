@@ -19,7 +19,7 @@ namespace AF
         {
             if (gameSession.gameState == GameSession.GameState.NOT_INITIALIZED)
             {
-                saveManager.ResetGameState();
+                saveManager.ResetGameState(false);
                 gameSession.gameState = GameSession.GameState.INITIALIZED;
             }
         }

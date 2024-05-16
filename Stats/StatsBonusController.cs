@@ -32,6 +32,7 @@ namespace AF.Stats
         public float discountPercentage = 0f;
         public float spellDamageBonusMultiplier = 0f;
         public int postureBonus = 0;
+        public int movementSpeedBonus = 0;
 
         public float postureDecreaseRateBonus = 0f;
 
@@ -211,7 +212,7 @@ namespace AF.Stats
         {
             healthBonus = magicBonus = staminaBonus = vitalityBonus = enduranceBonus = strengthBonus = dexterityBonus = intelligenceBonus = 0;
             fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = discountPercentage = spellDamageBonusMultiplier = 0;
-            reputationBonus = parryPostureDamageBonus = postureBonus = 0;
+            reputationBonus = parryPostureDamageBonus = postureBonus = movementSpeedBonus = 0;
 
             parryPostureWindowBonus = staminaRegenerationBonus = postureDecreaseRateBonus = 0f;
 
@@ -235,6 +236,7 @@ namespace AF.Stats
                 discountPercentage += equipment.discountPercentage;
                 postureBonus += equipment.postureBonus;
                 staminaRegenerationBonus += equipment.staminaRegenBonus;
+                movementSpeedBonus += equipment.movementSpeedBonus;
             }
         }
 

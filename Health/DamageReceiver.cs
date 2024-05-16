@@ -31,12 +31,24 @@ namespace AF
         public UnityEvent onLightningDamage;
         public UnityEvent onDarknessDamage;
         public UnityEvent onBackstabbed;
+        public UnityEvent onAttackedWhileWithFlatulence;
 
 
         [Header("Flags")]
         public bool canTakeDamage = true;
         public bool damageOnDodge = false;
         public bool waitingForBackstab = false;
+        public bool hasFlatulence = false;
+
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetHasFlatulence(bool value)
+        {
+            this.hasFlatulence = value;
+        }
 
         public void ResetStates()
         {
@@ -55,6 +67,11 @@ namespace AF
         bool CanTakeDamage()
         {
             if (!canTakeDamage)
+            {
+                return false;
+            }
+
+            if (hasFlatulence)
             {
                 return false;
             }
@@ -85,6 +102,11 @@ namespace AF
             if (!ignoreSameFaction && damageOwner.IsFromSameFaction(character))
             {
                 return;
+            }
+
+            if (hasFlatulence)
+            {
+                onAttackedWhileWithFlatulence?.Invoke();
             }
 
             if (!CanTakeDamage())
@@ -125,6 +147,8 @@ namespace AF
                 {
                     return;
                 }
+
+                HandlePlayerArmorAttacks(damageOwner);
             }
 
             ApplyDamage(incomingDamage);
@@ -158,6 +182,39 @@ namespace AF
             return false;
         }
 
+        void HandlePlayerArmorAttacks(CharacterBaseManager damageOwner)
+        {
+            if (character is not PlayerManager playerManager)
+            {
+                return;
+            }
+
+            CharacterManager enemy = damageOwner as CharacterManager;
+            if (enemy == null)
+            {
+                return;
+            }
+
+            if (playerManager.equipmentDatabase.helmet != null && playerManager.equipmentDatabase.helmet.canDamageEnemiesUponAttack)
+            {
+                playerManager.equipmentDatabase.helmet.AttackEnemy(enemy);
+            }
+            if (playerManager.equipmentDatabase.armor != null && playerManager.equipmentDatabase.armor.canDamageEnemiesUponAttack)
+            {
+                playerManager.equipmentDatabase.armor.AttackEnemy(enemy);
+            }
+            if (playerManager.equipmentDatabase.gauntlet != null && playerManager.equipmentDatabase.gauntlet.canDamageEnemiesUponAttack)
+            {
+                playerManager.equipmentDatabase.gauntlet.AttackEnemy(enemy);
+            }
+            if (playerManager.equipmentDatabase.legwear != null && playerManager.equipmentDatabase.legwear.canDamageEnemiesUponAttack)
+            {
+                playerManager.equipmentDatabase.legwear.AttackEnemy(enemy);
+            }
+        }
+
+
+
         /// <summary>
         /// Unity Event
         /// 
@@ -165,6 +222,12 @@ namespace AF
         /// <param name="damage"></param>
         public void TakeDamage(Damage damage)
         {
+
+            if (hasFlatulence)
+            {
+                onAttackedWhileWithFlatulence?.Invoke();
+            }
+
             if (!CanTakeDamage())
             {
                 return;
@@ -306,7 +369,9 @@ namespace AF
                     postureDamage: 2,
                     weaponAttackType: WeaponAttackType.Slash,
                     statusEffects: null,
-                    pushForce: 0));
+                    pushForce: 0,
+                    canNotBeParried: false,
+                    ignoreBlocking: false));
         }
 
         int GetTotalDamage(Damage damage, bool isPostureBroken)

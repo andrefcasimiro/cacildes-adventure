@@ -42,6 +42,7 @@ namespace AF.Events
 
         public static readonly string ON_ARENA_LOST = "ON_ARENA_LOST";
 
+        public static readonly string ON_REPUTATION_CHANGED = "ON_REPUTATION_CHANGED";
 
     }
 }

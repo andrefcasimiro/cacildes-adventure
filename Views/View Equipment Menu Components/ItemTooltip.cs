@@ -490,6 +490,43 @@ namespace AF.UI.EquipmentMenu
                 CreateTooltip(barterSprite, Color.white, $"+{Math.Round(armor.discountPercentage * 100, 2)}% Better Prices");
             }
 
+            if (armor.canDamageEnemiesUponAttack)
+            {
+                if (armor.damageDealtToEnemiesUponAttacked.physical != 0)
+                {
+                    CreateTooltip(weaponPhysicalAttackSprite, Color.white, $"{armor.damageDealtToEnemiesUponAttacked.physical} Physical DMG dealt to attacking enemies");
+                }
+
+                if (armor.damageDealtToEnemiesUponAttacked.fire != 0)
+                {
+                    CreateTooltip(fireSprite, fire, $"{armor.damageDealtToEnemiesUponAttacked.fire} Fire DMG dealt to attacking enemies");
+                }
+
+                if (armor.damageDealtToEnemiesUponAttacked.frost != 0)
+                {
+                    CreateTooltip(frostSprite, frost, $"{armor.damageDealtToEnemiesUponAttacked.frost} Frost DMG dealt to attacking enemies");
+                }
+
+                if (armor.damageDealtToEnemiesUponAttacked.lightning != 0)
+                {
+                    CreateTooltip(lightningSprite, lightning, $"{armor.damageDealtToEnemiesUponAttacked.lightning} Lightning DMG dealt to attacking enemies");
+                }
+
+                if (armor.damageDealtToEnemiesUponAttacked.magic != 0)
+                {
+                    CreateTooltip(magicSprite, magic, $"{armor.damageDealtToEnemiesUponAttacked.magic} Magic DMG dealt to attacking enemies");
+                }
+
+                if (armor.damageDealtToEnemiesUponAttacked.darkness != 0)
+                {
+                    CreateTooltip(darknessSprite, darkness, $"{armor.damageDealtToEnemiesUponAttacked.darkness} Darkness DMG dealt to attacking enemies");
+                }
+
+                if (armor.damageDealtToEnemiesUponAttacked.statusEffects != null && armor.damageDealtToEnemiesUponAttacked.statusEffects.Length > 0)
+                {
+                    CreateTooltip(statusEffectsSprite, Color.white, armor.GetFormattedDamageDealtToEnemiesUpponAttacked());
+                }
+            }
         }
 
         void DrawAccessory(Accessory accessory)

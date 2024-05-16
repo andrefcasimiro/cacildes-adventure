@@ -6,6 +6,7 @@ using AF.Footsteps;
 using AF.Health;
 using AF.Inventory;
 using AF.Ladders;
+using AF.Reputation;
 using AF.Shooting;
 using AF.Stats;
 using TigerForge;
@@ -42,6 +43,7 @@ namespace AF
         public PlayerBackstabController playerBackstabController;
         public TwoHandingController twoHandingController;
         public LockOnManager lockOnManager;
+        public PlayerReputation playerReputation;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -123,7 +125,9 @@ namespace AF
                     postureDamage: 0,
                     weaponAttackType: WeaponAttackType.Blunt,
                     statusEffects: null,
-                    pushForce: 0
+                    pushForce: 0,
+                    canNotBeParried: false,
+                    ignoreBlocking: false
                 ));
             }
         }

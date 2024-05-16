@@ -14,7 +14,7 @@ namespace AF.Reputation
 
         public void IncreaseReputation(int value)
         {
-            playerStatsDatabase.reputation += value;
+            playerStatsDatabase.IncreaseReputation(value);
 
             soundbank.PlaySound(soundbank.reputationIncreased);
             notificationManager.ShowNotification(
@@ -24,7 +24,7 @@ namespace AF.Reputation
 
         public void DecreaseReputation(int value)
         {
-            playerStatsDatabase.reputation -= value;
+            playerStatsDatabase.DecreaseReputation(value);
 
             if (playerStatsDatabase.GetCurrentReputation() <= -15)
             {

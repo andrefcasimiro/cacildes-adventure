@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using AF.Health;
 using UnityEngine;
 
 namespace AF
@@ -55,6 +56,7 @@ namespace AF
 
         [Header("Speed Penalties")]
         public float speedPenalty = 0;
+        public int movementSpeedBonus = 0;
 
         [Header("Coins")]
         [Range(0, 100f)]
@@ -65,6 +67,18 @@ namespace AF
 
         [Header("Discounts")]
         [Range(0, 1f)] public float discountPercentage = 0f;
+
+        [Header("Damage Type Filters")]
+
+        [Range(0, 1f)] public float pierceDamageAbsorption = 1f;
+
+        [Range(0, 1f)] public float bluntDamageAbsorption = 1f;
+
+        [Range(0, 1f)] public float slashDamageAbsorption = 1f;
+
+        [Header("Damage On Enemies")]
+        public bool canDamageEnemiesUponAttack = false;
+        public Damage damageDealtToEnemiesUponAttacked;
 
         public string GetFormattedStatusResistances()
         {
@@ -81,6 +95,28 @@ namespace AF
             return result.TrimEnd();
         }
 
-    }
+        public string GetFormattedDamageDealtToEnemiesUpponAttacked()
+        {
+            string result = "";
 
+            foreach (var resistance in damageDealtToEnemiesUponAttacked.statusEffects)
+            {
+                if (resistance != null)
+                {
+                    result += $"+{resistance.amountPerHit} {resistance.statusEffect.name} inflicted on attacking enemies\n";
+                }
+            }
+
+            return result.TrimEnd();
+        }
+
+        public void AttackEnemy(CharacterManager enemy)
+        {
+            if (!canDamageEnemiesUponAttack)
+            {
+                return;
+            }
+            enemy.damageReceiver.TakeDamage(damageDealtToEnemiesUponAttacked);
+        }
+    }
 }

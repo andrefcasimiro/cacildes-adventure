@@ -259,6 +259,7 @@ namespace AF.Shops
         void DrawBuySellLabel(Button buySellButton, Item item, bool isPlayerBuying, CharacterShop characterShop)
         {
             buySellButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.None;
+            buySellButton.Q<VisualElement>("OriginalValueContainer").style.display = DisplayStyle.None;
 
             Label buySellLabel = buySellButton.Q<Label>("BuySellLabel");
             Label currentValueLabel = buySellButton.Q<Label>("CurrentValue");
@@ -272,10 +273,6 @@ namespace AF.Shops
                     buySellButton.Q<Label>("OriginalValue").text = item.value.ToString();
                     buySellButton.Q<VisualElement>("OriginalValueContainer").style.display = DisplayStyle.Flex;
                 }
-                else
-                {
-                    buySellButton.Q<VisualElement>("OriginalValueContainer").style.display = DisplayStyle.None;
-                }
 
                 buySellLabel.text = isPlayerBuying ? "Buy for " : "Sell for ";
                 currentValueLabel.text = finalValue + " Coins";
@@ -284,7 +281,7 @@ namespace AF.Shops
             {
                 buySellButton.Q<VisualElement>("RequiredItemSprite").style.backgroundImage = new StyleBackground(item.tradingItemRequirements.ElementAt(0).Key.sprite);
                 buySellButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.Flex;
-                buySellLabel.text += " Offer ";
+                buySellLabel.text = "Offer ";
                 currentValueLabel.text = item.tradingItemRequirements.ElementAt(0).Key.name + "";
             }
         }
@@ -298,8 +295,8 @@ namespace AF.Shops
                 foreach (var requiredTradingItem in item.tradingItemRequirements)
                 {
                     if (
-                        !inventoryDatabase.HasItem(item)
-                        || inventoryDatabase.ownedItems[item].amount < requiredTradingItem.Value)
+                        !inventoryDatabase.HasItem(requiredTradingItem.Key)
+                        || inventoryDatabase.ownedItems[requiredTradingItem.Key].amount < requiredTradingItem.Value)
                     {
                         canBuy = false;
                         break;

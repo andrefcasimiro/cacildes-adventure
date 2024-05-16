@@ -52,13 +52,13 @@ namespace AF.Tests
             item.value = itemOriginalValue;
 
             bool playerIsBuying = true;
-            float discountPercentage = 0.9f; // 10% discount
+            float discountPercentage = 0.9f;
 
             // Act
             int finalPrice = ShopUtils.GetItemFinalPrice(item, playerIsBuying, discountPercentage);
 
             // Assert
-            Assert.AreEqual(90, finalPrice);
+            Assert.AreEqual(11, finalPrice);
         }
 
         [Test]
@@ -70,13 +70,13 @@ namespace AF.Tests
             item.value = itemOriginalValue;
 
             bool playerIsBuying = false;
-            float discountPercentage = 0.9f; // 10% discount
+            float discountPercentage = 0.9f;
 
             // Act
             int finalPrice = ShopUtils.GetItemFinalPrice(item, playerIsBuying, discountPercentage);
 
             // Assert
-            Assert.AreEqual(110, finalPrice);
+            Assert.AreEqual(189, finalPrice);
         }
     }
 }

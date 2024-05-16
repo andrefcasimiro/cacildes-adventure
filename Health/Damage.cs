@@ -43,7 +43,9 @@ namespace AF.Health
             int poiseDamage,
             WeaponAttackType weaponAttackType,
             StatusEffectEntry[] statusEffects,
-            float pushForce)
+            float pushForce,
+            bool ignoreBlocking,
+            bool canNotBeParried)
         {
             this.physical = physical;
             this.fire = fire;
@@ -56,6 +58,8 @@ namespace AF.Health
             this.weaponAttackType = weaponAttackType;
             this.statusEffects = statusEffects;
             this.pushForce = pushForce;
+            this.ignoreBlocking = ignoreBlocking;
+            this.canNotBeParried = canNotBeParried;
         }
 
         public int GetTotalDamage()

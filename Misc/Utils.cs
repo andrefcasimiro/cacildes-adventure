@@ -6,7 +6,6 @@ namespace AF
 
     public static class Utils
     {
-
         public static Vector3 GetNearestNavMeshPoint(Vector3 reference)
         {
             return Utils.GetNearestNavMeshPoint(reference, NavMesh.AllAreas);

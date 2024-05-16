@@ -42,7 +42,7 @@ namespace AF
 
             UIUtils.SetupButton(newGameButton, () =>
             {
-                saveManager.ResetGameState();
+                saveManager.ResetGameState(false);
                 titleScreenManager.StartGame();
                 gameObject.SetActive(false);
             }, soundbank);

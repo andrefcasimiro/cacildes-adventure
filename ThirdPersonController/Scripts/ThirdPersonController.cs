@@ -566,6 +566,11 @@ namespace AF
             }
             else if (playerManager.characterController.enabled)
             {
+                if (_speed > 0)
+                {
+                    _speed += playerManager.statsBonusController.movementSpeedBonus;
+                }
+
                 playerManager.characterController.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                                  new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
             }
