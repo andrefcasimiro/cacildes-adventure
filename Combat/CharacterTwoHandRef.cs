@@ -34,18 +34,19 @@ namespace AF
 
         private void OnEnable()
         {
-
             playerManager.twoHandingController.onTwoHandingModeChanged += EvaluateTwoHandingUpdate;
-            //playerManager.characterBlockController.onBlockChanged += EvaluateBlockAnimationUpdate;
             playerManager.characterBlockController.onBlockChanged += EvaluateTwoHandingUpdate;
+            playerManager.characterBlockController.onBlockChanged += UseBlockTransform;
+
+            EvaluateTwoHandingUpdate();
         }
 
         private void OnDisable()
         {
 
             playerManager.twoHandingController.onTwoHandingModeChanged -= EvaluateTwoHandingUpdate;
-            //playerManager.characterBlockController.onBlockChanged += EvaluateBlockAnimationUpdate;
             playerManager.characterBlockController.onBlockChanged -= EvaluateTwoHandingUpdate;
+            playerManager.characterBlockController.onBlockChanged -= UseBlockTransform;
 
 
             if (leftWeapon != null)
@@ -53,6 +54,7 @@ namespace AF
                 playerManager.playerWeaponsManager.UnequipLeftWeapon();
             }
         }
+
 
         public void EvaluateTwoHandingUpdate()
         {
@@ -91,12 +93,11 @@ namespace AF
 
             transform.localPosition = twoHandingPosition;
             transform.localEulerAngles = twoHandingRotation;
-
         }
 
         public void UseBlockTransform()
         {
-            if (useCustomBlockRefs == false || playerManager.characterBlockController.isBlocking == false || equipmentDatabase.isUsingShield)
+            if (equipmentDatabase.isTwoHanding == false || useCustomBlockRefs == false || playerManager.characterBlockController.isBlocking == false || equipmentDatabase.isUsingShield)
             {
                 return;
             }
@@ -112,6 +113,5 @@ namespace AF
                 playerManager.playerWeaponsManager.EquipLeftWeapon(leftWeapon);
             }
         }
-
     }
 }

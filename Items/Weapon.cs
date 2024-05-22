@@ -2,6 +2,7 @@
 using System.Linq;
 using AF.Animations;
 using AF.Health;
+using AF.Stats;
 using AYellowpaper.SerializedCollections;
 using UnityEditor;
 using UnityEngine;
@@ -76,6 +77,13 @@ namespace AF
         //        [Range(0, 100)] public int blockAbsorption = 75;
         //        public float blockStaminaCost = 30f;
 
+        [Header("Requirements")]
+        public int strengthRequired = 0;
+        public int dexterityRequired = 0;
+        public int intelligenceRequired = 0;
+        public int positiveReputationRequired = 0;
+        public int negativeReputationRequired = 0;
+
 
         [Header("Stamina")]
         public int lightAttackStaminaCost = 20;
@@ -90,11 +98,10 @@ namespace AF
         [Header("Animation Overrides")]
         public List<AnimationOverride> animationOverrides;
         [Tooltip("Optional")] public List<AnimationOverride> twoHandOverrides;
-        //        [Tooltip("Optional")] public List<AnimationOverride> blockOverrides;
+        [Tooltip("Optional")] public List<AnimationOverride> blockOverrides;
 
         [Header("Dual Wielding Options")]
         public bool halveDamage = false;
-
 
         [Header("Speed Penalty")]
         [Tooltip("Will be added as a negative speed to the animator when equipped")]
@@ -112,6 +119,12 @@ namespace AF
 
         [Header("Is Holy?")]
         public bool isHolyWeapon = false;
+
+        [Header("Range Category")]
+        public bool isCrossbow = false;
+
+        [Header("Block Options")]
+        [Range(0, 1f)] public float blockAbsorption = .8f;
 
 #if UNITY_EDITOR
         private void OnEnable()
@@ -271,6 +284,67 @@ namespace AF
                 return text;
             }
             return "";
+        }
+
+        public bool HasRequirements()
+        {
+            return strengthRequired != 0 || dexterityRequired != 0 || intelligenceRequired != 0 || positiveReputationRequired != 0 || negativeReputationRequired != 0;
+        }
+
+        public bool AreRequirementsMet(StatsBonusController statsBonusController)
+        {
+            if (strengthRequired != 0 && statsBonusController.GetCurrentStrength() < strengthRequired)
+            {
+                return false;
+            }
+            else if (dexterityRequired != 0 && statsBonusController.GetCurrentDexterity() < dexterityRequired)
+            {
+                return false;
+            }
+            else if (intelligenceRequired != 0 && statsBonusController.GetCurrentIntelligence() < intelligenceRequired)
+            {
+                return false;
+            }
+            else if (positiveReputationRequired != 0 && statsBonusController.GetCurrentReputation() < positiveReputationRequired)
+            {
+                return false;
+            }
+            else if (negativeReputationRequired != 0 && statsBonusController.GetCurrentReputation() > -negativeReputationRequired)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public string DrawRequirements(StatsBonusController statsBonusController)
+        {
+            string text = AreRequirementsMet(statsBonusController) ? "Requirements met: " : "Requirements not met:";
+            text += "\n";
+
+            if (strengthRequired != 0)
+            {
+                text += $"  Strength Required: {strengthRequired}   Current: {statsBonusController.GetCurrentStrength()}\n";
+            }
+            if (dexterityRequired != 0)
+            {
+                text += $"  Dexterity Required: {dexterityRequired}   Current: {statsBonusController.GetCurrentDexterity()}\n";
+            }
+            if (intelligenceRequired != 0)
+            {
+                text += $"  Intelligence Required: {intelligenceRequired}   Current: {statsBonusController.GetCurrentIntelligence()}\n";
+            }
+            if (positiveReputationRequired != 0)
+            {
+                text += $"  Reputation Required: {intelligenceRequired}   Current: {statsBonusController.GetCurrentReputation()}\n";
+            }
+
+            if (negativeReputationRequired != 0)
+            {
+                text += $"  Reputation Required: -{negativeReputationRequired}   Current: {statsBonusController.GetCurrentReputation()}\n";
+            }
+
+            return text.TrimEnd();
         }
     }
 

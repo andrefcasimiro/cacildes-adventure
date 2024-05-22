@@ -149,8 +149,13 @@ namespace AF
 
                 damageReceiversHit.Add(damageReceiver);
 
-                if (character is PlayerManager)
+                if (character is PlayerManager playerManager)
                 {
+                    if (playerManager.playerBlockController.isCounterAttacking)
+                    {
+                        playerManager.playerBlockController.onCounterAttack?.Invoke();
+                    }
+
                     damageReceiver?.health?.onDamageFromPlayer?.Invoke();
 
                     if (this.weapon != null && damageReceiver?.health?.weaponRequiredToKill != null && damageReceiver.health.weaponRequiredToKill == this.weapon)

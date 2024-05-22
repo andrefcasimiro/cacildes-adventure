@@ -451,8 +451,15 @@ namespace AF.Shops
 
         void SellItem(Item item, CharacterShop characterShop)
         {
-            uIDocumentPlayerGold.AddGold(ShopUtils.GetItemFinalPrice(item, false, playerManager.statsBonusController.additionalCoinPercentage));
-            characterShop.shopGold -= ShopUtils.GetItemFinalPrice(item, false, playerManager.statsBonusController.discountPercentage);
+            int price = characterShop.GetItemEvaluation(
+                        item,
+                        inventoryDatabase,
+                        playerManager.statsBonusController,
+                        false);
+
+
+            uIDocumentPlayerGold.AddGold(price);
+            characterShop.shopGold -= price;
 
             // Remove item from player
             playerManager.playerInventory.RemoveItem(item, 1);

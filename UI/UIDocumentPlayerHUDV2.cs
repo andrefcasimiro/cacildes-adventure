@@ -146,7 +146,7 @@ namespace AF
         {
             if (equipmentDatabase.isTwoHanding)
             {
-                combatStanceIndicatorLabel.text = "Stance: Two-Handing Weapon (Block Disabled)";
+                combatStanceIndicatorLabel.text = "Stance: Two-Handing Weapon";
             }
             else
             {

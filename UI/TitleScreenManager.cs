@@ -26,7 +26,16 @@ namespace AF
 
         private void Start()
         {
-            if (gameSession.gameState == GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN)
+            bool shouldBeginImmediately = false;
+
+            if (gameSession.gameState == GameSession.GameState.BEGINNING_NEW_GAME_PLUS)
+            {
+                gameSession.gameState = GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN;
+                gameSession.currentGameIteration++;
+
+                shouldBeginImmediately = true;
+            }
+            else if (gameSession.gameState == GameSession.GameState.INITIALIZED_AND_SHOWN_TITLE_SCREEN)
             {
                 ifPlayerHasSeenTitleScreen_Event?.Invoke();
                 gameObject.SetActive(false);
@@ -34,6 +43,12 @@ namespace AF
             }
 
             onAwake_Event?.Invoke();
+
+
+            if (shouldBeginImmediately)
+            {
+                StartGame();
+            }
         }
 
         public void StartGame()

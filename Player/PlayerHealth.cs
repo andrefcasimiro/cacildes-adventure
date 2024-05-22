@@ -79,7 +79,7 @@ namespace AF
 
             if (GetCurrentHealth() <= 0)
             {
-                if (playerStatsBonusController.chanceToRestoreHealthUponDeath && Random.Range(0, 1f) >= 0.5f)
+                if (value < 999 && playerStatsBonusController.chanceToRestoreHealthUponDeath && Random.Range(0, 1f) >= 0.5f)
                 {
                     RestoreHealthPercentage(50);
                     notificationManager.ShowNotification("You were saved from death.");

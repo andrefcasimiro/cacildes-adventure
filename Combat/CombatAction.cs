@@ -43,6 +43,12 @@ namespace AF.Combat
         [Header("Components")]
         public CharacterManager characterManager;
 
+        void Awake()
+        {
+            // Scale enemy damage according to new game plus
+            damage.ScaleDamageForNewGamePlus(characterManager.gameSession);
+        }
+
         public bool CanUseCombatAction()
         {
             if (characterManager.IsBusy())

@@ -14,6 +14,7 @@ using AF.Events;
 using AF.Pickups;
 using System;
 using System.IO;
+using AF.Loading;
 
 namespace AF
 {
@@ -179,6 +180,7 @@ namespace AF
         void SaveGameSessionSettings(QuickSaveWriter quickSaveWriter)
         {
             quickSaveWriter.Write("timeOfDay", gameSession.timeOfDay);
+            quickSaveWriter.Write("currentGameIteration", gameSession.currentGameIteration);
         }
         void SaveCompanions(QuickSaveWriter quickSaveWriter)
         {
@@ -537,6 +539,7 @@ namespace AF
 
         void LoadSceneSettings(QuickSaveReader quickSaveReader)
         {
+            gameSession.currentGameIteration = 0;
             gameSession.nextMap_SpawnGameObjectName = null;
             gameSession.loadSavedPlayerPositionAndRotation = true;
 
@@ -546,8 +549,14 @@ namespace AF
             quickSaveReader.TryRead("playerRotation", out Quaternion playerRotation);
             gameSession.savedPlayerRotation = playerRotation;
 
+            quickSaveReader.TryRead("currentGameIteration", out int currentGameIteration);
+            if (currentGameIteration != -1)
+            {
+                gameSession.currentGameIteration = currentGameIteration;
+            }
+
             quickSaveReader.TryRead<int>("sceneIndex", out int sceneIndex);
-            SceneManager.LoadScene(sceneIndex);
+            LoadingManager.Instance.BeginLoading(sceneIndex);
         }
 
         void LoadGameSessionSettings(QuickSaveReader quickSaveReader)
@@ -682,6 +691,20 @@ namespace AF
         {
             ResetGameState(isFromGameOver);
             gameSession.gameState = GameSession.GameState.INITIALIZED;
+            SceneManager.LoadScene(0);
+        }
+
+        public void ResetGameStateForNewGamePlusAndReturnToTitleScreen()
+        {
+            playerStatsDatabase.ClearForNewGamePlus();
+            pickupDatabase.Clear();
+            questsDatabase.Clear();
+            companionsDatabase.Clear();
+            bonfiresDatabase.Clear();
+            flagsDatabase.Clear();
+            recipesDatabase.Clear();
+
+            gameSession.gameState = GameSession.GameState.BEGINNING_NEW_GAME_PLUS;
             SceneManager.LoadScene(0);
         }
 

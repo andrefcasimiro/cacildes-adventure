@@ -9,6 +9,7 @@ namespace AF.Health
 {
     public class CharacterHealth : CharacterBaseHealth
     {
+        public GameSession gameSession;
         public CharacterManager characterManager;
         public CompanionsDatabase companionsDatabase;
 
@@ -105,7 +106,7 @@ namespace AF.Health
 
         public override int GetMaxHealth()
         {
-            return maxHealth + bonusHealth + bonusHealthFromCompanions;
+            return Utils.ScaleWithCurrentNewGameIteration(maxHealth + bonusHealth + bonusHealthFromCompanions, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
         }
 
         public override float GetCurrentHealth()

@@ -1,3 +1,4 @@
+using AF.Inventory;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -19,6 +20,10 @@ namespace AF
         [Header("Alchemy Pickable Info")]
         public Item item;
 
+        [Header("Required Item to Open")]
+        public Item requiredItemToOpen;
+        public InventoryDatabase inventoryDatabase;
+
         public void OnCaptured()
         {
             GetUIDocumentKeyPrompt().DisplayPrompt(key, action, item);
@@ -27,7 +32,8 @@ namespace AF
         public void OnInvoked()
         {
             DisableKeyPrompt();
-            onActivate?.Invoke();
+
+            HandleActivation();
         }
 
         public void OnReleased()
@@ -64,6 +70,35 @@ namespace AF
             }
 
             return uIDocumentKeyPrompt;
+        }
+
+        public void HandleActivation()
+        {
+            bool canActivate = true;
+
+            if (requiredItemToOpen != null && inventoryDatabase != null)
+            {
+                if (inventoryDatabase.HasItem(requiredItemToOpen))
+                {
+                    inventoryDatabase.RemoveItem(requiredItemToOpen);
+                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.name} was lost with its use.");
+                }
+                else
+                {
+                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.name} is required to activate.");
+                    canActivate = false;
+                }
+            }
+
+            if (canActivate)
+            {
+                onActivate?.Invoke();
+            }
+        }
+
+        NotificationManager GetNotificationManager()
+        {
+            return FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include);
         }
     }
 }

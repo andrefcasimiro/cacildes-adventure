@@ -447,10 +447,14 @@ namespace AF.Equipment
 
         public Damage GetCurrentShieldDefenseAbsorption(Damage incomingDamage)
         {
-            if (currentShieldInstance == null || currentShieldInstance.shield == null)
+            if (equipmentDatabase.isTwoHanding && equipmentDatabase.GetCurrentWeapon() != null)
+            {
+                incomingDamage.physical = (int)(incomingDamage.physical * equipmentDatabase.GetCurrentWeapon().blockAbsorption);
+                return incomingDamage;
+            }
+            else if (currentShieldInstance == null || currentShieldInstance.shield == null)
             {
                 incomingDamage.physical = (int)(incomingDamage.physical * playerManager.characterBlockController.unarmedDefenseAbsorption);
-
                 return incomingDamage;
             }
 

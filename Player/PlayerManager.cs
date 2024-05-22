@@ -38,6 +38,7 @@ namespace AF
         public PlayerComponentManager playerComponentManager;
         public EventNavigator eventNavigator;
         public PlayerBlockInput playerBlockInput;
+        public PlayerBlockController playerBlockController;
         public StarterAssetsInputs starterAssetsInputs;
         public PlayerAnimationEventListener playerAnimationEventListener;
         public PlayerBackstabController playerBackstabController;
@@ -98,11 +99,21 @@ namespace AF
             playerWeaponsManager.ShowEquipment();
 
             playerBlockInput.CheckQueuedInput();
+            playerBlockController.ResetStates();
+
+            attackStatManager.ResetStates();
         }
 
         public override Damage GetAttackDamage()
         {
-            return attackStatManager.GetAttackDamage();
+            Damage attackDamage = attackStatManager.GetAttackDamage();
+
+            if (playerBlockController.isCounterAttacking)
+            {
+                attackDamage.damageType = DamageType.COUNTER_ATTACK;
+            }
+
+            return attackDamage;
         }
 
         private void OnTriggerStay(Collider other)
@@ -154,7 +165,10 @@ namespace AF
                 {
                     if (currentWeapon.twoHandOverrides != null && currentWeapon.twoHandOverrides.Count > 0)
                     {
-                        UpdateAnimationOverrides(animator, clipOverrides, currentWeapon.twoHandOverrides);
+                        List<AnimationOverride> animationOverrides = new();
+                        animationOverrides.AddRange(currentWeapon.twoHandOverrides);
+                        animationOverrides.AddRange(currentWeapon.blockOverrides);
+                        UpdateAnimationOverrides(animator, clipOverrides, animationOverrides);
                     }
                 }
             }

@@ -34,9 +34,28 @@ namespace AF.StatusEffects
         [Header("Unity Events")]
         public UnityEvent onAwake;
 
+        public GameSession gameSession;
+
         private void Awake()
         {
             onAwake?.Invoke();
+
+            if (gameSession.currentGameIteration > 0)
+            {
+                ScaleResistancesToNewGamePlus();
+            }
+        }
+
+        void ScaleResistancesToNewGamePlus()
+        {
+            // Create a list of keys to avoid modifying the dictionary while iterating
+            List<StatusEffect> keys = new List<StatusEffect>(statusEffectResistances.Keys);
+
+            foreach (var key in keys)
+            {
+                statusEffectResistances[key] = Utils.ScaleWithCurrentNewGameIteration(
+                    (int)statusEffectResistances[key], gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
+            }
         }
 
         private void Update()

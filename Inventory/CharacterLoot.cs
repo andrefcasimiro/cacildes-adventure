@@ -29,6 +29,7 @@ namespace AF
         private UIDocumentPlayerGold uIDocumentPlayerGold;
         private UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
 
+
         public void GiveLoot()
         {
             StartCoroutine(GiveLoot_Coroutine());

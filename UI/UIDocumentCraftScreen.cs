@@ -193,6 +193,7 @@ namespace AF
             if (lastScrollElementIndex == -1)
             {
                 scrollView.ScrollTo(exitButton);
+                exitButton.Focus();
             }
             else
             {
@@ -248,7 +249,6 @@ namespace AF
 
                 var craftBtn = scrollItem.Q<Button>("CraftButtonItem");
                 var craftLabel = scrollItem.Q<Label>("CraftLabel");
-
                 craftLabel.text = GetCraftLabel();
 
                 craftBtn.style.opacity = CraftingUtils.CanCraftItem(inventoryDatabase, recipe) ? 1f : 0.25f;
@@ -316,6 +316,9 @@ namespace AF
                 scrollItem.Q<Label>("ItemDescription").style.display = DisplayStyle.None;
 
                 var craftBtn = scrollItem.Q<Button>("CraftButtonItem");
+                var craftLabel = scrollItem.Q<Label>("CraftLabel");
+                craftLabel.text = GetCraftLabel();
+
                 craftBtn.style.opacity = CraftingUtils.CanImproveWeapon(inventoryDatabase, wp, playerStatsDatabase.gold) ? 1f : 0.25f;
 
                 UIUtils.SetupButton(craftBtn, () =>

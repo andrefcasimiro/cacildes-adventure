@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,6 +6,8 @@ namespace AF.UI.EquipmentMenu
 {
     public class ItemTooltip : MonoBehaviour
     {
+        public PlayerManager playerManager;
+
         public const string TOOLTIP = "ItemTooltip";
         VisualElement tooltip;
         VisualElement itemInfo;
@@ -33,6 +34,7 @@ namespace AF.UI.EquipmentMenu
         public Color lightning = new Color(255, 239, 95);
         public Color magic = new Color(241, 96, 255);
         public Color darkness = new Color(92, 76, 248);
+        public Color requirementsNotMet;
 
 
         public Texture2D weaponPhysicalAttackSprite, weaponScalingSprite, weightPenaltySprite, holyWeaponSprite,
@@ -40,7 +42,7 @@ namespace AF.UI.EquipmentMenu
         statusEffectsSprite, defenseAbsorptionSprite, poiseSprite, postureSprite, goldCoinSprite, reputationSprite, barterSprite,
         vitalitySprite, enduranceSprite, intelligenceSprite, strengthSprite, dexteritySprite, blacksmithSprite,
         pushForceSprite, heavyAttackSprite, staminaCostSprite, bossTokenSprite, replenishableSprite, spellCastSprite,
-        upgradeMaterialSprite, craftingMaterialSprite;
+        upgradeMaterialSprite, craftingMaterialSprite, projectileSprite, requirementsSprite;
 
         private void OnEnable()
         {
@@ -193,6 +195,14 @@ namespace AF.UI.EquipmentMenu
 
         void DrawWeaponEffects(Weapon weapon)
         {
+            if (weapon.HasRequirements())
+            {
+                CreateTooltip(
+                    requirementsSprite,
+                    weapon.AreRequirementsMet(playerManager.statsBonusController) ? Color.white : requirementsNotMet,
+                    weapon.DrawRequirements(playerManager.statsBonusController));
+            }
+
             var strengthAttackBonus = attackStatManager.GetStrengthBonusFromWeapon(weapon);
             var dexterityAttackBonus = attackStatManager.GetDexterityBonusFromWeapon(weapon);
             var intelligenceAttackBonus = attackStatManager.GetIntelligenceBonusFromWeapon(weapon);
@@ -280,6 +290,11 @@ namespace AF.UI.EquipmentMenu
             if (weapon.damage.canNotBeParried)
             {
                 CreateTooltip(defenseAbsorptionSprite, Color.white, "Can not be parried");
+            }
+
+            if (weapon.blockAbsorption != 1)
+            {
+                CreateTooltip(defenseAbsorptionSprite, Color.white, $"%{100 - (weapon.blockAbsorption * 100)} Physical DMG Absorption when blocking");
             }
         }
 
@@ -527,6 +542,11 @@ namespace AF.UI.EquipmentMenu
                     CreateTooltip(statusEffectsSprite, Color.white, armor.GetFormattedDamageDealtToEnemiesUpponAttacked());
                 }
             }
+
+            if (armor.projectileMultiplierBonus > 0)
+            {
+                CreateTooltip(projectileSprite, Color.white, $"x{armor.projectileMultiplierBonus}% damage on projectiles");
+            }
         }
 
         void DrawAccessory(Accessory accessory)
@@ -584,6 +604,14 @@ namespace AF.UI.EquipmentMenu
 
         void DrawSpell(Spell spell)
         {
+            if (spell.HasRequirements())
+            {
+                CreateTooltip(
+                    requirementsSprite,
+                    spell.AreRequirementsMet(playerManager.statsBonusController) ? Color.white : requirementsNotMet,
+                    spell.DrawRequirements(playerManager.statsBonusController));
+            }
+
             if (spell.shortDescription != null && spell.shortDescription.Length > 0)
             {
                 CreateTooltip(statusEffectsSprite, Color.white, spell.shortDescription);

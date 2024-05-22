@@ -54,6 +54,7 @@ namespace AF
 
         int defaultAnimationHash;
 
+        public GameSession gameSession;
 
         private void Awake()
         {
@@ -123,7 +124,7 @@ namespace AF
 
         public override Damage GetAttackDamage()
         {
-            return characterCombatController.currentCombatAction?.damage;
+            return characterCombatController?.currentCombatAction?.damage;
         }
 
         /// <summary>

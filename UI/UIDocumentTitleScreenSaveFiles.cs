@@ -19,6 +19,11 @@ namespace AF
         [Header("UI Components")]
         public UIDocumentTitleScreen uIDocumentTitleScreen;
 
+
+        // Last scroll position
+        int lastScrollElementIndex = -1;
+
+
         private void Awake()
         {
             gameObject.SetActive(false);
@@ -84,7 +89,6 @@ namespace AF
 
             scrollPanel.Add(openSavesFolder);
 
-
             foreach (var saveFileName in SaveUtils.GetSaveFileNames(saveManager.SAVE_FILES_FOLDER))
             {
                 var saveFileInstance = saveFileButtonPrefab.CloneTree();
@@ -99,9 +103,26 @@ namespace AF
                 UIUtils.SetupButton(saveFileInstance.Q<Button>("Button"), () =>
                 {
                     saveManager.LoadSaveFile(saveFileName);
-                }, soundbank);
+                }, () =>
+                {
+                    scrollPanel.ScrollTo(saveFileInstance.Q<Button>());
+                },
+                () =>
+                {
+
+                }, true, soundbank);
 
                 scrollPanel.Add(saveFileInstance);
+            }
+
+
+            if (lastScrollElementIndex == -1)
+            {
+                root.Q<ScrollView>().ScrollTo(exitButton);
+            }
+            else
+            {
+                Invoke(nameof(GiveFocus), 0f);
             }
         }
 
@@ -109,6 +130,18 @@ namespace AF
         {
             uIDocumentTitleScreen.gameObject.SetActive(true);
             gameObject.SetActive(false);
+        }
+
+        void GiveFocus()
+        {
+            UIUtils.ScrollToLastPosition(
+                lastScrollElementIndex,
+                scrollPanel,
+                () =>
+                {
+                    lastScrollElementIndex = -1;
+                }
+            );
         }
 
     }

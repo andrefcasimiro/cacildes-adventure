@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using AF.Stats;
 using AF.Health;
+using System.Collections;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -49,6 +51,19 @@ namespace AF
         [Header("Components")]
         public PlayerManager playerManager;
 
+        [Header("Rage")]
+        public Coroutine RageCoroutine;
+        public int maxRage = 10;
+        public float rageDelayInSecondsBeforeRemovingOneUnit = 3f;
+        public int rageCount = 0;
+        public float rageCountMultiplier = 25f;
+
+        public UnityEvent onLowRage;
+        public UnityEvent onMidRage;
+        public UnityEvent onHighRage;
+
+        bool shouldResetRage = false;
+
         private void Start()
         {
             scalingDictionary.Add("E", E);
@@ -57,6 +72,11 @@ namespace AF
             scalingDictionary.Add("B", B);
             scalingDictionary.Add("A", A);
             scalingDictionary.Add("S", S);
+        }
+
+        public void ResetStates()
+        {
+            CheckIfShouldResetRage();
         }
 
         public bool IsHeavyAttacking()
@@ -76,11 +96,20 @@ namespace AF
 
         public Damage GetAttackDamage()
         {
+            int rageBonus = 0;
+
+            if (rageCount > 0)
+            {
+                rageBonus = (int)(rageCount * rageCountMultiplier);
+                EvaluateRageAttack();
+                shouldResetRage = true;
+            }
+
             Weapon weapon = equipmentDatabase.GetCurrentWeapon();
             if (weapon != null)
             {
                 Damage weaponDamage = new Damage(
-                    physical: GetWeaponAttack(weapon),
+                    physical: GetWeaponAttack(weapon) + rageBonus,
                     fire: (int)weapon.damage.fire,
                     frost: (int)weapon.damage.frost,
                     magic: (int)weapon.damage.magic,
@@ -97,11 +126,17 @@ namespace AF
                     ignoreBlocking: weapon.damage.ignoreBlocking
                 );
 
+                if (rageBonus > 0)
+                {
+                    weaponDamage.damageType = DamageType.ENRAGED;
+                }
+
                 return playerManager.playerWeaponsManager.GetBuffedDamage(weaponDamage);
             }
 
-            return new Damage(
-                physical: GetCurrentPhysicalAttack(),
+
+            Damage unarmedDamage = new Damage(
+                physical: GetCurrentPhysicalAttack() + rageBonus,
                 fire: 0,
                 frost: 0,
                 magic: 0,
@@ -117,6 +152,21 @@ namespace AF
                 canNotBeParried: false,
                 ignoreBlocking: false
             );
+            if (rageBonus > 0)
+            {
+                unarmedDamage.damageType = DamageType.ENRAGED;
+            }
+
+            return unarmedDamage;
+        }
+
+        void CheckIfShouldResetRage()
+        {
+            if (shouldResetRage)
+            {
+                ResetRage();
+                shouldResetRage = false;
+            }
         }
 
         public int GetCurrentPhysicalAttack()
@@ -295,6 +345,71 @@ namespace AF
         public void ResetBonusPhysicalAttack()
         {
             physicalAttackBonus = 0f;
+        }
+
+        public void IncrementRage()
+        {
+            if (!CanRage())
+            {
+                return;
+            }
+
+            if (rageCount > maxRage)
+            {
+                return;
+            }
+
+            rageCount++;
+
+            if (RageCoroutine != null)
+            {
+                StopCoroutine(RageCoroutine);
+            }
+
+            RageCoroutine = StartCoroutine(HandleRage_Coroutine());
+        }
+
+
+        IEnumerator HandleRage_Coroutine()
+        {
+            while (rageCount > 0)
+            {
+                yield return new WaitForSeconds(rageDelayInSecondsBeforeRemovingOneUnit);
+                rageCount--;
+            }
+
+            if (rageCount <= 0) { rageCount = 0; }
+        }
+
+        bool CanRage()
+        {
+            return playerManager.statsBonusController.canRage;
+        }
+
+        void ResetRage()
+        {
+            if (RageCoroutine != null)
+            {
+                StopCoroutine(RageCoroutine);
+            }
+
+            rageCount = 0;
+        }
+
+        void EvaluateRageAttack()
+        {
+            if (rageCount <= 1)
+            {
+                onLowRage?.Invoke();
+            }
+            else if (rageCount <= 3)
+            {
+                onMidRage?.Invoke();
+            }
+            else
+            {
+                onHighRage?.Invoke();
+            }
         }
     }
 }

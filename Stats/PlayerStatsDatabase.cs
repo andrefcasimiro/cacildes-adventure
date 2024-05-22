@@ -15,10 +15,13 @@ public class PlayerStatsDatabase : ScriptableObject
     public int intelligence = 1;
 
     [Header("Max Attributes")]
+    public int defaultMaxHealth = 300;
     public int maxHealth = 300;
     public float levelMultiplierForHealth = 2.25f;
-    public int maxStamina = 300;
+    public int defaultMaxStamina = 150;
+    public int maxStamina = 150;
     public float levelMultiplierForStamina = 3.25f;
+    public int defaultMaxMana = 100;
     public int maxMana = 100;
     public float levelMultiplierForMana = 3.25f;
 
@@ -62,9 +65,14 @@ public class PlayerStatsDatabase : ScriptableObject
         dexterity = 1;
         intelligence = 1;
 
+        maxHealth = defaultMaxHealth;
+        maxStamina = defaultMaxStamina;
+        maxMana = defaultMaxMana;
+
         currentHealth = maxHealth;
         currentStamina = maxStamina;
         currentMana = maxMana;
+
         reputation = 1;
         gold = 0;
 
@@ -74,6 +82,17 @@ public class PlayerStatsDatabase : ScriptableObject
             sceneWhereGoldWasLost = "";
             positionWhereGoldWasLost = Vector3.zero;
         }
+    }
+
+    public void ClearForNewGamePlus()
+    {
+        currentHealth = maxHealth;
+        currentStamina = maxStamina;
+        currentMana = maxMana;
+        gold = 0;
+        lostGold = -1;
+        sceneWhereGoldWasLost = "";
+        positionWhereGoldWasLost = Vector3.zero;
     }
 
     public int GetCurrentLevel()
@@ -124,5 +143,18 @@ public class PlayerStatsDatabase : ScriptableObject
     {
         this.reputation -= value;
         EventManager.EmitEvent(EventMessages.ON_REPUTATION_CHANGED);
+    }
+
+    public void SetStrength(int value)
+    {
+        this.strength = value;
+    }
+    public void SetDexterity(int value)
+    {
+        this.dexterity = value;
+    }
+    public void SetIntelligence(int value)
+    {
+        this.intelligence = value;
     }
 }

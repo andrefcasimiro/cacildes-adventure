@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.AI;
 
 namespace AF
@@ -6,6 +7,16 @@ namespace AF
 
     public static class Utils
     {
+        public static int ScaleWithCurrentNewGameIteration(int baseValue, int newGameCurrentIteration, float scalingFactor)
+        {
+            if (newGameCurrentIteration == 0)
+            {
+                return baseValue;
+            }
+
+            return (int)(baseValue * Math.Pow(scalingFactor, newGameCurrentIteration));
+        }
+
         public static Vector3 GetNearestNavMeshPoint(Vector3 reference)
         {
             return Utils.GetNearestNavMeshPoint(reference, NavMesh.AllAreas);

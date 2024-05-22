@@ -8,7 +8,7 @@ namespace AF
     public class DefenseStatManager : MonoBehaviour
     {
         [Header("Physical Defense")]
-        public int basePhysicalDefense = 60;
+        public int basePhysicalDefense = 30;
         [Tooltip("Increases with endurance level")]
         public float levelMultiplier = 3.25f;
 

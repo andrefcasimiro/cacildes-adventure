@@ -100,12 +100,6 @@ namespace AF
 
         bool CanBlock()
         {
-            if (equipmentDatabase.isTwoHanding)
-            {
-                // notificationManager.ShowNotification("Can't block while two handing", notificationManager.systemError);
-                return false;
-            }
-
             if (equipmentDatabase.IsBowEquipped())
             {
                 return false;

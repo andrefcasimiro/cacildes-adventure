@@ -149,6 +149,8 @@ namespace AF
                 }
 
                 HandlePlayerArmorAttacks(damageOwner);
+
+                HandlePlayerRage(damageOwner);
             }
 
             ApplyDamage(incomingDamage);
@@ -171,6 +173,11 @@ namespace AF
 
                     playerManager.staminaStatManager.DecreaseStamina((int)playerManager.playerWeaponsManager.GetCurrentBlockStaminaCost());
                     character.characterBlockController.BlockAttack(incomingDamage);
+
+                    if (playerManager.characterBlockController is PlayerBlockController playerBlockController)
+                    {
+                        playerBlockController.SetCanCounterAttack(true);
+                    }
                 }
             }
             else
@@ -215,6 +222,18 @@ namespace AF
 
 
 
+        void HandlePlayerRage(CharacterBaseManager damageOwner)
+        {
+            if (character is not PlayerManager playerManager)
+            {
+                return;
+            }
+
+            playerManager.attackStatManager.IncrementRage();
+        }
+
+
+
         /// <summary>
         /// Unity Event
         /// 
@@ -243,7 +262,7 @@ namespace AF
         /// <param name="damage"></param>
         public void ApplyDamage(Damage damage)
         {
-            if (damage.pushForce > 0 && character != null && character.characterPushController != null)
+            if (!waitingForBackstab && damage.pushForce > 0 && character != null && character.characterPushController != null)
             {
                 var targetPos = character.transform.position - Camera.main.transform.position;
                 targetPos.y = 0;
@@ -263,6 +282,8 @@ namespace AF
                 damage = player.playerWeaponsManager.GetCurrentShieldPassiveDamageFilter(damage);
             }
 
+            bool damageFromBackstab = false;
+            bool damageFromPostureBroken = false;
             if (character != null)
             {
                 if (health.GetCurrentHealth() <= 0)
@@ -277,13 +298,18 @@ namespace AF
                     character.PlayBusyHashedAnimationWithRootMotion(hashBackstabExecuted);
                     health.TakeDamage(GetTotalDamage(damage, true));
                     onBackstabbed?.Invoke();
+                    damageFromBackstab = true;
                 }
                 else
                 {
                     bool isPostureBroken = character.characterPosture.TakePostureDamage(damage.postureDamage);
                     health.TakeDamage(GetTotalDamage(damage, isPostureBroken));
-
                     character.characterPoise.TakePoiseDamage(damage.poiseDamage);
+
+                    if (isPostureBroken)
+                    {
+                        damageFromPostureBroken = true;
+                    }
                 }
 
                 if (character.statusController != null && damage.statusEffects != null && damage.statusEffects.Length > 0)
@@ -299,7 +325,26 @@ namespace AF
             {
                 if (combatNotificationsController != null)
                 {
-                    combatNotificationsController.ShowDamage(damage.physical);
+                    if (damageFromPostureBroken)
+                    {
+                        combatNotificationsController.ShowPostureBroken(damage.physical);
+                    }
+                    else if (damage.damageType == DamageType.COUNTER_ATTACK)
+                    {
+                        combatNotificationsController.ShowGuardCounter(damage.physical);
+                    }
+                    else if (damage.damageType == DamageType.ENRAGED)
+                    {
+                        combatNotificationsController.ShowRageCounter(damage.physical);
+                    }
+                    else if (damageFromBackstab)
+                    {
+                        combatNotificationsController.ShowBackstab(damage.physical);
+                    }
+                    else
+                    {
+                        combatNotificationsController.ShowDamage(damage.physical);
+                    }
                 }
 
                 onPhysicalDamage?.Invoke();

@@ -70,7 +70,7 @@ namespace AF.Detection
                     targetManager.SetTarget(target, () =>
                     {
                         OnTargetSighted?.Invoke();
-                    });
+                    }, false);
                 }
             }
         }

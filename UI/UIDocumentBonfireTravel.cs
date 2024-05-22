@@ -37,6 +37,10 @@ namespace AF
         // Internal
         VisualElement root;
 
+        // Last scroll position
+        int lastScrollElementIndex = -1;
+
+
         private void Awake()
         {
             gameObject.SetActive(false);
@@ -107,6 +111,7 @@ namespace AF
                         {
                             root.Q<IMGUIContainer>("BonfireIcon").style.backgroundImage = new StyleBackground(location.image);
                             root.Q<IMGUIContainer>("BonfireIcon").style.opacity = 1;
+                            root.Q<ScrollView>().ScrollTo(clonedBonfireOption);
                         }
                     },
                     () =>
@@ -123,6 +128,26 @@ namespace AF
             }
 
             cursorManager.ShowCursor();
+
+            if (lastScrollElementIndex == -1)
+            {
+                root.Q<ScrollView>().ScrollTo(exitOption);
+            }
+            else
+            {
+                Invoke(nameof(GiveFocus), 0f);
+            }
+        }
+        void GiveFocus()
+        {
+            UIUtils.ScrollToLastPosition(
+                lastScrollElementIndex,
+                root.Q<ScrollView>(),
+                () =>
+                {
+                    lastScrollElementIndex = -1;
+                }
+            );
         }
     }
 

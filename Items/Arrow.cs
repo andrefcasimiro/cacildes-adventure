@@ -6,5 +6,7 @@ namespace AF
     public class Arrow : ConsumableProjectile
     {
 
+        public bool isBolt = false;
+
     }
 }

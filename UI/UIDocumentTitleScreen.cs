@@ -29,7 +29,6 @@ namespace AF
             versionLabel.text = Application.version;
 
             Button newGameButton = root.Q<Button>("NewGameButton");
-
             Button continueButton = root.Q<Button>("ContinueButton");
             Button loadGameButton = root.Q<Button>("LoadGameButton");
             Button playTutorialButton = root.Q<Button>("PlayTutorialButton");

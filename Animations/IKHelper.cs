@@ -103,6 +103,11 @@ namespace AF
                 return false;
             }
 
+            if (playerManager.playerBlockController.isBlocking)
+            {
+                return false;
+            }
+
             if (onlyAllowOnAttacks)
             {
                 return playerManager.playerCombatController.IsAttacking();

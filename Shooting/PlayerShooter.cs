@@ -29,12 +29,14 @@ namespace AF.Shooting
         public LookAtConstraint lookAtConstraint;
 
         public float bowAimCameraDistance = 1.25f;
+        public float crossbowAimCameraDistance = 1.5f;
         public float spellAimCameraDistance = 2.25f;
 
         [Header("Components")]
         public LockOnManager lockOnManager;
         public UIManager uIManager;
         public MenuManager menuManager;
+        public NotificationManager notificationManager;
 
         [Header("Refs")]
         public Transform playerFeetRef;
@@ -79,6 +81,30 @@ namespace AF.Shooting
             cinemachine3RdPersonFollow = aimingCamera.GetComponent<CinemachineVirtualCamera>().GetCinemachineComponent<Cinemachine3rdPersonFollow>();
         }
 
+        bool IsRangeWeaponIncompatibleWithProjectile()
+        {
+            if (equipmentDatabase.GetCurrentWeapon().isCrossbow)
+            {
+                if (equipmentDatabase.GetCurrentArrow().isBolt == false)
+                {
+
+                    notificationManager.ShowNotification("Arrows can only be fired with a bow");
+                    return true;
+                }
+            }
+
+            if (equipmentDatabase.GetCurrentWeapon().isCrossbow == false)
+            {
+                if (equipmentDatabase.GetCurrentArrow().isBolt)
+                {
+                    notificationManager.ShowNotification("Bolts can only be fired with a crossbow");
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Unity Event
         /// </summary>
@@ -86,9 +112,13 @@ namespace AF.Shooting
         {
             if (CanShoot())
             {
-
                 if (equipmentDatabase.IsBowEquipped() && equipmentDatabase.HasEnoughCurrentArrows())
                 {
+                    if (IsRangeWeaponIncompatibleWithProjectile())
+                    {
+                        return;
+                    }
+
                     ShootBow(equipmentDatabase.GetCurrentArrow(), transform, lockOnManager.nearestLockOnTarget?.transform);
                     return;
                 }
@@ -144,7 +174,7 @@ namespace AF.Shooting
             {
                 GetPlayerManager().animator.SetBool(hashIsAiming, true);
 
-                cinemachine3RdPersonFollow.CameraDistance = bowAimCameraDistance;
+                cinemachine3RdPersonFollow.CameraDistance = equipmentDatabase.GetCurrentWeapon().isCrossbow ? crossbowAimCameraDistance : bowAimCameraDistance;
 
                 onBowAim_Begin?.Invoke();
             }

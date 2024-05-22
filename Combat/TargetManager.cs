@@ -44,12 +44,17 @@ namespace AF.Combat
 
         public void SetTarget(CharacterBaseManager target)
         {
-            SetTarget(target, () => { });
+            SetTarget(target, () => { }, false);
         }
 
-        public void SetTarget(CharacterBaseManager target, UnityAction onTargetSetCallback)
+        public void SetTarget(CharacterBaseManager target, bool ignorePostureBroken)
         {
-            if (!CanSetTarget())
+            SetTarget(target, () => { }, ignorePostureBroken);
+        }
+
+        public void SetTarget(CharacterBaseManager target, UnityAction onTargetSetCallback, bool ignorePostureBroken)
+        {
+            if (!CanSetTarget(ignorePostureBroken))
             {
                 return;
             }
@@ -131,9 +136,9 @@ namespace AF.Combat
 
         }
 
-        bool CanSetTarget()
+        bool CanSetTarget(bool ignorePostureBroken)
         {
-            if (characterManager.characterPosture.isStunned)
+            if (ignorePostureBroken == false && characterManager.characterPosture.isStunned)
             {
                 return false;
             }

@@ -42,6 +42,7 @@ namespace AF.Combat
         private void Awake()
         {
             characterManager.animator.SetFloat(AttackSpeedHash, 1f);
+
         }
 
         public void ResetStates()

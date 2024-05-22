@@ -8,7 +8,8 @@ public class GameSession : ScriptableObject
     {
         NOT_INITIALIZED,
         INITIALIZED,
-        INITIALIZED_AND_SHOWN_TITLE_SCREEN
+        INITIALIZED_AND_SHOWN_TITLE_SCREEN,
+        BEGINNING_NEW_GAME_PLUS
     }
 
     public GameState gameState = GameState.NOT_INITIALIZED;
@@ -36,6 +37,10 @@ public class GameSession : ScriptableObject
     public int daysPassed = 0;
     public float daySpeed = 0.005f;
 
+    [Header("New Game Plus")]
+    public int currentGameIteration = 0;
+    public float newGamePlusScalingFactor = 1.25f;
+
 
 #if UNITY_EDITOR
     private void OnEnable()
@@ -59,6 +64,9 @@ public class GameSession : ScriptableObject
         gameState = GameState.NOT_INITIALIZED;
         initialTimeOfDay = 11;
         isParticipatingInArenaEvent = false;
+        loadSavedPlayerPositionAndRotation = false;
+        nextMap_SpawnGameObjectName = "";
+        currentGameIteration = 0;
     }
 
     /// <summary>

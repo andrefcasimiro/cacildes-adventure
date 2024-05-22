@@ -342,6 +342,33 @@ public class EquipmentDatabase : ScriptableObject
         return helmet == null && armor == null && legwear == null && gauntlet == null;
     }
 
+    public int GetEquippedWeaponSlot(Weapon weapon)
+    {
+        return Array.IndexOf(weapons, weapon);
+    }
+    public int GetEquippedShieldSlot(Shield shield)
+    {
+        return Array.IndexOf(shields, shield);
+    }
+    public int GetEquippedArrowsSlot(Arrow arrow)
+    {
+        return Array.IndexOf(arrows, arrow);
+    }
+    public int GetEquippedSpellSlot(Spell spell)
+    {
+        return Array.IndexOf(spells, spell);
+    }
+    public int GetEquippedAccessoriesSlot(Accessory accessory)
+    {
+        return Array.IndexOf(accessories, accessory);
+    }
+    public int GetEquippedConsumablesSlot(Consumable consumable)
+    {
+        return Array.IndexOf(consumables, consumable);
+    }
+
+
+
     public void UnequipItem(Item item)
     {
         // Check weapons

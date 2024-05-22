@@ -34,6 +34,11 @@ namespace AF
 
         CharacterBaseManager shooter;
 
+
+        [Header("Collision Options")]
+        public bool collideWithAnything = false;
+        public UnityEvent onAnyCollision;
+
         private void OnEnable()
         {
             onFired?.Invoke();
@@ -78,12 +83,18 @@ namespace AF
 
         public void HandleCollision(DamageReceiver damageReceiver)
         {
-            if (damageReceiver == null || damageReceiver?.character == shooter)
+            if (collideWithAnything == false && damageReceiver == null || damageReceiver?.character == shooter)
             {
                 return;
             }
 
             hasCollided = true;
+
+            if (collideWithAnything)
+            {
+                onAnyCollision?.Invoke();
+                return;
+            }
 
             if (shooter is PlayerManager playerManager)
             {
@@ -95,6 +106,10 @@ namespace AF
                 {
                     damage.ScaleProjectile(playerManager.attackStatManager, playerManager.attackStatManager.equipmentDatabase.GetCurrentWeapon());
                 }
+            }
+            else if (shooter is CharacterManager enemy)
+            {
+                damage.ScaleDamageForNewGamePlus(enemy.gameSession);
             }
 
             damageReceiver.TakeDamage(damage);

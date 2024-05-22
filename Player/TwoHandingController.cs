@@ -28,6 +28,11 @@ namespace AF
         /// </summary>
         public void OnInput()
         {
+            if (playerManager.climbController.climbState != Ladders.ClimbState.NONE)
+            {
+                return;
+            }
+
             equipmentDatabase.SetIsTwoHanding(!equipmentDatabase.isTwoHanding);
             soundbank.PlaySound(soundbank.switchTwoHand);
         }

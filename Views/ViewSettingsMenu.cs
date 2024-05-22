@@ -1,5 +1,6 @@
-﻿using AF.UI;
-using UnityEngine.SceneManagement;
+﻿using System.Linq;
+using AF.UI;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -9,9 +10,15 @@ namespace AF
         VisualElement optionsContainer;
         ViewComponent_GameSettings viewComponent_GameSettings => GetComponent<ViewComponent_GameSettings>();
 
-        Button saveProgress, exitButton;
+        Button saveProgress, exitButton, newGamePlusButton;
         public const string saveGameLabel = "SaveGame";
         public const string exitGameLabel = "ExitGame";
+        public const string newGamePlusLabel = "NewGamePlus";
+
+
+        [Header("Quest To Allow New Game Plus")]
+        public QuestParent questParentToAllowNewGamePlus;
+        public int[] rangeOfQuestToAllowNewGamePlus;
 
         protected override void OnEnable()
         {
@@ -28,7 +35,10 @@ namespace AF
 
             saveProgress = root.Q<Button>(saveGameLabel);
             exitButton = root.Q<Button>(exitGameLabel);
+            newGamePlusButton = root.Q<Button>(newGamePlusLabel);
             saveProgress.SetEnabled(saveManager.CanSave());
+
+            root.Q<Label>("CurrentNewGameCount").text = "Current game iteration: " + gameSession.currentGameIteration;
 
             UIUtils.SetupButton(saveProgress, () =>
             {
@@ -37,6 +47,25 @@ namespace AF
                 saveManager.SaveGameData(menuManager.screenshotBeforeOpeningMenu);
 
             }, soundbank);
+
+            if (questParentToAllowNewGamePlus != null && rangeOfQuestToAllowNewGamePlus.Contains(questParentToAllowNewGamePlus.questProgress))
+            {
+                UIUtils.SetupButton(newGamePlusButton, () =>
+                {
+                    soundbank.PlaySound(soundbank.uiHover);
+
+                    fadeManager.FadeIn(1f, () =>
+                    {
+                        saveManager.ResetGameStateForNewGamePlusAndReturnToTitleScreen();
+                    });
+
+                }, soundbank);
+                newGamePlusButton.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                newGamePlusButton.style.display = DisplayStyle.None;
+            }
 
             UIUtils.SetupButton(exitButton, () =>
             {
@@ -48,6 +77,7 @@ namespace AF
                 });
 
             }, soundbank);
+
         }
     }
 }

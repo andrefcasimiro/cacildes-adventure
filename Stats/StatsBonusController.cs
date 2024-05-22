@@ -38,6 +38,8 @@ namespace AF.Stats
 
         public float staminaRegenerationBonus = 0f;
         public bool chanceToRestoreHealthUponDeath = false;
+        public float projectileMultiplierBonus = 0f;
+        public bool canRage = false;
 
         [Header("Equipment Modifiers")]
         public float weightPenalty = 0f;
@@ -49,6 +51,7 @@ namespace AF.Stats
 
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
+        public PlayerStatsDatabase playerStatsDatabase;
 
         private void Awake()
         {
@@ -214,9 +217,9 @@ namespace AF.Stats
             fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = discountPercentage = spellDamageBonusMultiplier = 0;
             reputationBonus = parryPostureDamageBonus = postureBonus = movementSpeedBonus = 0;
 
-            parryPostureWindowBonus = staminaRegenerationBonus = postureDecreaseRateBonus = 0f;
+            parryPostureWindowBonus = staminaRegenerationBonus = postureDecreaseRateBonus = projectileMultiplierBonus = 0f;
 
-            chanceToRestoreHealthUponDeath = false;
+            chanceToRestoreHealthUponDeath = canRage = false;
         }
         void ApplyEquipmentAttributes(ArmorBase equipment)
         {
@@ -237,6 +240,12 @@ namespace AF.Stats
                 postureBonus += equipment.postureBonus;
                 staminaRegenerationBonus += equipment.staminaRegenBonus;
                 movementSpeedBonus += equipment.movementSpeedBonus;
+                projectileMultiplierBonus += equipment.projectileMultiplierBonus;
+
+                if (equipment.canRage)
+                {
+                    canRage = true;
+                }
             }
         }
 
@@ -309,6 +318,24 @@ namespace AF.Stats
             }
 
             return Random.Range(0, 1f) <= 0.05f;
+        }
+
+        public int GetCurrentIntelligence()
+        {
+            return playerStatsDatabase.intelligence + intelligenceBonus;
+        }
+        public int GetCurrentDexterity()
+        {
+            return playerStatsDatabase.dexterity + dexterityBonus;
+        }
+        public int GetCurrentStrength()
+        {
+            return playerStatsDatabase.strength + strengthBonus;
+        }
+
+        public int GetCurrentReputation()
+        {
+            return playerStatsDatabase.GetCurrentReputation() + reputationBonus;
         }
     }
 }

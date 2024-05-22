@@ -4,33 +4,36 @@ using UnityEngine.Events;
 
 namespace AF
 {
-
     public class FleeState : State
     {
-
         [Header("Components")]
-        public CharacterManager characterManager;
+        [SerializeField] private CharacterManager characterManager;
 
         [Header("Flee Settings")]
-        public float maxFleeDistance = 20f;
-        public float maxIntervalBetweenDecidingFleeActions = 5f;
-        public float fleeSpeed = 5f;
+        [SerializeField] private float maxFleeDistance = 20f;
+        [SerializeField] private float maxIntervalBetweenDecidingFleeActions = 5f;
+        [SerializeField] private float fleeSpeed = 5f;
 
         [Header("States")]
-        public State patrolOrIdleState;
+        [SerializeField] private State patrolOrIdleState;
 
         [Header("Events")]
-        public UnityEvent onStateEnter;
-        public UnityEvent onFlee;
+        [SerializeField] private UnityEvent onStateEnter;
+        [SerializeField] private UnityEvent onFlee;
 
-        float currentIntervalBetweenFleeActions = 0f;
-        Vector3 fleeDestination;
+        private float currentIntervalBetweenFleeActions;
+        private Vector3 fleeDestination;
+
+        [Header("Go To Other State After X Time Options")]
+        [SerializeField] private bool shouldReturnToGivenStateAfterSomeTime = false;
+        [SerializeField] private State stateToReturnAfterTimeHasPassed;
+        [SerializeField] private float maxTimeFleeingBeforeExitingToOtherState = 15f;
+        private float fleeTimer;
 
         public override void OnStateEnter(StateManager stateManager)
         {
-            currentIntervalBetweenFleeActions = 0f;
+            ResetFleeTimers();
             ChooseFleeDestination();
-
             onStateEnter?.Invoke();
         }
 
@@ -40,41 +43,77 @@ namespace AF
 
         public override State Tick(StateManager stateManager)
         {
-            characterManager.agent.speed = fleeSpeed;
-
             if (characterManager.IsBusy())
             {
                 return this;
             }
 
+            characterManager.agent.speed = fleeSpeed;
             characterManager.agent.SetDestination(fleeDestination);
 
-            float distanceToFleeDestination = Vector3.Distance(characterManager.transform.position, fleeDestination);
-
-            if (distanceToFleeDestination <= characterManager.agent.stoppingDistance)
+            if (ShouldReturnToOtherState())
             {
-                ChooseFleeDestination();
-                return this;
+                return stateToReturnAfterTimeHasPassed;
             }
 
+            if (HasReachedDestination())
+            {
+                ChooseFleeDestination();
+            }
+
+            UpdateFleeTimers();
+
+            return this;
+        }
+
+        private void ResetFleeTimers()
+        {
+            currentIntervalBetweenFleeActions = 0f;
+            fleeTimer = 0f;
+        }
+
+        private bool ShouldReturnToOtherState()
+        {
+            if (shouldReturnToGivenStateAfterSomeTime)
+            {
+                fleeTimer += Time.deltaTime;
+
+                if (fleeTimer > maxTimeFleeingBeforeExitingToOtherState)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasReachedDestination()
+        {
+            float distanceToFleeDestination = Vector3.Distance(characterManager.transform.position, fleeDestination);
+            return distanceToFleeDestination <= characterManager.agent.stoppingDistance;
+        }
+
+        private void UpdateFleeTimers()
+        {
             currentIntervalBetweenFleeActions += Time.deltaTime;
+
             if (currentIntervalBetweenFleeActions >= maxIntervalBetweenDecidingFleeActions)
             {
                 currentIntervalBetweenFleeActions = 0f;
                 ChooseFleeDestination();
             }
-
-            return this;
         }
 
-        void ChooseFleeDestination()
+        private void ChooseFleeDestination()
         {
             Vector3 randomDirection = Random.insideUnitSphere * maxFleeDistance;
             randomDirection += characterManager.transform.position;
-            NavMeshHit navHit;
-            NavMesh.SamplePosition(randomDirection, out navHit, maxFleeDistance, -1);
-            fleeDestination = navHit.position;
-            onFlee?.Invoke();
+
+            if (NavMesh.SamplePosition(randomDirection, out NavMeshHit navHit, maxFleeDistance, NavMesh.AllAreas))
+            {
+                fleeDestination = navHit.position;
+                onFlee?.Invoke();
+            }
         }
     }
 }

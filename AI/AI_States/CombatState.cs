@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -46,46 +45,48 @@ namespace AF
                 return this;
             }
 
-            // If Has Target
-            if (characterManager.targetManager.currentTarget != null)
+            if (HasValidTarget())
             {
-
-                // If Target Is Still Alive, Attack If Within Range Or Chase
-                if (characterManager.targetManager.currentTarget.health.GetCurrentHealth() > 0)
-                {
-                    float distanceToTarget = Vector3.Distance(
-                        characterManager.agent.transform.position, characterManager.targetManager.currentTarget.transform.position);
-
-                    if (distanceToTarget <= characterManager.agent.stoppingDistance
-                        && characterManager.characterCombatController != null)
-                    {
-                        onAttack?.Invoke();
-
-                        return this;
-                    }
-                    else if (distanceToTarget > characterManager.agent.stoppingDistance)
-                    {
-                        return chaseState;
-                    }
-                }
-                // If Target Is Dead, Forget Target And Return to Idle or Patrol
-                else
-                {
-                    characterManager.targetManager.ClearTarget();
-                }
+                return HandleCombatWithTarget();
             }
 
             return patrolOrIdleState;
         }
 
-        void RotateTowardsTarget(Transform target)
+        private bool HasValidTarget()
         {
-            Vector3 lookDir = target.position - characterManager.transform.position;
-            lookDir.y = 0;
+            var target = characterManager.targetManager.currentTarget;
+            if (target == null || target.health.GetCurrentHealth() <= 0)
+            {
+                characterManager.targetManager.ClearTarget();
+                return false;
+            }
 
-            Quaternion targetRotation = Quaternion.LookRotation(lookDir);
+            return true;
+        }
 
-            // Smoothly interpolate between the current rotation and the target rotation
+        private State HandleCombatWithTarget()
+        {
+            var target = characterManager.targetManager.currentTarget.transform;
+            float distanceToTarget = Vector3.Distance(characterManager.agent.transform.position, target.position);
+
+            if (distanceToTarget <= characterManager.agent.stoppingDistance)
+            {
+                onAttack?.Invoke();
+                return this;
+            }
+            else
+            {
+                return chaseState;
+            }
+        }
+
+        private void RotateTowardsTarget(Transform target)
+        {
+            Vector3 directionToLook = target.position - characterManager.transform.position;
+            directionToLook.y = 0; // Keep the y value 0 to avoid tilting
+
+            Quaternion targetRotation = Quaternion.LookRotation(directionToLook);
             characterManager.transform.rotation = Quaternion.Slerp(
                 characterManager.transform.rotation,
                 targetRotation,

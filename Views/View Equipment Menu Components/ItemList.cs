@@ -62,6 +62,8 @@ namespace AF.UI.EquipmentMenu
 
         int lastScrollElementIndex = -1;
 
+        public NotificationManager notificationManager;
+
 
         private void OnEnable()
         {
@@ -277,23 +279,61 @@ namespace AF.UI.EquipmentMenu
                         || item is Accessory || item is Consumable || item is Spell || item is Arrow);
         }
 
+        public bool ShouldShowItem<T>(KeyValuePair<Item, ItemAmount> item, int slotIndexToEquip, bool showOnlyKeyItems)
+        {
+            if (item.Key is not T)
+            {
+                return false;
+            }
+
+            if (showOnlyKeyItems && !IsKeyItem(item.Key))
+            {
+                return false;
+            }
+
+            int equippedSlotIndex = -1;
+
+            if (item.Key is Weapon weapon)
+            {
+                equippedSlotIndex = equipmentDatabase.GetEquippedWeaponSlot(weapon);
+
+            }
+            else if (item.Key is Shield shield)
+            {
+                equippedSlotIndex = equipmentDatabase.GetEquippedShieldSlot(shield);
+            }
+            else if (item.Key is Arrow arrow)
+            {
+                equippedSlotIndex = equipmentDatabase.GetEquippedArrowsSlot(arrow);
+            }
+            else if (item.Key is Spell spell)
+            {
+                equippedSlotIndex = equipmentDatabase.GetEquippedSpellSlot(spell);
+            }
+            else if (item.Key is Accessory accessory)
+            {
+                equippedSlotIndex = equipmentDatabase.GetEquippedAccessoriesSlot(accessory);
+            }
+            else if (item.Key is Consumable consumable)
+            {
+                equippedSlotIndex = equipmentDatabase.GetEquippedConsumablesSlot(consumable);
+            }
+
+            if (equippedSlotIndex >= 0 && equippedSlotIndex != slotIndexToEquip)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         void PopulateScrollView<T>(bool showOnlyKeyItems, int slotIndex) where T : Item
         {
             this.itemsScrollView.Clear();
 
             Dictionary<Item, ItemAmount> filteredItems = inventoryDatabase.ownedItems.Where(item =>
             {
-                if (item.Key is not T typedItem)
-                {
-                    return false;
-                }
-
-                if (showOnlyKeyItems && !IsKeyItem(item.Key))
-                {
-                    return false;
-                }
-
-                return true;
+                return ShouldShowItem<T>(item, slotIndex, showOnlyKeyItems);
             }).ToDictionary(item => item.Key, item => item.Value);
 
 
@@ -338,11 +378,21 @@ namespace AF.UI.EquipmentMenu
 
                     soundbank.PlaySound(soundbank.uiEquip);
 
+                    bool ignoreRerender = false;
+
                     if (item.Key is Weapon weapon)
                     {
                         if (!isEquipped)
                         {
-                            playerManager.playerWeaponsManager.EquipWeapon(weapon, slotIndex);
+                            if (!weapon.AreRequirementsMet(playerManager.statsBonusController))
+                            {
+                                notificationManager.ShowNotification("Can't equip weapon. Requirements are not met.", notificationManager.systemError);
+                                ignoreRerender = true;
+                            }
+                            else
+                            {
+                                playerManager.playerWeaponsManager.EquipWeapon(weapon, slotIndex);
+                            }
                         }
                         else
                         {
@@ -437,11 +487,19 @@ namespace AF.UI.EquipmentMenu
                             equipmentDatabase.UnequipConsumable(slotIndex);
                         }
                     }
-                    else if (item.Key is Spell)
+                    else if (item.Key is Spell spell)
                     {
                         if (!isEquipped)
                         {
-                            equipmentDatabase.EquipSpell(item.Key as Spell, slotIndex);
+                            if (!spell.AreRequirementsMet(playerManager.statsBonusController))
+                            {
+                                notificationManager.ShowNotification("Can not equip spell. Requirements not met!", notificationManager.systemError);
+                                ignoreRerender = true;
+                            }
+                            else
+                            {
+                                equipmentDatabase.EquipSpell(item.Key as Spell, slotIndex);
+                            }
                         }
                         else
                         {
@@ -449,7 +507,10 @@ namespace AF.UI.EquipmentMenu
                         }
                     }
 
-                    ReturnToEquipmentSlots();
+                    if (!ignoreRerender)
+                    {
+                        ReturnToEquipmentSlots();
+                    }
 
                     //PopulateScrollView<T>(showOnlyKeyItems, slotIndex);
                 };

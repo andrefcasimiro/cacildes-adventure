@@ -25,6 +25,9 @@ namespace AF
         public bool doubleDamageOnNightTime = false;
         public GameSession gameSession;
 
+        [Header("Healing Options")]
+        public float healingAmount = -1f;
+
         private void OnEnable()
         {
             damageReceivers.Clear();
@@ -34,7 +37,14 @@ namespace AF
         {
             if (!other.TryGetComponent<DamageReceiver>(out var damageReceiver))
             {
-                return;
+                if (other.TryGetComponent<CharacterManager>(out var enemy) && enemy?.damageReceiver != null)
+                {
+                    damageReceiver = enemy.damageReceiver;
+                }
+                else
+                {
+                    return;
+                }
             }
 
             if (damageOwner != null && damageOwner.damageReceiver == damageReceiver)
@@ -52,6 +62,10 @@ namespace AF
             if (projectile != null)
             {
                 projectile.HandleCollision(damageReceiver);
+            }
+            else if (healingAmount >= 0f)
+            {
+                damageReceiver.health.RestoreHealth(healingAmount);
             }
             else if (damage != null)
             {

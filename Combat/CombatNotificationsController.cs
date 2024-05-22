@@ -85,6 +85,22 @@ namespace AF
         {
             AddNotification("- " + amount + " from critical attack", combatNotificationManager.criticalDamage);
         }
+        public void ShowBackstab(float amount)
+        {
+            AddNotification("- " + amount + " from backstab attack", combatNotificationManager.criticalDamage);
+        }
+        public void ShowGuardCounter(float amount)
+        {
+            AddNotification("- " + amount + " from guard counter attack", combatNotificationManager.criticalDamage);
+        }
+        public void ShowRageCounter(float amount)
+        {
+            AddNotification("- " + amount + " from rage buildup", combatNotificationManager.criticalDamage);
+        }
+        public void ShowPostureBroken(float amount)
+        {
+            AddNotification("- " + amount + " from posture broken", combatNotificationManager.criticalDamage);
+        }
     }
 
 }

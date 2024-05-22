@@ -9,6 +9,14 @@ namespace AF.Health
     }
 
     [System.Serializable]
+    public enum DamageType
+    {
+        NORMAL,
+        COUNTER_ATTACK,
+        ENRAGED,
+    }
+
+    [System.Serializable]
     public class Damage
     {
         public int physical;
@@ -27,6 +35,7 @@ namespace AF.Health
 
         public bool ignoreBlocking = false;
         public bool canNotBeParried = false;
+        public DamageType damageType = DamageType.NORMAL;
 
         public Damage()
         {
@@ -114,6 +123,12 @@ namespace AF.Health
         {
             // Steel arrow might inherit magic from a magical bow, hence don't check if base values are greater than zero
             this.physical += (int)(currentWeapon.GetWeaponAttack() + attackStatManager.GetDexterityBonusFromWeapon(currentWeapon));
+
+            if (attackStatManager.playerManager.statsBonusController.projectileMultiplierBonus > 0f)
+            {
+                this.physical = (int)(this.physical * attackStatManager.playerManager.statsBonusController.projectileMultiplierBonus);
+            }
+
             this.fire += (int)currentWeapon.GetWeaponFireAttack();
             this.frost += (int)currentWeapon.GetWeaponFrostAttack();
             this.magic += (int)(currentWeapon.GetWeaponMagicAttack() + attackStatManager.GetIntelligenceBonusFromWeapon(currentWeapon));
@@ -125,6 +140,18 @@ namespace AF.Health
         public Damage Clone()
         {
             return (Damage)this.MemberwiseClone();
+        }
+
+        public void ScaleDamageForNewGamePlus(GameSession gameSession)
+        {
+            this.physical = Utils.ScaleWithCurrentNewGameIteration(this.physical, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
+            this.fire = Utils.ScaleWithCurrentNewGameIteration(this.fire, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
+            this.frost = Utils.ScaleWithCurrentNewGameIteration(this.frost, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
+            this.lightning = Utils.ScaleWithCurrentNewGameIteration(this.lightning, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
+            this.magic = Utils.ScaleWithCurrentNewGameIteration(this.magic, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
+            this.darkness = Utils.ScaleWithCurrentNewGameIteration(this.darkness, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
+            this.poiseDamage = Utils.ScaleWithCurrentNewGameIteration(this.poiseDamage, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
+            this.postureDamage = Utils.ScaleWithCurrentNewGameIteration(this.postureDamage, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
         }
     }
 }

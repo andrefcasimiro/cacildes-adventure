@@ -24,6 +24,7 @@ namespace AF
         public float scoreIncreaseRate = 1.25f;
 
         [Header("Stats Database")]
+        public GameSession gameSession;
         public PlayerStatsDatabase playerStatsDatabase;
 
         Label goldReceived, actualGold;
@@ -43,6 +44,8 @@ namespace AF
 
         public void AddGold(int amount)
         {
+            amount = Utils.ScaleWithCurrentNewGameIteration(amount, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);
+
             soundbank.PlaySound(soundbank.coin);
             counterEnabled = false;
             ScoreIncrement = 0;

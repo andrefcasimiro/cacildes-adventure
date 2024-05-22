@@ -25,13 +25,13 @@ namespace AF
         public CompanionsSceneManager companionsSceneManager;
         public NotificationManager notificationManager;
 
-        public LoadingManager loadingManager;
-
         void Start()
         {
             SpawnPlayer();
 
             companionsSceneManager.SpawnCompanions();
+
+            LoadingManager.Instance.EndLoading();
         }
 
         public void TeleportToLastRestedBonfire()
@@ -60,30 +60,10 @@ namespace AF
 
             fadeManager.FadeIn(1f, () =>
             {
-                SceneManager.LoadScene(sceneName);
+                LoadingManager.Instance.BeginLoading(sceneName);
+                //                SceneManager.LoadScene(sceneName);
                 //StartCoroutine(LoadSceneAsync(sceneName));
             });
-        }
-
-        public IEnumerator LoadSceneAsync(string sceneName)
-        {
-            //loadingManager.BeginLoading(sceneName);
-
-            var loadingOperation = SceneManager.LoadSceneAsync(sceneName);
-            loadingOperation.allowSceneActivation = false;
-
-            while (!loadingOperation.isDone)
-            {
-                //loadingManager.UpdateLoading(loadingOperation.progress * 100);
-
-                if (loadingOperation.progress >= 0.9f)
-                {
-                    loadingOperation.allowSceneActivation = true;
-                }
-
-                yield return null;
-            }
-
         }
 
         void SpawnPlayer()

@@ -80,6 +80,12 @@ namespace AF
         public bool canDamageEnemiesUponAttack = false;
         public Damage damageDealtToEnemiesUponAttacked;
 
+        [Header("Projectile Options")]
+        public float projectileMultiplierBonus = 0f;
+
+        [Header("Rage Mode")]
+        public bool canRage = false;
+
         public string GetFormattedStatusResistances()
         {
             string result = "";
