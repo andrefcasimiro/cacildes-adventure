@@ -9,7 +9,7 @@ namespace AF
     {
         [Header("Components")]
         public CharacterBaseManager characterManager;
-        public readonly int hashParried = Animator.StringToHash("Parried");
+        public string hashParried = "Parried";
 
         [Header("Parrying Settings")]
         public UnityEvent onParryEvent;
@@ -128,7 +128,7 @@ namespace AF
         {
             onParriedEvent?.Invoke();
 
-            characterManager.PlayBusyHashedAnimationWithRootMotion(hashParried);
+            characterManager.PlayBusyAnimationWithRootMotion(hashParried);
 
             characterManager.characterPosture.TakePostureDamage(
                 receivedPostureDamageFromParry

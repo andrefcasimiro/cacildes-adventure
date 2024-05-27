@@ -56,6 +56,7 @@ namespace AF
 
         public GameSession gameSession;
 
+
         private void Awake()
         {
             animatorOverrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
@@ -76,8 +77,8 @@ namespace AF
         public override void ResetStates()
         {
             animator.applyRootMotion = false;
-
             isBusy = false;
+
             characterPosture.ResetStates();
             characterCombatController.ResetStates();
             characterWeaponsManager.ResetStates();
@@ -102,6 +103,7 @@ namespace AF
                 var lookRotation = Quaternion.LookRotation(lookPos);
                 transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
             }
+
 
             if (animator.applyRootMotion)
             {

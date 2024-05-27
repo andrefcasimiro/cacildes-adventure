@@ -157,4 +157,16 @@ public class PlayerStatsDatabase : ScriptableObject
     {
         this.intelligence = value;
     }
+    public void IncreaseStrength(int value)
+    {
+        this.strength += value;
+    }
+    public void IncreaseDexterity(int value)
+    {
+        this.dexterity += value;
+    }
+    public void IncreaseIntelligence(int value)
+    {
+        this.intelligence += value;
+    }
 }

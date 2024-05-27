@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AF.Health;
 using UnityEngine;
 using UnityEngine.Events;
@@ -43,6 +44,13 @@ namespace AF
 
         // Internal flags
         bool canPlayHitSfx = true;
+
+        List<BoxCollider> ownColliders = new();
+
+        private void Awake()
+        {
+            ownColliders = GetComponents<BoxCollider>()?.ToList();
+        }
 
         void Start()
         {
@@ -96,6 +104,14 @@ namespace AF
             if (hitCollider != null)
             {
                 hitCollider.enabled = false;
+            }
+
+            if (ownColliders?.Count > 1)
+            {
+                foreach (var collider in ownColliders)
+                {
+                    collider.enabled = false;
+                }
             }
 
             damageReceiversHit.Clear();

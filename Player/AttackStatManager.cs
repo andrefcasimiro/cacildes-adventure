@@ -39,7 +39,7 @@ namespace AF
 
         [Header("Physical Attack")]
         public int basePhysicalAttack = 100;
-        public float levelMultiplier = 3.25f;
+        public float levelMultiplier = 2.55f;
 
         public float jumpAttackMultiplier = 3.25f;
         float twoHandAttackBonusMultiplier = 1.35f;
@@ -383,6 +383,11 @@ namespace AF
 
         bool CanRage()
         {
+            if (playerManager.health.GetCurrentHealth() <= 0)
+            {
+                return false;
+            }
+
             return playerManager.statsBonusController.canRage;
         }
 
@@ -398,6 +403,11 @@ namespace AF
 
         void EvaluateRageAttack()
         {
+            if (rageCount <= 0)
+            {
+                return;
+            }
+
             if (rageCount <= 1)
             {
                 onLowRage?.Invoke();
