@@ -21,6 +21,7 @@ namespace AF
         [Header("Posture")]
         public int postureDamagePerParry = 0;
         public float postureDecreaseRateBonus = 0f;
+        public float backStabAngleBonus = 0f;
 
         [Header("Spells")]
         public float spellDamageBonusMultiplier = 0f;
@@ -28,6 +29,9 @@ namespace AF
         [Header("Life")]
         public bool chanceToDoubleCoinsFromFallenEnemies = false;
         public bool chanceToRestoreHealthUponDeath = false;
+
+        [Header("Inventory")]
+        public bool chanceToNotLoseItemUponConsumption = false;
 
     }
 }

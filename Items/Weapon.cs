@@ -93,7 +93,8 @@ namespace AF
         public Scaling strengthScaling = Scaling.E;
         public Scaling dexterityScaling = Scaling.E;
         public Scaling intelligenceScaling = Scaling.E;
-
+        [Header("Weapon Special Options")]
+        public int manaCostToUseWeaponSpecialAttack = 0;
 
         [Header("Animation Overrides")]
         public List<AnimationOverride> animationOverrides;
@@ -111,8 +112,9 @@ namespace AF
 
         [Header("Weapon Bonus")]
         public int amountOfGoldReceivedPerHit = 0;
+        public bool doubleCoinsUponKillingEnemies = false;
         public bool doubleDamageDuringNightTime = false;
-
+        public int healthRestoredWithEachHit = 0;
 
         [Header("Jump Attack")]
         public float jumpAttackVelocity = -5f;

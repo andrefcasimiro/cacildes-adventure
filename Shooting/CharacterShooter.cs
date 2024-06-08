@@ -1,9 +1,12 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace AF.Shooting
 {
     public class CharacterShooter : CharacterBaseShooter
     {
+
+        public UnityEvent onShoot;
 
         Transform queuedTransformOrigin;
         Projectile queuedProjectile;
@@ -72,6 +75,8 @@ namespace AF.Shooting
             }
 
             componentProjectile.Shoot(characterBaseManager, projectileInstance.transform.forward * componentProjectile.GetForwardVelocity(), componentProjectile.GetForceMode());
+
+            onShoot?.Invoke();
         }
 
         public override bool CanShoot()

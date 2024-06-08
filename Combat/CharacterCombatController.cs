@@ -29,10 +29,15 @@ namespace AF.Combat
 
         [Header("Animation Settings")]
         public string ANIMATION_CLIP_TO_OVERRIDE_NAME = "Cacildes - Light Attack - 1";
+        public string PRE_PRE_COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK = "Cacildes - Pre Pre Combo Attack";
+        public string PRE_COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK = "Cacildes - Pre Combo Attack";
         public string COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK = "Cacildes - Combo Attack";
         public string COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_FOLLOWUP_ATTACK = "Cacildes - Combo Attack - Follow Up";
         public string hashLightAttack1 = "Light Attack 1";
         public string hashComboAttack = "Combo Attack Initiator";
+        public string hashPreComboAttack = "Pre Combo Attack Initiator";
+        public string hashPrePreComboAttack = "Pre Pre Combo Attack Initiator";
+
 
         [Header("Unity Events")]
         public UnityEvent onResetState;
@@ -181,11 +186,29 @@ namespace AF.Combat
 
             if (currentCombatAction.attackAnimationClip != null)
             {
-
                 if (currentCombatAction.comboClip != null)
                 {
-                    characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK, currentCombatAction.attackAnimationClip);
-                    characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_FOLLOWUP_ATTACK, currentCombatAction.comboClip);
+                    if (currentCombatAction.comboClip2 != null)
+                    {
+                        if (currentCombatAction.comboClip3 != null)
+                        {
+                            characterManager.UpdateAnimatorOverrideControllerClips(PRE_PRE_COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK, currentCombatAction.attackAnimationClip);
+                            characterManager.UpdateAnimatorOverrideControllerClips(PRE_COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK, currentCombatAction.comboClip);
+                            characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK, currentCombatAction.comboClip2);
+                            characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_FOLLOWUP_ATTACK, currentCombatAction.comboClip3);
+                        }
+                        else
+                        {
+                            characterManager.UpdateAnimatorOverrideControllerClips(PRE_COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK, currentCombatAction.attackAnimationClip);
+                            characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK, currentCombatAction.comboClip);
+                            characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_FOLLOWUP_ATTACK, currentCombatAction.comboClip2);
+                        }
+                    }
+                    else
+                    {
+                        characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_ATTACK, currentCombatAction.attackAnimationClip);
+                        characterManager.UpdateAnimatorOverrideControllerClips(COMBO_ANIMATION_CLIP_TO_OVERRIDE_NAME_FOLLOWUP_ATTACK, currentCombatAction.comboClip);
+                    }
                 }
                 else
                 {
@@ -201,7 +224,21 @@ namespace AF.Combat
 
                 if (currentCombatAction.comboClip != null)
                 {
-                    characterManager.PlayBusyAnimationWithRootMotion(hashComboAttack);
+                    if (currentCombatAction.comboClip2 != null)
+                    {
+                        if (currentCombatAction.comboClip3 != null)
+                        {
+                            characterManager.PlayBusyAnimationWithRootMotion(hashPrePreComboAttack);
+                        }
+                        else
+                        {
+                            characterManager.PlayBusyAnimationWithRootMotion(hashPreComboAttack);
+                        }
+                    }
+                    else
+                    {
+                        characterManager.PlayBusyAnimationWithRootMotion(hashComboAttack);
+                    }
                 }
                 else if (crossFade > 0)
                 {

@@ -785,6 +785,11 @@ namespace AF
             this.JumpHeight = DefaultJumpHeight;
         }
 
+        public void SetLockCameraPosition(bool value)
+        {
+            this.LockCameraPosition = value;
+        }
+
 
     }
 }

@@ -8,8 +8,8 @@ namespace AF
     public class EV_PlayMusic : EventBase
     {
         [Header("Components")]
-        public SceneSettings sceneSettings;
-        public BGMManager bgmManager;
+        SceneSettings _sceneSettings;
+        BGMManager _bgmManager;
         public AudioClip bgm;
 
         public bool playMapMusic;
@@ -20,17 +20,36 @@ namespace AF
 
             if (playMapMusic)
             {
-                sceneSettings.HandleSceneSound(true);
+                GetSceneSettings().HandleSceneSound(true);
             }
             else if (bgm != null)
             {
-                bgmManager.PlayMusic(bgm);
+                GetBGMManager().PlayMusic(bgm);
             }
             else
             {
-                bgmManager.StopMusic();
+                GetBGMManager().StopMusic();
             }
         }
+        BGMManager GetBGMManager()
+        {
+            if (_bgmManager == null)
+            {
+                _bgmManager = FindAnyObjectByType<BGMManager>(FindObjectsInactive.Include);
+            }
+
+            return _bgmManager;
+        }
+        SceneSettings GetSceneSettings()
+        {
+            if (_sceneSettings == null)
+            {
+                _sceneSettings = FindAnyObjectByType<SceneSettings>(FindObjectsInactive.Include);
+            }
+
+            return _sceneSettings;
+        }
+
     }
 
 }

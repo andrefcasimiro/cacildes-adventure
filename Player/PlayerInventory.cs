@@ -31,6 +31,11 @@ namespace AF
         [Header("Events")]
         public UnityEvent onResetState;
 
+        [Header("Ashes Edge Case")]
+        public bool disableAshesUsage = false;
+        public Item ashes;
+        public UnityEvent onDisabledAshes;
+
         // Consts
         private const string CANT_CONSUME_ITEM_AT_THIS_TIME = "Can't consume item at this time";
 
@@ -145,6 +150,12 @@ namespace AF
                 return false;
             }
 
+            if (disableAshesUsage && consumable == ashes)
+            {
+                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
+                return false;
+            }
+
             return true;
         }
 
@@ -189,7 +200,14 @@ namespace AF
 
             if (currentConsumedItem.shouldNotRemoveOnUse == false)
             {
-                playerManager.playerInventory.RemoveItem(currentConsumedItem, 1);
+                if (playerManager.statsBonusController.chanceToNotLoseItemUponConsumption && Random.Range(0f, 1f) > 0.8f)
+                {
+                    notificationManager.ShowNotification("The item has been carefully preserved for future use.");
+                }
+                else
+                {
+                    playerManager.playerInventory.RemoveItem(currentConsumedItem, 1);
+                }
             }
 
             if (currentConsumedItem.statusesToRemove != null && currentConsumedItem.statusesToRemove.Length > 0)
@@ -215,6 +233,23 @@ namespace AF
             }
 
             currentConsumedItem = null;
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void AllowAshes()
+        {
+            disableAshesUsage = false;
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        public void DisableAshes()
+        {
+            onDisabledAshes?.Invoke();
+            disableAshesUsage = true;
         }
     }
 }

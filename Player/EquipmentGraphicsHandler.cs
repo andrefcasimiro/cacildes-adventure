@@ -12,28 +12,34 @@ namespace AF
         [Header("Components")]
         public StatsBonusController statsBonusController;
 
-        public List<string> helmetNakedParts = new List<string>
+        readonly List<string> _helmetNakedParts = new()
         {
-            "Hair",
-            "Head"
+            "HairContainer",
+            "HeadContainer",
+            "EyebrowContainer",
+            "BeardContainer",
         };
 
-        public List<string> armorNakedParts = new List<string>
+        readonly List<string> _armorNakedParts = new()
         {
-            "Torso",
+            "TorsoContainer",
+            "UpperRightArmContainer",
+            "UpperLeftArmContainer",
         };
 
-        public List<string> gauntletsNakedParts = new List<string>
+        readonly List<string> _gauntletsNakedParts = new()
         {
-            "Left Arm",
-            "Right Arm",
+            "LeftLowerArmContainer",
+            "RightLowerArmContainer",
+            "LeftHandContainer",
+            "RightHandContainer"
         };
 
-        public List<string> legwearNakedParts = new List<string>
+        readonly List<string> _legwearNakedParts = new()
         {
-            "Hip",
-            "Left Leg",
-            "Right Leg"
+            "HipContainer",
+            "LeftLegContainer",
+            "RightLegContainer"
         };
 
         [Header("UI Systems")]
@@ -46,7 +52,6 @@ namespace AF
         [Header("Transform References")]
         public Transform playerEquipmentRoot;
 
-
         void Start()
         {
             InitializeEquipment();
@@ -54,7 +59,7 @@ namespace AF
 
         public void InitializeEquipment()
         {
-            ReloadEquipmentGraphics();
+            DrawCharacterGraphics();
 
             if (equipmentDatabase.helmet != null)
             {
@@ -97,7 +102,7 @@ namespace AF
                 equipmentDatabase.EquipHelmet(helmetToEquip);
             }
 
-            ReloadEquipmentGraphics();
+            DrawCharacterGraphics();
 
             statsBonusController.RecalculateEquipmentBonus();
         }
@@ -122,7 +127,7 @@ namespace AF
 
             equipmentDatabase.UnequipHelmet();
 
-            ReloadEquipmentGraphics();
+            DrawCharacterGraphics();
 
             statsBonusController.RecalculateEquipmentBonus();
         }
@@ -143,7 +148,7 @@ namespace AF
                 equipmentDatabase.EquipArmor(armorToEquip as Armor);
             }
 
-            ReloadEquipmentGraphics();
+            DrawCharacterGraphics();
 
             statsBonusController.RecalculateEquipmentBonus();
         }
@@ -168,7 +173,7 @@ namespace AF
 
             equipmentDatabase.UnequipArmor();
 
-            ReloadEquipmentGraphics();
+            DrawCharacterGraphics();
 
             statsBonusController.RecalculateEquipmentBonus();
         }
@@ -189,8 +194,7 @@ namespace AF
                 equipmentDatabase.EquipGauntlet(gauntletToEquip);
             }
 
-            ReloadEquipmentGraphics();
-
+            DrawCharacterGraphics();
             statsBonusController.RecalculateEquipmentBonus();
         }
 
@@ -213,7 +217,7 @@ namespace AF
             }
 
             equipmentDatabase.UnequipGauntlet();
-            ReloadEquipmentGraphics();
+            DrawCharacterGraphics();
             statsBonusController.RecalculateEquipmentBonus();
         }
         #endregion
@@ -233,7 +237,7 @@ namespace AF
                 equipmentDatabase.EquipLegwear(legwearToEquip);
             }
 
-            ReloadEquipmentGraphics();
+            DrawCharacterGraphics();
 
             statsBonusController.RecalculateEquipmentBonus();
         }
@@ -257,7 +261,7 @@ namespace AF
             }
 
             equipmentDatabase.UnequipLegwear();
-            ReloadEquipmentGraphics();
+            DrawCharacterGraphics();
 
             statsBonusController.RecalculateEquipmentBonus();
         }
@@ -286,7 +290,7 @@ namespace AF
             statsBonusController.RecalculateEquipmentBonus();
         }
 
-        void ReloadEquipmentGraphics()
+        void DrawCharacterGraphics()
         {
             foreach (Transform t in playerEquipmentRoot.GetComponentsInChildren<Transform>(true))
             {
@@ -294,7 +298,7 @@ namespace AF
                 var helmet = equipmentDatabase.helmet;
                 if (helmet == null)
                 {
-                    if (helmetNakedParts.IndexOf(t.gameObject.name) != -1)
+                    if (_helmetNakedParts.IndexOf(t.gameObject.name) != -1)
                     {
                         t.gameObject.SetActive(true);
                     }
@@ -319,7 +323,7 @@ namespace AF
                 var chest = equipmentDatabase.armor;
                 if (chest == null)
                 {
-                    if (armorNakedParts.IndexOf(t.gameObject.name) != -1)
+                    if (_armorNakedParts.IndexOf(t.gameObject.name) != -1)
                     {
                         t.gameObject.SetActive(true);
                     }
@@ -344,7 +348,7 @@ namespace AF
                 var gauntlets = equipmentDatabase.gauntlet;
                 if (gauntlets == null)
                 {
-                    if (gauntletsNakedParts.IndexOf(t.gameObject.name) != -1)
+                    if (_gauntletsNakedParts.IndexOf(t.gameObject.name) != -1)
                     {
                         t.gameObject.SetActive(true);
                     }
@@ -369,7 +373,7 @@ namespace AF
                 var legwear = equipmentDatabase.legwear;
                 if (legwear == null)
                 {
-                    if (legwearNakedParts.IndexOf(t.gameObject.name) != -1)
+                    if (_legwearNakedParts.IndexOf(t.gameObject.name) != -1)
                     {
                         t.gameObject.SetActive(true);
                     }

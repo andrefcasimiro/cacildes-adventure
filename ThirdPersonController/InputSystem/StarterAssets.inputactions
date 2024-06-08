@@ -198,7 +198,7 @@
                     "name": "QuickSave",
                     "type": "Button",
                     "id": "f21d1ae8-d179-4621-8cf5-e41e6d6915ee",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -207,7 +207,16 @@
                     "name": "QuickLoad",
                     "type": "Button",
                     "id": "b61f974e-abb2-4151-8500-555921f19c40",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "CustomizeCharacter",
+                    "type": "Button",
+                    "id": "f336d446-035d-4eea-bebd-b8946ccf624f",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -216,7 +225,7 @@
                     "name": "Tab",
                     "type": "Button",
                     "id": "1f33239e-0b1b-44d4-942d-cd8b12859bac",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -638,6 +647,17 @@
                     "processors": "",
                     "groups": "KeyboardMouse",
                     "action": "QuickLoad",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0b22cb35-a9f0-42d8-86ae-b4c6069bd9a6",
+                    "path": "<Keyboard>/f6",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "CustomizeCharacter",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

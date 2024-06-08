@@ -480,5 +480,30 @@ namespace AF.Equipment
             currentShieldInstance.shield.AttackShieldAttacker(attacker);
         }
 
+        public void HandleWeaponSpecial()
+        {
+            if (
+                playerManager.playerWeaponsManager.currentWeaponInstance == null
+                || playerManager.playerWeaponsManager.currentWeaponInstance.onWeaponSpecial == null
+                || playerManager.playerWeaponsManager.currentWeaponInstance.weapon == null
+                )
+            {
+                return;
+            }
+
+            if (playerManager.manaManager.playerStatsDatabase.currentMana < playerManager.playerWeaponsManager.currentWeaponInstance.weapon.manaCostToUseWeaponSpecialAttack)
+            {
+                notificationManager.ShowNotification("Not enough mana to use weapon special");
+                return;
+            }
+
+            playerManager.manaManager.DecreaseMana(
+                playerManager.playerWeaponsManager.currentWeaponInstance.weapon.manaCostToUseWeaponSpecialAttack
+            );
+
+            playerManager.playerWeaponsManager.currentWeaponInstance.onWeaponSpecial?.Invoke();
+
+        }
+
     }
 }

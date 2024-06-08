@@ -38,8 +38,10 @@ namespace AF.Stats
 
         public float staminaRegenerationBonus = 0f;
         public bool chanceToRestoreHealthUponDeath = false;
+        public bool chanceToNotLoseItemUponConsumption = false;
         public float projectileMultiplierBonus = 0f;
         public bool canRage = false;
+        public float backStabAngleBonus = 0f;
 
         [Header("Equipment Modifiers")]
         public float weightPenalty = 0f;
@@ -217,9 +219,9 @@ namespace AF.Stats
             fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = darkDefenseBonus = discountPercentage = spellDamageBonusMultiplier = 0;
             reputationBonus = parryPostureDamageBonus = postureBonus = movementSpeedBonus = 0;
 
-            parryPostureWindowBonus = staminaRegenerationBonus = postureDecreaseRateBonus = projectileMultiplierBonus = 0f;
+            parryPostureWindowBonus = staminaRegenerationBonus = postureDecreaseRateBonus = projectileMultiplierBonus = backStabAngleBonus = 0f;
 
-            chanceToRestoreHealthUponDeath = canRage = false;
+            chanceToRestoreHealthUponDeath = canRage = chanceToNotLoseItemUponConsumption = false;
         }
         void ApplyEquipmentAttributes(ArmorBase equipment)
         {
@@ -266,6 +268,8 @@ namespace AF.Stats
                 reputationBonus += accessory?.reputationBonus ?? 0;
                 parryPostureDamageBonus += accessory?.postureDamagePerParry ?? 0;
 
+                backStabAngleBonus += accessory?.backStabAngleBonus ?? 0;
+
                 healthBonus += accessory?.healthBonus ?? 0;
                 magicBonus += accessory?.magicBonus ?? 0;
                 staminaBonus += accessory?.staminaBonus ?? 0;
@@ -278,6 +282,11 @@ namespace AF.Stats
                 if (accessory != null && accessory.chanceToRestoreHealthUponDeath)
                 {
                     chanceToRestoreHealthUponDeath = true;
+                }
+
+                if (accessory != null && accessory.chanceToNotLoseItemUponConsumption)
+                {
+                    chanceToNotLoseItemUponConsumption = true;
                 }
             }
         }
@@ -311,6 +320,11 @@ namespace AF.Stats
         public bool ShouldDoubleCoinFromFallenEnemy()
         {
             bool hasDoublingCoinAccessoryEquipped = equipmentDatabase.accessories.Any(acc => acc != null && acc.chanceToDoubleCoinsFromFallenEnemies);
+
+            if (equipmentDatabase.GetCurrentWeapon() != null && equipmentDatabase.GetCurrentWeapon().doubleCoinsUponKillingEnemies)
+            {
+                return true;
+            }
 
             if (!hasDoublingCoinAccessoryEquipped)
             {

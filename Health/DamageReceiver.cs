@@ -151,6 +151,8 @@ namespace AF
                 HandlePlayerArmorAttacks(damageOwner);
 
                 HandlePlayerRage(damageOwner);
+
+                HandlePlayerHealthBack(damageOwner);
             }
 
             ApplyDamage(incomingDamage);
@@ -230,6 +232,23 @@ namespace AF
             }
 
             playerManager.attackStatManager.IncrementRage();
+        }
+
+
+        void HandlePlayerHealthBack(CharacterBaseManager damageOwner)
+        {
+            if (character is not PlayerManager playerManager)
+            {
+                return;
+            }
+
+            if (
+                playerManager.playerWeaponsManager?.currentWeaponInstance != null
+                && playerManager.playerWeaponsManager?.currentWeaponInstance?.weapon != null
+                && playerManager.playerWeaponsManager?.currentWeaponInstance?.weapon?.healthRestoredWithEachHit > 0)
+            {
+                playerManager.health.RestoreHealth(playerManager.playerWeaponsManager.currentWeaponInstance.weapon.healthRestoredWithEachHit);
+            }
         }
 
 

@@ -15,10 +15,13 @@ namespace AF.Combat
 
         [Header("Combo Options")]
         public AnimationClip comboClip;
+        public AnimationClip comboClip2;
+        public AnimationClip comboClip3;
 
         [Header("Conditions")]
         [Range(1, 100)]
         public int minimumHealthToUse = 100;
+        public bool dontUseBelowHalfHealth = false;
 
         public float minimumDistanceToTarget = 0f;
         public float maximumDistanceToTarget = 15f;
@@ -66,6 +69,11 @@ namespace AF.Combat
                 currentHealthPercentage <= 0
                 || currentHealthPercentage > minimumHealthToUse
             )
+            {
+                return false;
+            }
+
+            if (dontUseBelowHalfHealth && currentHealthPercentage < 0.5f)
             {
                 return false;
             }

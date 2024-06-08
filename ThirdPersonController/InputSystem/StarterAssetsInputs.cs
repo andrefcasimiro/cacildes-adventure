@@ -43,6 +43,7 @@ namespace AF
 
 		[Header("UI")]
 		public UnityEvent onMenuEvent;
+		public UnityEvent onCustomizeCharacter;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -123,6 +124,14 @@ namespace AF
 			{
 				onMenuEvent?.Invoke();
 
+			}
+		}
+
+		public void OnCustomizeCharacter(InputValue value)
+		{
+			if (value.isPressed)
+			{
+				onCustomizeCharacter?.Invoke();
 			}
 		}
 

@@ -40,6 +40,7 @@ namespace AF
         [Header("Face Target Settings")]
         public bool faceTarget = false;
         public float faceTargetDuration = 0.25f;
+        public bool alwaysFaceTarget = false;
 
         [Header("Partners")]
         public CharacterManager[] partners;
@@ -96,7 +97,7 @@ namespace AF
 
         private void OnAnimatorMove()
         {
-            if (faceTarget && targetManager?.currentTarget != null)
+            if ((faceTarget || alwaysFaceTarget) && targetManager?.currentTarget != null)
             {
                 var lookPos = targetManager.currentTarget.transform.position - transform.position;
                 lookPos.y = 0;

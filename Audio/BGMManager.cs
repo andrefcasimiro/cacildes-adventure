@@ -25,6 +25,8 @@ namespace AF.Music
         Coroutine FadeInCoreCoroutine;
         Coroutine FadeOutCoreCoroutine;
 
+        public float fadeDuration = 1f;
+
         // Flags
         public bool isPlayingBossMusic = false;
 
@@ -67,42 +69,41 @@ namespace AF.Music
                     StopCoroutine(FadeInCoreCoroutine);
                 }
 
-                FadeInCoreCoroutine = StartCoroutine(FadeInCore_Coroutine());
+                FadeInCoreCoroutine = StartCoroutine(FadeCore(false));
             }
         }
 
         IEnumerator HandleMusicChange_Coroutine(AudioClip musicToPlay)
         {
-            yield return FadeOutCore();
+            yield return FadeCore(fadeOut: true);
 
-            yield return new WaitUntil(() => this.bgmAudioSource.volume <= 0);
+            bgmAudioSource.clip = musicToPlay;
+            bgmAudioSource.Play();
 
-            this.bgmAudioSource.clip = musicToPlay;
-            this.bgmAudioSource.Play();
-
-            yield return FadeInCore_Coroutine();
+            yield return FadeCore(fadeOut: false);
         }
 
-        private IEnumerator FadeInCore_Coroutine()
+        IEnumerator FadeCore(bool fadeOut)
         {
-            var volumeInGamePreferences = gameSettings.GetMusicVolume();
+            float targetVolume = fadeOut ? 0f : gameSettings.GetMusicVolume();
+            float startVolume = bgmAudioSource.volume;
+            float elapsedTime = 0f;
 
-            while (this.bgmAudioSource.volume < volumeInGamePreferences)
+            while (elapsedTime < fadeDuration)
             {
-                this.bgmAudioSource.volume += fadeMusicSpeed * Time.deltaTime;
-                yield return null;
-            }
-        }
-        private IEnumerator FadeOutCore()
-        {
-            while (this.bgmAudioSource.volume > 0)
-            {
-                this.bgmAudioSource.volume -= fadeMusicSpeed * Time.deltaTime;
+                float newVolume = Mathf.Lerp(startVolume, targetVolume, elapsedTime / fadeDuration);
+                bgmAudioSource.volume = newVolume;
+                elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
-            this.bgmAudioSource.Stop();
-            this.bgmAudioSource.clip = null;
+            bgmAudioSource.volume = targetVolume;
+
+            if (fadeOut)
+            {
+                bgmAudioSource.Stop();
+                bgmAudioSource.clip = null;
+            }
         }
 
         void StopCoroutines()
@@ -129,7 +130,7 @@ namespace AF.Music
 
             if (this.bgmAudioSource.clip != null)
             {
-                FadeOutCoreCoroutine = StartCoroutine(FadeOutCore());
+                FadeOutCoreCoroutine = StartCoroutine(FadeCore(true));
             }
             else
             {

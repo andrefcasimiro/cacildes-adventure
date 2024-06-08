@@ -64,7 +64,7 @@ namespace AF
             if (Physics.Raycast(playerEyesRef.transform.position, playerForward, out RaycastHit hit, 1f, characterLayer))
             {
                 float angle = Vector3.Angle(playerEyesRef.transform.forward, hit.transform.forward);
-                if (hit.transform != null && angle < backStabAngle)
+                if (hit.transform != null && angle < backStabAngle + playerManager.statsBonusController.backStabAngleBonus)
                 {
                     hit.transform.TryGetComponent<CharacterManager>(out var character);
 

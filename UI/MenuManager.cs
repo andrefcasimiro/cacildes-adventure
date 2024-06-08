@@ -26,6 +26,7 @@ namespace AF
         public UIDocumentBook uIDocumentBook;
         public UIDocumentGameOver uIDocumentGameOver;
         public UIDocumentShopMenu uIDocumentShopMenu;
+        public UIDocumentCharacterCustomization uIDocumentCharacterCustomization;
 
         public PlayerManager playerManager;
 
@@ -239,6 +240,11 @@ namespace AF
             }
 
             if (playerManager.climbController.climbState != ClimbState.NONE)
+            {
+                return false;
+            }
+
+            if (uIDocumentCharacterCustomization.isActiveAndEnabled)
             {
                 return false;
             }

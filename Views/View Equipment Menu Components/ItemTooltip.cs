@@ -296,6 +296,16 @@ namespace AF.UI.EquipmentMenu
             {
                 CreateTooltip(defenseAbsorptionSprite, Color.white, $"%{100 - (weapon.blockAbsorption * 100)} Physical DMG Absorption when blocking");
             }
+
+            if (weapon.doubleCoinsUponKillingEnemies)
+            {
+                CreateTooltip(goldCoinSprite, Color.white, "Double coins per enemy kill");
+            }
+
+            if (weapon.healthRestoredWithEachHit > 0)
+            {
+                CreateTooltip(vitalitySprite, Color.white, $"+{weapon.healthRestoredWithEachHit}HP restored with each hit");
+            }
         }
 
         void DrawShield(Shield shield)
@@ -598,7 +608,11 @@ namespace AF.UI.EquipmentMenu
             }
             if (accessory.postureDecreaseRateBonus > 0)
             {
-                CreateTooltip(postureSprite, Color.white, $"+ {accessory.postureDecreaseRateBonus} Posture Decrease Rate Bonus");
+                CreateTooltip(postureSprite, Color.white, $"+{accessory.postureDecreaseRateBonus} Posture Decrease Rate Bonus");
+            }
+            if (accessory.backStabAngleBonus > 0)
+            {
+                CreateTooltip(postureSprite, Color.white, $"+{accessory.backStabAngleBonus} Backstab Angle Bonus");
             }
         }
 

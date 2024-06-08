@@ -14,6 +14,11 @@ namespace AF
         {
             return 1f;
         }
+
+        public void ResetPosture()
+        {
+            this.currentPostureDamage = 0;
+        }
     }
 
 }

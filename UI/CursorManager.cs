@@ -7,7 +7,9 @@ namespace AF
     {
         public GameSession gameSession;
 
+        [Header("UI Documents")]
         public ErrorHandler errorHandler;
+        public UIDocumentCharacterCustomization uIDocumentCharacterCustomization;
 
         private void Start()
         {
@@ -40,6 +42,12 @@ namespace AF
         public bool CanHideCursor()
         {
             if (errorHandler.HasErrors())
+            {
+                return false;
+            }
+
+
+            if (uIDocumentCharacterCustomization.isActiveAndEnabled)
             {
                 return false;
             }

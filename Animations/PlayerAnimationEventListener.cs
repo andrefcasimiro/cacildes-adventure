@@ -253,10 +253,7 @@ namespace AF.Animations
 
         public void OnWeaponSpecial()
         {
-            if (playerManager.playerWeaponsManager.currentWeaponInstance != null && playerManager.playerWeaponsManager.currentWeaponInstance.onWeaponSpecial != null)
-            {
-                playerManager.playerWeaponsManager.currentWeaponInstance.onWeaponSpecial?.Invoke();
-            }
+            playerManager.playerWeaponsManager.HandleWeaponSpecial();
         }
     }
 }
