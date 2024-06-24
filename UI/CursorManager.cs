@@ -1,5 +1,6 @@
 ﻿using AF.Shops;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace AF
 {
@@ -10,6 +11,8 @@ namespace AF
         [Header("UI Documents")]
         public ErrorHandler errorHandler;
         public UIDocumentCharacterCustomization uIDocumentCharacterCustomization;
+
+        UIDocumentTitleScreen _uIDocumentTitleScreen;
 
         private void Start()
         {
@@ -46,13 +49,28 @@ namespace AF
                 return false;
             }
 
-
             if (uIDocumentCharacterCustomization.isActiveAndEnabled)
             {
                 return false;
             }
 
+
+            if (IsTitleScreenActive())
+            {
+                return false;
+            }
+
             return true;
+        }
+
+        bool IsTitleScreenActive()
+        {
+            if (_uIDocumentTitleScreen == null)
+            {
+                _uIDocumentTitleScreen = FindAnyObjectByType<UIDocumentTitleScreen>(FindObjectsInactive.Include);
+            }
+
+            return _uIDocumentTitleScreen != null && _uIDocumentTitleScreen.isActiveAndEnabled;
         }
     }
 }

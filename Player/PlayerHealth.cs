@@ -4,6 +4,7 @@ using AF.Stats;
 using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -82,7 +83,7 @@ namespace AF
                 if (value < 999 && playerStatsBonusController.chanceToRestoreHealthUponDeath && Random.Range(0, 1f) >= 0.5f)
                 {
                     RestoreHealthPercentage(50);
-                    notificationManager.ShowNotification("You were saved from death.");
+                    notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "You were saved from death."));
                     return;
                 }
 

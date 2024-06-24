@@ -279,7 +279,7 @@ namespace AF
                 {
                     if (upgradeMat.Key != null)
                     {
-                        text += $"- {upgradeMat.Key.name}: x{upgradeMat.Value}\n";
+                        text += $"- {upgradeMat.Key.GetName()}: x{upgradeMat.Value}\n";
                     }
                 }
 

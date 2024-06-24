@@ -3,6 +3,7 @@ using AF.Inventory;
 using AF.Music;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization.Settings;
 
 namespace AF.Pickups
 {
@@ -48,7 +49,7 @@ namespace AF.Pickups
             }
 
             GetNotificationManager().ShowNotification(
-                requiredItem.name + " was lost with use.",
+                requiredItem.GetName() + " " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "was lost with its use."),
                 GetNotificationManager().systemError
             );
 

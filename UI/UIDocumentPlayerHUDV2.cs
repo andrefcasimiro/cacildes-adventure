@@ -4,6 +4,7 @@ using AF.Stats;
 using TigerForge;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -67,6 +68,17 @@ namespace AF
         Label currentObjectiveLabel, currentObjectiveValue, combatStanceIndicatorLabel;
 
         public StarterAssetsInputs starterAssetsInputs;
+
+        [Header("Localization")]
+        public LocalizedString oneHandIndicator_LocalizedString;
+        public LocalizedString twoHandIndicator_LocalizedString;
+
+        public LocalizedString dodgeLabel; // Dodge
+        public LocalizedString jumpLabel; // Jump
+        public LocalizedString toggle1Or2Handing; // Toggle 1/2 Handing
+        public LocalizedString heavyAttack; // Heavy Attack
+        public LocalizedString sprint; // Sprint
+
 
         private void Awake()
         {
@@ -146,11 +158,11 @@ namespace AF
         {
             if (equipmentDatabase.isTwoHanding)
             {
-                combatStanceIndicatorLabel.text = "Stance: Two-Handing Weapon";
+                combatStanceIndicatorLabel.text = twoHandIndicator_LocalizedString.GetLocalizedString();
             }
             else
             {
-                combatStanceIndicatorLabel.text = "Stance: One-Handing Weapon";
+                combatStanceIndicatorLabel.text = oneHandIndicator_LocalizedString.GetLocalizedString();
             }
         }
 
@@ -175,56 +187,56 @@ namespace AF
         {
             if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetDodgeOverrideBindingPayload()))
             {
-                root.Q<Label>("DodgeKeyLabel").text = "Dodge: " + starterAssetsInputs.GetCurrentKeyBindingForAction("Dodge");
+                root.Q<Label>("DodgeKeyLabel").text = dodgeLabel.GetLocalizedString() + ": " + starterAssetsInputs.GetCurrentKeyBindingForAction("Dodge");
                 root.Q<VisualElement>("DodgeKeyIcon").style.display = DisplayStyle.None;
             }
             else
             {
-                root.Q<Label>("DodgeKeyLabel").text = "Dodge";
+                root.Q<Label>("DodgeKeyLabel").text = dodgeLabel.GetLocalizedString();
                 root.Q<VisualElement>("DodgeKeyIcon").style.display = DisplayStyle.Flex;
             }
 
             if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetJumpOverrideBindingPayload()))
             {
-                root.Q<Label>("JumpKeyLabel").text = "Jump: " + starterAssetsInputs.GetCurrentKeyBindingForAction("Jump");
+                root.Q<Label>("JumpKeyLabel").text = jumpLabel.GetLocalizedString() + ": " + starterAssetsInputs.GetCurrentKeyBindingForAction("Jump");
                 root.Q<VisualElement>("JumpKeyIcon").style.display = DisplayStyle.None;
             }
             else
             {
-                root.Q<Label>("JumpKeyLabel").text = "Jump";
+                root.Q<Label>("JumpKeyLabel").text = jumpLabel.GetLocalizedString();
                 root.Q<VisualElement>("JumpKeyIcon").style.display = DisplayStyle.Flex;
             }
 
             if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetTwoHandModeOverrideBindingPayload()))
             {
-                root.Q<Label>("ToggleHandsKeyLabel").text = "Toggle 1/2 Handing: " + starterAssetsInputs.GetCurrentKeyBindingForAction("Tab");
+                root.Q<Label>("ToggleHandsKeyLabel").text = toggle1Or2Handing.GetLocalizedString() + ": " + starterAssetsInputs.GetCurrentKeyBindingForAction("Tab");
                 root.Q<VisualElement>("ToggleHandsKeyIcon").style.display = DisplayStyle.None;
             }
             else
             {
-                root.Q<Label>("ToggleHandsKeyLabel").text = "Toggle 1/2 Handing";
+                root.Q<Label>("ToggleHandsKeyLabel").text = toggle1Or2Handing.GetLocalizedString();
                 root.Q<VisualElement>("ToggleHandsKeyIcon").style.display = DisplayStyle.Flex;
             }
 
             if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetHeavyAttackOverrideBindingPayload()))
             {
-                root.Q<Label>("HeavyAttackKeyLabel").text = "Heavy Attack: " + starterAssetsInputs.GetCurrentKeyBindingForAction("HeavyAttack");
+                root.Q<Label>("HeavyAttackKeyLabel").text = heavyAttack.GetLocalizedString() + ": " + starterAssetsInputs.GetCurrentKeyBindingForAction("HeavyAttack");
                 root.Q<VisualElement>("HeavyAttackKeyIcon").style.display = DisplayStyle.None;
             }
             else
             {
-                root.Q<Label>("HeavyAttackKeyLabel").text = "Heavy Attack";
+                root.Q<Label>("HeavyAttackKeyLabel").text = heavyAttack.GetLocalizedString();
                 root.Q<VisualElement>("HeavyAttackKeyIcon").style.display = DisplayStyle.Flex;
             }
 
             if (gameSettings.UseCustomInputs() && !string.IsNullOrEmpty(gameSettings.GetSprintOverrideBindingPayload()))
             {
-                root.Q<Label>("SprintKeyLabel").text = "Sprint: " + starterAssetsInputs.GetCurrentKeyBindingForAction("Sprint");
+                root.Q<Label>("SprintKeyLabel").text = sprint.GetLocalizedString() + ": " + starterAssetsInputs.GetCurrentKeyBindingForAction("Sprint");
                 root.Q<VisualElement>("SprintKeyIcon").style.display = DisplayStyle.None;
             }
             else
             {
-                root.Q<Label>("SprintKeyLabel").text = "Sprint";
+                root.Q<Label>("SprintKeyLabel").text = sprint.GetLocalizedString();
                 root.Q<VisualElement>("SprintKeyIcon").style.display = DisplayStyle.Flex;
             }
 

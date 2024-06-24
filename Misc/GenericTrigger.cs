@@ -1,6 +1,8 @@
 using AF.Inventory;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -24,13 +26,25 @@ namespace AF
         public Item requiredItemToOpen;
         public InventoryDatabase inventoryDatabase;
 
+        bool canInteract = true;
+
         public void OnCaptured()
         {
+            if (!canInteract)
+            {
+                return;
+            }
+
             GetUIDocumentKeyPrompt().DisplayPrompt(key, action, item);
         }
 
         public void OnInvoked()
         {
+            if (!canInteract)
+            {
+                return;
+            }
+
             DisableKeyPrompt();
 
             HandleActivation();
@@ -51,7 +65,8 @@ namespace AF
         /// </summary>
         public void TurnCapturable()
         {
-            this.gameObject.layer = LayerMask.NameToLayer("IEventNavigatorCapturable");
+            canInteract = true;
+            //this.gameObject.layer = LayerMask.NameToLayer("IEventNavigatorCapturable");
         }
 
         /// <summary>
@@ -59,7 +74,8 @@ namespace AF
         /// </summary>
         public void DisableCapturable()
         {
-            this.gameObject.layer = 0;
+            canInteract = false;
+            //this.gameObject.layer = 0;
         }
 
         UIDocumentKeyPrompt GetUIDocumentKeyPrompt()
@@ -81,11 +97,11 @@ namespace AF
                 if (inventoryDatabase.HasItem(requiredItemToOpen))
                 {
                     inventoryDatabase.RemoveItem(requiredItemToOpen);
-                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.name} was lost with its use.");
+                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.name} " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "was lost with its use."));
                 }
                 else
                 {
-                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.name} is required to activate.");
+                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.name} " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "is required to activate."));
                     canActivate = false;
                 }
             }

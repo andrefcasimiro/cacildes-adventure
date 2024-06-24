@@ -5,6 +5,7 @@ using AF.Loading;
 using AF.Music;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 
 namespace AF
@@ -38,7 +39,9 @@ namespace AF
         {
             if (string.IsNullOrEmpty(bonfiresDatabase.lastBonfireSceneId))
             {
-                notificationManager.ShowNotification("No bonfire to travel to. Rest at one first.", null);
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "No bonfire to travel to. Rest at one first."),
+                 null);
                 return;
             }
 

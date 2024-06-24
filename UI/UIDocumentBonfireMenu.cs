@@ -31,7 +31,7 @@ namespace AF
         [Header("UI Elements")]
         VisualElement root;
         Button levelUpButton, passTimeButton, exitBonfireButton, travelButton, upgradeWeapons, brewPotions;
-        Label bonfireName, bonfireNameLabelUI, levelUpAvailableLabel, currentGoldAndRequiredLabel, goldAndRequiredForNextLevel;
+        Label bonfireName, bonfireNameLabelUI, canLevelUpIndicator, currentGoldAndRequiredLabel, goldAndRequiredForNextLevel;
 
         // Flags
         bool isPassingTime = false;
@@ -53,7 +53,7 @@ namespace AF
 
             bonfireName = root.Q<Label>("BonfireName");
             bonfireNameLabelUI = root.Q<Label>("BonfireNameLabel");
-            levelUpAvailableLabel = root.Q<Label>("LevelUpAvailableLabel");
+            canLevelUpIndicator = root.Q<Label>("CanLevelUpIndicator");
             currentGoldAndRequiredLabel = root.Q<Label>("CurrentGoldAndRequiredLabel");
             goldAndRequiredForNextLevel = root.Q<Label>("GoldAndRequiredFornextLevel");
 
@@ -90,22 +90,17 @@ namespace AF
 
             if (currentBonfire != null)
             {
-                bonfireName.text = currentBonfire.bonfireName;
+                bonfireName.text = currentBonfire.GetBonfireName();
             }
 
-            bonfireNameLabelUI.text = "Bonfire Name";
             hasEnoughForLevellingUp = playerStatsDatabase.gold >= playerManager.playerLevelManager.GetRequiredExperienceForNextLevel();
-            levelUpAvailableLabel.style.display = hasEnoughForLevellingUp ? DisplayStyle.Flex : DisplayStyle.None;
 
             SetupButtons();
         }
 
         void SetupButtons()
         {
-            levelUpButton.text = "Level Up" + (hasEnoughForLevellingUp ? " *" : "");
-            passTimeButton.text = "Wait 1 hour";
-            travelButton.text = "Travel";
-
+            canLevelUpIndicator.text = hasEnoughForLevellingUp ? " *" : "";
 
             upgradeWeapons.style.display = inventoryDatabase.HasItem(blacksmithKit) ? DisplayStyle.Flex : DisplayStyle.None;
             brewPotions.style.display = inventoryDatabase.HasItem(alchemyKit) ? DisplayStyle.Flex : DisplayStyle.None;
@@ -119,10 +114,6 @@ namespace AF
 
         void SetButtonTexts()
         {
-            upgradeWeapons.text = "Upgrade Weapons";
-            brewPotions.text = "Craft Items";
-            exitBonfireButton.text = "Exit Bonfire";
-            currentGoldAndRequiredLabel.text = "Your gold / Amount for next level";
             goldAndRequiredForNextLevel.text = $"{playerStatsDatabase.gold} / {playerManager.playerLevelManager.GetRequiredExperienceForNextLevel()}";
         }
 

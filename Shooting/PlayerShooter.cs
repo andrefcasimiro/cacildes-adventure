@@ -6,6 +6,7 @@ using Cinemachine;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Events;
+using UnityEngine.Localization.Settings;
 
 namespace AF.Shooting
 {
@@ -88,7 +89,7 @@ namespace AF.Shooting
                 if (equipmentDatabase.GetCurrentArrow().isBolt == false)
                 {
 
-                    notificationManager.ShowNotification("Arrows can only be fired with a bow");
+                    notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Arrows can only be fired with a bow"));
                     return true;
                 }
             }
@@ -97,7 +98,7 @@ namespace AF.Shooting
             {
                 if (equipmentDatabase.GetCurrentArrow().isBolt)
                 {
-                    notificationManager.ShowNotification("Bolts can only be fired with a crossbow");
+                    notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Bolts can only be fired with a crossbow"));
                     return true;
                 }
             }

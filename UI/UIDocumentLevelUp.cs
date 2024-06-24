@@ -1,6 +1,7 @@
 using AF.Music;
 using AF.Stats;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -35,6 +36,10 @@ namespace AF
         int virtualGold;
 
         Focusable focusedElement;
+
+        string previousActiveStat = "";
+        string previousActiveButton = "";
+
 
         private void Awake()
         {
@@ -82,12 +87,16 @@ namespace AF
                 root.Q<VisualElement>("Vitality"),
                 () =>
                 {
+                    previousActiveStat = "Vitality";
+                    previousActiveButton = "DecreaseBtn";
                     desiredVitality--;
                     virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
+                    previousActiveStat = "Vitality";
+                    previousActiveButton = "IncreaseBtn";
                     desiredVitality++;
                     virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
@@ -98,12 +107,16 @@ namespace AF
                 root.Q<VisualElement>("Endurance"),
                 () =>
                 {
+                    previousActiveStat = "Endurance";
+                    previousActiveButton = "DecreaseBtn";
                     desiredEndurance--;
                     virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
+                    previousActiveStat = "Endurance";
+                    previousActiveButton = "IncreaseBtn";
                     desiredEndurance++;
                     virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
@@ -114,12 +127,16 @@ namespace AF
                 root.Q<VisualElement>("Intelligence"),
                 () =>
                 {
+                    previousActiveStat = "Intelligence";
+                    previousActiveButton = "DecreaseBtn";
                     desiredIntelligence--;
                     virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
+                    previousActiveStat = "Intelligence";
+                    previousActiveButton = "IncreaseBtn";
                     desiredIntelligence++;
                     virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
@@ -130,12 +147,18 @@ namespace AF
                 root.Q<VisualElement>("Strength"),
                 () =>
                 {
+                    previousActiveStat = "Strength";
+                    previousActiveButton = "DecreaseBtn";
+
                     desiredStrength--;
                     virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
+                    previousActiveStat = "Strength";
+                    previousActiveButton = "IncreaseBtn";
+
                     desiredStrength++;
                     virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
@@ -146,12 +169,16 @@ namespace AF
                 root.Q<VisualElement>("Dexterity"),
                 () =>
                 {
+                    previousActiveStat = "Dexterity";
+                    previousActiveButton = "DecreaseBtn";
                     desiredDexterity--;
                     virtualGold += LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount());
                     DrawUI(root);
                 },
                 () =>
                 {
+                    previousActiveStat = "Dexterity";
+                    previousActiveButton = "IncreaseBtn";
                     desiredDexterity++;
                     virtualGold -= LevelUtils.GetRequiredExperienceForLevel(GetDesiredLevelsAmount() - 1);
                     DrawUI(root);
@@ -176,7 +203,7 @@ namespace AF
                 if (oldLevel != newLevel)
                 {
                     bgmManager.PlaySound(levelUpSound, null);
-                    notificationManager.ShowNotification("Cacildes leveled up!", notificationManager.levelUp);
+                    notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "You leveled up!"), notificationManager.levelUp);
                 }
 
                 DrawUI(root);
@@ -247,6 +274,14 @@ namespace AF
             root.Q<VisualElement>("Intelligence").Q<Button>("IncreaseBtn").SetEnabled(HasEnoughExperienceForLevelling(virtualGold, GetDesiredLevelsAmount() + 1));
             root.Q<VisualElement>("Intelligence").Q<Label>("Value").text = desiredIntelligence + "";
 
+            if (!string.IsNullOrEmpty(previousActiveStat) && !string.IsNullOrEmpty(previousActiveButton))
+            {
+                Button targetBtn = root.Q<VisualElement>(previousActiveStat)?.Q<Button>(previousActiveButton);
+                targetBtn?.Focus();
+
+                previousActiveButton = "";
+                previousActiveButton = "";
+            }
         }
 
         public bool HasEnoughExperienceForLevelling(float experience, int levelDesired)

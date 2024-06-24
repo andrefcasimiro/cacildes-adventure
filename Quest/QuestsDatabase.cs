@@ -85,7 +85,7 @@ namespace AF
 
             if (questParent != null && questParent.questProgress >= 0 && questParent.IsCompleted() == false)
             {
-                return questParent.questObjectives[questParent.questProgress];
+                return questParent.questObjectives_LocalizedString[questParent.questProgress].GetLocalizedString();
             }
 
             return "";

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -28,6 +29,9 @@ namespace AF
         public PlayerStatsDatabase playerStatsDatabase;
 
         Label goldReceived, actualGold;
+
+        [Header("Localization")]
+        public LocalizedString gold_LocalizedString;
 
         private void Awake()
         {
@@ -60,7 +64,7 @@ namespace AF
             UIUtils.PlayPopAnimation(goldReceived);
 
             goldReceived.text = "+ " + currentReceivedAmount;
-            actualGold.text = "" + playerGold + " Gold";
+            actualGold.text = "" + playerGold + " " + gold_LocalizedString.GetLocalizedString();
             playerStatsDatabase.gold += amount;
 
             StartCoroutine(EnableCounter());
@@ -82,7 +86,7 @@ namespace AF
             UIUtils.PlayPopAnimation(goldReceived);
 
             goldReceived.text = "- " + currentDeductedAmount;
-            actualGold.text = "" + playerGold + " Gold";
+            actualGold.text = "" + playerGold + " " + gold_LocalizedString.GetLocalizedString();
 
             playerStatsDatabase.gold -= amount;
 
@@ -120,7 +124,7 @@ namespace AF
                 }
 
                 goldReceived.text = "+ " + currentReceivedAmount;
-                actualGold.text = "" + playerGold + " Gold";
+                actualGold.text = "" + playerGold + " " + gold_LocalizedString.GetLocalizedString();
             }
             else if (currentDeductedAmount > 0)
             {
@@ -140,7 +144,7 @@ namespace AF
                 }
 
                 goldReceived.text = "- " + currentDeductedAmount;
-                actualGold.text = "" + playerGold + " Gold";
+                actualGold.text = "" + playerGold + " " + gold_LocalizedString.GetLocalizedString();
             }
             else
             {

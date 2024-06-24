@@ -1,12 +1,19 @@
 ﻿using AF.Inventory;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace AF
 {
     [CreateAssetMenu(menuName = "Items / Item / New Item")]
     public class Item : ScriptableObject
     {
+
+        [Header("Localization")]
+        public LocalizedString nameLocalized;
+        public LocalizedString descriptionLocalized;
+        public LocalizedString shortDescriptionLocalized;
+
 
         [Header("General")]
         public Sprite sprite;
@@ -23,5 +30,36 @@ namespace AF
         [TextAreaAttribute(minLines: 5, maxLines: 10)] public string notes;
         [TextAreaAttribute(minLines: 1, maxLines: 2)] public string location;
 
+
+        public string GetName()
+        {
+            if (nameLocalized != null && nameLocalized.IsEmpty == false)
+            {
+                return nameLocalized.GetLocalizedString();
+            }
+
+            return name;
+        }
+
+
+        public string GetDescription()
+        {
+            if (descriptionLocalized != null && descriptionLocalized.IsEmpty == false)
+            {
+                return descriptionLocalized.GetLocalizedString();
+            }
+
+            return itemDescription;
+        }
+
+        public string GetShortDescription()
+        {
+            if (shortDescriptionLocalized != null && shortDescriptionLocalized.IsEmpty == false)
+            {
+                return shortDescriptionLocalized.GetLocalizedString();
+            }
+
+            return shortDescription;
+        }
     }
 }

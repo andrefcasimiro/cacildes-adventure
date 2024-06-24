@@ -76,8 +76,6 @@ namespace AF.Loading
 
             SetupRefs();
 
-            //loadingFill.style.width = new Length(0, LengthUnit.Percent);
-
             var candidates = loadingScreens.Where(x => x.mapNames.Contains(sceneName)).ToArray();
 
             LoadingScreen candidate;
@@ -92,15 +90,7 @@ namespace AF.Loading
             }
 
             tipImage.style.backgroundImage = new StyleBackground(candidate.image);
-            tipText.text = candidate.text;
-
-            UpdateLoading(0);
-        }
-
-
-        public void UpdateLoading(float currentProgress)
-        {
-            //loadingFill.style.width = new Length(currentProgress, LengthUnit.Percent);
+            tipText.text = candidate.GetDisplayText();
         }
 
         public void EndLoading()
@@ -110,7 +100,6 @@ namespace AF.Loading
                 return;
             }
 
-            //loadingFill.style.width = new Length(100, LengthUnit.Percent);
             loadingScreen.enabled = false;
         }
     }

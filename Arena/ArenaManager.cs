@@ -8,6 +8,7 @@ using TigerForge;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
+using UnityEngine.Localization;
 using Random = UnityEngine.Random;
 
 namespace AF.Arena
@@ -67,6 +68,16 @@ namespace AF.Arena
 
         int initialGoldWhenStartingArena;
 
+        // You lost this time. Congratulations on gettings this far!"
+        public LocalizedString youLostThisTime;
+
+        // "You exited the arena. Ring the bell to try again"
+        public LocalizedString youExitedTheArena;
+
+        // The crowd voted, your items have been replenished. Good luck!
+        public LocalizedString yourItemsHaveBeenReplenished;
+        // "The crowd voted, your health was restored. They wish to see you fight!"
+        public LocalizedString yourHealthWasRestored;
 
         private void Awake()
         {
@@ -75,7 +86,7 @@ namespace AF.Arena
 
             EventManager.StartListening(EventMessages.ON_ARENA_LOST, () =>
             {
-                notificationManager.ShowNotification("You lost this time. Congratulations on gettings this far!", null);
+                notificationManager.ShowNotification(youLostThisTime.GetLocalizedString(), null);
                 EndArena(false);
             });
         }
@@ -108,7 +119,7 @@ namespace AF.Arena
 
         public void EndArenaDueToExitingArea()
         {
-            notificationManager.ShowNotification("You exited the arena. Ring the bell to try again", notificationManager.systemError);
+            notificationManager.ShowNotification(youExitedTheArena.GetLocalizedString(), notificationManager.systemError);
             EndArena(false);
         }
 
@@ -151,7 +162,9 @@ namespace AF.Arena
 
             enemiesInRound.Clear();
 
-            int enemiesToSpawnThisRound = currentEnemyRound.numberOfEnemiesToSpawnOverride > 0 ? currentEnemyRound.numberOfEnemiesToSpawnOverride : GetMaxEnemiesToSpawnBasedOnCurrentRound();
+            int enemiesToSpawnThisRound = currentEnemyRound.numberOfEnemiesToSpawnOverride > 0
+                ? currentEnemyRound.numberOfEnemiesToSpawnOverride : GetMaxEnemiesToSpawnBasedOnCurrentRound();
+
             for (int i = 0; i < enemiesToSpawnThisRound; i++)
             {
                 CharacterManager choosenEnemyRound = currentEnemyRound.enemies[Random.Range(0, currentEnemyRound.enemies.Count)];
@@ -180,13 +193,13 @@ namespace AF.Arena
             {
                 playerManager.playerInventory.ReplenishItems();
                 soundbank.PlaySound(soundbank.uiItemReceived);
-                notificationManager.ShowNotification("The crowd voted, your items have been replenished. Good luck!", null);
+                notificationManager.ShowNotification(yourItemsHaveBeenReplenished.GetLocalizedString(), null);
             }
             else if (currentRoundIndex % 3 == 0 && Random.Range(0, 100f) > 50f)
             {
                 playerManager.health.RestoreFullHealth();
                 soundbank.PlaySound(soundbank.uiItemReceived);
-                notificationManager.ShowNotification("The crowd voted, your health was restored. They wish to see you fight!"
+                notificationManager.ShowNotification(yourHealthWasRestored.GetLocalizedString()
                     , null);
             }
 
@@ -262,7 +275,8 @@ namespace AF.Arena
         void SpawnPowerup()
         {
             // Teleport near player
-            NavMesh.SamplePosition(playerManager.transform.position + playerManager.transform.forward * -2f, out NavMeshHit rightHit, 10f, NavMesh.AllAreas);
+            NavMesh.SamplePosition(
+                playerManager.transform.position + playerManager.transform.forward * -2f, out NavMeshHit rightHit, 10f, NavMesh.AllAreas);
 
             if (rightHit.hit)
             {

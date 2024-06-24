@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -75,11 +76,15 @@ namespace AF
 
                 if (requireBadReputation)
                 {
-                    GetNotificationManager().ShowNotification("Your good reputation prevents you from entering this house.", GetNotificationManager().personBusy);
+                    GetNotificationManager().ShowNotification(
+                        LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Your good reputation prevents you from entering this house."),
+                         GetNotificationManager().personBusy);
                 }
                 else
                 {
-                    GetNotificationManager().ShowNotification("Your bad reputation prevents you from entering this house.", GetNotificationManager().personBusy);
+                    GetNotificationManager().ShowNotification(
+                        LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Your bad reputation prevents you from entering this house."),
+                        GetNotificationManager().personBusy);
 
                 }
             }

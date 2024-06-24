@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 namespace AF
@@ -187,6 +186,13 @@ namespace AF
         {
             DisableComponents();
             thirdPersonController.enabled = false;
+        }
+
+        public void FaceObject(GameObject gameObject)
+        {
+            Vector3 desiredRot = gameObject.transform.position - characterController.transform.position;
+            desiredRot.y = 0;
+            characterController.transform.rotation = Quaternion.LookRotation(desiredRot);
         }
     }
 }

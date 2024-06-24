@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace AF.Loading
 {
@@ -12,6 +13,20 @@ namespace AF.Loading
 
         [Header("Settings")]
         public string[] mapNames;
+
+
+        [Header("Localization")]
+        public LocalizedString text_localized;
+
+        public string GetDisplayText()
+        {
+            if (text_localized != null && text_localized.IsEmpty == false)
+            {
+                return text_localized.GetLocalizedString();
+            }
+
+            return text;
+        }
 
 
     }

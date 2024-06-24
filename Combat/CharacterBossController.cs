@@ -82,10 +82,12 @@ namespace AF
 
         public void HideBossHud()
         {
-            if (IsBossHUDEnabled())
+            if (bossHud == null || bossHud?.rootVisualElement == null)
             {
-                bossHud.rootVisualElement.style.display = DisplayStyle.None;
+                return;
             }
+
+            bossHud.rootVisualElement.style.display = DisplayStyle.None;
         }
 
         public bool IsBossHUDEnabled()

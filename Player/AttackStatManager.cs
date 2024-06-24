@@ -1,10 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using AF.Stats;
 using AF.Health;
-using System.Collections;
-using UnityEngine.Events;
 
 namespace AF
 {
@@ -51,19 +48,6 @@ namespace AF
         [Header("Components")]
         public PlayerManager playerManager;
 
-        [Header("Rage")]
-        public Coroutine RageCoroutine;
-        public int maxRage = 10;
-        public float rageDelayInSecondsBeforeRemovingOneUnit = 3f;
-        public int rageCount = 0;
-        public float rageCountMultiplier = 25f;
-
-        public UnityEvent onLowRage;
-        public UnityEvent onMidRage;
-        public UnityEvent onHighRage;
-
-        bool shouldResetRage = false;
-
         private void Start()
         {
             scalingDictionary.Add("E", E);
@@ -74,10 +58,7 @@ namespace AF
             scalingDictionary.Add("S", S);
         }
 
-        public void ResetStates()
-        {
-            CheckIfShouldResetRage();
-        }
+        public void ResetStates() { }
 
         public bool IsHeavyAttacking()
         {
@@ -96,19 +77,12 @@ namespace AF
 
         public Damage GetAttackDamage()
         {
-            int rageBonus = 0;
-
-            if (rageCount > 0)
-            {
-                rageBonus = (int)(rageCount * rageCountMultiplier);
-                EvaluateRageAttack();
-                shouldResetRage = true;
-            }
+            int rageBonus = playerManager.rageManager.GetRageBonus();
 
             Weapon weapon = equipmentDatabase.GetCurrentWeapon();
             if (weapon != null)
             {
-                Damage weaponDamage = new Damage(
+                Damage weaponDamage = new(
                     physical: GetWeaponAttack(weapon) + rageBonus,
                     fire: (int)weapon.damage.fire,
                     frost: (int)weapon.damage.frost,
@@ -135,8 +109,8 @@ namespace AF
             }
 
 
-            Damage unarmedDamage = new Damage(
-                physical: GetCurrentPhysicalAttack() + rageBonus,
+            Damage unarmedDamage = new(
+                physical: GetUnarmedPhysicalDamage() + rageBonus,
                 fire: 0,
                 frost: 0,
                 magic: 0,
@@ -152,6 +126,7 @@ namespace AF
                 canNotBeParried: false,
                 ignoreBlocking: false
             );
+
             if (rageBonus > 0)
             {
                 unarmedDamage.damageType = DamageType.ENRAGED;
@@ -160,29 +135,38 @@ namespace AF
             return unarmedDamage;
         }
 
-        void CheckIfShouldResetRage()
+        public int GetCurrentAttackForWeapon(Weapon weapon)
         {
-            if (shouldResetRage)
-            {
-                ResetRage();
-                shouldResetRage = false;
-            }
+            return weapon != null
+                ? GetWeaponAttack(weapon)
+                : GetCurrentPhysicalAttack();
         }
 
-        public int GetCurrentPhysicalAttack()
+        int GetUnarmedPhysicalDamage()
+        {
+            int attackValue = GetCurrentPhysicalAttack();
+
+            if (IsJumpAttacking())
+            {
+                attackValue = Mathf.FloorToInt(attackValue * jumpAttackMultiplier);
+
+                var jumpAttackBonuses = equipmentDatabase.accessories.Sum(x => x != null ? x.jumpAttackBonus : 0);
+                attackValue += jumpAttackBonuses;
+            }
+
+            return GetAttackBuffs(attackValue);
+        }
+
+        int GetCurrentPhysicalAttack()
         {
             int heavyAttackBonus = 0;
+
             if (equipmentDatabase.GetCurrentWeapon() == null && playerManager.playerCombatController.isHeavyAttacking)
             {
                 heavyAttackBonus = playerManager.playerCombatController.unarmedHeavyAttackBonus;
             }
 
             var value = basePhysicalAttack;
-
-            if (IsJumpAttacking())
-            {
-                value = Mathf.FloorToInt(value * jumpAttackMultiplier);
-            }
 
             return (int)Mathf.Round(
                 Mathf.Ceil(
@@ -208,7 +192,6 @@ namespace AF
         }
 
 
-        #region Weapon Attack
         public int CompareWeapon(Weapon weaponToCompare)
         {
             if (equipmentDatabase.GetCurrentWeapon() == null)
@@ -272,6 +255,12 @@ namespace AF
                 return (int)(value / 2);
             }
 
+            return GetAttackBuffs(value);
+        }
+
+        public int GetAttackBuffs(int value)
+        {
+            // + Attack the lower the rep
             if (equipmentDatabase.accessories.FirstOrDefault(x => x != null && x.increaseAttackPowerTheLowerTheReputation) != null)
             {
                 if (playerStatsDatabase.GetCurrentReputation() < 0)
@@ -282,6 +271,7 @@ namespace AF
                 }
             }
 
+            // + Attack the lower the health
             if (equipmentDatabase.accessories.FirstOrDefault(x => x != null && x.increaseAttackPowerWithLowerHealth) != null)
             {
                 int extraAttackPower = (int)(value * (playerManager.health as PlayerHealth).GetExtraAttackBasedOnCurrentHealth());
@@ -289,13 +279,11 @@ namespace AF
                 value += extraAttackPower;
             }
 
-            if (playerManager.playerCombatController)
-            {
+            // Generic attack bonuses
+            var attackBonuses = equipmentDatabase.accessories.Sum(x => x != null ? x.physicalAttackBonus : 0);
+            value += attackBonuses;
 
-                var attackBonuses = equipmentDatabase.accessories.Sum(x => x != null ? x.physicalAttackBonus : 0);
-                value += attackBonuses;
-            }
-
+            // Bonus for guard counters and parry attacks
             if (playerManager.characterBlockController.IsWithinCounterAttackWindow())
             {
                 value = (int)(value * playerManager.characterBlockController.counterAttackMultiplier);
@@ -303,9 +291,7 @@ namespace AF
 
             return value;
         }
-        #endregion
 
-        #region Scaling
 
         public int GetStrengthBonusFromWeapon(Weapon weapon)
         {
@@ -335,7 +321,6 @@ namespace AF
                 * levelMultiplier * scalingDictionary[weapon.intelligenceScaling.ToString()] / 2);
         }
 
-        #endregion
 
         public void SetBonusPhysicalAttack(int value)
         {
@@ -347,79 +332,5 @@ namespace AF
             physicalAttackBonus = 0f;
         }
 
-        public void IncrementRage()
-        {
-            if (!CanRage())
-            {
-                return;
-            }
-
-            if (rageCount > maxRage)
-            {
-                return;
-            }
-
-            rageCount++;
-
-            if (RageCoroutine != null)
-            {
-                StopCoroutine(RageCoroutine);
-            }
-
-            RageCoroutine = StartCoroutine(HandleRage_Coroutine());
-        }
-
-
-        IEnumerator HandleRage_Coroutine()
-        {
-            while (rageCount > 0)
-            {
-                yield return new WaitForSeconds(rageDelayInSecondsBeforeRemovingOneUnit);
-                rageCount--;
-            }
-
-            if (rageCount <= 0) { rageCount = 0; }
-        }
-
-        bool CanRage()
-        {
-            if (playerManager.health.GetCurrentHealth() <= 0)
-            {
-                return false;
-            }
-
-            return playerManager.statsBonusController.canRage;
-        }
-
-        void ResetRage()
-        {
-            if (RageCoroutine != null)
-            {
-                StopCoroutine(RageCoroutine);
-            }
-
-            rageCount = 0;
-        }
-
-        void EvaluateRageAttack()
-        {
-            if (rageCount <= 0)
-            {
-                return;
-            }
-
-            if (rageCount <= 1)
-            {
-                onLowRage?.Invoke();
-            }
-            else if (rageCount <= 3)
-            {
-                onMidRage?.Invoke();
-            }
-            else
-            {
-                onHighRage?.Invoke();
-            }
-        }
     }
 }

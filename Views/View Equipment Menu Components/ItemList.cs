@@ -6,6 +6,7 @@ using AF.Stats;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
 namespace AF.UI.EquipmentMenu
@@ -346,7 +347,7 @@ namespace AF.UI.EquipmentMenu
                 var instance = itemButtonPrefab.CloneTree();
                 instance.Q<VisualElement>("Sprite").style.backgroundImage = new StyleBackground(item.Key.sprite);
                 var itemName = instance.Q<Label>("ItemName");
-                itemName.text = item.Key.name;
+                itemName.text = item.Key.GetName();
 
                 if (item.Key is Consumable || item.Key is Arrow || showOnlyKeyItems)
                 {
@@ -355,7 +356,7 @@ namespace AF.UI.EquipmentMenu
 
                 if (isEquipped)
                 {
-                    itemName.text += " (Equipped)";
+                    itemName.text += " " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "(Equipped)");
                 }
 
                 var equipmentColorIndicator = GetEquipmentColorIndicator(item.Key);
@@ -386,7 +387,7 @@ namespace AF.UI.EquipmentMenu
                         {
                             if (!weapon.AreRequirementsMet(playerManager.statsBonusController))
                             {
-                                notificationManager.ShowNotification("Can't equip weapon. Requirements are not met.", notificationManager.systemError);
+                                notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can't equip weapon. Requirements are not met."), notificationManager.systemError);
                                 ignoreRerender = true;
                             }
                             else
@@ -493,7 +494,7 @@ namespace AF.UI.EquipmentMenu
                         {
                             if (!spell.AreRequirementsMet(playerManager.statsBonusController))
                             {
-                                notificationManager.ShowNotification("Can not equip spell. Requirements not met!", notificationManager.systemError);
+                                notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can not equip spell. Requirements not met!"), notificationManager.systemError);
                                 ignoreRerender = true;
                             }
                             else

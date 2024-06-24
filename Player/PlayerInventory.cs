@@ -5,6 +5,7 @@ using AF.Ladders;
 using AF.StatusEffects;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -36,8 +37,6 @@ namespace AF
         public Item ashes;
         public UnityEvent onDisabledAshes;
 
-        // Consts
-        private const string CANT_CONSUME_ITEM_AT_THIS_TIME = "Can't consume item at this time";
 
         public void ResetStates()
         {
@@ -103,40 +102,52 @@ namespace AF
 
             if (consumable.isRenewable && inventoryDatabase.GetItemAmount(consumable) <= 0)
             {
-                notificationManager.ShowNotification("Consumable depleted", notificationManager.notEnoughSpells);
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Consumable depleted"),
+                    notificationManager.notEnoughSpells);
 
                 return false;
             }
 
             if (playerManager.playerCombatController.isCombatting)
             {
-                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can't consume item at this time."),
+                    notificationManager.systemError);
 
                 return false;
             }
 
             if (playerManager.characterPosture.isStunned)
             {
-                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can't consume item at this time."),
+                    notificationManager.systemError);
 
                 return false;
             }
 
             if (playerManager.dodgeController.isDodging)
             {
-                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can't consume item at this time."),
+                    notificationManager.systemError);
                 return false;
             }
 
             if (!playerManager.thirdPersonController.Grounded)
             {
-                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can't consume item at this time."),
+                    notificationManager.systemError);
                 return false;
             }
 
             if (playerManager.climbController.climbState != ClimbState.NONE)
             {
-                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can't consume item at this time."),
+                    notificationManager.systemError);
                 return false;
             }
 
@@ -152,7 +163,9 @@ namespace AF
 
             if (disableAshesUsage && consumable == ashes)
             {
-                notificationManager.ShowNotification(CANT_CONSUME_ITEM_AT_THIS_TIME, notificationManager.systemError);
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can't consume item at this time."),
+                    notificationManager.systemError);
                 return false;
             }
 
@@ -202,7 +215,15 @@ namespace AF
             {
                 if (playerManager.statsBonusController.chanceToNotLoseItemUponConsumption && Random.Range(0f, 1f) > 0.8f)
                 {
-                    notificationManager.ShowNotification("The item has been carefully preserved for future use.");
+
+                    notificationManager.ShowNotification(
+                        LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Consumable depleted"),
+                        notificationManager.notEnoughSpells);
+
+
+                    notificationManager.ShowNotification(
+                        LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "The item has been preserved for future use.")
+                    );
                 }
                 else
                 {

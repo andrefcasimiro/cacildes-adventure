@@ -3,6 +3,9 @@ using AF.Events;
 using TigerForge;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.SmartFormat.Extensions;
+using UnityEngine.Localization.SmartFormat.GlobalVariables;
 
 [CreateAssetMenu(fileName = "GameSettings", menuName = "System/New Game Settings", order = 0)]
 public class GameSettings : ScriptableObject
@@ -27,6 +30,11 @@ public class GameSettings : ScriptableObject
     public readonly string TWO_HAND_MODE_OVERRIDE_BINDING_PAYLOAD_KEY = "TWO_HAND_MODE_OVERRIDE_BINDING_PAYLOAD_KEY";
     public readonly string SPRINT_OVERRIDE_BINDING_PAYLOAD_KEY = "SPRINT_OVERRIDE_BINDING_PAYLOAD_KEY";
 
+    public string characterName;
+    public readonly string PLAYER_NAME_KEY = "PLAYER_NAME";
+    public readonly string defaultPlayerName = "Cacildes";
+
+
 #if UNITY_EDITOR
     private void OnEnable()
     {
@@ -45,6 +53,39 @@ public class GameSettings : ScriptableObject
     void Clear()
     {
         hasInitializedSettings = false;
+    }
+
+    public void UpdatePlayerNameOnLocalizedAssets()
+    {
+        // Get our GlobalVariablesSource
+        var source = LocalizationSettings
+            .StringDatabase
+            .SmartFormatter
+            .GetSourceExtension<PersistentVariablesSource>();
+        // Get the specific global variable
+        var characterName =
+            source["global"]["playerName"] as UnityEngine.Localization.SmartFormat.PersistentVariables.StringVariable;
+        // Update the global variable
+        characterName.Value = GetPlayerName();
+    }
+
+
+    public string GetPlayerName()
+    {
+        if (!PlayerPrefs.HasKey(PLAYER_NAME_KEY))
+        {
+            return defaultPlayerName;
+        }
+
+        return PlayerPrefs.GetString(PLAYER_NAME_KEY);
+    }
+
+    public void SetPlayerName(string playerName)
+    {
+
+        PlayerPrefs.SetString(PLAYER_NAME_KEY, playerName);
+        PlayerPrefs.Save();
+        UpdatePlayerNameOnLocalizedAssets();
     }
 
     public void ResetSettings()
@@ -209,6 +250,4 @@ public class GameSettings : ScriptableObject
     {
         PlayerPrefs.SetString(SPRINT_OVERRIDE_BINDING_PAYLOAD_KEY, newValue);
     }
-
-
 }

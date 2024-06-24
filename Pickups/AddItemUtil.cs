@@ -35,7 +35,7 @@ namespace AF.Pickups
 
                 itemsToDisplay.Add(new()
                 {
-                    itemName = item.Key.name,
+                    itemName = item.Key.GetName(),
                     quantity = item.Value.amount,
                     sprite = item.Key.sprite
                 });

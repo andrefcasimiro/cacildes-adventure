@@ -129,19 +129,16 @@ namespace AF
             dialogueChoicePanel.Clear();
             dialogueChoicePanel.style.display = DisplayStyle.None;
 
-            if (Gamepad.current != null)
+            if (Gamepad.current == null)
             {
-                pressToContinueLabel.text = "Speed up / Continue";
-            }
-            else
-            {
-                pressToContinueLabel.text = "E) Speed up / Continue";
+                string oldText = pressToContinueLabel.text;
+                pressToContinueLabel.text = "E) " + oldText;
             }
 
             if (character != null && string.IsNullOrEmpty(character.name) == false)
             {
                 actorNameLabel.style.display = DisplayStyle.Flex;
-                actorNameLabel.text = character.name;
+                actorNameLabel.text = character.isPlayer ? playerManager.playerAppearance.GetPlayerName() : character.name;
                 actorInfoContainer.style.display = DisplayStyle.Flex;
             }
             else
@@ -162,7 +159,8 @@ namespace AF
 
             if (character != null && character.avatar != null)
             {
-                actorSprite.style.backgroundImage = new StyleBackground(character.avatar);
+                actorSprite.style.backgroundImage = new StyleBackground(
+                                   character.isPlayer ? playerManager.playerAppearance.GetPlayerPortrait() : character.avatar);
                 actorSprite.style.display = DisplayStyle.Flex;
             }
             else

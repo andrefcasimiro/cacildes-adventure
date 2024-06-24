@@ -14,6 +14,9 @@ namespace AF
         public GameSession gameSession;
         public SaveManager saveManager;
         public StarterAssetsInputs starterAssetsInputs;
+        public PlayerAppearance playerAppearance;
+
+        public GameSettings gameSettings;
 
         private void Awake()
         {
@@ -22,6 +25,8 @@ namespace AF
                 saveManager.ResetGameState(false);
                 gameSession.gameState = GameSession.GameState.INITIALIZED;
             }
+
+            gameSettings.UpdatePlayerNameOnLocalizedAssets();
         }
 
         private void Start()

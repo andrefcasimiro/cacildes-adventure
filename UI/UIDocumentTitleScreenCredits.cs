@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -20,6 +21,9 @@ namespace AF
         [Header("UI Components")]
         public UIDocumentTitleScreen uIDocumentTitleScreen;
 
+        [Header("Localization")]
+        public LocalizedString ReturnToTitleScreen_LocalizedString;
+
         private void Awake()
         {
             gameObject.SetActive(false);
@@ -40,11 +44,7 @@ namespace AF
         private void OnEnable()
         {
             root = GetComponent<UIDocument>().rootVisualElement;
-
-            root.Q<Label>("CreditsTitle").text = "Credits";
-            root.Q<Label>("RequestCreditsLabel").text = "If your name is missing, please contact: cacildesadventure@gmail.com";
             scrollPanel = root.Q<ScrollView>();
-
 
             DrawUI();
         }
@@ -55,7 +55,7 @@ namespace AF
 
             Button exitButton = new()
             {
-                text = "Return to Title Screen"
+                text = ReturnToTitleScreen_LocalizedString.GetLocalizedString()
             };
             scrollPanel.Add(exitButton);
 

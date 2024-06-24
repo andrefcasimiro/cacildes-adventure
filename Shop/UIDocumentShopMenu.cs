@@ -4,6 +4,8 @@ using System.Linq;
 using AF.Inventory;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
 namespace AF.Shops
@@ -42,6 +44,12 @@ namespace AF.Shops
 
         // Memoizations
         CharacterShop currentCharacterShop;
+
+        public LocalizedString buyFor_LocalizedString; // Buy for
+        public LocalizedString sellFor_LocalizedString; // Sell for
+        public LocalizedString coins_LocalizedString; // Coins
+        public LocalizedString offer_LocalizedString; // Offer
+        public LocalizedString exitShopLabel_LocalizedString; // Exit Shop
 
         private void Start()
         {
@@ -128,7 +136,7 @@ namespace AF.Shops
 
         Button SetupExitButton(ScrollView scrollView)
         {
-            Button exitButton = new() { text = "Exit shop" };
+            Button exitButton = new() { text = exitShopLabel_LocalizedString.GetLocalizedString() };
             exitButton.AddToClassList("primary-button");
 
             UIUtils.SetupButton(exitButton, () =>
@@ -165,9 +173,9 @@ namespace AF.Shops
         {
             if (playerIsBuying)
             {
-                buyerName.text = playerCharacter.name;
-                buyerGold.text = playerStatsDatabase.gold.ToString();
-                buyerIcon.style.backgroundImage = new StyleBackground(playerCharacter.avatar);
+                buyerName.text = playerManager.playerAppearance.GetPlayerName();
+                buyerGold.text = playerStatsDatabase.gold.ToString() + " " + coins_LocalizedString.GetLocalizedString();
+                buyerIcon.style.backgroundImage = new StyleBackground(playerManager.playerAppearance.GetPlayerPortrait());
 
                 sellerName.text = characterShop.character.name;
                 sellerGold.text = characterShop.shopGold.ToString();
@@ -176,12 +184,12 @@ namespace AF.Shops
             else
             {
                 buyerName.text = characterShop.character.name;
-                buyerGold.text = characterShop.shopGold.ToString();
+                buyerGold.text = characterShop.shopGold.ToString() + " " + coins_LocalizedString.GetLocalizedString();
                 buyerIcon.style.backgroundImage = new StyleBackground(characterShop.character.avatar);
 
-                sellerName.text = playerCharacter.name;
+                sellerName.text = playerManager.playerAppearance.GetPlayerName();
                 sellerGold.text = playerStatsDatabase.gold.ToString();
-                sellerIcon.style.backgroundImage = new StyleBackground(playerCharacter.avatar);
+                sellerIcon.style.backgroundImage = new StyleBackground(playerManager.playerAppearance.GetPlayerPortrait());
             }
 
             root.Q<Label>("AppliedDiscountsLabel").text = characterShop.GetShopDiscountsDescription(inventoryDatabase, playerManager.statsBonusController, playerIsBuying);
@@ -274,15 +282,15 @@ namespace AF.Shops
                     buySellButton.Q<VisualElement>("OriginalValueContainer").style.display = DisplayStyle.Flex;
                 }
 
-                buySellLabel.text = isPlayerBuying ? "Buy for " : "Sell for ";
-                currentValueLabel.text = finalValue + " Coins";
+                buySellLabel.text = (isPlayerBuying ? buyFor_LocalizedString.GetLocalizedString() : sellFor_LocalizedString.GetLocalizedString()) + " ";
+                currentValueLabel.text = finalValue + " " + coins_LocalizedString.GetLocalizedString();
             }
             else if (item.tradingItemRequirements != null && item.tradingItemRequirements.Count > 0)
             {
                 buySellButton.Q<VisualElement>("RequiredItemSprite").style.backgroundImage = new StyleBackground(item.tradingItemRequirements.ElementAt(0).Key.sprite);
                 buySellButton.Q<VisualElement>("RequiredItemSprite").style.display = DisplayStyle.Flex;
-                buySellLabel.text = "Offer ";
-                currentValueLabel.text = item.tradingItemRequirements.ElementAt(0).Key.name + "";
+                buySellLabel.text = offer_LocalizedString.GetLocalizedString() + " ";
+                currentValueLabel.text = item.tradingItemRequirements.ElementAt(0).Key.GetName() + "";
             }
         }
 
@@ -440,7 +448,8 @@ namespace AF.Shops
                     // Give item to player
                     playerManager.playerInventory.AddItem(item, 1);
                     soundbank.PlaySound(soundbank.uiItemReceived);
-                    notificationManager.ShowNotification("Bought " + item.name + "", item.sprite);
+                    notificationManager.ShowNotification(
+                        LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Bought") + " " + item.GetName() + "", item.sprite);
 
                     characterShop.RemoveItem(receivedItem, 1);
 
@@ -468,7 +477,8 @@ namespace AF.Shops
             characterShop.AddItem(item, 1);
 
             soundbank.PlaySound(soundbank.uiItemReceived);
-            notificationManager.ShowNotification("Sold " + item.name + "", item.sprite);
+            notificationManager.ShowNotification(
+                LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Sold") + " " + item.GetName() + "", item.sprite);
 
             DrawSellMenu(characterShop);
         }
@@ -481,7 +491,7 @@ namespace AF.Shops
             }
 
             itemPreviewItemIcon.style.backgroundImage = new StyleBackground(item.sprite);
-            itemPreviewItemDescription.text = item.itemDescription;
+            itemPreviewItemDescription.text = item.GetDescription();
             itemPreview.style.opacity = 1;
         }
 

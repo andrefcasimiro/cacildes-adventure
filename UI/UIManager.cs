@@ -1,6 +1,7 @@
 using AF.Shops;
 using AF.UI;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -81,7 +82,7 @@ namespace AF
 
         public void ShowCanNotAccessGUIAtThisTime()
         {
-            notificationManager.ShowNotification("Can not perform action at this time", notificationManager.systemError);
+            notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can not perform action at this time"), notificationManager.systemError);
         }
 
         public bool IsShowingFullScreenGUI()

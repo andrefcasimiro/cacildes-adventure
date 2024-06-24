@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -79,27 +80,27 @@ namespace AF
                 return;
             }
 
-            AddNotification("- " + amount + " from " + statusEffect.ToLower(), statusEffectColor);
+            AddNotification("- " + amount + " " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "from") + " " + statusEffect.ToLower(), statusEffectColor);
         }
         public void ShowCritical(float amount)
         {
-            AddNotification("- " + amount + " from critical attack", combatNotificationManager.criticalDamage);
+            AddNotification("- " + amount + " " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "from critical attack"), combatNotificationManager.criticalDamage);
         }
         public void ShowBackstab(float amount)
         {
-            AddNotification("- " + amount + " from backstab attack", combatNotificationManager.criticalDamage);
+            AddNotification("- " + amount + " " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "from backstab attack"), combatNotificationManager.criticalDamage);
         }
         public void ShowGuardCounter(float amount)
         {
-            AddNotification("- " + amount + " from guard counter attack", combatNotificationManager.criticalDamage);
+            AddNotification("- " + amount + " " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "from guard counter attack"), combatNotificationManager.criticalDamage);
         }
         public void ShowRageCounter(float amount)
         {
-            AddNotification("- " + amount + " from rage buildup", combatNotificationManager.criticalDamage);
+            AddNotification("- " + amount + " " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "from rage buildup attack"), combatNotificationManager.criticalDamage);
         }
         public void ShowPostureBroken(float amount)
         {
-            AddNotification("- " + amount + " from posture broken", combatNotificationManager.criticalDamage);
+            AddNotification("- " + amount + " " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "from broken posture"), combatNotificationManager.criticalDamage);
         }
     }
 

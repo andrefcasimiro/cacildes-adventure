@@ -45,6 +45,8 @@ namespace AF
         public TwoHandingController twoHandingController;
         public LockOnManager lockOnManager;
         public PlayerReputation playerReputation;
+        public PlayerAppearance playerAppearance;
+        public RageManager rageManager;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -92,6 +94,8 @@ namespace AF
             playerInventory.ResetStates();
             characterPosture.ResetStates();
             damageReceiver.ResetStates();
+
+            rageManager.ResetStates();
 
             playerComponentManager.ResetStates();
 

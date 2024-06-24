@@ -30,6 +30,11 @@ namespace AF
                 character, message, filteredResponses);
         }
 
+        private void OnDisable()
+        {
+            StopAllCoroutines();
+        }
+
         UIDocumentDialogueWindow GetUIDocumentDialogueWindow()
         {
             if (uIDocumentDialogueWindow == null)

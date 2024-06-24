@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 namespace AF.Reputation
 {
 
@@ -18,7 +20,11 @@ namespace AF.Reputation
 
             soundbank.PlaySound(soundbank.reputationIncreased);
             notificationManager.ShowNotification(
-                "You won reputation: +" + value + " points! Current reputation: " + playerStatsDatabase.GetCurrentReputation(),
+                String.Format(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "You won reputation: +{0} points! Current reputation: {1}"),
+                    value,
+                    playerStatsDatabase.GetCurrentReputation()
+                ),
                 notificationManager.reputationIncreaseSprite);
         }
 
@@ -33,7 +39,11 @@ namespace AF.Reputation
 
             soundbank.PlaySound(soundbank.reputationDecreased);
             notificationManager.ShowNotification(
-                 "You lost reputation: -" + value + " points! Current reputation: " + playerStatsDatabase.GetCurrentReputation(),
+                String.Format(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "You lost reputation: -{0} points! Current reputation: {1}"),
+                    value,
+                    playerStatsDatabase.GetCurrentReputation()
+                ),
                  notificationManager.reputationDecreaseSprite);
         }
     }

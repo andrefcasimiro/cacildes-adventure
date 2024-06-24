@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace AF.Arena
 {
@@ -9,6 +10,9 @@ namespace AF.Arena
         public float statusEffectDuration = 15f;
         public float timeBeforeDestroying = 15f;
 
+        [Header("Localization")]
+        //has picked up powerup:
+        public LocalizedString hasPickedPowereUp_LocalizedString;
 
         private void OnEnable()
         {
@@ -47,7 +51,7 @@ namespace AF.Arena
                     }
 
                     FindAnyObjectByType<NotificationManager>(FindObjectsInactive.Include).ShowNotification(
-                        character.name + " has picked up powerup: " + chosenStatusEffect.appliedName, null);
+                        character.name + " " + hasPickedPowereUp_LocalizedString.GetLocalizedString() + " " + chosenStatusEffect.appliedName, null);
 
                     character.statusController.InflictStatusEffect(
                         chosenStatusEffect, statusEffectDuration, true);

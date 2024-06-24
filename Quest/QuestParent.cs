@@ -4,6 +4,7 @@ using AF.Events;
 using TigerForge;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace AF
 {
@@ -13,10 +14,13 @@ namespace AF
     {
         [TextArea]
         public new string name;
+        public LocalizedString questName_LocalizedString;
 
         public Texture questIcon;
 
         public string[] questObjectives;
+
+        public LocalizedString[] questObjectives_LocalizedString;
 
         public int questProgress = -1;
 

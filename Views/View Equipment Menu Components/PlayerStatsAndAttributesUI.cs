@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AF.Stats;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
 namespace AF.UI.EquipmentMenu
@@ -24,6 +25,7 @@ namespace AF.UI.EquipmentMenu
         public const string DEFENSE_MAGIC = "DefenseMagic";
         public const string DEFENSE_DARKNESS = "DefenseDarkness";
         public const string POISE = "Poise";
+        public const string POSTURE = "Posture";
         public const string REPUTATION = "Reputation";
         public const string GOLD = "Gold";
         public const string EQUIP_LOAD = "EquipLoad";
@@ -48,6 +50,25 @@ namespace AF.UI.EquipmentMenu
 
         [HideInInspector] public bool shouldRerender = true;
 
+        [Header("Localization")]
+        public LocalizedString Level_Loc; // Level {0}
+        public LocalizedString Gold_Loc; // Gold {0}
+        public LocalizedString Attack_Loc; // Attack {0}
+        public LocalizedString Vitality_Loc; // Vitality {0}
+        public LocalizedString Endurance_Loc; // Endurance {0}
+        public LocalizedString Strength_Loc; // Strength {0}
+        public LocalizedString Dexterity_Loc; // Dexterity {0}
+        public LocalizedString Intelligence_Loc; // Intelligence {0}
+        public LocalizedString Reputation_Loc; // Reputation {0}
+        public LocalizedString Defense_Loc; // Defense {0}
+        public LocalizedString Poise_Loc; // Poise {0}
+        public LocalizedString Posture_Loc; // Posture {0}
+        public LocalizedString WeightLoad_Loc; // Weight Load {0}
+        public LocalizedString Light_Loc; // Light
+        public LocalizedString Medium_Loc; // Medium
+        public LocalizedString Heavy_Loc; // Heavy
+
+
         private void OnEnable()
         {
             if (shouldRerender)
@@ -63,7 +84,7 @@ namespace AF.UI.EquipmentMenu
             root = uIDocument.rootVisualElement;
 
             var labelNames = new[] { LEVEL, VITALITY, ENDURANCE, STRENGTH, DEXTERITY, INTELLIGENCE,
-                        ATTACK, DEFENSE, DEFENSE_FIRE, DEFENSE_FROST, DEFENSE_LIGHTNING, DEFENSE_MAGIC, DEFENSE_DARKNESS, POISE, EQUIP_LOAD, REPUTATION, GOLD
+                        ATTACK, DEFENSE, DEFENSE_FIRE, DEFENSE_FROST, DEFENSE_LIGHTNING, DEFENSE_MAGIC, DEFENSE_DARKNESS, POISE, POSTURE, EQUIP_LOAD, REPUTATION, GOLD
                 }.ToList();
 
             var attributesContainer = root.Q<VisualElement>("Footer");
@@ -75,12 +96,18 @@ namespace AF.UI.EquipmentMenu
 
         public void DrawStats(Item item)
         {
-            statsAndAttributesLabels[LEVEL].text = "Level " + playerStatsDatabase.GetCurrentLevel();
-            statsAndAttributesLabels[GOLD].text = "Gold " + playerStatsDatabase.gold;
+            statsAndAttributesLabels[LEVEL].text = String.Format(
+                Level_Loc.GetLocalizedString(),
+                playerStatsDatabase.GetCurrentLevel()
+            );
 
-            int baseAttack = equipmentDatabase.GetCurrentWeapon() != null
-                ? attackStatManager.GetWeaponAttack(equipmentDatabase.GetCurrentWeapon())
-                : attackStatManager.GetCurrentPhysicalAttack();
+            statsAndAttributesLabels[GOLD].text = String.Format(
+                Gold_Loc.GetLocalizedString(),
+                playerStatsDatabase.gold
+            );
+
+
+            int baseAttack = attackStatManager.GetCurrentAttackForWeapon(equipmentDatabase.GetCurrentWeapon());
 
             int itemAttack = 0;
             if (item is Weapon weapon)
@@ -94,7 +121,7 @@ namespace AF.UI.EquipmentMenu
 
             UpdateStatLabel(
                 statsAndAttributesLabels[ATTACK],
-                "Attack ",
+                Attack_Loc.GetLocalizedString(),
                 baseAttack,
                 itemAttack);
 
@@ -127,6 +154,9 @@ namespace AF.UI.EquipmentMenu
             int itemDarknessDefense = -1;
             int basePoise = playerManager.characterPoise.GetMaxPoiseHits(); // playerPoiseController.GetMaxPoise();
             int itemPoise = 0;
+
+            int basePosture = playerManager.characterPosture.GetMaxPostureDamage(); // playerPoiseController.GetMaxPoise();
+            int itemPosture = 0;
 
             float baseEquipLoad = equipmentGraphicsHandler.GetEquipLoad();
             float itemEquipLoad = -1f;
@@ -167,43 +197,43 @@ namespace AF.UI.EquipmentMenu
 
             UpdateStatLabel(
                 statsAndAttributesLabels[VITALITY],
-                "Vitality ",
+                Vitality_Loc.GetLocalizedString(),
                 baseVitality,
                 vitalityFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[ENDURANCE],
-                "Endurance ",
+                Endurance_Loc.GetLocalizedString(),
                 baseEndurance,
                 enduranceFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[STRENGTH],
-                "Strength ",
+                Strength_Loc.GetLocalizedString(),
                 baseStrength,
                 strengthFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[DEXTERITY],
-                "Dexterity ",
+                Dexterity_Loc.GetLocalizedString(),
                 baseDexterity,
                 dexterityFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[INTELLIGENCE],
-                "Intelligence ",
+                Intelligence_Loc.GetLocalizedString(),
                 baseIntelligence,
                 intelligenceFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[REPUTATION],
-                "Reputation ",
+                Reputation_Loc.GetLocalizedString(),
                 baseReputation,
                 reputationFromItem);
 
             UpdateStatLabel(
                 statsAndAttributesLabels[DEFENSE],
-                "Defense ",
+                Defense_Loc.GetLocalizedString(),
                 basePhysicalDefense,
                 itemPhysicalDefense);
 
@@ -234,24 +264,28 @@ namespace AF.UI.EquipmentMenu
 
             UpdateStatLabel(
                 statsAndAttributesLabels[POISE],
-                "Poise ",
+                Poise_Loc.GetLocalizedString(),
                 basePoise,
                 itemPoise);
 
+            UpdateStatLabel(
+                statsAndAttributesLabels[POSTURE],
+                Posture_Loc.GetLocalizedString(),
+                basePosture,
+                itemPosture);
+
             UpdateEquipLoadStatLabel(
                 statsAndAttributesLabels[EQUIP_LOAD],
-                "Weight Load ",
+                WeightLoad_Loc.GetLocalizedString(),
                 baseEquipLoad,
                 itemEquipLoad);
         }
 
         void UpdateStatLabel(Label label, string labelPrefix, int leftValue, int rightValue)
         {
-            label.text = labelPrefix;
-
             if (rightValue != 0)
             {
-                label.text += rightValue;
+                label.text = String.Format(labelPrefix, rightValue);
 
                 if (rightValue > leftValue)
                 {
@@ -265,7 +299,7 @@ namespace AF.UI.EquipmentMenu
                 return;
             }
 
-            label.text += leftValue;
+            label.text = String.Format(labelPrefix, leftValue);
             label.style.color = Color.white;
         }
 
@@ -302,27 +336,25 @@ namespace AF.UI.EquipmentMenu
 
         void UpdateEquipLoadStatLabel(Label label, string labelPrefix, float leftValue, float rightValue)
         {
-            label.text = labelPrefix;
-
+            var value = "";
             var suffix = "";
 
             if (rightValue >= 0)
             {
                 if (equipmentGraphicsHandler.IsLightWeightForGivenValue(rightValue))
                 {
-                    suffix = " (Light)";
+                    suffix = Light_Loc.GetLocalizedString();
                 }
                 else if (equipmentGraphicsHandler.IsMidWeightForGivenValue(rightValue))
                 {
-                    suffix = " (Medium)";
+                    suffix = Medium_Loc.GetLocalizedString();
                 }
                 else if (equipmentGraphicsHandler.IsHeavyWeightForGivenValue(rightValue))
                 {
-                    suffix = " (Heavy)";
+                    suffix = Heavy_Loc.GetLocalizedString();
                 }
 
-                label.text += Math.Round(rightValue * 100, 2) + "%" + suffix;
-
+                value = Math.Round(rightValue * 100, 2) + "%";
 
                 if (rightValue > leftValue)
                 {
@@ -333,23 +365,31 @@ namespace AF.UI.EquipmentMenu
                     label.style.color = Color.red;
                 }
 
+                label.text = String.Format(WeightLoad_Loc.GetLocalizedString(),
+                    value, suffix);
+
                 return;
             }
 
             if (equipmentGraphicsHandler.IsLightWeightForGivenValue(leftValue))
             {
-                suffix = " (Light)";
+                suffix = Light_Loc.GetLocalizedString();
             }
             else if (equipmentGraphicsHandler.IsMidWeightForGivenValue(leftValue))
             {
-                suffix = " (Medium)";
+                suffix = Medium_Loc.GetLocalizedString();
             }
             else if (equipmentGraphicsHandler.IsHeavyWeightForGivenValue(leftValue))
             {
-                suffix = " (Heavy)";
+                suffix = Heavy_Loc.GetLocalizedString();
             }
 
-            label.text += Math.Round(leftValue * 100, 2) + "%" + suffix;
+            value = Math.Round(leftValue * 100, 2) + "%";
+
+
+            label.text = String.Format(WeightLoad_Loc.GetLocalizedString(),
+                value, suffix);
+
             label.style.color = Color.white;
         }
 

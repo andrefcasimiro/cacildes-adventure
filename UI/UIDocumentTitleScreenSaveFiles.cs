@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -15,6 +16,10 @@ namespace AF
         public UIManager uiManager;
         public Soundbank soundbank;
         public SaveManager saveManager;
+
+        [Header("Localization")]
+        public LocalizedString ReturnToTitleScreen_LocalizedString;
+        public LocalizedString OpenSavesFolder_LocalizedString;
 
         [Header("UI Components")]
         public UIDocumentTitleScreen uIDocumentTitleScreen;
@@ -56,7 +61,7 @@ namespace AF
 
             Button exitButton = new()
             {
-                text = "Return to Title Screen"
+                text = ReturnToTitleScreen_LocalizedString.GetLocalizedString()
             };
             exitButton.AddToClassList("primary-button");
             scrollPanel.Add(exitButton);
@@ -77,7 +82,7 @@ namespace AF
 
             Button openSavesFolder = new()
             {
-                text = "Open Saves Folder"
+                text = OpenSavesFolder_LocalizedString.GetLocalizedString()
             };
             openSavesFolder.AddToClassList("primary-button");
 

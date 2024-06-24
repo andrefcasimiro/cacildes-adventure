@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using AF.Music;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -20,6 +21,9 @@ namespace AF
         [Header("Settings")]
         public float gameOverDuration = 2.5f;
 
+        [Header("You Died Texts")]
+        public LocalizedString[] youDiedText;
+
         private void Awake()
         {
             this.gameObject.SetActive(false);
@@ -36,7 +40,9 @@ namespace AF
 
         IEnumerator GameOver_Coroutine()
         {
-            GetComponent<UIDocument>().rootVisualElement.Q<Label>("YouDiedText").text = "You Died!";
+            Label youDiedLabel = GetComponent<UIDocument>().rootVisualElement.Q<Label>("YouDiedText");
+            youDiedLabel.text = youDiedText[Random.Range(0, youDiedText.Length)].GetLocalizedString();
+            UIUtils.PlayPopAnimation(youDiedLabel);
 
             bgmManager.StopMusic();
             soundbank.PlaySound(soundbank.gameOverFanfare);

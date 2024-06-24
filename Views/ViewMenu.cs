@@ -2,6 +2,7 @@
 using UnityEngine.UIElements;
 using DG.Tweening;
 using UnityEngine.SceneManagement;
+using UnityEngine.Localization;
 
 namespace AF.UI
 {
@@ -30,6 +31,11 @@ namespace AF.UI
         public SaveManager saveManager;
         public GameSession gameSession;
 
+        [Header("Localization")]
+        public LocalizedString equipment_LocalizedString;
+        public LocalizedString quests_LocalizedString;
+        public LocalizedString settings_LocalizedString;
+
         protected virtual void OnEnable()
         {
             SetupRefs();
@@ -42,15 +48,15 @@ namespace AF.UI
             {
                 case 0:
                     equipmentButton.AddToClassList("active");
-                    descriptor.text = "Equipment";
+                    descriptor.text = equipment_LocalizedString.GetLocalizedString();
                     break;
                 case 1:
                     objectivesButton.AddToClassList("active");
-                    descriptor.text = "Quests";
+                    descriptor.text = quests_LocalizedString.GetLocalizedString();
                     break;
                 case 2:
                     optionsButton.AddToClassList("active");
-                    descriptor.text = "Settings";
+                    descriptor.text = settings_LocalizedString.GetLocalizedString();
                     break;
                 default:
                     return;

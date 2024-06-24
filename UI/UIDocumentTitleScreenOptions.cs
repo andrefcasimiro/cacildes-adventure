@@ -11,7 +11,6 @@ namespace AF
         ViewComponent_GameSettings viewComponent_GameSettings => GetComponent<ViewComponent_GameSettings>();
 
         [Header("Components")]
-        public UIManager uiManager;
         public Soundbank soundbank;
 
         private void Awake()
@@ -23,7 +22,6 @@ namespace AF
 
         private void OnEnable()
         {
-            TranslateUI();
 
             root.RegisterCallback<NavigationCancelEvent>(ev =>
             {
@@ -36,18 +34,8 @@ namespace AF
             }, soundbank);
 
             viewComponent_GameSettings.SetupRefs(root);
-
-            viewComponent_GameSettings.onLanguageChanged += () =>
-            {
-                TranslateUI();
-            };
         }
 
-
-        void TranslateUI()
-        {
-            root.Q<Label>("Title").text = "Options";
-        }
 
         void Close()
         {

@@ -262,7 +262,7 @@ namespace AF
                     playerManager.transform.position.x,
                     playerManager.characterController.transform.position.y - GroundedOffset,
                     playerManager.characterController.transform.position.z),
-                GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+                GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore) || playerManager.characterController.isGrounded;
 
             if (PreviousGrounded == true && Grounded == false)
             {

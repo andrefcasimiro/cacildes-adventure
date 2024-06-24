@@ -15,6 +15,7 @@ using AF.Pickups;
 using System;
 using System.IO;
 using AF.Loading;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -38,17 +39,15 @@ namespace AF
         public PlayerManager playerManager;
         public NotificationManager notificationManager;
         public GameSettings gameSettings;
+        public MomentManager momentManager;
 
         // Flags that allow us to save the game
-        bool hasMomentOnGoing = false;
         bool hasBossFightOnGoing = false;
 
         public string SAVE_FILES_FOLDER = "QuickSave";
 
         private void Awake()
         {
-            EventManager.StartListening(EventMessages.ON_MOMENT_START, () => { hasMomentOnGoing = true; });
-            EventManager.StartListening(EventMessages.ON_MOMENT_END, () => { hasMomentOnGoing = false; });
             EventManager.StartListening(EventMessages.ON_BOSS_BATTLE_BEGINS, () => { hasBossFightOnGoing = true; });
             EventManager.StartListening(EventMessages.ON_BOSS_BATTLE_ENDS, () => { hasBossFightOnGoing = false; });
 
@@ -57,7 +56,7 @@ namespace AF
 
         public bool CanSave()
         {
-            if (hasMomentOnGoing)
+            if (momentManager.HasMomentOnGoing)
             {
                 return false;
             }
@@ -615,7 +614,7 @@ namespace AF
         {
             if (!CanSave())
             {
-                notificationManager.ShowNotification("Can not save at this time", null);
+                notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can not save at this time"), null);
                 return;
             }
 
@@ -641,7 +640,7 @@ namespace AF
                 File.WriteAllBytes(Path.Combine(Application.persistentDataPath + "/" + SAVE_FILES_FOLDER, saveFileName + ".jpg"), finalScreenshot.EncodeToJPG());
             }
 
-            notificationManager.ShowNotification("Game saved", notificationManager.systemSuccess);
+            notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Game saved"), notificationManager.systemSuccess);
         }
 
         public void LoadLastSavedGame(bool isFromGameOver)

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization;
 
 namespace AF.Misc
 {
@@ -12,7 +13,7 @@ namespace AF.Misc
         public bool displayNotification = true;
         public NotificationManager notificationManager;
         public Sprite notificationSprite;
-        public string notificationSuffixText = " chickens picked up!";
+        public LocalizedString notificationSuffixText;
 
         [Header("Events")]
         public UnityEvent onCounterMaxed;
@@ -40,7 +41,7 @@ namespace AF.Misc
 
             if (displayNotification)
             {
-                notificationManager.ShowNotification($"{counter}/{maxCounter}{notificationSuffixText}", notificationSprite);
+                notificationManager.ShowNotification($"{counter}/{maxCounter}{notificationSuffixText.GetLocalizedString()}", notificationSprite);
             }
 
             if (counter >= maxCounter)

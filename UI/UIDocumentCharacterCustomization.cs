@@ -125,6 +125,7 @@ namespace AF
 
         private void OnDisable()
         {
+
             playerManager.playerComponentManager.EnablePlayerControl();
 
             onDisable?.Invoke();
@@ -198,6 +199,21 @@ namespace AF
                 int indx = (int)ev.newValue;
 
                 playerAppearance.UpdateTattooColor(availableColors[indx]);
+            });
+
+            VisualElement portraitPreview = root.Q<VisualElement>("PortraitPreview");
+            portraitPreview.style.backgroundImage = new StyleBackground(playerAppearance.GetPlayerPortrait());
+
+            SliderInt portrairSlider = root.Q<SliderInt>("PortraitSlider");
+            portrairSlider.value = playerAppearance.GetPlayerPortraitIndex();
+            portrairSlider.lowValue = 0;
+            portrairSlider.highValue = playerAppearance.portraits.Length - 1;
+            portrairSlider.RegisterValueChangedCallback(ev =>
+            {
+                int indx = (int)ev.newValue;
+
+                playerAppearance.SetPlayerPortrait(indx);
+                portraitPreview.style.backgroundImage = new StyleBackground(playerAppearance.GetPlayerPortrait());
             });
         }
 

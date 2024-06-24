@@ -60,7 +60,7 @@ namespace AF
                 var quest = questParentsReversed[i];
 
                 VisualElement clone = questPrefabButton.CloneTree();
-                clone.Q<Label>("QuestName").text = quest.name;
+                clone.Q<Label>("QuestName").text = quest.questName_LocalizedString.GetLocalizedString();
                 clone.Q<VisualElement>("TrackIcon").style.display = questsDatabase.IsQuestTracked(quest) ? DisplayStyle.Flex : DisplayStyle.None;
 
                 int index = i; // Store the current value of 'i' in a separate variable to avoid closure issues
@@ -105,14 +105,15 @@ namespace AF
         void PreviewQuest(QuestParent questParent)
         {
             questIcon.style.backgroundImage = new StyleBackground(questParent.questIcon as Texture2D);
-            questTitle.text = questParent.name;
+            questTitle.text = questParent.questName_LocalizedString.GetLocalizedString();
 
             questObjectivesContainer.Clear();
 
+            int idx = 0;
             foreach (var questObjective in questParent.questObjectives)
             {
                 var questObjectiveEntry = questObjectivePrefab.CloneTree();
-                questObjectiveEntry.Q<Label>("QuestObjectiveLabel").text = questObjective;
+                questObjectiveEntry.Q<Label>("QuestObjectiveLabel").text = questParent.questObjectives_LocalizedString[idx].GetLocalizedString();
                 questObjectiveEntry.Q<Label>("QuestObjectiveLocation").text = "";
 
                 bool isCompleted = questParent.IsObjectiveCompleted(questObjective);
@@ -123,6 +124,8 @@ namespace AF
                 questObjectiveEntry.style.opacity = 1;
 
                 questObjectivesContainer.Add(questObjectiveEntry);
+
+                idx++;
             }
 
             questObjectivesContainer.style.opacity = 1;

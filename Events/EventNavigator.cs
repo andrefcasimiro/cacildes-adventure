@@ -13,6 +13,7 @@ namespace AF
         [Header("Components")]
         public Transform playerTransform;
         public UIManager uiManager;
+        public MomentManager momentManager;
 
         // Internal
         IEventNavigatorCapturable currentTarget;
@@ -24,7 +25,7 @@ namespace AF
         /// </summary>
         public void OnInteract()
         {
-            if (uiManager.IsShowingFullScreenGUI())
+            if (uiManager.IsShowingFullScreenGUI() || momentManager.HasMomentOnGoing)
             {
                 return;
             }
@@ -53,7 +54,7 @@ namespace AF
                     {
                         currentTarget = eventNavigatorCapturable;
 
-                        if (uiManager.CanShowGUI())
+                        if (uiManager.CanShowGUI() && momentManager.HasMomentOnGoing == false)
                         {
                             currentTarget?.OnCaptured();
                         }

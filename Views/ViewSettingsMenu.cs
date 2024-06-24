@@ -38,7 +38,7 @@ namespace AF
             newGamePlusButton = root.Q<Button>(newGamePlusLabel);
             saveProgress.SetEnabled(saveManager.CanSave());
 
-            root.Q<Label>("CurrentNewGameCount").text = "Current game iteration: " + gameSession.currentGameIteration;
+            root.Q<Label>("CurrentNewGameCounter").text = " " + gameSession.currentGameIteration;
 
             UIUtils.SetupButton(saveProgress, () =>
             {

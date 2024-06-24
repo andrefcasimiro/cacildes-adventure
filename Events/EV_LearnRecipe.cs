@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -61,7 +62,9 @@ namespace AF
             {
                 GetSoundbank().PlaySound(GetSoundbank().uiItemReceived);
 
-                GetNotificationManager().ShowNotification("Learned recipe: " + recipe.name, GetNotificationManager().recipeIcon);
+                GetNotificationManager().ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Learned recipe:") + " "
+                     + recipe.name, GetNotificationManager().recipeIcon);
             }
 
             yield return null;

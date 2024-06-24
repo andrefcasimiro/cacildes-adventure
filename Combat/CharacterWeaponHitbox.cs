@@ -34,6 +34,7 @@ namespace AF
         public UnityEvent onCloseHitbox;
         public UnityEvent onDamageInflicted;
         public UnityEvent onWeaponSpecial;
+        public UnityEvent onEnvironmentCollision;
 
         [Header("Character Weapon Addons")]
         public CharacterTwoHandRef characterTwoHandRef;
@@ -125,12 +126,7 @@ namespace AF
 
         public void OnTriggerEnter(Collider other)
         {
-            if (tagsToIgnore.Contains(other.tag) && !IsCharacterConfused())
-            {
-                return;
-            }
-
-            if (character.GetAttackDamage() == null && !IsCharacterConfused())
+            if (tagsToIgnore.Contains(other.tag) && !IsCharacterConfused() || character.GetAttackDamage() == null && !IsCharacterConfused())
             {
                 return;
             }

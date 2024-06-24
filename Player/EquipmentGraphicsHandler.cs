@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using AF.Stats;
+using TigerForge;
+using AF.Events;
 
 namespace AF
 {
@@ -151,6 +153,8 @@ namespace AF
             DrawCharacterGraphics();
 
             statsBonusController.RecalculateEquipmentBonus();
+
+            EventManager.EmitEvent(EventMessages.ON_BODY_TYPE_CHANGED);
         }
 
         public void UnequipArmor()

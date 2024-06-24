@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AF.Inventory;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace AF
 {
@@ -28,6 +29,10 @@ namespace AF
 
         private UIDocumentPlayerGold uIDocumentPlayerGold;
         private UIDocumentReceivedItemPrompt uIDocumentReceivedItemPrompt;
+
+        [Header("Localization")]
+        // "Found: "
+        public LocalizedString found;
 
 
         public void GiveLoot()
@@ -99,14 +104,14 @@ namespace AF
                 {
                     itemsToDisplay.Add(new()
                     {
-                        itemName = item.Key.name,
+                        itemName = item.Key.GetName(),
                         quantity = 1,
                         sprite = item.Key.sprite
                     });
                 }
                 else
                 {
-                    GetNotificationManager().ShowNotification("Found " + item.Key.name, item.Key.sprite);
+                    GetNotificationManager().ShowNotification(found.GetLocalizedString() + " " + item.Key.GetName(), item.Key.sprite);
                 }
             }
 

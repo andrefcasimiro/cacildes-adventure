@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using AF.Animations;
 using AF.Events;
 using AF.Health;
 using AF.Stats;
 using TigerForge;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace AF.Equipment
 {
@@ -35,6 +35,15 @@ namespace AF.Equipment
         public PlayerManager playerManager;
         StatsBonusController statsBonusController;
         public NotificationManager notificationManager;
+
+        [Header("Localization")]
+
+        // "Can not apply buff to this weapon"
+        public LocalizedString CanNotApplyBuffToThisWeapon;
+        // "Weapon is already buffed"
+        public LocalizedString WeaponIsAlreadyBuffed;
+        // "Not enough mana to use weapon special"
+        public LocalizedString NotEnoughManaToUseWeaponSpecial;
 
         private void Awake()
         {
@@ -245,12 +254,14 @@ namespace AF.Equipment
         {
             if (currentWeaponInstance == null || currentWeaponInstance.characterWeaponBuffs == null)
             {
-                notificationManager.ShowNotification("Can not apply buff to this weapon", notificationManager.systemError);
+                notificationManager.ShowNotification(
+                    CanNotApplyBuffToThisWeapon.GetLocalizedString(), notificationManager.systemError);
                 return false;
             }
             else if (currentWeaponInstance.characterWeaponBuffs.HasOnGoingBuff())
             {
-                notificationManager.ShowNotification("Weapon is already buffed", notificationManager.systemError);
+                notificationManager.ShowNotification(
+                    WeaponIsAlreadyBuffed.GetLocalizedString(), notificationManager.systemError);
                 return false;
             }
 
@@ -493,7 +504,7 @@ namespace AF.Equipment
 
             if (playerManager.manaManager.playerStatsDatabase.currentMana < playerManager.playerWeaponsManager.currentWeaponInstance.weapon.manaCostToUseWeaponSpecialAttack)
             {
-                notificationManager.ShowNotification("Not enough mana to use weapon special");
+                notificationManager.ShowNotification(NotEnoughManaToUseWeaponSpecial.GetLocalizedString());
                 return;
             }
 

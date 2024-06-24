@@ -59,7 +59,7 @@ namespace AF.Shops
                 return "";
             }
 
-            string itemName = item.name;
+            string itemName = item.GetName();
 
             if (playerIsBuying && npcItemsToSell.ContainsKey(item) && npcItemsToSell[item].quantity > 0)
             {

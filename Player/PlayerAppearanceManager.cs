@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using AF.Events;
+using TigerForge;
 using UnityEngine;
 
 namespace AF
@@ -6,7 +8,6 @@ namespace AF
 
     public class PlayerAppearance : MonoBehaviour
     {
-        public readonly string PLAYER_NAME_KEY = "PLAYER_NAME";
         // COLORS
         public readonly string HAIR_COLOR_KEY = "HAIR_COLOR";
         public readonly string BODY_COLOR_KEY = "BODY_COLOR";
@@ -19,6 +20,12 @@ namespace AF
         public readonly string FACE_TYPE_KEY = "FACE_TYPE";
         public readonly string EYEBROW_TYPE_KEY = "EYEBROW_TYPE";
         public readonly string BEARD_TYPE_KEY = "BEARD_TYPE";
+
+        public readonly string PORTRAIT_KEY = "PORTRAIT";
+        [Header("Available Portraits")]
+        public Sprite[] portraits;
+        public Sprite defaultPortrait;
+
 
         [Header("Naked and Armor Materials")]
         public Material[] playerMaterials;
@@ -51,6 +58,8 @@ namespace AF
 
         List<GameObject> bodyContainers = new();
 
+        public GameSettings gameSettings;
+
 
         private void Awake()
         {
@@ -72,19 +81,39 @@ namespace AF
             uIDocumentCharacterCustomization.gameObject.SetActive(true);
         }
 
-        public string GetPlayerName()
+        public Sprite GetPlayerPortrait()
         {
-            if (!PlayerPrefs.HasKey(PLAYER_NAME_KEY))
+            if (!PlayerPrefs.HasKey(PORTRAIT_KEY))
             {
-                return defaultPlayerName;
+                return defaultPortrait;
             }
 
-            return PlayerPrefs.GetString(PLAYER_NAME_KEY);
+            return portraits[PlayerPrefs.GetInt(PORTRAIT_KEY)];
+        }
+        public int GetPlayerPortraitIndex()
+        {
+            if (!PlayerPrefs.HasKey(PORTRAIT_KEY))
+            {
+                return 0;
+            }
+
+            return PlayerPrefs.GetInt(PORTRAIT_KEY);
+        }
+
+        public void SetPlayerPortrait(int value)
+        {
+            PlayerPrefs.SetInt(PORTRAIT_KEY, value);
+            PlayerPrefs.Save();
+        }
+
+        public string GetPlayerName()
+        {
+            return gameSettings.GetPlayerName();
         }
 
         public void UpdatePlayerName(string playerName)
         {
-            PlayerPrefs.SetString(PLAYER_NAME_KEY, playerName);
+            gameSettings.SetPlayerName(playerName);
             UpdateAppearance();
         }
 
@@ -102,6 +131,7 @@ namespace AF
         public void UpdateHairColor(string color)
         {
             PlayerPrefs.SetString(HAIR_COLOR_KEY, color);
+            PlayerPrefs.Save();
             UpdateAppearance();
         }
 
@@ -118,6 +148,7 @@ namespace AF
         public void UpdateBodyColor(string color)
         {
             PlayerPrefs.SetString(BODY_COLOR_KEY, color);
+            PlayerPrefs.Save();
             UpdateAppearance();
         }
 
@@ -134,6 +165,7 @@ namespace AF
         public void UpdateEyeColor(string color)
         {
             PlayerPrefs.SetString(EYE_COLOR_KEY, color);
+            PlayerPrefs.Save();
             UpdateAppearance();
         }
 
@@ -150,12 +182,16 @@ namespace AF
         public void UpdateTattooColor(string color)
         {
             PlayerPrefs.SetString(TATTOO_COLOR_KEY, color);
+            PlayerPrefs.Save();
             UpdateAppearance();
         }
 
         public void SetBodyType(int newValue)
         {
             PlayerPrefs.SetInt(BODY_TYPE_KEY, Mathf.Clamp(newValue, 0, 1));
+            PlayerPrefs.Save();
+
+            EventManager.EmitEvent(EventMessages.ON_BODY_TYPE_CHANGED);
 
             UpdateAppearance();
         }
@@ -173,6 +209,7 @@ namespace AF
         public void SetFaceType(int newValue)
         {
             PlayerPrefs.SetInt(FACE_TYPE_KEY, newValue);
+            PlayerPrefs.Save();
 
             UpdateAppearance();
         }
@@ -189,6 +226,7 @@ namespace AF
         public void SetHairType(int newValue)
         {
             PlayerPrefs.SetInt(HAIR_TYPE_KEY, newValue);
+            PlayerPrefs.Save();
 
             UpdateAppearance();
         }
@@ -206,6 +244,7 @@ namespace AF
         public void SetEyebrowType(int newValue)
         {
             PlayerPrefs.SetInt(EYEBROW_TYPE_KEY, newValue);
+            PlayerPrefs.Save();
 
             UpdateAppearance();
         }
@@ -223,6 +262,7 @@ namespace AF
         public void SetBeardType(int newValue)
         {
             PlayerPrefs.SetInt(BEARD_TYPE_KEY, newValue);
+            PlayerPrefs.Save();
 
             UpdateAppearance();
         }
@@ -330,6 +370,7 @@ namespace AF
             UpdateHairColor(defaultHairColor);
             UpdateEyeColor(defaultEyeColor);
             UpdateTattooColor(defaultTattooColor);
+            SetPlayerPortrait(0);
         }
     }
 }

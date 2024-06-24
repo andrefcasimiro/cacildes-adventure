@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using AF.Music;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -39,7 +40,9 @@ namespace AF
             {
                 soundbank.PlaySound(soundbank.uiCancel);
 
-                notificationManager.ShowNotification("Used x" + amount + " " + item.name + "", item.sprite);
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Used x") +
+                    +amount + " " + item.GetName() + "", item.sprite);
             }
 
             yield return null;

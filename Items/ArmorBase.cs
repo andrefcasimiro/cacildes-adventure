@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using AF.Health;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -90,11 +91,14 @@ namespace AF
         {
             string result = "";
 
+            var resistenceAgainstLabel = LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "resistence against");
+
             foreach (var resistance in statusEffectResistances)
             {
+
                 if (resistance != null)
                 {
-                    result += $"+ {resistance.resistanceBonus} {resistance.statusEffect.name} DEF\n";
+                    result += $"+{resistance.resistanceBonus} {resistenceAgainstLabel} {resistance.statusEffect.GetName()}\n";
                 }
             }
 

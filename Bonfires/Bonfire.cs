@@ -1,6 +1,5 @@
 using AF.Companions;
 using AF.Events;
-using AF.Health;
 using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
@@ -168,6 +167,11 @@ namespace AF.Bonfires
             GetPlayerManager().thirdPersonController.canRotateCharacter = !isLocked;
 
             GetPlayerManager().playerComponentManager.isInBonfire = isLocked;
+        }
+
+        public string GetBonfireName()
+        {
+            return bonfireName;
         }
 
     }

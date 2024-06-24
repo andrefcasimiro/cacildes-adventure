@@ -1,8 +1,11 @@
-﻿using System.Collections;
+using System;
+using System.Collections;
 using AF.Music;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -15,6 +18,7 @@ namespace AF
         public UnityAction onLanguageChanged;
 
         UIDocumentPlayerHUDV2 uiDocumentPlayerHUDV2;
+        public readonly string gameLanguageLabel = "GameLanguage";
         public readonly string graphicsQualityLabel = "GraphicsQuality";
         public readonly string cameraSensitivityLabel = "CameraSensitivity";
         public readonly string musicVolumeLabel = "MusicVolume";
@@ -31,6 +35,19 @@ namespace AF
 
         [Header("Databases")]
         public GameSettings gameSettings;
+
+        [Header("Localization")]
+        public LocalizedString CameraSensitivityLabel; // Camera Sensitivity ({0})
+        public LocalizedString MusicVolumeLabel; // Music Volume ({0})
+
+        public LocalizedString JumpLabel; // Jump
+        public LocalizedString ToggleCombatStanceLabel; // Toggle Combat Stance
+        public LocalizedString HeavyAttackLabel; // Heavy Attack
+        public LocalizedString DodgeLabel; // Dodge Attack
+        public LocalizedString SprintLabel; // Sprint
+        public LocalizedString Action; // Action
+        public LocalizedString Customize; // Customize
+
 
         public void SetupRefs(VisualElement root)
         {
@@ -52,6 +69,23 @@ namespace AF
 
         void UpdateUI(VisualElement root)
         {
+            RadioButtonGroup gameLanguageOptions = root.Q<RadioButtonGroup>(gameLanguageLabel);
+            gameLanguageOptions.value = LocalizationSettings.SelectedLocale.Identifier == "en" ? 0 : 1;
+            gameLanguageOptions.Focus();
+
+            gameLanguageOptions.RegisterValueChangedCallback(ev =>
+            {
+                if (ev.newValue == 0)
+                {
+                    LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("en");
+                }
+                else
+                {
+                    LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.GetLocale("pt");
+                }
+            });
+
+
 
             RadioButtonGroup graphicsOptions = root.Q<RadioButtonGroup>(graphicsQualityLabel);
             Slider cameraSensitivity = root.Q<Slider>(cameraSensitivityLabel);
@@ -68,22 +102,22 @@ namespace AF
             cameraSensitivity.RegisterValueChangedCallback(ev =>
             {
                 gameSettings.SetCameraSensitivity(ev.newValue);
-                cameraSensitivity.label = $"Camera Sensitivity ({ev.newValue})";
+                cameraSensitivity.label = String.Format(CameraSensitivityLabel.GetLocalizedString(), ev.newValue);
             });
             cameraSensitivity.lowValue = gameSettings.minimumMouseSensitivity;
             cameraSensitivity.highValue = gameSettings.maximumMouseSensitivity;
             cameraSensitivity.value = gameSettings.GetMouseSensitivity();
-            cameraSensitivity.label = $"Camera Sensitivity ({gameSettings.GetMouseSensitivity()})";
+            cameraSensitivity.label = String.Format(CameraSensitivityLabel.GetLocalizedString(), gameSettings.GetMouseSensitivity());
 
             musicVolumeSlider.RegisterValueChangedCallback(ev =>
             {
                 gameSettings.SetMusicVolume(ev.newValue);
-                musicVolumeSlider.label = $"Music Volume ({ev.newValue})";
+                musicVolumeSlider.label = String.Format(MusicVolumeLabel.GetLocalizedString(), ev.newValue);
             });
             musicVolumeSlider.lowValue = 0f;
             musicVolumeSlider.highValue = 1f;
             musicVolumeSlider.value = gameSettings.GetMusicVolume();
-            musicVolumeSlider.label = $"Music Volume ({gameSettings.GetMusicVolume()})";
+            musicVolumeSlider.label = String.Format(MusicVolumeLabel.GetLocalizedString(), gameSettings.GetMusicVolume());
 
             SetupKeyRebindingRefs(root);
         }
@@ -93,6 +127,7 @@ namespace AF
             RadioButtonGroup useDefaultOrCustomizeRadioButtonGroup = root.Q<RadioButtonGroup>("UseDefaultOrCustomize");
 
             useDefaultOrCustomizeRadioButtonGroup.value = gameSettings.UseCustomInputs() ? 1 : 0;
+
             useDefaultOrCustomizeRadioButtonGroup.SetEnabled(Gamepad.current == null);
 
             useDefaultOrCustomizeRadioButtonGroup.RegisterValueChangedCallback(ev =>
@@ -151,16 +186,29 @@ namespace AF
                 VisualElement actionInputOverride = overrideButtonInputPrefab.CloneTree();
 
                 string label = actionName;
-                if (label == "Tab")
+
+                if (label == "Jump")
                 {
-                    label = "Toggle Weapon Stance";
+                    label = JumpLabel.GetLocalizedString();
+                }
+                else if (label == "Dodge")
+                {
+                    label = DodgeLabel.GetLocalizedString();
                 }
                 else if (label == "HeavyAttack")
                 {
-                    label = "Heavy Attack";
+                    label = HeavyAttackLabel.GetLocalizedString();
+                }
+                else if (label == "Tab")
+                {
+                    label = ToggleCombatStanceLabel.GetLocalizedString();
+                }
+                else if (label == "Sprint")
+                {
+                    label = SprintLabel.GetLocalizedString();
                 }
 
-                actionInputOverride.Q<Label>("Label").text = $"{label} Action";
+                actionInputOverride.Q<Label>("Label").text = $"{Action.GetLocalizedString()} {label}";
 
                 DrawKeyBinding(actionInputOverride, inputs.GetCurrentKeyBindingForAction(actionName), () =>
                 {
@@ -201,6 +249,7 @@ namespace AF
             root.Q<Label>("Value").text = key;
 
             Button customizeBtn = root.Q<Button>("CustomizeButton");
+            customizeBtn.text = Customize.GetLocalizedString();
 
             UIUtils.SetupButton(customizeBtn, () =>
             {

@@ -3,6 +3,8 @@ using System.Linq;
 using AF.Inventory;
 using AF.Music;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
 namespace AF
@@ -53,6 +55,35 @@ namespace AF
 
         // Last scroll position
         int lastScrollElementIndex = -1;
+
+        [Header("Localization")]
+        // "Crafting Table"
+        public LocalizedString CraftingTable_LocalizedString;
+
+        // "Weapon Upgrades"
+        public LocalizedString WeaponUpgrades_LocalizedString;
+        // "Return"
+        public LocalizedString Return_LocalizedString;
+        // "Craft"
+        public LocalizedString Craft_LocalizedString;
+        // "Cook"
+        public LocalizedString Cook_LocalizedString;
+        // "Upgrade"
+        public LocalizedString Upgrade_LocalizedString;
+        // "Next Physical Damage: "
+        public LocalizedString NextPhysicalDamage_LocalizedString;
+        // "Next Fire Bonus: "
+        public LocalizedString NextFireBonus_LocalizedString;
+        // "Next Frost Bonus: "
+        public LocalizedString NextFrostBonus_LocalizedString;
+        // "Next Lightning Bonus: "
+        public LocalizedString NextLightningBonus_LocalizedString;
+        // "Next Magic Bonus: "
+        public LocalizedString NextMagicBonus_LocalizedString;
+        // "Next Darkness Bonus: "
+        public LocalizedString NextDarknessBonus_LocalizedString;
+        // "Gold"
+        public LocalizedString Gold_LocalizedString;
 
 
         private void Awake()
@@ -140,12 +171,12 @@ namespace AF
             StyleBackground targetBackground = null;
             if (craftActivity == CraftActivity.ALCHEMY)
             {
-                targetActivityTitleText = "Crafting Table";
+                targetActivityTitleText = CraftingTable_LocalizedString.GetLocalizedString();
                 targetBackground = new StyleBackground(alchemyBackgroundImage);
             }
             else if (craftActivity == CraftActivity.BLACKSMITH)
             {
-                targetActivityTitleText = "Weapon Upgrades";
+                targetActivityTitleText = WeaponUpgrades_LocalizedString.GetLocalizedString();
                 targetBackground = new StyleBackground(blacksmithBackgroundImage);
             }
             root.Q<VisualElement>("ImageBack").style.backgroundImage = targetBackground;
@@ -170,7 +201,7 @@ namespace AF
 
             Button exitButton = new()
             {
-                text = "Return"
+                text = Return_LocalizedString.GetLocalizedString()
             };
             exitButton.AddToClassList("primary-button");
             UIUtils.SetupButton(exitButton, () =>
@@ -222,10 +253,10 @@ namespace AF
                 return "";
             }
 
-            string itemDescription = recipe.resultingItem.shortDescription?.Length > 0 ?
-                                     recipe.resultingItem.shortDescription.Substring(
-                                        0, System.Math.Min(60, recipe.resultingItem.shortDescription.Length)) : "";
-            return itemDescription + (recipe.resultingItem.shortDescription?.Length > 60 ? "..." : "");
+            string itemDescription = recipe.resultingItem.GetShortDescription()?.Length > 0 ?
+                                     recipe.resultingItem.GetShortDescription().Substring(
+                                        0, System.Math.Min(60, recipe.resultingItem.GetShortDescription().Length)) : "";
+            return itemDescription + (recipe.resultingItem.GetShortDescription()?.Length > 60 ? "..." : "");
         }
 
         void PopulateCraftingScroll(ScrollView scrollView, CraftingRecipe[] ownedCraftingRecipes)
@@ -260,13 +291,13 @@ namespace AF
 
                     if (!CraftingUtils.CanCraftItem(inventoryDatabase, recipe))
                     {
-                        HandleCraftError("Missing ingredients!");
+                        HandleCraftError(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Missing ingredients!"));
                         return;
                     }
 
                     if (ShouldRuinMixture(recipe))
                     {
-                        HandleCraftError("Crafting failed! Try again...");
+                        HandleCraftError(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Crafting failed! Try again..."));
                         return;
                     }
 
@@ -327,7 +358,7 @@ namespace AF
 
                     if (!CraftingUtils.CanImproveWeapon(inventoryDatabase, wp, playerStatsDatabase.gold))
                     {
-                        HandleCraftError("Missing ingredients");
+                        HandleCraftError(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Missing ingredients!"));
                         return;
                     }
 
@@ -355,9 +386,9 @@ namespace AF
         {
             return craftActivity switch
             {
-                CraftActivity.ALCHEMY => "Craft",
-                CraftActivity.COOKING => "Cook",
-                CraftActivity.BLACKSMITH => "Upgrade",
+                CraftActivity.ALCHEMY => Craft_LocalizedString.GetLocalizedString(),
+                CraftActivity.COOKING => Cook_LocalizedString.GetLocalizedString(),
+                CraftActivity.BLACKSMITH => Upgrade_LocalizedString.GetLocalizedString(),
                 _ => "",
             };
         }
@@ -392,7 +423,7 @@ namespace AF
 
             soundbank.PlaySound(soundbank.craftSuccess);
             playerManager.playerInventory.AddItem(recipe.resultingItem, 1);
-            notificationManager.ShowNotification("Received " + recipe.resultingItem?.name, recipe.resultingItem?.sprite);
+            notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Received") + " " + recipe.resultingItem?.name, recipe.resultingItem?.sprite);
 
             foreach (var ingredient in recipe.ingredients)
             {
@@ -419,7 +450,7 @@ namespace AF
         {
             playerManager.playerAchievementsManager.achievementForUpgradingFirstWeapon.AwardAchievement();
             soundbank.PlaySound(soundbank.craftSuccess);
-            notificationManager.ShowNotification("Weapon improved!", wp.sprite);
+            notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Weapon improved!"), wp.sprite);
 
             CraftingUtils.UpgradeWeapon(
                 wp,
@@ -481,37 +512,37 @@ namespace AF
             if (weapon.GetWeaponAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("PhysicalAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("PhysicalAttack").text = "Next Physical Damage: "
+                root.Q<Label>("PhysicalAttack").text = NextPhysicalDamage_LocalizedString.GetLocalizedString() + " "
                     + weapon.GetWeaponAttackForLevel(weapon.level) + " > " + weapon.GetWeaponAttackForLevel(nextLevel);
             }
             if (weapon.GetWeaponFireAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("FireAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("FireAttack").text = "Next Fire Bonus: "
+                root.Q<Label>("FireAttack").text = NextFireBonus_LocalizedString.GetLocalizedString() + " "
                     + weapon.GetWeaponFireAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFireAttackForLevel(nextLevel);
             }
             if (weapon.GetWeaponFrostAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("FrostAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("FrostAttack").text = "Next Frost Bonus: "
+                root.Q<Label>("FrostAttack").text = NextFrostBonus_LocalizedString.GetLocalizedString() + " "
                     + weapon.GetWeaponFrostAttackForLevel(weapon.level) + " > " + weapon.GetWeaponFrostAttackForLevel(nextLevel);
             }
             if (weapon.GetWeaponLightningAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("LightningAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("LightningAttack").text = "Next Lightning Bonus: "
+                root.Q<Label>("LightningAttack").text = NextLightningBonus_LocalizedString.GetLocalizedString() + " "
                     + weapon.GetWeaponLightningAttackForLevel(weapon.level) + " > " + weapon.GetWeaponLightningAttackForLevel(nextLevel);
             }
             if (weapon.GetWeaponMagicAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("MagicAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("MagicAttack").text = "Next Magic Bonus: "
+                root.Q<Label>("MagicAttack").text = NextMagicBonus_LocalizedString.GetLocalizedString() + " "
                     + weapon.GetWeaponMagicAttackForLevel(weapon.level) + " > " + weapon.GetWeaponMagicAttackForLevel(nextLevel);
             }
             if (weapon.GetWeaponDarknessAttackForLevel(nextLevel) > 0)
             {
                 root.Q<Label>("DarknessAttack").style.display = DisplayStyle.Flex;
-                root.Q<Label>("DarknessAttack").text = "Next Dark Bonus: "
+                root.Q<Label>("DarknessAttack").text = NextDarknessBonus_LocalizedString.GetLocalizedString() + " "
                     + weapon.GetWeaponDarknessAttackForLevel(weapon.level) + " > " + weapon.GetWeaponDarknessAttackForLevel(nextLevel);
             }
 
@@ -526,7 +557,7 @@ namespace AF
 
                 var ingredientItemEntry = ingredientItem.CloneTree();
                 ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(upgradeMaterialItem.sprite);
-                ingredientItemEntry.Q<Label>("Title").text = upgradeMaterialItem.name;
+                ingredientItemEntry.Q<Label>("Title").text = upgradeMaterialItem.GetName();
 
                 var playerOwnedIngredient = inventoryDatabase.HasItem(upgradeMaterialItem)
                     ? inventoryDatabase.ownedItems[upgradeMaterialItem]

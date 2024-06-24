@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 
 namespace AF
@@ -33,6 +35,7 @@ namespace AF
 
         [Header("Databases")]
         public PickupDatabase pickupDatabase;
+
 
         Soundbank GetSoundbank()
         {
@@ -106,9 +109,9 @@ namespace AF
             if (showNotificationText)
             {
                 GetSoundbank().PlaySound(GetSoundbank().uiItemReceived);
-                GetNotificationManager().ShowNotification("Found x" + _amount + " " + _item.name + "", _item.sprite);
+                GetNotificationManager().ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Found x") + _amount + " " + _item.GetName() + "", _item.sprite);
             }
-
         }
     }
 

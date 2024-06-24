@@ -515,7 +515,7 @@ namespace AF.UI.EquipmentMenu
 
             if (item != null)
             {
-                menuLabel.text = item.name;
+                menuLabel.text = item.GetName();
 
                 if (item is Weapon weapon)
                 {
