@@ -886,7 +886,7 @@ namespace AF.UI.EquipmentMenu
                     Color.white,
                     String.Format(
                         reputationBonus.GetLocalizedString(),
-                        $"-{armor.reputationBonus}"));
+                        $"{armor.reputationBonus}"));
             }
 
             if (armor.discountPercentage > 0)
@@ -1182,9 +1182,14 @@ namespace AF.UI.EquipmentMenu
             {
                 CreateTooltip(statusEffectsSprite, Color.white, consumable.GetFormattedRemovedStatusEffects());
             }
-            if (consumable.statusesToRemove != null && consumable.statusEffectsWhenConsumed.Length > 0)
+            if (consumable.statusEffectsWhenConsumed != null && consumable.statusEffectsWhenConsumed.Length > 0)
             {
-                CreateTooltip(statusEffectsSprite, Color.white, consumable.GetFormattedAppliedStatusEffects());
+                string consumableText = consumable.GetFormattedAppliedStatusEffects();
+
+                if (string.IsNullOrEmpty(consumableText) == false)
+                {
+                    CreateTooltip(statusEffectsSprite, Color.white, consumableText);
+                }
             }
             if (consumable.isBossToken)
             {

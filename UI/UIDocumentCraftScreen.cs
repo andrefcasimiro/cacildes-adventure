@@ -273,7 +273,7 @@ namespace AF
                 var scrollItem = this.recipeItem.CloneTree();
 
                 scrollItem.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(recipe.resultingItem?.sprite);
-                scrollItem.Q<Label>("ItemName").text = recipe.resultingItem?.name;
+                scrollItem.Q<Label>("ItemName").text = recipe.resultingItem?.GetName();
 
                 scrollItem.Q<Label>("ItemDescription").text = GetItemDescription(recipe);
                 scrollItem.Q<Label>("ItemDescription").style.display = DisplayStyle.Flex;
@@ -423,7 +423,7 @@ namespace AF
 
             soundbank.PlaySound(soundbank.craftSuccess);
             playerManager.playerInventory.AddItem(recipe.resultingItem, 1);
-            notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Received") + " " + recipe.resultingItem?.name, recipe.resultingItem?.sprite);
+            notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Received") + " " + recipe.resultingItem?.GetName(), recipe.resultingItem?.sprite);
 
             foreach (var ingredient in recipe.ingredients)
             {
@@ -443,7 +443,7 @@ namespace AF
 
         string GetWeaponName(Weapon wp)
         {
-            return $"{wp.name} +{wp.level} > {wp.name} +{wp.level + 1}";
+            return $"{wp.GetName()} +{wp.level} > {wp.GetName()} +{wp.level + 1}";
         }
 
         void HandleWeaponUpgrade(Weapon wp)
@@ -467,7 +467,7 @@ namespace AF
             {
                 var ingredientItemEntry = ingredientItem.CloneTree();
                 ingredientItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(ingredient.ingredient.sprite);
-                ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.name;
+                ingredientItemEntry.Q<Label>("Title").text = ingredient.ingredient.GetName();
 
                 var playerOwnedIngredientAmount = 0;
 
@@ -501,7 +501,7 @@ namespace AF
             root.Q<VisualElement>("WeaponNextUpgradeDescription").style.display = DisplayStyle.Flex;
 
             // Weapon preview
-            root.Q<Label>("WeaponLevelPreview").text = weapon.name + " +" + nextLevel;
+            root.Q<Label>("WeaponLevelPreview").text = weapon.GetName() + " +" + nextLevel;
             root.Q<Label>("PhysicalAttack").style.display = DisplayStyle.None;
             root.Q<Label>("FireAttack").style.display = DisplayStyle.None;
             root.Q<Label>("FrostAttack").style.display = DisplayStyle.None;
@@ -579,7 +579,7 @@ namespace AF
 
             var goldItemEntry = ingredientItem.CloneTree();
             goldItemEntry.Q<IMGUIContainer>("ItemIcon").style.backgroundImage = new StyleBackground(goldSprite);
-            goldItemEntry.Q<Label>("Title").text = "Gold";
+            goldItemEntry.Q<Label>("Title").text = LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Gold");
 
             goldItemEntry.Q<Label>("Amount").text = playerStatsDatabase.gold + " / " + weaponUpgradeLevel.goldCostForUpgrade;
             goldItemEntry.Q<Label>("Amount").style.opacity = playerStatsDatabase.gold >= weaponUpgradeLevel.goldCostForUpgrade ? 1 : 0.25f;

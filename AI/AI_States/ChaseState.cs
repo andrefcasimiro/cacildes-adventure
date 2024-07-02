@@ -130,6 +130,10 @@ namespace AF
             {
                 return patrolOrIdleState;
             }
+            else if (distanceToTarget >= companionsDatabase.maxDistanceToPlayerBeforeTeleportingNear)
+            {
+                characterManager.TeleportNearPlayer();
+            }
 
             return this;
         }

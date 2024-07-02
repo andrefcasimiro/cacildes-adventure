@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
 namespace AF.UI.EquipmentMenu
@@ -177,11 +178,11 @@ namespace AF.UI.EquipmentMenu
                     {
                         activeButton = entry.Key;
 
-                        SetupEquipmentButton(ItemList.EquipmentType.WEAPON, localSlotIndex, "Weapons");
+                        SetupEquipmentButton(ItemList.EquipmentType.WEAPON, localSlotIndex, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Weapons"));
                     },
                     () =>
                     {
-                        OnSlotFocus("Weapons", entry.Value());
+                        OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Weapons"), entry.Value());
                     },
                     () =>
                     {
@@ -213,11 +214,11 @@ namespace AF.UI.EquipmentMenu
                     {
                         activeButton = entry.Key;
 
-                        SetupEquipmentButton(ItemList.EquipmentType.SHIELD, localSlotIndex, "Shields");
+                        SetupEquipmentButton(ItemList.EquipmentType.SHIELD, localSlotIndex, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Shields"));
                     },
                     () =>
                     {
-                        OnSlotFocus("Shields", entry.Value());
+                        OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Shields"), entry.Value());
                     },
                     () =>
                     {
@@ -248,11 +249,11 @@ namespace AF.UI.EquipmentMenu
                     {
                         activeButton = entry.Key;
 
-                        SetupEquipmentButton(ItemList.EquipmentType.ARROW, localSlotIndex, "Arrow");
+                        SetupEquipmentButton(ItemList.EquipmentType.ARROW, localSlotIndex, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Arrows"));
                     },
                     () =>
                     {
-                        OnSlotFocus("Arrows", entry.Value());
+                        OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Arrows"), entry.Value());
                     },
                     () =>
                     {
@@ -285,11 +286,11 @@ namespace AF.UI.EquipmentMenu
                     () =>
                     {
                         activeButton = entry.Key;
-                        SetupEquipmentButton(ItemList.EquipmentType.SPELL, localSlotIndex, "Spell");
+                        SetupEquipmentButton(ItemList.EquipmentType.SPELL, localSlotIndex, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Spells"));
                     },
                     () =>
                     {
-                        OnSlotFocus("Spells", entry.Value());
+                        OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Spells"), entry.Value());
                     },
                     () =>
                     {
@@ -320,9 +321,9 @@ namespace AF.UI.EquipmentMenu
             {
                 activeButton = helmetButtonSlot;
 
-                SetupEquipmentButton(ItemList.EquipmentType.HELMET, 0, "Helmet");
+                SetupEquipmentButton(ItemList.EquipmentType.HELMET, 0, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Helmet"));
             },
-            () => { OnSlotFocus("Helmet", Get()); },
+            () => { OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Helmet"), Get()); },
             OnSlotFocusOut,
             false,
             soundbank);
@@ -336,9 +337,9 @@ namespace AF.UI.EquipmentMenu
             {
                 activeButton = armorButtonSlot;
 
-                SetupEquipmentButton(ItemList.EquipmentType.ARMOR, 0, "Armor");
+                SetupEquipmentButton(ItemList.EquipmentType.ARMOR, 0, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Armor"));
             },
-            () => { OnSlotFocus("Armor", Get()); },
+            () => { OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Armor"), Get()); },
             OnSlotFocusOut,
             false,
             soundbank);
@@ -352,9 +353,9 @@ namespace AF.UI.EquipmentMenu
             {
                 activeButton = gauntletsButtonSlot;
 
-                SetupEquipmentButton(ItemList.EquipmentType.GAUNTLET, 0, "Gauntlets");
+                SetupEquipmentButton(ItemList.EquipmentType.GAUNTLET, 0, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Gauntlets"));
             },
-            () => { OnSlotFocus("Gauntlets", Get()); },
+            () => { OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Gauntlets"), Get()); },
             OnSlotFocusOut,
             false,
             soundbank);
@@ -368,9 +369,9 @@ namespace AF.UI.EquipmentMenu
             {
                 activeButton = bootsButtonSlot;
 
-                SetupEquipmentButton(ItemList.EquipmentType.BOOTS, 0, "Boots");
+                SetupEquipmentButton(ItemList.EquipmentType.BOOTS, 0, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Boots"));
             },
-            () => { OnSlotFocus("Boots", Get()); },
+            () => { OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Boots"), Get()); },
             OnSlotFocusOut,
             false,
             soundbank);
@@ -396,11 +397,11 @@ namespace AF.UI.EquipmentMenu
                     {
                         activeButton = entry.Key;
 
-                        SetupEquipmentButton(ItemList.EquipmentType.ACCESSORIES, localSlotIndex, "Accessories");
+                        SetupEquipmentButton(ItemList.EquipmentType.ACCESSORIES, localSlotIndex, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Accessories"));
                     },
                     () =>
                     {
-                        OnSlotFocus("Accessories", entry.Value());
+                        OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Accessories"), entry.Value());
                     },
                     () =>
                     {
@@ -439,11 +440,11 @@ namespace AF.UI.EquipmentMenu
                     {
                         activeButton = entry.Key;
 
-                        SetupEquipmentButton(ItemList.EquipmentType.CONSUMABLES, localSlotIndex, "Consumables");
+                        SetupEquipmentButton(ItemList.EquipmentType.CONSUMABLES, localSlotIndex, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Consumables"));
                     },
                     () =>
                     {
-                        OnSlotFocus("Consumables", entry.Value());
+                        OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Consumables"), entry.Value());
                     },
                     () =>
                     {
@@ -462,11 +463,11 @@ namespace AF.UI.EquipmentMenu
             () =>
             {
                 activeButton = otherItemsButton;
-                SetupEquipmentButton(ItemList.EquipmentType.OTHER_ITEMS, 0, "All Items");
+                SetupEquipmentButton(ItemList.EquipmentType.OTHER_ITEMS, 0, LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "All Items"));
             },
             () =>
             {
-                OnSlotFocus("All Items", null);
+                OnSlotFocus(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "All Items"), null);
             },
             () =>
             {
@@ -529,7 +530,7 @@ namespace AF.UI.EquipmentMenu
 
         void OnSlotFocusOut()
         {
-            menuLabel.text = "Equipment";
+            menuLabel.text = LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Equipment");
 
             itemTooltip.gameObject.SetActive(false);
         }

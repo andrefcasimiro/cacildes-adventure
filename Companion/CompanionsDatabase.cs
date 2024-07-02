@@ -17,6 +17,7 @@ namespace AF.Companions
 
         [Header("Settings")]
         public float companionToPlayerStoppingDistance = 2f;
+        public float maxDistanceToPlayerBeforeTeleportingNear = 15f;
 
 #if UNITY_EDITOR 
         private void OnEnable()

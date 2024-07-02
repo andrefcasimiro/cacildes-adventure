@@ -86,12 +86,25 @@ namespace AF.Companions
 
         public void TeleportCompanion(CharacterManager characterManager, Vector3 spawnPosition)
         {
-            characterManager.characterController.enabled = false;
-            characterManager.agent.enabled = false;
-            characterManager.transform.position = spawnPosition;
-            characterManager.agent.nextPosition = spawnPosition;
-            characterManager.agent.enabled = true;
-            characterManager.characterController.enabled = true;
+            if (IsValidPosition(spawnPosition))
+            {
+                characterManager.characterController.enabled = false;
+                characterManager.agent.enabled = false;
+
+                characterManager.transform.position = spawnPosition;
+                characterManager.agent.nextPosition = spawnPosition;
+
+                characterManager.agent.enabled = true;
+                characterManager.characterController.enabled = true;
+            }
+
+        }
+
+        private bool IsValidPosition(Vector3 position)
+        {
+            // Check for Infinity or NaN values
+            return !float.IsInfinity(position.x) && !float.IsInfinity(position.y) && !float.IsInfinity(position.z) &&
+                   !float.IsNaN(position.x) && !float.IsNaN(position.y) && !float.IsNaN(position.z);
         }
 
         public void TeleportCompanionsNearPlayer()

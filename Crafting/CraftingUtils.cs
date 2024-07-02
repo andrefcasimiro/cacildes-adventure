@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AF.Inventory;
 using UnityEngine.Events;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -125,10 +126,11 @@ namespace AF
 
         public static string GetFormattedTextForRecipesUsingItem(CraftingRecipe[] resultingRecipes)
         {
-            string text = "Used in:\n";
+            string text = LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Use to prepare:");
+
             for (int i = 0; i < resultingRecipes.Length; i++)
             {
-                text += "- " + resultingRecipes[i].name;
+                text += "- " + resultingRecipes[i].resultingItem.GetName();
                 if (i < resultingRecipes.Length - 1)
                 {
                     text += "\n";

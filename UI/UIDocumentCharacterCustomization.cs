@@ -136,6 +136,17 @@ namespace AF
             saveChangesButton.Focus();
         }
 
+        /// <summary>
+        ///  Unity Event
+        /// </summary>
+        public void Close()
+        {
+            if (this.gameObject.activeSelf)
+            {
+                this.gameObject.SetActive(false);
+            }
+        }
+
         void SetupUI()
         {
             SetupNameInput();

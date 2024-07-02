@@ -16,6 +16,7 @@ namespace AF.Misc
         public LocalizedString notificationSuffixText;
 
         [Header("Events")]
+        public UnityEvent onCounterIncreased;
         public UnityEvent onCounterMaxed;
 
         bool hasReachedLimit = false;
@@ -43,6 +44,8 @@ namespace AF.Misc
             {
                 notificationManager.ShowNotification($"{counter}/{maxCounter}{notificationSuffixText.GetLocalizedString()}", notificationSprite);
             }
+
+            onCounterIncreased?.Invoke();
 
             if (counter >= maxCounter)
             {

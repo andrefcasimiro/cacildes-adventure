@@ -177,13 +177,13 @@ namespace AF.Shops
                 buyerGold.text = playerStatsDatabase.gold.ToString() + " " + coins_LocalizedString.GetLocalizedString();
                 buyerIcon.style.backgroundImage = new StyleBackground(playerManager.playerAppearance.GetPlayerPortrait());
 
-                sellerName.text = characterShop.character.name;
+                sellerName.text = characterShop.character.GetCharacterName();
                 sellerGold.text = characterShop.shopGold.ToString();
                 sellerIcon.style.backgroundImage = new StyleBackground(characterShop.character.avatar);
             }
             else
             {
-                buyerName.text = characterShop.character.name;
+                buyerName.text = characterShop.character.GetCharacterName();
                 buyerGold.text = characterShop.shopGold.ToString() + " " + coins_LocalizedString.GetLocalizedString();
                 buyerIcon.style.backgroundImage = new StyleBackground(characterShop.character.avatar);
 

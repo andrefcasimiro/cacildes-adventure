@@ -96,7 +96,7 @@ namespace AF
             foreach (var resistance in statusEffectResistances)
             {
 
-                if (resistance != null)
+                if (resistance != null && resistance.statusEffect != null && resistance.statusEffect.GetName().Length > 0)
                 {
                     result += $"+{resistance.resistanceBonus} {resistenceAgainstLabel} {resistance.statusEffect.GetName()}\n";
                 }

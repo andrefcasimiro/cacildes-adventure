@@ -18,6 +18,7 @@ namespace AF.Bonfires
         public UnityEvent onBonfire_Exit;
 
         [Header("UI")]
+        public string bonfireId;
         public string bonfireName;
 
         [HideInInspector]
@@ -118,7 +119,7 @@ namespace AF.Bonfires
 
             if (canBeTravelledTo)
             {
-                UnlockBonfire(bonfireName);
+                UnlockBonfire(bonfireId);
             }
 
             SetPlayerLockState(true);

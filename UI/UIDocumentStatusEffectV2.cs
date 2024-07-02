@@ -88,7 +88,7 @@ namespace AF
 
             var appliedStatusLabel = statusEffectEntry.Q<Label>("AppliedStatusLabel");
             appliedStatusLabel.text = appliedStatusEffect.hasReachedTotalAmount
-                ? appliedStatusEffect.statusEffect.appliedName : appliedStatusEffect.statusEffect.builtUpName;
+                ? appliedStatusEffect.statusEffect.GetAppliedName() : appliedStatusEffect.statusEffect.GetName();
         }
 
         VisualElement GetStatusEffectEntry(AppliedStatusEffect appliedStatusEffect)

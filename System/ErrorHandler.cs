@@ -34,7 +34,9 @@ namespace AF
             "cannot be converted to type 'AF.State'.",
             "[Steamworks.NET] SteamAPI_Init() failed.",
             "CaptureScreenshotAsTexture() failed to generate texture!",
-            "CharacterController.Move called on inactive controller"
+            "CharacterController.Move called on inactive controller",
+            "Stack Trace: AF.Shooting.CharacterShooter.FireProjectile",
+            "AF.Combat.TargetManager.ClearTarget ()"
         };
 
         void Start()

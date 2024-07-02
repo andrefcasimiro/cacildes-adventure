@@ -6,6 +6,7 @@ using AF.Stats;
 using AYellowpaper.SerializedCollections;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -237,43 +238,43 @@ namespace AF
             if (CanBeUpgradedFurther() && weaponUpgrades[this.level - 1] != null && weaponUpgrades[this.level - 1].upgradeMaterials != null)
             {
                 WeaponUpgradeLevel nextWeaponUpgradeLevel = weaponUpgrades[this.level - 1];
-                string text = $"Next Weapon Level: {this.level + 1}\n";
+                string text = $"{LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Next Weapon Level: ")}{this.level + 1}\n";
 
-                if (nextWeaponUpgradeLevel.newDamage.physical > 0)
+                /*if (nextWeaponUpgradeLevel.newDamage.physical > 0)
                 {
-                    text += $"+{nextWeaponUpgradeLevel.newDamage.physical} Physical ATK\n";
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.physical} {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Physical ATK")}\n";
                 }
                 if (nextWeaponUpgradeLevel.newDamage.fire > 0)
                 {
-                    text += $"+{nextWeaponUpgradeLevel.newDamage.fire} Fire ATK\n";
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.fire} {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Fire ATK")}\n";
                 }
                 if (nextWeaponUpgradeLevel.newDamage.frost > 0)
                 {
-                    text += $"+{nextWeaponUpgradeLevel.newDamage.frost} Frost ATK\n";
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.frost}  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Frost ATK")}\n";
                 }
                 if (nextWeaponUpgradeLevel.newDamage.lightning > 0)
                 {
-                    text += $"+{nextWeaponUpgradeLevel.newDamage.lightning} Lightning ATK\n";
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.lightning}  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Lightning ATK")}\n";
                 }
                 if (nextWeaponUpgradeLevel.newDamage.magic > 0)
                 {
-                    text += $"+{nextWeaponUpgradeLevel.newDamage.magic} Magic ATK\n";
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.magic}  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Magic ATK")}\n";
                 }
                 if (nextWeaponUpgradeLevel.newDamage.darkness > 0)
                 {
-                    text += $"+{nextWeaponUpgradeLevel.newDamage.darkness} Darkness ATK\n";
+                    text += $"+{nextWeaponUpgradeLevel.newDamage.darkness}  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Darkness ATK")}\n";
                 }
 
                 if (nextWeaponUpgradeLevel.newDamage.statusEffects != null)
                 {
                     foreach (var statusEffect in nextWeaponUpgradeLevel.newDamage.statusEffects)
                     {
-                        text += $"+{statusEffect.amountPerHit} ${statusEffect.statusEffect.appliedName} Inflicted per HIT\n";
+                        text += $"+{statusEffect.amountPerHit} {statusEffect.statusEffect.GetName()}  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Inflicted per Hit")}\n";
                     }
-                }
+                }*/
 
-                text += $"Required Gold: {nextWeaponUpgradeLevel.goldCostForUpgrade} Coins\n";
-                text += $"Required Items:\n";
+                text += $"{LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Required Gold:")} {nextWeaponUpgradeLevel.goldCostForUpgrade} {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Coins")}\n";
+                text += $"{LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Required Items:")} \n";
 
                 foreach (var upgradeMat in weaponUpgrades[this.level - 1].upgradeMaterials)
                 {
@@ -285,6 +286,7 @@ namespace AF
 
                 return text;
             }
+
             return "";
         }
 
@@ -321,29 +323,30 @@ namespace AF
 
         public string DrawRequirements(StatsBonusController statsBonusController)
         {
-            string text = AreRequirementsMet(statsBonusController) ? "Requirements met: " : "Requirements not met:";
-            text += "\n";
+            string text = AreRequirementsMet(statsBonusController)
+                ? LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Requirements met: ")
+                : LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Requirements not met: ");
 
             if (strengthRequired != 0)
             {
-                text += $"  Strength Required: {strengthRequired}   Current: {statsBonusController.GetCurrentStrength()}\n";
+                text += $"  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Strength Required:")} {strengthRequired}   {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Current:")} {statsBonusController.GetCurrentStrength()}\n";
             }
             if (dexterityRequired != 0)
             {
-                text += $"  Dexterity Required: {dexterityRequired}   Current: {statsBonusController.GetCurrentDexterity()}\n";
+                text += $"  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Dexterity Required:")} {dexterityRequired}   {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Current:")} {statsBonusController.GetCurrentDexterity()}\n";
             }
             if (intelligenceRequired != 0)
             {
-                text += $"  Intelligence Required: {intelligenceRequired}   Current: {statsBonusController.GetCurrentIntelligence()}\n";
+                text += $"  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Intelligence Required:")} {intelligenceRequired}   {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Current:")} {statsBonusController.GetCurrentIntelligence()}\n";
             }
             if (positiveReputationRequired != 0)
             {
-                text += $"  Reputation Required: {intelligenceRequired}   Current: {statsBonusController.GetCurrentReputation()}\n";
+                text += $"  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Reputation Required:")} {intelligenceRequired}   {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Current:")} {statsBonusController.GetCurrentReputation()}\n";
             }
 
             if (negativeReputationRequired != 0)
             {
-                text += $"  Reputation Required: -{negativeReputationRequired}   Current: {statsBonusController.GetCurrentReputation()}\n";
+                text += $"  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Reputation Required:")} -{negativeReputationRequired}   {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Current:")} {statsBonusController.GetCurrentReputation()}\n";
             }
 
             return text.TrimEnd();

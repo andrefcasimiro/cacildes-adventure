@@ -132,7 +132,7 @@ namespace AF.Shops
             {
                 discountDescriptions.Add(
                     (isBuying ? "-" : "+") + (100 - discountGivenByItemInInventory * 100)
-                    + String.Format(pricesForHavingItemInInventory_LocalizedString.GetLocalizedString(), requiredItemForDiscounts.name));
+                    + String.Format(pricesForHavingItemInInventory_LocalizedString.GetLocalizedString(), requiredItemForDiscounts.GetName()));
             }
             if (discountGivenByShopItself != 1)
             {
@@ -143,7 +143,7 @@ namespace AF.Shops
             {
                 discountDescriptions.Add((isBuying ? "-" : "+")
                     + (100 - statsBonusController.discountPercentage * 100)
-                    + pricesFromPlayerBonusStats_LocalizedString);
+                    + pricesFromPlayerBonusStats_LocalizedString.GetLocalizedString());
             }
             if (discountGivenByQuestCompleted != 1
                 && questParent != null
@@ -151,7 +151,7 @@ namespace AF.Shops
                 && questProgressesRequiredForDiscount.Contains(questParent.questProgress))
             {
                 discountDescriptions.Add((isBuying ? "-" : "+") + (100 - discountGivenByQuestCompleted * 100)
-                + String.Format(pricesFromCompletingQuest_LocalizedString.GetLocalizedString(), questParent.name));
+                + String.Format(pricesFromCompletingQuest_LocalizedString.GetLocalizedString(), questParent.questName_LocalizedString.GetLocalizedString()));
             }
 
             return discountDescriptions;

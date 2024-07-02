@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using AF.Health;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -134,7 +135,7 @@ namespace AF
             {
                 if (resistance != null)
                 {
-                    result += $"%{100 - (resistance.absorption * 100)} {resistance.statusEffect.name} Absorption\n";
+                    result += $"%{100 - (resistance.absorption * 100)} {resistance.statusEffect.name} {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Absorption")}\n";
                 }
             }
 
@@ -149,7 +150,7 @@ namespace AF
             {
                 if (resistance != null)
                 {
-                    result += $"+{resistance.amountPerHit} {resistance.statusEffect.name} inflicted on enemy attacking shield\n";
+                    result += $"+{resistance.amountPerHit} {resistance.statusEffect.name} {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "inflicted on enemy attacking shield")}\n";
                 }
             }
 

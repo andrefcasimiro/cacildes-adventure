@@ -112,7 +112,10 @@ namespace AF.Combat
             {
                 NotifyCompanions();
 
-                onAgressiveTowardsPlayer(true);
+                if (onAgressiveTowardsPlayer != null)
+                {
+                    onAgressiveTowardsPlayer(true);
+                }
                 onAgressiveTowardsPlayer_Event?.Invoke();
             }
         }
@@ -149,7 +152,10 @@ namespace AF.Combat
         public void ClearTarget()
         {
             currentTarget = null;
-            onAgressiveTowardsPlayer(false);
+            if (onAgressiveTowardsPlayer != null)
+            {
+                onAgressiveTowardsPlayer(false);
+            }
             onClearTarget_Event?.Invoke();
         }
 

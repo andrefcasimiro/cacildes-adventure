@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -28,7 +29,7 @@ namespace AF
             {
                 if (statusEffectToRemove != null)
                 {
-                    result += $"Removes Status: {statusEffectToRemove.name}\n";
+                    result += $"{LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Removes Status:")} {statusEffectToRemove.GetName()}\n";
                 }
             }
 
@@ -41,9 +42,9 @@ namespace AF
 
             foreach (var statusEffect in statusEffectsWhenConsumed)
             {
-                if (statusEffect != null)
+                if (statusEffect != null && statusEffect.GetName().Length > 0)
                 {
-                    result += $"{statusEffect.name}\n";
+                    result += $"{statusEffect.GetName()}\n";
                 }
             }
 

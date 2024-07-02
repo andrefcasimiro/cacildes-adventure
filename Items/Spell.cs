@@ -1,6 +1,6 @@
 using AF.Stats;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Localization.Settings;
 
 namespace AF
 {
@@ -42,7 +42,7 @@ namespace AF
             {
                 if (statusEffect != null)
                 {
-                    result += $"{statusEffect.name}\n";
+                    result += $"{statusEffect.GetName()}\n";
                 }
             }
 
@@ -74,21 +74,22 @@ namespace AF
 
         public string DrawRequirements(StatsBonusController statsBonusController)
         {
-            string text = AreRequirementsMet(statsBonusController) ? "Requirements met: " : "Requirements not met:";
-            text += "\n";
+            string text = AreRequirementsMet(statsBonusController)
+                ? LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Requirements met: ")
+                : LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Requirements not met: ");
 
             if (intelligenceRequired != 0)
             {
-                text += $"  Intelligence Required: {intelligenceRequired}   Current: {statsBonusController.GetCurrentIntelligence()}\n";
+                text += $"  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Intelligence Required:")} {intelligenceRequired}   {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Current:")} {statsBonusController.GetCurrentIntelligence()}\n";
             }
             if (positiveReputationRequired != 0)
             {
-                text += $"  Reputation Required: {intelligenceRequired}   Current: {statsBonusController.GetCurrentReputation()}\n";
+                text += $"  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Reputation Required:")} {intelligenceRequired}   {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Current:")} {statsBonusController.GetCurrentReputation()}\n";
             }
 
             if (negativeReputationRequired != 0)
             {
-                text += $"  Reputation Required: -{negativeReputationRequired}   Current: {statsBonusController.GetCurrentReputation()}\n";
+                text += $"  {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Reputation Required:")} -{negativeReputationRequired}   {LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Current:")} {statsBonusController.GetCurrentReputation()}\n";
             }
             return text.TrimEnd();
         }

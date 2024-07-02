@@ -124,6 +124,19 @@ namespace AF
             return false;
         }
 
+        bool IsViewBlocked(Transform target)
+        {
+            if (Physics.Linecast(playerHeadRef.transform.position, target.transform.position, out RaycastHit hit, blockLayers))
+            {
+                if (hit.transform != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         IEnumerator CheckIfShouldDisengage_Coroutine()
         {
             yield return new WaitForSeconds(MAX_TIME_BEFORE_DISENGAGING);
@@ -256,6 +269,7 @@ namespace AF
 
                     if (enemy.transform.root != playerManager.transform.root
                         && InScreen(enemy)
+                        && !IsViewBlocked(enemy.transform)
                         && distanceFromTarget <= maximumLockOnDistance)
                     {
                         availableTargets.Add(enemy);

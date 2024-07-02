@@ -1,5 +1,7 @@
 
 using System.Collections.Generic;
+using System.Linq;
+using AF.Characters;
 using AF.Combat;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,6 +21,9 @@ namespace AF.Detection
 
         [Header("Tags")]
         public List<string> tagsToDetect = new();
+
+        [Header("Factions")]
+        public List<CharacterFaction> factionsToIgnore = new();
 
         [Header("Events")]
         public UnityEvent OnTargetSighted;
@@ -67,10 +72,13 @@ namespace AF.Detection
 
                 if (isSighted && hit.TryGetComponent(out CharacterBaseManager target))
                 {
-                    targetManager.SetTarget(target, () =>
+                    if (factionsToIgnore == null || factionsToIgnore.Count == 0 || !target.characterFactions.Any(faction => factionsToIgnore.Contains(faction)))
                     {
-                        OnTargetSighted?.Invoke();
-                    }, false);
+                        targetManager.SetTarget(target, () =>
+                        {
+                            OnTargetSighted?.Invoke();
+                        }, false);
+                    }
                 }
             }
         }

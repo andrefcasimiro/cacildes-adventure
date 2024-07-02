@@ -97,11 +97,11 @@ namespace AF
                 if (inventoryDatabase.HasItem(requiredItemToOpen))
                 {
                     inventoryDatabase.RemoveItem(requiredItemToOpen);
-                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.name} " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "was lost with its use."));
+                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.GetName()} " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "was lost with its use."));
                 }
                 else
                 {
-                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.name} " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "is required to activate."));
+                    GetNotificationManager().ShowNotification($"{requiredItemToOpen.GetName()} " + LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "is required to activate."));
                     canActivate = false;
                 }
             }

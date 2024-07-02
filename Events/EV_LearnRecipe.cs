@@ -64,7 +64,7 @@ namespace AF
 
                 GetNotificationManager().ShowNotification(
                     LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Learned recipe:") + " "
-                     + recipe.name, GetNotificationManager().recipeIcon);
+                     + recipe.resultingItem.GetName(), GetNotificationManager().recipeIcon);
             }
 
             yield return null;
