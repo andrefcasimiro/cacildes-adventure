@@ -255,5 +255,13 @@ namespace AF.Animations
         {
             playerManager.playerWeaponsManager.HandleWeaponSpecial();
         }
+
+        public void MoveTowardsTarget()
+        {
+        }
+
+        public void StopMoveTowardsTarget()
+        {
+        }
     }
 }

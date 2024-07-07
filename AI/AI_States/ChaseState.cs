@@ -62,7 +62,11 @@ namespace AF
 
         public override State Tick(StateManager stateManager)
         {
-            characterManager.agent.speed = characterManager.chaseSpeed;
+
+            if (!characterManager.isCuttingDistanceToTarget)
+            {
+                characterManager.agent.speed = characterManager.chaseSpeed;
+            }
 
             if (characterManager.IsBusy())
             {

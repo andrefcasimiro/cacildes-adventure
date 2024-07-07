@@ -208,6 +208,10 @@ namespace AF.UI.EquipmentMenu
         // Item usage replenishes when resting at a bonfire
         public LocalizedString itemUsageReplenishesWhenRestingAtABonfire;
 
+        // Attack bonus when two handing
+        public LocalizedString multiplierWhenTwoHanding;
+
+
 
         private void OnEnable()
         {
@@ -1101,6 +1105,14 @@ namespace AF.UI.EquipmentMenu
                         backStabAngleBonus.GetLocalizedString(),
                         accessory.backStabAngleBonus
                 ));
+            }
+            if (accessory.twoHandAttackBonusMultiplier > 0)
+            {
+                CreateTooltip(
+                    slashSprite,
+                    Color.white,
+                    "x" + accessory.twoHandAttackBonusMultiplier + "% " + multiplierWhenTwoHanding.GetLocalizedString()
+                );
             }
         }
 

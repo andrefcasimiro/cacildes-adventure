@@ -297,7 +297,6 @@ namespace AF.UI.EquipmentMenu
             if (item.Key is Weapon weapon)
             {
                 equippedSlotIndex = equipmentDatabase.GetEquippedWeaponSlot(weapon);
-
             }
             else if (item.Key is Shield shield)
             {
@@ -332,11 +331,12 @@ namespace AF.UI.EquipmentMenu
         {
             this.itemsScrollView.Clear();
 
-            Dictionary<Item, ItemAmount> filteredItems = inventoryDatabase.ownedItems.Where(item =>
-            {
-                return ShouldShowItem<T>(item, slotIndex, showOnlyKeyItems);
-            }).ToDictionary(item => item.Key, item => item.Value);
-
+            Dictionary<Item, ItemAmount> filteredItems = inventoryDatabase.ownedItems
+                .Where(item =>
+                {
+                    return ShouldShowItem<T>(item, slotIndex, showOnlyKeyItems);
+                })
+                .ToDictionary(item => item.Key, item => item.Value);
 
             for (int i = 0; i < filteredItems.Count; i++)
             {

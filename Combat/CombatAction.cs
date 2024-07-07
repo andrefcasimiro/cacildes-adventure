@@ -91,6 +91,5 @@ namespace AF.Combat
 
             return true;
         }
-
     }
 }

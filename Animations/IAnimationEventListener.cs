@@ -47,5 +47,9 @@ namespace AF.Animations
 
         public void OnWeaponSpecial();
 
+        public void MoveTowardsTarget();
+        public void StopMoveTowardsTarget();
+
+
     }
 }

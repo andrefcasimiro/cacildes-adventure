@@ -279,6 +279,7 @@ namespace AF.Stats
 
                 postureDecreaseRateBonus += accessory?.postureDecreaseRateBonus ?? 0;
 
+
                 if (accessory != null && accessory.chanceToRestoreHealthUponDeath)
                 {
                     chanceToRestoreHealthUponDeath = true;

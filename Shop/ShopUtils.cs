@@ -65,7 +65,7 @@ namespace AF.Shops
             {
                 itemName += $" ({npcItemsToSell[item].quantity})";
             }
-            else
+            else if (item is not Weapon)
             {
                 int itemAmount = inventoryDatabase.GetItemAmount(item);
                 if (itemAmount > 0)

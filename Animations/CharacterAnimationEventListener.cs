@@ -64,7 +64,7 @@ namespace AF.Animations
 
         private void OnAnimatorMove()
         {
-            if (ignoreAnimatorSpeed)
+            if (ignoreAnimatorSpeed || characterManager.isCuttingDistanceToTarget)
             {
                 return;
             }
@@ -244,6 +244,16 @@ namespace AF.Animations
 
         public void OnWeaponSpecial()
         {
+        }
+
+        public void MoveTowardsTarget()
+        {
+            characterManager.isCuttingDistanceToTarget = true;
+        }
+
+        public void StopMoveTowardsTarget()
+        {
+            characterManager.isCuttingDistanceToTarget = false;
         }
     }
 }

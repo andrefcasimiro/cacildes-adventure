@@ -258,8 +258,20 @@ namespace AF.Shops
                     continue;
                 }
 
-                shopItemsToDisplay.Add(item.Key);
+                if (item.Key is Weapon)
+                {
+                    for (int i = 0; i < item.Value.amount; i++)
+                    {
+                        shopItemsToDisplay.Add(item.Key);
+                    }
+                }
+                else
+                {
+                    shopItemsToDisplay.Add(item.Key);
+                }
             }
+
+
 
             DrawItemsList(shopItemsToDisplay, false, characterShop);
         }

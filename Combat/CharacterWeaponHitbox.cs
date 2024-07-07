@@ -42,11 +42,13 @@ namespace AF
 
         // Scene References
         Soundbank soundbank;
+        WeaponCollisionFXManager weaponCollisionFXManager;
 
         // Internal flags
         bool canPlayHitSfx = true;
 
         List<BoxCollider> ownColliders = new();
+
 
         private void Awake()
         {
@@ -55,6 +57,8 @@ namespace AF
 
         void Start()
         {
+            trailRenderer.enabled = true;
+
             DisableHitbox();
         }
 
@@ -89,6 +93,8 @@ namespace AF
 
             if (swingSfx != null && HasSoundbank())
             {
+                combatAudioSource.pitch = Random.Range(0.9f, 1.1f);
+
                 soundbank.PlaySound(swingSfx, combatAudioSource);
             }
 
@@ -124,8 +130,14 @@ namespace AF
             return character != null && character.isConfused;
         }
 
+
         public void OnTriggerEnter(Collider other)
         {
+            if (HasWeaponCollisionManager())
+            {
+                weaponCollisionFXManager.EvaluateCollision(other, this.gameObject);
+            }
+
             if (tagsToIgnore.Contains(other.tag) && !IsCharacterConfused() || character.GetAttackDamage() == null && !IsCharacterConfused())
             {
                 return;
@@ -154,6 +166,7 @@ namespace AF
 
                         if (HasSoundbank())
                         {
+                            combatAudioSource.pitch = Random.Range(0.9f, 1.1f);
                             soundbank.PlaySound(hitSfx, combatAudioSource);
                         }
                     }
@@ -193,6 +206,18 @@ namespace AF
         public bool UseCustomTwoHandTransform()
         {
             return characterTwoHandRef != null;
+        }
+
+        bool HasWeaponCollisionManager()
+        {
+            if (weaponCollisionFXManager == null)
+            {
+                weaponCollisionFXManager = FindAnyObjectByType<WeaponCollisionFXManager>(FindObjectsInactive.Include);
+
+                return weaponCollisionFXManager != null;
+            }
+
+            return true;
         }
     }
 }

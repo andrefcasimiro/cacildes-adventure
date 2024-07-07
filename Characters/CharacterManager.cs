@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using AF.Animations;
+﻿using AF.Animations;
 using AF.Combat;
 using AF.Equipment;
 using AF.Events;
@@ -10,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using AF.Companions;
 using UnityEngine.AI;
-using System;
+
 
 namespace AF
 {
@@ -33,7 +32,9 @@ namespace AF
         [Header("Settings")]
         public float patrolSpeed = 2f;
         public float chaseSpeed = 4.5f;
+        public float cutDistanceToTargetSpeed = 12f;
         public float rotationSpeed = 6f;
+        [HideInInspector] public bool isCuttingDistanceToTarget = false;
 
         [Header("Settings")]
         public bool canRevive = true;
@@ -79,6 +80,7 @@ namespace AF
 
         public override void ResetStates()
         {
+            isCuttingDistanceToTarget = false;
             animator.applyRootMotion = false;
             isBusy = false;
 
@@ -107,13 +109,20 @@ namespace AF
                 transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
             }
 
-
             if (animator.applyRootMotion)
             {
+                Quaternion rootMotionRotation = animator.deltaRotation;
+                transform.rotation *= rootMotionRotation;
+
+                if (isCuttingDistanceToTarget && targetManager.currentTarget != null)
+                {
+                    agent.speed = cutDistanceToTargetSpeed;
+                    agent.SetDestination(targetManager.currentTarget.transform.position);
+                    return;
+                }
+
                 // Extract root motion position and rotation from the Animator
                 Vector3 rootMotionPosition = animator.deltaPosition + new Vector3(0.0f, -9, 0.0f) * Time.deltaTime;
-
-                Quaternion rootMotionRotation = animator.deltaRotation;
 
                 // Apply root motion to the NavMesh Agent
                 if (characterController.enabled)
@@ -122,14 +131,12 @@ namespace AF
                 }
 
                 agent.Warp(characterController.transform.position);
-
-                transform.rotation *= rootMotionRotation;
             }
         }
 
         public override Damage GetAttackDamage()
         {
-            return characterCombatController?.currentCombatAction?.damage;
+            return characterCombatController.GetCurrentDamage();
         }
 
         /// <summary>

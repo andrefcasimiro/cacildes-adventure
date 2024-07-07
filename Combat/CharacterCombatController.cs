@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AF.Events;
+using AF.Health;
 using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
@@ -43,6 +44,7 @@ namespace AF.Combat
         public UnityEvent onResetState;
 
         public const string AttackSpeedHash = "AttackSpeed";
+
 
         private void Awake()
         {
@@ -305,5 +307,9 @@ namespace AF.Combat
             this.currentCombatAction = combatAction;
         }
 
+        public Damage GetCurrentDamage()
+        {
+            return currentCombatAction?.damage;
+        }
     }
 }

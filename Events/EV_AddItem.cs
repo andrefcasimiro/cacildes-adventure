@@ -98,7 +98,7 @@ namespace AF
 
             if (monoBehaviourID != null && pickupDatabase != null)
             {
-                pickupDatabase.AddPickup(monoBehaviourID.ID, SceneManager.GetActiveScene().name + " - " + " - " + gameObject.name + " - " + item.name);
+                pickupDatabase.AddPickup(monoBehaviourID.ID, SceneManager.GetActiveScene().name + " - " + " - " + gameObject.name + " - " + (item != null ? item.name : ""));
             }
 
             yield return null;

@@ -13,6 +13,7 @@ namespace AF
         public int staminaBonus = 0;
         public int physicalAttackBonus = 0;
         public int jumpAttackBonus = 0;
+        public float twoHandAttackBonusMultiplier = 0f;
 
         [Header("Stats")]
         public bool increaseAttackPowerTheLowerTheReputation = false;

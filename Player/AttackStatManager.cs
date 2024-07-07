@@ -289,6 +289,18 @@ namespace AF
                 value = (int)(value * playerManager.characterBlockController.counterAttackMultiplier);
             }
 
+            // Bonus for two handing attack accessories
+            if (equipmentDatabase.isTwoHanding)
+            {
+                var attackMultiplierBonuses = equipmentDatabase.accessories.Sum(x => x != null ? x.twoHandAttackBonusMultiplier : 0);
+
+                if (attackMultiplierBonuses > 0)
+                {
+                    value = (int)(value * attackMultiplierBonuses);
+                }
+            }
+
+
             return value;
         }
 
