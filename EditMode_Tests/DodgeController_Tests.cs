@@ -22,7 +22,7 @@ namespace AF.Tests
         {
             ThirdPersonController thirdPersonController = dodgeController.gameObject
                 .AddComponent<ThirdPersonController>();
-            thirdPersonController.skateRotation = false;
+            thirdPersonController.isSliding = false;
 
             playerManager.thirdPersonController = thirdPersonController;
 
@@ -39,7 +39,7 @@ namespace AF.Tests
         {
             ThirdPersonController thirdPersonController = dodgeController.gameObject
                 .AddComponent<ThirdPersonController>();
-            thirdPersonController.skateRotation = false;
+            thirdPersonController.isSliding = false;
             playerManager.thirdPersonController = thirdPersonController;
 
             StarterAssetsInputs starterAssetsInputs = dodgeController.gameObject

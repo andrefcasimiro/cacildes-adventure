@@ -93,6 +93,7 @@ namespace AF
             dodgeController.ResetStates();
             playerInventory.ResetStates();
             characterPosture.ResetStates();
+            characterPoise.ResetStates();
             damageReceiver.ResetStates();
 
             rageManager.ResetStates();
@@ -103,6 +104,8 @@ namespace AF
             playerWeaponsManager.ShowEquipment();
 
             playerBlockInput.CheckQueuedInput();
+
+
             playerBlockController.ResetStates();
 
             attackStatManager.ResetStates();

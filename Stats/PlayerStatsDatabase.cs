@@ -31,6 +31,7 @@ public class PlayerStatsDatabase : ScriptableObject
     public float currentHealth = -1;
     public float currentStamina = -1;
     public float currentMana = -1;
+
     public int reputation = 1;
     public int gold = 0;
 

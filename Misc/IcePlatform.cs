@@ -20,7 +20,6 @@ namespace AF
                 }
 
                 tps.isSliding = !isExiting;
-                tps.isSlidingOnIce = !isExiting;
             }
         }
     }

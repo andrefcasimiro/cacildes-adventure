@@ -89,6 +89,8 @@ namespace AF
             characterWeaponsManager.ResetStates();
             damageReceiver.ResetStates();
             onResetStates?.Invoke();
+
+            characterPoise.ResetStates();
         }
 
         public void UpdateAnimatorOverrideControllerClips(string animationName, AnimationClip animationClip)
@@ -240,7 +242,6 @@ namespace AF
                 characterController.enabled = true;
             }
         }
-
 
         private bool IsValidPosition(Vector3 position)
         {

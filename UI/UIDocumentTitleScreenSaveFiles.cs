@@ -24,6 +24,10 @@ namespace AF
         [Header("UI Components")]
         public UIDocumentTitleScreen uIDocumentTitleScreen;
 
+        [Header("Stats")]
+        public IntStat loadsSaveGameStat;
+        public IntStat opensSaveFolderStat;
+
 
         // Last scroll position
         int lastScrollElementIndex = -1;
@@ -88,6 +92,7 @@ namespace AF
 
             UIUtils.SetupButton(openSavesFolder, () =>
             {
+                opensSaveFolderStat.UpdateStat();
                 // Open the folder using the default file explorer
                 Process.Start(Application.persistentDataPath + "/" + saveManager.SAVE_FILES_FOLDER);
             }, soundbank);
@@ -107,6 +112,7 @@ namespace AF
 
                 UIUtils.SetupButton(saveFileInstance.Q<Button>("Button"), () =>
                 {
+                    loadsSaveGameStat.UpdateStat();
                     saveManager.LoadSaveFile(saveFileName);
                 }, () =>
                 {

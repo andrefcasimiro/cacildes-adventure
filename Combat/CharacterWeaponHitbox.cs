@@ -57,8 +57,6 @@ namespace AF
 
         void Start()
         {
-            trailRenderer.enabled = true;
-
             DisableHitbox();
         }
 

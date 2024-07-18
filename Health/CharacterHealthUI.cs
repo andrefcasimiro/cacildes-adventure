@@ -20,6 +20,12 @@ namespace AF.Health
 
         public void InitializeHUD()
         {
+            if (characterHealth.characterManager.characterBossController.IsBoss())
+            {
+                healthSlider.gameObject.SetActive(false);
+                return;
+            }
+
             if (healthSlider != null)
             {
                 healthSlider.maxValue = characterHealth.GetMaxHealth() * 0.01f;
@@ -30,6 +36,12 @@ namespace AF.Health
 
         public void UpdateUI()
         {
+            if (characterHealth.characterManager.characterBossController.IsBoss())
+            {
+                healthSlider.gameObject.SetActive(false);
+                return;
+            }
+
             gameObject.SetActive(characterHealth.GetCurrentHealth() > 0);
 
             healthSlider.value = characterHealth.GetCurrentHealth() * 0.01f;
@@ -41,7 +53,5 @@ namespace AF.Health
             healthSlider.value = characterHealth.GetCurrentHealth() * 0.01f;
             healthSlider.maxValue = characterHealth.GetMaxHealth() * 0.01f;
         }
-
     }
-
 }

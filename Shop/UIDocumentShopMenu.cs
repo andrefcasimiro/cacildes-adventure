@@ -439,6 +439,11 @@ namespace AF.Shops
                 return;
             }
 
+            if (characterShop.onBuyFromCharacterShopStat != null)
+            {
+                characterShop.onBuyFromCharacterShopStat.UpdateStat();
+            }
+
             ShopUtils.BuyItem(
                 item,
                 (goldLost) =>
@@ -472,6 +477,11 @@ namespace AF.Shops
 
         void SellItem(Item item, CharacterShop characterShop)
         {
+            if (characterShop.onSellToCharacterShopStat != null)
+            {
+                characterShop.onSellToCharacterShopStat.UpdateStat();
+            }
+
             int price = characterShop.GetItemEvaluation(
                         item,
                         inventoryDatabase,

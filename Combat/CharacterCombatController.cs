@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using AF.Animations;
 using AF.Events;
 using AF.Health;
 using TigerForge;
@@ -45,11 +47,22 @@ namespace AF.Combat
 
         public const string AttackSpeedHash = "AttackSpeed";
 
+        [Header("Dodge Counter")]
+
+        public bool listenForDodgeInput = false;
+        CharacterAnimationEventListener characterAnimationEventListener;
+        public CombatAction combatActionToRespondToDodgeInput;
+        public float chanceToReactToDodgeInput = 0.75f;
 
         private void Awake()
         {
             characterManager.animator.SetFloat(AttackSpeedHash, 1f);
 
+
+            if (characterManager.characterCombatController.listenForDodgeInput)
+            {
+                EventManager.StartListening(EventMessages.ON_PLAYER_DODGING_FINISHED, OnPlayerDodgeFinished);
+            }
         }
 
         public void ResetStates()
@@ -186,6 +199,11 @@ namespace AF.Combat
                 characterManager.FaceTarget();
             }
 
+            if (currentCombatAction.hasHyperArmor)
+            {
+                (characterManager.characterPoise as CharacterPoise).hasHyperArmor = true;
+            }
+
             if (currentCombatAction.attackAnimationClip != null)
             {
                 if (currentCombatAction.comboClip != null)
@@ -261,6 +279,30 @@ namespace AF.Combat
             this.usedCombatActions.Add(currentCombatAction);
 
             OnAttackStart();
+        }
+
+        void OnPlayerDodgeFinished()
+        {
+            if (combatActionToRespondToDodgeInput == null)
+            {
+                return;
+            }
+
+            if (Random.Range(0, 1f) < chanceToReactToDodgeInput)
+            {
+                return;
+            }
+
+            if (characterAnimationEventListener == null)
+            {
+                characterAnimationEventListener = characterManager.GetComponent<CharacterAnimationEventListener>();
+            }
+
+            characterManager.FaceTarget();
+            characterAnimationEventListener.RestoreDefaultAnimatorSpeed();
+
+            this.currentCombatAction = combatActionToRespondToDodgeInput;
+            ExecuteCurrentCombatAction(0.15f);
         }
 
         IEnumerator ClearCombatActionFromCooldownList(CombatAction combatActionToClear)

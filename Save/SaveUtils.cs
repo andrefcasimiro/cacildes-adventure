@@ -279,9 +279,9 @@ namespace AF
         {
             var pickups = QuickSaveReader.Create("Pickups");
             pickups.TryRead("pickups", out SerializedDictionary<string, string> savedPickups);
-            quickSaveWriter.Write("pickups", savedPickups);
+            quickSaveWriter.Write("pickups", savedPickups ?? new SerializedDictionary<string, string>());
             pickups.TryRead("replenishables", out SerializedDictionary<string, ReplenishableTime> savedReplenishables);
-            quickSaveWriter.Write("replenishables", savedReplenishables);
+            quickSaveWriter.Write("replenishables", savedReplenishables ?? new SerializedDictionary<string, ReplenishableTime>());
         }
 
         static void MigrateQuests(QuickSaveWriter quickSaveWriter)

@@ -152,6 +152,8 @@ namespace AF
             InputSystem.onDeviceChange += HandleDeviceChangeCallback;
 
             UpdateQuestTracking();
+
+            root.Q<VisualElement>("SwimmingIndicator").style.display = playerManager.thirdPersonController.water != null ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         void UpdateCombatStanceIndicator()

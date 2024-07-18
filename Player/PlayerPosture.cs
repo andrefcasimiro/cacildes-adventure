@@ -7,6 +7,7 @@ namespace AF
     {
         public PlayerStatsDatabase playerStatsDatabase;
         public StatsBonusController statsBonusController;
+        public PlayerManager playerManager;
 
         public override int GetMaxPostureDamage()
         {
@@ -25,8 +26,12 @@ namespace AF
 
         public override float GetPostureDecreateRate()
         {
-            return 1f + statsBonusController.postureDecreaseRateBonus;
+            return 1.5f + statsBonusController.postureDecreaseRateBonus;
         }
 
+        public override bool CanPlayPostureDamagedEvent()
+        {
+            return playerManager.thirdPersonController.isSwimming == false;
+        }
     }
 }

@@ -30,6 +30,10 @@ namespace AF
         [Header("Databases")]
         public EquipmentDatabase equipmentDatabase;
 
+        private void Awake()
+        {
+        }
+
         public void BeginBlock()
         {
             if (!CanBlock())
@@ -69,6 +73,11 @@ namespace AF
         public void OnBlockInput_Performed()
         {
             isBlockInput_Performed = true;
+
+            if (CanBlock())
+            {
+                playerManager.characterBlockController.parryTimer = 0f;
+            }
 
             BeginBlock();
         }

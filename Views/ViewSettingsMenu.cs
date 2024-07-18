@@ -20,6 +20,9 @@ namespace AF
         public QuestParent questParentToAllowNewGamePlus;
         public int[] rangeOfQuestToAllowNewGamePlus;
 
+        [Header("Stats")]
+        public IntStat beginsNewGamePlusStat;
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -52,6 +55,8 @@ namespace AF
             {
                 UIUtils.SetupButton(newGamePlusButton, () =>
                 {
+                    beginsNewGamePlusStat.UpdateStat();
+
                     soundbank.PlaySound(soundbank.uiHover);
 
                     fadeManager.FadeIn(1f, () =>

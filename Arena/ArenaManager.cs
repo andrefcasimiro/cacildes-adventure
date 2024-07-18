@@ -178,6 +178,8 @@ namespace AF.Arena
 
         public void EndRound()
         {
+            playerManager.lockOnManager.DisableLockOn();
+
             bgmManager.StopMusicImmediately();
 
             isTiming = false;

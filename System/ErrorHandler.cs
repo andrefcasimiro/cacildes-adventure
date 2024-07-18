@@ -64,7 +64,7 @@ namespace AF
             }
 
             VisualElement entry = errorNotificationPrefab.CloneTree();
-            Button reloadLastSave, copyError, sendEmail, closeButton;
+            Button reloadLastSave, copyError, sendEmail, closeButton, returnToTitleScreen;
 
             entry.Q<Label>("ErrorName").text = errorMessage;
             entry.Q<Label>("StackTrace").text = stackTraceMessage;
@@ -73,6 +73,7 @@ namespace AF
             copyError = entry.Q<Button>("CopyError");
             sendEmail = entry.Q<Button>("SendEmail");
             closeButton = entry.Q<Button>("CloseButton");
+            returnToTitleScreen = entry.Q<Button>("ReturnToTitleScreen");
 
             reloadLastSave.RegisterCallback<ClickEvent>(ev =>
             {
@@ -96,6 +97,10 @@ namespace AF
                 errorMessagesContainer.Remove(entry);
                 CloseErrorPanel();
                 cursorManager?.HideCursor();
+            });
+            returnToTitleScreen.RegisterCallback<ClickEvent>(ev =>
+            {
+                saveManager?.ResetGameStateAndReturnToTitleScreen(false);
             });
 
             UIUtils.PlayPopAnimation(entry, new Vector3(0.8f, 0.8f, 0.8f));

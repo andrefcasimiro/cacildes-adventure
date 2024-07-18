@@ -267,6 +267,10 @@ namespace AF
                 return false;
             }
 
+            if (playerManager.thirdPersonController.isSwimming)
+            {
+                return false;
+            }
 
             return true;
         }

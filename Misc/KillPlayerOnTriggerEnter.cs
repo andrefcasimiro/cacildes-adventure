@@ -54,7 +54,6 @@ namespace AF
                 {
                     playerManager.thirdPersonController.SetTrackFallDamage(false);
                     playerManager.thirdPersonController.isSliding = false;
-                    playerManager.thirdPersonController.isSlidingOnIce = false;
                     playerManager.playerComponentManager.UpdatePosition(respawnPoint.transform.position, Quaternion.identity);
                     Instantiate(GetSceneSettings().respawnFx, respawnPoint.transform.position, Quaternion.identity);
                     playerManager.thirdPersonController.SetTrackFallDamage(true);

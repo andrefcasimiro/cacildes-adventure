@@ -42,6 +42,7 @@ namespace AF.Combat
 
         [Header("Settings")]
         [Range(0.1f, 2f)] public float animationSpeed = 1f;
+        public bool hasHyperArmor = false;
 
         [Header("Components")]
         public CharacterManager characterManager;

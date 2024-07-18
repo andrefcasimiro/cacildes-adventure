@@ -67,6 +67,9 @@ namespace AF
 		[Header("Rebindings")]
 		public PlayerInput playerInput;
 
+		[Header("Stats")]
+		public IntStat useHotkeyToCustomizeCharacterStat;
+
 		private void Awake()
 		{
 			scaleVector = new(gameSettings.GetMouseSensitivity(), gameSettings.GetMouseSensitivity());
@@ -131,6 +134,7 @@ namespace AF
 		{
 			if (value.isPressed)
 			{
+				useHotkeyToCustomizeCharacterStat.UpdateStat();
 				onCustomizeCharacter?.Invoke();
 			}
 		}

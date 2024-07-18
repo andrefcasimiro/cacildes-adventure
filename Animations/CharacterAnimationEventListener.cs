@@ -1,4 +1,6 @@
+using AF.Events;
 using AYellowpaper.SerializedCollections;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -254,6 +256,36 @@ namespace AF.Animations
         public void StopMoveTowardsTarget()
         {
             characterManager.isCuttingDistanceToTarget = false;
+        }
+
+        public void OnSwim()
+        {
+
+        }
+
+        public void PauseAnimation()
+        {
+            // Allow a chance to not do the slow down
+            if (Random.Range(0, 1f) > 0.5)
+            {
+                return;
+            }
+
+            SetAnimatorSpeed(Random.Range(0.1f, 0.3f));
+        }
+
+        public void ResumeAnimation()
+        {
+            RestoreDefaultAnimatorSpeed();
+        }
+
+        public bool ShouldResetAnimationSpeed()
+        {
+            return defaultAnimatorSpeed != characterManager.animator.speed;
+        }
+
+        public void StopIframes()
+        {
         }
     }
 }

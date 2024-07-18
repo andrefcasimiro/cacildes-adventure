@@ -33,6 +33,11 @@ namespace AF
                 return;
             }
 
+            if (playerManager.thirdPersonController.isSwimming)
+            {
+                return;
+            }
+
             equipmentDatabase.SetIsTwoHanding(!equipmentDatabase.isTwoHanding);
             soundbank.PlaySound(soundbank.switchTwoHand);
         }

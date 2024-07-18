@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UIElements;
 
 namespace AF.Arena
@@ -33,13 +34,13 @@ namespace AF.Arena
 
         public void UpdateCurrentRound(int currentRound)
         {
-            round.text = $"Round {currentRound} / {maxRounds}";
+            round.text = $"{LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Round")} {currentRound} / {maxRounds}";
             root.style.display = DisplayStyle.Flex;
         }
 
         public void UpdateWaitingForNextRound(int timeBeforeNextRound)
         {
-            round.text = $"Next round will begin in {timeBeforeNextRound}";
+            round.text = $"{LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Next round will begin in")} {timeBeforeNextRound}";
             root.style.display = DisplayStyle.Flex;
         }
 

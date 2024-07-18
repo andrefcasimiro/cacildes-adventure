@@ -20,6 +20,8 @@ namespace AF
 
         Coroutine ResetPoiseCoroutine;
 
+        public abstract void ResetStates();
+
         public void TakePoiseDamage(int poiseDamage)
         {
             if (characterManager.characterPosture.isStunned)
@@ -42,7 +44,11 @@ namespace AF
             if (currentPoiseHitCount >= GetMaxPoiseHits())
             {
                 currentPoiseHitCount = 0;
-                onPoiseDamagedEvent?.Invoke();
+
+                if (CanCallPoiseDamagedEvent())
+                {
+                    onPoiseDamagedEvent?.Invoke();
+                }
 
                 characterManager.health.PlayPostureHit();
             }
@@ -59,6 +65,7 @@ namespace AF
         }
 
         public abstract int GetMaxPoiseHits();
+        public abstract bool CanCallPoiseDamagedEvent();
     }
 
 }

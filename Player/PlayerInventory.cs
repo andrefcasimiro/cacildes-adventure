@@ -79,6 +79,11 @@ namespace AF
 
         public void AddItem(Item item, int quantity)
         {
+            if (item.onFindingItemStat != null)
+            {
+                item.onFindingItemStat.UpdateStat();
+            }
+
             HandleItemAchievements(item);
 
             inventoryDatabase.AddItem(item, quantity);
@@ -115,6 +120,16 @@ namespace AF
                     LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can't consume item at this time."),
                     notificationManager.systemError);
 
+                return false;
+            }
+
+
+            if (playerManager.thirdPersonController.isSwimming)
+            {
+
+                notificationManager.ShowNotification(
+                    LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Can't consume item at this time."),
+                    notificationManager.systemError);
                 return false;
             }
 

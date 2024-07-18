@@ -45,6 +45,7 @@ namespace AF.Events
         public static readonly string ON_REPUTATION_CHANGED = "ON_REPUTATION_CHANGED";
 
         public static readonly string ON_BODY_TYPE_CHANGED = "ON_BODY_TYPE_CHANGED";
+        public static readonly string ON_PLAYER_DODGING_FINISHED = "ON_PLAYER_DODGING_FINISHED";
 
     }
 }

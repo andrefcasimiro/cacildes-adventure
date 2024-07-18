@@ -18,6 +18,9 @@ namespace AF.Triggers
         [Header("Settings")]
         public float intervalBetweenInvokations = 1f;
 
+        [Header("Player Options")]
+        public bool requirePlayerDodgeToTrigger = false;
+
         bool m_canTriggerOnStay = true;
         public bool CanTriggerOnStay
         {
@@ -77,8 +80,25 @@ namespace AF.Triggers
         {
             if (ShouldTrigger(collider))
             {
-                onTriggerEnterEvent?.Invoke();
+                if (!requirePlayerDodgeToTrigger || ShouldTriggerOnPlayerDodge(collider))
+                {
+                    onTriggerEnterEvent?.Invoke();
+                }
             }
+        }
+
+        bool ShouldTriggerOnPlayerDodge(Collider collider)
+        {
+            if (collider.gameObject.TryGetComponent<PlayerManager>(out PlayerManager playerManager))
+            {
+                if (playerManager != null)
+                {
+                    return playerManager.dodgeController.isDodging;
+
+                }
+            }
+
+            return false;
         }
 
         public void OnTriggerStay(Collider collider)
@@ -90,9 +110,12 @@ namespace AF.Triggers
 
             if (ShouldTrigger(collider))
             {
-                onTriggerStayEvent?.Invoke();
+                if (!requirePlayerDodgeToTrigger || ShouldTriggerOnPlayerDodge(collider))
+                {
+                    onTriggerStayEvent?.Invoke();
 
-                CanTriggerOnStay = false;
+                    CanTriggerOnStay = false;
+                }
             }
         }
 
@@ -103,6 +126,7 @@ namespace AF.Triggers
                 onTriggerExitEvent?.Invoke();
             }
         }
+
 
         void ResetCanTrigger()
         {

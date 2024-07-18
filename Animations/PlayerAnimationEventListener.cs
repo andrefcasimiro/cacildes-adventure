@@ -165,7 +165,7 @@ namespace AF.Animations
 
         public void OnFireMultipleArrows()
         {
-            playerManager.playerShootingManager.ShootWithoutClearingProjectilesAndSpells();
+            playerManager.playerShootingManager.ShootWithoutClearingProjectilesAndSpells(false);
         }
 
         public void OnLeftFootstep()
@@ -262,6 +262,25 @@ namespace AF.Animations
 
         public void StopMoveTowardsTarget()
         {
+        }
+
+        public void OnSwim()
+        {
+            playerManager.thirdPersonController.OnSwimAnimationEvent();
+        }
+
+        public void PauseAnimation()
+        {
+        }
+
+        public void ResumeAnimation()
+        {
+        }
+
+
+        public void StopIframes()
+        {
+            playerManager.dodgeController.StopIframes();
         }
     }
 }

@@ -57,7 +57,10 @@ namespace AF
 
         void UpdatePosition()
         {
-            characterManager.agent.SetDestination(characterManager.targetManager.currentTarget.transform.position);
+            if (characterManager.agent.enabled)
+            {
+                characterManager.agent.SetDestination(characterManager.targetManager.currentTarget.transform.position);
+            }
         }
 
         public override State Tick(StateManager stateManager)

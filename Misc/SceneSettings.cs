@@ -25,6 +25,9 @@ namespace AF
         public AudioClip dayAmbience;
         public AudioClip nightAmbience;
 
+        [Header("Scene Musics")]
+        public AudioClip[] playlist;
+        Coroutine ChooseNextSongCoroutine;
 
         [Header("Map")]
         public bool isInterior;
@@ -141,6 +144,30 @@ namespace AF
             EvaluateAmbience();
         }
 
+        void EvaluatePlaylist()
+        {
+            bgmManager.StopMusic();
+
+            AudioClip chosenAudioClip = playlist[Random.Range(0, playlist.Length)];
+            bgmManager.PlayMusic(chosenAudioClip);
+
+            if (ChooseNextSongCoroutine != null)
+            {
+                StopCoroutine(ChooseNextSongCoroutine);
+            }
+
+            ChooseNextSongCoroutine = StartCoroutine(ChooseNextSong_Coroutine(chosenAudioClip.length));
+        }
+
+        IEnumerator ChooseNextSong_Coroutine(float waitTime)
+        {
+            yield return new WaitForSeconds(waitTime);
+
+            yield return new WaitForSeconds(5f);
+
+            EvaluatePlaylist();
+        }
+
         /// <summary>
         /// Evaluate and control the music based on time of day.
         /// </summary>
@@ -148,6 +175,12 @@ namespace AF
         {
             if (bgmManager.isPlayingBossMusic)
             {
+                return;
+            }
+
+            if (playlist != null && playlist.Length > 0)
+            {
+                EvaluatePlaylist();
                 return;
             }
 

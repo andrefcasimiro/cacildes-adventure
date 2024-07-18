@@ -101,6 +101,8 @@ namespace AF
             return false;
         }
 
+        public abstract bool CanPlayPostureDamagedEvent();
+
         IEnumerator BeginDecreasingPosture()
         {
             isDecreasingPosture = false;
@@ -110,7 +112,11 @@ namespace AF
 
         public void BreakPosture()
         {
-            onPostureBreakDamage?.Invoke();
+            if (CanPlayPostureDamagedEvent())
+            {
+                onPostureBreakDamage?.Invoke();
+            }
+
             currentPostureDamage = 0f;
             isStunned = true;
             characterBaseManager.health.PlayPostureBroke();

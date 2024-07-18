@@ -1,6 +1,3 @@
-using System.Numerics;
-using AF.Combat;
-using AF.Companions;
 using AF.Health;
 using UnityEngine;
 using UnityEngine.Events;
@@ -35,7 +32,8 @@ namespace AF
 
 
         [Header("Flags")]
-        public bool canTakeDamage = true;
+        public bool ignoreDamage = false;
+        [HideInInspector] public bool canTakeDamage = true;
         public bool damageOnDodge = false;
         public bool waitingForBackstab = false;
         public bool hasFlatulence = false;
@@ -66,6 +64,11 @@ namespace AF
 
         bool CanTakeDamage()
         {
+            if (ignoreDamage)
+            {
+                return false;
+            }
+
             if (!canTakeDamage)
             {
                 return false;

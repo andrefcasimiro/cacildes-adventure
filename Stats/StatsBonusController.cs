@@ -42,6 +42,7 @@ namespace AF.Stats
         public float projectileMultiplierBonus = 0f;
         public bool canRage = false;
         public float backStabAngleBonus = 0f;
+        public bool shouldRegenerateMana = false;
 
         [Header("Equipment Modifiers")]
         public float weightPenalty = 0f;
@@ -203,6 +204,8 @@ namespace AF.Stats
         {
             ResetAttributes();
 
+            ApplyWeaponAttributes(equipmentDatabase.GetCurrentWeapon());
+
             ApplyEquipmentAttributes(equipmentDatabase.helmet);
             ApplyEquipmentAttributes(equipmentDatabase.armor);
             ApplyEquipmentAttributes(equipmentDatabase.gauntlet);
@@ -215,14 +218,24 @@ namespace AF.Stats
 
         void ResetAttributes()
         {
+
             healthBonus = magicBonus = staminaBonus = vitalityBonus = enduranceBonus = strengthBonus = dexterityBonus = intelligenceBonus = 0;
             fireDefenseBonus = frostDefenseBonus = lightningDefenseBonus = magicDefenseBonus = darkDefenseBonus = discountPercentage = spellDamageBonusMultiplier = 0;
             reputationBonus = parryPostureDamageBonus = postureBonus = movementSpeedBonus = 0;
 
             parryPostureWindowBonus = staminaRegenerationBonus = postureDecreaseRateBonus = projectileMultiplierBonus = backStabAngleBonus = 0f;
 
-            chanceToRestoreHealthUponDeath = canRage = chanceToNotLoseItemUponConsumption = false;
+            shouldRegenerateMana = chanceToRestoreHealthUponDeath = canRage = chanceToNotLoseItemUponConsumption = false;
         }
+
+        void ApplyWeaponAttributes(Weapon currentWeapon)
+        {
+            if (currentWeapon != null)
+            {
+                shouldRegenerateMana = currentWeapon.shouldRegenerateMana;
+            }
+        }
+
         void ApplyEquipmentAttributes(ArmorBase equipment)
         {
             if (equipment != null)

@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace AF.Health
 {
 
@@ -115,8 +119,33 @@ namespace AF.Health
 
             if (this.pushForce > 0 && isFaithSpell)
             {
-                this.pushForce += playerReputation > 0 ? (int)(playerReputation * 1.25f) : 0;
+                this.pushForce += playerReputation > 0 ? (playerReputation * 0.1f) : 0;
             }
+
+            Damage weaponDamage = currentWeapon.GetWeaponDamage();
+
+
+            if (weaponDamage.statusEffects != null && weaponDamage.statusEffects.Length > 0)
+            {
+                List<StatusEffectEntry> thisDamageStatusEffects = this.statusEffects.ToList();
+
+                foreach (StatusEffectEntry statusEffectEntry in weaponDamage.statusEffects)
+                {
+                    int idx = thisDamageStatusEffects.FindIndex(x => x == statusEffectEntry);
+
+                    if (idx != -1)
+                    {
+                        thisDamageStatusEffects[idx].amountPerHit += statusEffectEntry.amountPerHit;
+                    }
+                    else
+                    {
+                        thisDamageStatusEffects.Add(statusEffectEntry);
+                    }
+                }
+
+                this.statusEffects = thisDamageStatusEffects.ToArray();
+            }
+
         }
 
         public void ScaleProjectile(AttackStatManager attackStatManager, Weapon currentWeapon)

@@ -14,6 +14,7 @@ namespace AF
 
         [Header("Animations")]
         public AnimationClip castAnimationOverride;
+        public bool animationCanNotBeOverriden = false;
 
         [Header("Spell Type")]
         public bool isFaithSpell = false;

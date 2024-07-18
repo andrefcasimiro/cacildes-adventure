@@ -5,6 +5,7 @@ using AF.Stats;
 using AF.Shooting;
 using AF.Ladders;
 using AF.Health;
+using UnityEngine.Events;
 
 namespace AF
 {
@@ -145,13 +146,38 @@ namespace AF
 
         public bool canMove = true;
 
-        public bool isSliding = false;
-        public bool isSlidingOnIce = false;
-        public bool skateRotation = false;
-
         public bool canRotateCharacter = true;
 
+        [Header("Sliding Options")]
+        public bool isSliding = false;
+        public bool Sliding
+        {
+            get
+            {
+                return isSliding;
+            }
 
+            set
+            {
+                playerManager.animator.SetBool("IsSliding", value);
+
+                isSliding = value;
+            }
+        }
+        public float minSlidingRotation = 0f;
+        public float maxSlidingRotation = 160f;
+        public float slidingSpeed = 10f;
+
+        [Header("Swimming Options")]
+        public bool isSwimming = false;
+        public Transform water;
+        public float waterOffsetY = 0.5f;
+        public float staminaDrainedPerSecondWhenSwimming = 10f;
+        public float damageCausedBySwimmingWithoutStamina = 5f;
+        public float swimDamageCooldownTimer = 0f;
+        public float maxSwimDamageCooldownTimer = 1f;
+        public GameObject swimmingWaterRippleFx;
+        public UnityEvent onSwimEvent;
 
         [Header("Databases")]
         public PlayerStatsDatabase playerStatsDatabase;
@@ -167,6 +193,11 @@ namespace AF
             defaultFieldOfView = virtualCamera.m_Lens.FieldOfView;
             DefaultGravity = Gravity;
             DefaultJumpHeight = JumpHeight;
+
+            if (isSliding)
+            {
+                playerManager.animator.SetBool("IsSliding", true);
+            }
         }
 
         private void Start()
@@ -179,7 +210,7 @@ namespace AF
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
             _playerInput = GetComponent<PlayerInput>();
 #else
-			Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
+            Debug.LogError("Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
 
             AssignAnimationIDs();
@@ -205,6 +236,11 @@ namespace AF
 
             if (isClimbing == false)
             {
+                if (water != null)
+                {
+                    HandleSwimLogic();
+                }
+
                 JumpAndGravity();
                 GroundedCheck();
 
@@ -221,6 +257,46 @@ namespace AF
             Rotate();
             CameraRotation();
 
+        }
+
+
+        void HandleSwimLogic()
+        {
+            bool wasSwimming = isSwimming;
+            isSwimming = playerManager.transform.position.y - waterOffsetY <= water?.transform?.position.y;
+            playerManager.animator.SetBool("IsSwimming", isSwimming);
+
+            if (wasSwimming == false && isSwimming)
+            {
+                swimDamageCooldownTimer = 0f;
+                playerManager.animator.SetTrigger("TriggerSwim");
+                swimmingWaterRippleFx.SetActive(true);
+            }
+            else if (wasSwimming && isSwimming == false)
+            {
+                swimmingWaterRippleFx.SetActive(false);
+            }
+
+            if (isSwimming)
+            {
+                swimDamageCooldownTimer += Time.deltaTime;
+
+                playerManager.staminaStatManager.DecreaseStamina(staminaDrainedPerSecondWhenSwimming * Time.deltaTime);
+
+                if (playerManager.staminaStatManager.GetCurrentStaminaPercentage() <= 0)
+                {
+                    if (swimDamageCooldownTimer > maxSwimDamageCooldownTimer)
+                    {
+                        swimDamageCooldownTimer = 0;
+                        playerManager.health.TakeDamage(damageCausedBySwimmingWithoutStamina);
+                    }
+                }
+            }
+        }
+
+        public void OnSwimAnimationEvent()
+        {
+            onSwimEvent?.Invoke();
         }
 
         private void AssignAnimationIDs()
@@ -252,6 +328,11 @@ namespace AF
 
         bool ShouldTakeFallDamage()
         {
+            if (isSliding)
+            {
+                return false;
+            }
+
             return GetCurrentFallHeight() > minimumFallHeightToTakeDamage && trackFallDamage;
         }
 
@@ -437,9 +518,9 @@ namespace AF
                     float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
                         RotationSmoothTime);
 
-                    if (skateRotation)
+                    if (isSliding)
                     {
-                        rotation = Mathf.Clamp(rotation, 0f, 160f);
+                        rotation = Mathf.Clamp(rotation, minSlidingRotation, maxSlidingRotation);
                     }
 
                     // rotate to face input direction relative to camera position
@@ -555,7 +636,13 @@ namespace AF
             {
                 targetDirection = Vector3.zero;
             }
-            if ((
+
+            if (isSliding)
+            {
+                playerManager.characterController.Move(transform.forward * slidingSpeed * Time.deltaTime +
+                                 new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
+            }
+            else if ((
                 // If is locked on
                 lockOnManager.nearestLockOnTarget != null && lockOnManager.isLockedOn
                 // Or aiming with camera for bow or spell casting
@@ -565,7 +652,7 @@ namespace AF
                 float lockOnSpeed = _input.move.x != 0 && _input.move.y != 0 ? _speed : _speed * 1.5f;
 
                 Vector3 targetPos = (transform.forward * (lockOnSpeed) * _input.move.y + playerManager.characterController.transform.right * (lockOnSpeed) * _input.move.x);
-                targetPos.y = _verticalVelocity + verticalVelocityBonus;
+                targetPos.y = isSwimming ? 0 : _verticalVelocity + verticalVelocityBonus;
 
                 playerManager.characterController.Move(targetPos * Time.deltaTime);
             }
@@ -576,8 +663,16 @@ namespace AF
                     _speed += playerManager.statsBonusController.movementSpeedBonus;
                 }
 
+
+                float finalVerticalVelocity = _verticalVelocity + verticalVelocityBonus;
+                if (isSwimming)
+                {
+                    finalVerticalVelocity = 0f;
+                }
+
+
                 playerManager.characterController.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
-                                 new Vector3(0.0f, _verticalVelocity + verticalVelocityBonus, 0.0f) * Time.deltaTime);
+                                 new Vector3(0.0f, finalVerticalVelocity, 0.0f) * Time.deltaTime);
             }
 
             // update animator if using character
@@ -655,7 +750,7 @@ namespace AF
                         _verticalVelocity -= weightSpeed;
 
 
-                        if (isSliding || isSlidingOnIce)
+                        if (isSliding)
                         {
 
                             playerManager.characterController.Move(transform.forward * (5f * Time.deltaTime));
@@ -698,7 +793,7 @@ namespace AF
                 else
                 {
                     // update animator if using character
-                    if (_hasAnimator)
+                    if (_hasAnimator && !isSwimming)
                     {
                         playerManager.animator.SetBool(_animIDFreeFall, true);
                     }
@@ -790,6 +885,20 @@ namespace AF
             this.LockCameraPosition = value;
         }
 
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetSlidingSpeed(float value)
+        {
+            slidingSpeed = value;
+        }
+
+        public void SetIsSliding(bool value)
+        {
+            Sliding = value;
+        }
 
     }
 }

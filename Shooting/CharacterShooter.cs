@@ -58,6 +58,10 @@ namespace AF.Shooting
         void FireProjectile(GameObject projectile, Transform origin, Transform lockOnTarget)
         {
             GameObject projectileInstance = Instantiate(projectile.gameObject, origin.position, Quaternion.identity);
+            if (projectileInstance == null)
+            {
+                return;
+            }
 
             projectileInstance.TryGetComponent(out IProjectile componentProjectile);
             if (componentProjectile == null)

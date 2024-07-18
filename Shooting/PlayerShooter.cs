@@ -24,6 +24,7 @@ namespace AF.Shooting
         public InventoryDatabase inventoryDatabase;
         public PlayerStatsDatabase playerStatsDatabase;
         public EquipmentDatabase equipmentDatabase;
+        public UIDocumentPlayerHUDV2 uIDocumentPlayerHUDV2;
 
         [Header("Aiming")]
         public GameObject aimingCamera;
@@ -121,6 +122,7 @@ namespace AF.Shooting
                     }
 
                     ShootBow(equipmentDatabase.GetCurrentArrow(), transform, lockOnManager.nearestLockOnTarget?.transform);
+                    uIDocumentPlayerHUDV2.UpdateEquipment();
                     return;
                 }
 
@@ -151,7 +153,16 @@ namespace AF.Shooting
 
             previousSpell = currentSpell;
 
-            if (currentSpell.castAnimationOverride != null)
+            bool ignoreSpellsAnimationClips = false;
+            if (
+                currentSpell.animationCanNotBeOverriden == false &&
+                equipmentDatabase.GetCurrentWeapon() != null &&
+                equipmentDatabase.GetCurrentWeapon().ignoreSpellsAnimationClips)
+            {
+                ignoreSpellsAnimationClips = true;
+            }
+
+            if (currentSpell.castAnimationOverride != null && ignoreSpellsAnimationClips == false)
             {
                 GetPlayerManager().UpdateAnimatorOverrideControllerClip("Cacildes - Spell - Cast", currentSpell.castAnimationOverride);
             }
@@ -279,7 +290,7 @@ namespace AF.Shooting
             queuedSpell = spell;
         }
 
-        public void ShootWithoutClearingProjectilesAndSpells()
+        public void ShootWithoutClearingProjectilesAndSpells(bool ignoreSpawnFromCamera)
         {
             Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0f));
             Vector3 lookPosition = ray.direction;
@@ -309,7 +320,8 @@ namespace AF.Shooting
                 Quaternion.LookRotation(lookPosition),
                 ray,
                 0f,
-                queuedSpell);
+                queuedSpell,
+                ignoreSpawnFromCamera);
         }
 
         /// <summary>
@@ -317,17 +329,17 @@ namespace AF.Shooting
         /// </summary>
         public void OnShoot()
         {
-            ShootWithoutClearingProjectilesAndSpells();
+            ShootWithoutClearingProjectilesAndSpells(false);
             queuedProjectile = null;
             queuedSpell = null;
         }
 
-        void HandleProjectile(GameObject projectile, float originDistanceFromCamera, Quaternion lookPosition, Ray ray, float delay, Spell spell)
+        void HandleProjectile(GameObject projectile, float originDistanceFromCamera, Quaternion lookPosition, Ray ray, float delay, Spell spell, bool ignoreSpawnFromCamera)
         {
             Vector3 origin = ray.GetPoint(originDistanceFromCamera);
 
             // If shooting spell but not locked on, use player transform forward to direct the spell
-            if (lockOnManager.isLockedOn == false && isAiming == false || spell != null && spell.ignoreSpawnFromCamera)
+            if (lockOnManager.isLockedOn == false && isAiming == false || spell != null && spell.ignoreSpawnFromCamera || ignoreSpawnFromCamera)
             {
                 origin = lookAtConstraint.transform.position;
                 ray.direction = characterBaseManager.transform.forward;
@@ -362,7 +374,14 @@ namespace AF.Shooting
                 }
             }
 
-            GameObject projectileInstance = Instantiate(projectile?.gameObject, origin, lookPosition);
+            if (projectile == null)
+            {
+                return;
+            }
+
+            GameObject projectileInstance = Instantiate(projectile, origin, lookPosition);
+
+
             if (spell != null && spell.parentToPlayer)
             {
                 projectileInstance.transform.parent = GetPlayerManager().transform;
@@ -463,6 +482,11 @@ namespace AF.Shooting
                 return false;
             }
 
+            if (GetPlayerManager().thirdPersonController.isSwimming)
+            {
+                return false;
+            }
+
             return equipmentDatabase.IsBowEquipped() || equipmentDatabase.IsStaffEquipped();
         }
 
@@ -501,12 +525,38 @@ namespace AF.Shooting
                 return false;
             }
 
+            if (GetPlayerManager().thirdPersonController.isSwimming)
+            {
+                return false;
+            }
+
             return true;
         }
 
         PlayerManager GetPlayerManager()
         {
             return characterBaseManager as PlayerManager;
+        }
+
+        /// <summary>
+        /// Unity Event
+        /// </summary>
+        /// <param name="projectile"></param>
+        public void ShootProjectile(GameObject projectile)
+        {
+
+            if (lockOnManager.nearestLockOnTarget?.transform != null && lockOnManager.isLockedOn)
+            {
+                var rotation = lockOnManager.nearestLockOnTarget.transform.transform.position - characterBaseManager.transform.position;
+                rotation.y = 0;
+                characterBaseManager.transform.rotation = Quaternion.LookRotation(rotation);
+            }
+
+            this.queuedProjectile = projectile;
+
+            ShootWithoutClearingProjectilesAndSpells(true);
+            queuedProjectile = null;
+            queuedSpell = null;
         }
 
     }

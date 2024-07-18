@@ -41,8 +41,6 @@ namespace AF
 
             characterController.GetComponent<Animator>().SetBool("IsCrouched", !isExitingArea);
 
-            tps.skateRotation = !isExitingArea;
-
             onPlayerEnter.Invoke();
         }
 

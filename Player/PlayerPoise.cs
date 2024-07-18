@@ -8,6 +8,18 @@ namespace AF
         public PlayerStatsDatabase playerStatsDatabase;
         public StatsBonusController statsBonusController;
 
+        public PlayerManager playerManager;
+
+        public override void ResetStates()
+        {
+        }
+
+
+        public override bool CanCallPoiseDamagedEvent()
+        {
+            return playerManager.thirdPersonController.isSwimming == false;
+        }
+
         public override int GetMaxPoiseHits()
         {
             return 1 + GetExtraPoiseBasedOnStats() + statsBonusController.equipmentPoise;

@@ -85,6 +85,11 @@ namespace AF
         // "Gold"
         public LocalizedString Gold_LocalizedString;
 
+        [Header("Stats")]
+        public IntStat interactedWithAlchemyStat;
+        public IntStat interactedWithWeaponUpgradingStat;
+        public IntStat alchemyItemsCreatedStat;
+        public IntStat weaponsUpgradedStat;
 
         private void Awake()
         {
@@ -106,6 +111,8 @@ namespace AF
         /// </summary>
         public void OpenBlacksmithMenu()
         {
+            interactedWithWeaponUpgradingStat.UpdateStat();
+
             this.craftActivity = CraftActivity.BLACKSMITH;
             this.gameObject.SetActive(true);
         }
@@ -115,6 +122,8 @@ namespace AF
         /// </summary>
         public void OpenAlchemyMenu()
         {
+            interactedWithAlchemyStat.UpdateStat();
+
             this.craftActivity = CraftActivity.ALCHEMY;
             this.gameObject.SetActive(true);
         }
@@ -421,6 +430,8 @@ namespace AF
                 playerManager.playerAchievementsManager.achievementForBrewingFirstPotion.AwardAchievement();
             }
 
+            alchemyItemsCreatedStat.UpdateStat();
+
             soundbank.PlaySound(soundbank.craftSuccess);
             playerManager.playerInventory.AddItem(recipe.resultingItem, 1);
             notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Received") + " " + recipe.resultingItem?.GetName(), recipe.resultingItem?.sprite);
@@ -451,6 +462,8 @@ namespace AF
             playerManager.playerAchievementsManager.achievementForUpgradingFirstWeapon.AwardAchievement();
             soundbank.PlaySound(soundbank.craftSuccess);
             notificationManager.ShowNotification(LocalizationSettings.StringDatabase.GetLocalizedString("UIDocuments", "Weapon improved!"), wp.sprite);
+
+            weaponsUpgradedStat.UpdateStat();
 
             CraftingUtils.UpgradeWeapon(
                 wp,

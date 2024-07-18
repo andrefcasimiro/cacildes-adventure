@@ -194,5 +194,10 @@ namespace AF.Music
 
             return false;
         }
+
+        public bool IsNotPlayingMusic()
+        {
+            return this.bgmAudioSource.clip == null;
+        }
     }
 }

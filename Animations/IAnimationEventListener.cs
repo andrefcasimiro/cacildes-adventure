@@ -3,9 +3,11 @@ namespace AF.Animations
     public interface IAnimationEventListener
     {
 
+        public void StopIframes();
         // Footsteps
         public void OnLeftFootstep();
         public void OnRightFootstep();
+        public void OnSwim();
 
         // Combat
         public void OpenLeftWeaponHitbox();
@@ -49,6 +51,9 @@ namespace AF.Animations
 
         public void MoveTowardsTarget();
         public void StopMoveTowardsTarget();
+
+        public void PauseAnimation();
+        public void ResumeAnimation();
 
 
     }

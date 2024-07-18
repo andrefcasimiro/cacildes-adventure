@@ -14,7 +14,7 @@ namespace AF
         [Header("Parrying Settings")]
         public UnityEvent onParryEvent;
         public float baseUnarmedParryWindow = .4f;
-        float parryTimer = Mathf.Infinity;
+        public float parryTimer = Mathf.Infinity;
         Coroutine parryTimerCoroutine;
 
         public UnityEvent onParriedEvent;
@@ -76,7 +76,10 @@ namespace AF
 
         public void BeginParrying()
         {
-            parryTimer = 0f;
+            if (characterManager is CharacterManager)
+            {
+                parryTimer = 0f;
+            }
 
             if (parryTimerCoroutine != null)
             {

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using AF.Events;
+using Cinemachine;
 using TigerForge;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -229,6 +230,11 @@ namespace AF
         bool CanLockOn()
         {
             if (playerManager.playerShootingManager.isAiming)
+            {
+                return false;
+            }
+
+            if (playerManager.thirdPersonController.isSwimming)
             {
                 return false;
             }

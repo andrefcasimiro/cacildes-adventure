@@ -129,6 +129,10 @@ namespace AF
         [Header("Block Options")]
         [Range(0, 1f)] public float blockAbsorption = .8f;
 
+        [Header("Staff Options")]
+        public bool shouldRegenerateMana = false;
+        public bool ignoreSpellsAnimationClips = false;
+
 #if UNITY_EDITOR
         private void OnEnable()
         {
@@ -212,6 +216,10 @@ namespace AF
             return CalculateValue(level).magic;
         }
 
+        public Damage GetWeaponDamage()
+        {
+            return CalculateValue(this.level);
+        }
 
         public string GetFormattedStatusDamages()
         {

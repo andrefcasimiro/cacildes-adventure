@@ -207,5 +207,21 @@ namespace AF.Combat
             return companionsSceneManager;
         }
 
+        public bool IsTargetOutOfMeleeRange()
+        {
+            if (currentTarget == null)
+            {
+                return false;
+            }
+
+            float maxDistance = characterManager.agent.stoppingDistance;
+            if (characterManager.characterCombatController.currentCombatAction != null)
+            {
+                maxDistance += characterManager.characterCombatController.currentCombatAction.maximumDistanceToTarget;
+            }
+
+            return Vector3.Distance(currentTarget.transform.position, characterManager.transform.position) > maxDistance;
+        }
+
     }
 }

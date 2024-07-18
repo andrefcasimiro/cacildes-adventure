@@ -35,11 +35,11 @@ namespace AF
 
         public void OnCollision(GameObject other)
         {
-            if (!other.TryGetComponent<DamageReceiver>(out var damageReceiver))
+            if (other.TryGetComponent<DamageReceiver>(out var damageReceiver) && damageReceiver != null)
             {
-                if (other.TryGetComponent<CharacterManager>(out var enemy) && enemy?.damageReceiver != null)
+                if (other.TryGetComponent<CharacterBaseManager>(out var characterManager))
                 {
-                    damageReceiver = enemy.damageReceiver;
+                    damageReceiver = characterManager.damageReceiver;
                 }
                 else
                 {
@@ -67,7 +67,7 @@ namespace AF
             {
                 damageReceiver.health.RestoreHealth(healingAmount);
             }
-            else if (damage != null)
+            else if (damage != null && damageReceiver != null)
             {
                 if (doubleDamageOnNightTime && gameSession != null && gameSession.IsNightTime())
                 {

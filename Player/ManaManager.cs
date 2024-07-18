@@ -1,5 +1,7 @@
 using System.Collections;
+using AF.Events;
 using AF.Stats;
+using TigerForge;
 using UnityEngine;
 
 namespace AF
@@ -20,6 +22,9 @@ namespace AF
 
         public PlayerManager playerManager;
 
+        [Header("Regeneration Settings")]
+        public float MANA_REGENERATION_RATE = 20f;
+
         private void Start()
         {
             // Initialize Mana
@@ -27,6 +32,21 @@ namespace AF
             {
                 playerStatsDatabase.currentMana = GetMaxMana();
             }
+        }
+
+        private void Update()
+        {
+            if (playerStatsBonusController.shouldRegenerateMana && playerStatsDatabase.currentMana < playerStatsDatabase.maxMana)
+            {
+                HandleManaRegen();
+            }
+        }
+
+        void HandleManaRegen()
+        {
+            var finalRegenerationRate = MANA_REGENERATION_RATE + playerStatsBonusController.staminaRegenerationBonus;
+
+            playerStatsDatabase.currentMana = Mathf.Clamp(playerStatsDatabase.currentMana + finalRegenerationRate * Time.deltaTime, 0f, GetMaxMana());
         }
 
         public int GetMaxMana()

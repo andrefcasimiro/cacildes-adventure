@@ -5,9 +5,19 @@ namespace AF
     public class CharacterGravity : MonoBehaviour
     {
         public CharacterManager characterManager;
+        public bool ignoreGravity = false;
+
+        void Start()
+        {
+            if (ignoreGravity)
+            {
+                this.gameObject.SetActive(false);
+            }
+        }
 
         private void Update()
         {
+
             if (characterManager.characterController.isGrounded && characterManager.agent.enabled)
             {
                 return;

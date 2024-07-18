@@ -102,6 +102,11 @@ namespace AF
                 return;
             }
 
+            if (characterManager.health.GetCurrentHealth() <= 0)
+            {
+                return;
+            }
+
             bossBattleHasBegun = true;
 
             ShowBossHud();
@@ -120,7 +125,10 @@ namespace AF
                 // Notify other boss companions that battle has begun
                 foreach (CharacterManager partner in characterManager.partners)
                 {
-                    partner.characterBossController.BeginBossBattle();
+                    if (partner.gameObject.activeInHierarchy)
+                    {
+                        partner.characterBossController.BeginBossBattle();
+                    }
                 }
             }
 

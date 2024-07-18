@@ -1,5 +1,7 @@
 using System.Collections;
+using AF.Events;
 using AF.Ladders;
+using TigerForge;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -34,6 +36,14 @@ namespace AF
         public void ResetStates()
         {
             isDodging = false;
+        }
+
+        public void StopIframes()
+        {
+            // Has Finished Dodging
+            EventManager.EmitEvent(EventMessages.ON_PLAYER_DODGING_FINISHED);
+
+            ResetStates();
         }
 
         /// <summary>
@@ -95,7 +105,7 @@ namespace AF
 
         public bool ShouldBackstep()
         {
-            return playerManager.starterAssetsInputs.move == Vector2.zero && playerManager.thirdPersonController.skateRotation == false;
+            return playerManager.starterAssetsInputs.move == Vector2.zero && playerManager.thirdPersonController.isSliding == false;
         }
 
         private bool CanDodge()

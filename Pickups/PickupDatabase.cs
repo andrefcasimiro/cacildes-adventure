@@ -39,6 +39,9 @@ public class PickupDatabase : ScriptableObject
     {
         pickups.Clear();
         replenishables.Clear();
+
+        pickups = new();
+        replenishables = new();
     }
 
     public void AddPickup(string pickupId, string pickupDescription)

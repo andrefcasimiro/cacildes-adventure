@@ -5,6 +5,11 @@ namespace AF
         public int maxPostureDamage = 100;
         public GameSession gameSession;
 
+        public override bool CanPlayPostureDamagedEvent()
+        {
+            return true;
+        }
+
         public override int GetMaxPostureDamage()
         {
             return Utils.ScaleWithCurrentNewGameIteration(maxPostureDamage, gameSession.currentGameIteration, gameSession.newGamePlusScalingFactor);

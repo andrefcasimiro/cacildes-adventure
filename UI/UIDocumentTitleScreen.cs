@@ -19,6 +19,12 @@ namespace AF
         [Header("Game Session")]
         public GameSession gameSession;
 
+        [Header("Stats")]
+        public IntStat newGameClickStat;
+        public IntStat githubClickStat;
+        public IntStat discordClickStat;
+        public IntStat loadsSaveGameStat;
+
         VisualElement root;
 
         private void OnEnable()
@@ -41,6 +47,8 @@ namespace AF
 
             UIUtils.SetupButton(newGameButton, () =>
             {
+                newGameClickStat.UpdateStat();
+
                 saveManager.ResetGameState(false);
                 titleScreenManager.StartGame();
                 gameObject.SetActive(false);
@@ -50,6 +58,7 @@ namespace AF
 
             UIUtils.SetupButton(continueButton, () =>
             {
+                loadsSaveGameStat.UpdateStat();
                 saveManager.LoadLastSavedGame(false);
                 gameObject.SetActive(false);
             }, soundbank);
@@ -84,11 +93,13 @@ namespace AF
 
             UIUtils.SetupButton(btnGithub, () =>
             {
+                githubClickStat.UpdateStat();
                 Application.OpenURL("https://github.com/andrefcasimiro/cacildes-adventure");
             }, soundbank);
 
             UIUtils.SetupButton(btnDiscord, () =>
             {
+                discordClickStat.UpdateStat();
                 Application.OpenURL("https://discord.gg/JwnZMc27D2");
             }, soundbank);
 

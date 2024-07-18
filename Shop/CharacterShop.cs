@@ -47,6 +47,10 @@ namespace AF.Shops
         public LocalizedString pricesFromCompletingQuest_LocalizedString; // ""% discount for completing quest: {0}"
         public LocalizedString appliedDiscounts_LocalizedString; // "Applied discounts"
 
+        [Header("Stats")]
+        public IntStat onBuyFromCharacterShopStat;
+        public IntStat onSellToCharacterShopStat;
+
         public void BuyFromCharacter()
         {
             GetUIDocumentShopMenu()?.BuyFromCharacter(this);
